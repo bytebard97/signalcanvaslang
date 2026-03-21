@@ -1,0 +1,289 @@
+//! TypeScript-compatible AST types for JSON serialization.
+//!
+//! These mirror the `PatchProgram` shape expected by the SignalCanvas frontend
+//! (see `tests/chevrotain-parity/ts-reference/types.ts`). Internal Rust AST
+//! types remain unchanged — this module is a pure serialization adapter.
+
+use serde::Serialize;
+use std::collections::BTreeMap;
+
+/// Top-level program — matches TS `PatchProgram`.
+#[derive(Debug, Clone, Serialize)]
+pub struct TsProgram {
+    pub r#type: &'static str,
+    pub statements: Vec<TsStatement>,
+}
+
+/// A top-level statement (tagged union via `type` field).
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type")]
+pub enum TsStatement {
+    Template(TsTemplateDecl),
+    Instance(TsInstanceDecl),
+    Connect(TsConnectDecl),
+    Bridge(TsBridgeDecl),
+    BridgeGroup(TsBridgeGroupDecl),
+    LinkGroup(TsLinkGroupDecl),
+    Signal(TsSignalDecl),
+    Flag(TsFlagDecl),
+    Stream(TsStreamDecl),
+    Config(TsConfigDecl),
+    Use(TsUseDecl),
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsTemplateDecl {
+    pub name: String,
+    pub params: Vec<TsParamDef>,
+    pub meta: BTreeMap<String, String>,
+    pub ports: Vec<TsPortDef>,
+    pub bridges: Vec<TsBridgeDecl>,
+    pub instances: Vec<TsInstanceDecl>,
+    pub connects: Vec<TsConnectDecl>,
+    pub slots: Vec<TsSlotDef>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsParamDef {
+    pub name: String,
+    pub default_value: TsParamValue,
+}
+
+/// Bare value (number or string) — no tagged union wrapper.
+#[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
+pub enum TsParamValue {
+    Num(u32),
+    Str(String),
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsPortDef {
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub range_start: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub range_end: Option<u32>,
+    pub direction: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connector: Option<String>,
+    pub attributes: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub named_attributes: Option<BTreeMap<String, String>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsInstanceDecl {
+    pub name: String,
+    pub template_name: String,
+    pub args: BTreeMap<String, TsArgValue>,
+    pub properties: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version_constraint: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub routes: Option<Vec<TsRouteDecl>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub buses: Option<Vec<TsBusDecl>>,
+    #[serde(rename = "typedSlotAssignments")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub typed_slot_assignments: Option<Vec<TsSlotAssign>>,
+}
+
+/// Arg values preserve numeric type: `Record<string, number | string>`.
+#[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
+pub enum TsArgValue {
+    Num(u32),
+    Str(String),
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsConnectDecl {
+    pub source: TsPortRef,
+    pub target: TsPortRef,
+    pub properties: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suppressions: Option<TsSuppression>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mapping: Option<TsMappingSpec>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsBridgeDecl {
+    pub source: TsPortRef,
+    pub target: TsPortRef,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsBridgeGroupDecl {
+    pub target: TsPortRef,
+    pub sources: Vec<TsPortRef>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsLinkGroupDecl {
+    pub name: String,
+    pub connects: Vec<TsConnectDecl>,
+    pub properties: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsSignalDecl {
+    pub name: String,
+    pub properties: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub origin: Option<TsPortRef>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsFlagDecl {
+    pub name: String,
+    pub properties: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsStreamDecl {
+    pub name: String,
+    pub properties: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<TsPortRef>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsConfigDecl {
+    pub name: String,
+    pub labels: Vec<TsConfigLabel>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsConfigLabel {
+    pub port: TsPortRef,
+    pub label: String,
+    pub properties: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsUseDecl {
+    pub namespace: String,
+    pub templates: Vec<String>,
+    pub wildcard: bool,
+}
+
+/// Port reference — `instance` is always a string (empty for local refs).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsPortRef {
+    pub instance: String,
+    pub port: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub index_spec: Option<Vec<TsIndexElement>>,
+}
+
+/// Index element — lowercase type tag to match TS convention.
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type")]
+pub enum TsIndexElement {
+    #[serde(rename = "single")]
+    Single { value: u32 },
+    #[serde(rename = "range")]
+    Range { start: u32, end: u32 },
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsSlotDef {
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub range_start: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub range_end: Option<u32>,
+    pub slot_type: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsRouteDecl {
+    pub from_port: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub from_index: Option<Vec<TsIndexElement>>,
+    pub to_port: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub to_index: Option<Vec<TsIndexElement>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsBusDecl {
+    pub name: String,
+    pub inputs: Vec<TsPortRef>,
+    pub outputs: Vec<TsPortRef>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsSlotAssign {
+    pub slot_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub slot_index: Option<u32>,
+    pub card_type_name: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TsSuppression {
+    pub layers: Vec<String>,
+}
+
+/// Channel mapping specification.
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type")]
+pub enum TsMappingSpec {
+    #[serde(rename = "one-to-one")]
+    OneToOne,
+    #[serde(rename = "offset")]
+    Offset { offset: i64 },
+    #[serde(rename = "explicit")]
+    Explicit { pairs: Vec<TsMappingPair> },
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TsMappingPair {
+    pub from: u32,
+    pub to: u32,
+}
+
+/// Compat parse result wrapping the TS-shaped program.
+#[derive(Debug, Clone, Serialize)]
+pub struct TsParseResult {
+    pub program: TsProgram,
+    pub errors: Vec<TsParseError>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TsParseError {
+    pub message: String,
+    pub span: TsSpan,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hint: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TsSpan {
+    pub start: usize,
+    pub end: usize,
+}
