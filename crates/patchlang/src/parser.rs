@@ -528,6 +528,10 @@ impl<'a> TemplateParserExt for Parser<'a> {
     fn parse_optional_index(&mut self) -> Option<IndexSpec> {
         Parser::parse_optional_index(self)
     }
+
+    fn parse_arg_list(&mut self) -> Vec<KeyValue> {
+        self.parse_optional_arg_list()
+    }
 }
 
 #[cfg(test)]
