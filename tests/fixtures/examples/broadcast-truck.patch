@@ -1,0 +1,251 @@
+# ============================================================
+# Broadcast Truck — Live Production OB Van
+# A mobile production unit with cameras, video router,
+# encoder, and sync generator for live broadcast.
+# ============================================================
+
+# --- Templates ------------------------------------------------
+
+template Camera {
+  meta {
+    manufacturer: "Sony"
+    model: "HDC_3500"
+    category: "Camera"
+  }
+  ports {
+    SDI_Out[1..4]: out(BNC_75) [SDI, UHD]
+    Return_In[1..2]: in(BNC_75) [SDI, HD]
+    Genlock_In: in(BNC_75) [analog, sync]
+  }
+}
+
+template VideoRouter {
+  meta {
+    manufacturer: "Ross"
+    model: "Ultrix"
+    category: "Router"
+  }
+  ports {
+    SDI_In[1..72]: in(BNC_75) [SDI]
+    SDI_Out[1..72]: out(BNC_75) [SDI]
+  }
+  bridge SDI_In -> SDI_Out
+}
+
+template Encoder {
+  meta {
+    manufacturer: "Harmonic"
+    model: "VOS360"
+    category: "Encoder"
+  }
+  ports {
+    SDI_In[1..4]: in(BNC_75) [SDI, UHD]
+    IP_Out: out(SFP_Plus) [SMPTE_2110]
+  }
+  bridge SDI_In -> IP_Out
+}
+
+template SyncGenerator {
+  meta {
+    manufacturer: "Evertz"
+    model: "5601MSC"
+    category: "Sync"
+  }
+  ports {
+    Ref_Out[1..16]: out(BNC_75) [BlackBurst, TriLevel]
+    GPS_In: in(BNC_75) [GPS]
+  }
+}
+
+template Multiviewer {
+  meta {
+    manufacturer: "Evertz"
+    model: "EQX_MV"
+    category: "Monitoring"
+  }
+  ports {
+    SDI_In[1..16]: in(BNC_75) [SDI]
+    HDMI_Out[1..4]: out(HDMI) [UHD]
+  }
+}
+
+# --- Instances ------------------------------------------------
+
+instance Cam1 is Camera {
+  location: "Camera Position 1"
+  operator: "Camera 1"
+  ip: "10.0.1.11"
+}
+
+instance Cam2 is Camera {
+  location: "Camera Position 2"
+  operator: "Camera 2"
+  ip: "10.0.1.12"
+}
+
+instance Cam3 is Camera {
+  location: "Camera Position 3"
+  operator: "Camera 3"
+  ip: "10.0.1.13"
+}
+
+instance Router is VideoRouter {
+  location: "Truck Rack A"
+  ip: "10.0.1.100"
+}
+
+instance Enc1 is Encoder {
+  location: "Truck Rack B"
+  ip: "10.0.1.200"
+}
+
+instance SyncGen is SyncGenerator {
+  location: "Truck Rack A"
+  ip: "10.0.1.50"
+}
+
+instance MV1 is Multiviewer {
+  location: "Truck Monitoring Wall"
+  ip: "10.0.1.60"
+}
+
+# --- Connections: Cameras to Router ---------------------------
+
+connect Cam1.SDI_Out[1] -> Router.SDI_In[1] {
+  cable: "SDI_C1_PGM"
+  length: "50m"
+  signal_type: "UHD"
+}
+
+connect Cam1.SDI_Out[2] -> Router.SDI_In[2] {
+  cable: "SDI_C1_ISO"
+  length: "50m"
+}
+
+connect Cam2.SDI_Out[1] -> Router.SDI_In[3] {
+  cable: "SDI_C2_PGM"
+  length: "40m"
+}
+
+connect Cam2.SDI_Out[2] -> Router.SDI_In[4] {
+  cable: "SDI_C2_ISO"
+  length: "40m"
+}
+
+connect Cam3.SDI_Out[1] -> Router.SDI_In[5] {
+  cable: "SDI_C3_PGM"
+  length: "60m"
+}
+
+connect Cam3.SDI_Out[2] -> Router.SDI_In[6] {
+  cable: "SDI_C3_ISO"
+  length: "60m"
+}
+
+# --- Connections: Router to Return Video ----------------------
+
+connect Router.SDI_Out[61] -> Cam1.Return_In[1] {
+  cable: "RET_C1"
+  signal_type: "PGM_Return"
+}
+
+connect Router.SDI_Out[62] -> Cam2.Return_In[1] {
+  cable: "RET_C2"
+  signal_type: "PGM_Return"
+}
+
+connect Router.SDI_Out[63] -> Cam3.Return_In[1] {
+  cable: "RET_C3"
+  signal_type: "PGM_Return"
+}
+
+# --- Connections: Router to Encoder ---------------------------
+
+connect Router.SDI_Out[1] -> Enc1.SDI_In[1] {
+  cable: "ENC_PGM"
+  signal_type: "Program"
+}
+
+connect Router.SDI_Out[2] -> Enc1.SDI_In[2] {
+  cable: "ENC_CLN"
+  signal_type: "Clean_Feed"
+}
+
+# --- Connections: Router to Multiviewer -----------------------
+
+connect Router.SDI_Out[41] -> MV1.SDI_In[1] {
+  cable: "MV_1"
+}
+
+connect Router.SDI_Out[42] -> MV1.SDI_In[2] {
+  cable: "MV_2"
+}
+
+connect Router.SDI_Out[43] -> MV1.SDI_In[3] {
+  cable: "MV_3"
+}
+
+connect Router.SDI_Out[44] -> MV1.SDI_In[4] {
+  cable: "MV_4"
+}
+
+connect Router.SDI_Out[45] -> MV1.SDI_In[5] {
+  cable: "MV_5"
+}
+
+connect Router.SDI_Out[46] -> MV1.SDI_In[6] {
+  cable: "MV_6"
+}
+
+# --- Genlock Chain --------------------------------------------
+
+connect SyncGen.Ref_Out[1] -> Cam1.Genlock_In {
+  cable: "GL_C1"
+}
+
+connect SyncGen.Ref_Out[2] -> Cam2.Genlock_In {
+  cable: "GL_C2"
+}
+
+connect SyncGen.Ref_Out[3] -> Cam3.Genlock_In {
+  cable: "GL_C3"
+}
+
+connect SyncGen.Ref_Out[4] -> Router.SDI_In[71] {
+  cable: "GL_Router"
+}
+
+# --- Bridges (logical signal paths) --------------------------
+
+bridge Cam1.SDI_Out[1] -> Router.SDI_In[1]
+bridge Cam2.SDI_Out[1] -> Router.SDI_In[3]
+bridge Cam3.SDI_Out[1] -> Router.SDI_In[5]
+bridge Router.SDI_Out[1] -> Enc1.SDI_In[1]
+
+# --- Signals --------------------------------------------------
+
+signal PGM_Output {
+  description: "Main program output"
+}
+
+signal ISO_Cam1 {
+  origin: Cam1.SDI_Out[2]
+  description: "Camera 1 isolated recording feed"
+}
+
+signal ISO_Cam2 {
+  origin: Cam2.SDI_Out[2]
+  description: "Camera 2 isolated recording feed"
+}
+
+signal ISO_Cam3 {
+  origin: Cam3.SDI_Out[2]
+  description: "Camera 3 isolated recording feed"
+}
+
+# --- Flags ----------------------------------------------------
+
+flag Genlock_OK {
+  description: "All cameras locked to house sync"
+  severity: "info"
+}

@@ -1,0 +1,66 @@
+# Fan-Out Test — Video router with 8 outs to different destinations
+# All outs exit from the same side of the Router node.
+# Tests destination-sorted departure spread.
+
+template Camera {
+  ports {
+    SDI_Out: out(BNC_75) [SDI]
+  }
+}
+
+template VideoRouter {
+  ports {
+    SDI_In[1..4]: in(BNC_75) [SDI]
+    SDI_Out[1..8]: out(BNC_75) [SDI]
+  }
+}
+
+template Monitor {
+  ports {
+    SDI_In: in(BNC_75) [SDI]
+  }
+}
+
+template Recorder {
+  ports {
+    SDI_In: in(BNC_75) [SDI]
+  }
+}
+
+template Multiviewer {
+  ports {
+    SDI_In: in(BNC_75) [SDI]
+  }
+}
+
+instance Cam_1 is Camera
+instance Cam_2 is Camera
+instance Cam_3 is Camera
+instance Cam_4 is Camera
+
+instance Router is VideoRouter
+
+instance Mon_1 is Monitor
+instance Mon_2 is Monitor
+instance Rec_1 is Recorder
+instance Rec_2 is Recorder
+instance MV_1 is Multiviewer
+instance MV_2 is Multiviewer
+instance MV_3 is Multiviewer
+instance MV_4 is Multiviewer
+
+# Inputs
+connect Cam_1.SDI_Out -> Router.SDI_In[1]
+connect Cam_2.SDI_Out -> Router.SDI_In[2]
+connect Cam_3.SDI_Out -> Router.SDI_In[3]
+connect Cam_4.SDI_Out -> Router.SDI_In[4]
+
+# Outputs — all from Router to different destinations
+connect Router.SDI_Out[1] -> Mon_1.SDI_In
+connect Router.SDI_Out[2] -> Mon_2.SDI_In
+connect Router.SDI_Out[3] -> Rec_1.SDI_In
+connect Router.SDI_Out[4] -> Rec_2.SDI_In
+connect Router.SDI_Out[5] -> MV_1.SDI_In
+connect Router.SDI_Out[6] -> MV_2.SDI_In
+connect Router.SDI_Out[7] -> MV_3.SDI_In
+connect Router.SDI_Out[8] -> MV_4.SDI_In

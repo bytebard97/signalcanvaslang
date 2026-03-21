@@ -1,0 +1,21 @@
+# Bundle Bend Test — 8-wire Dante bundle with vertical offset
+# Forces the bundle to route through an L-shaped bend
+# to exercise the pilot wire + parallel expansion geometry.
+
+template Stagebox {
+  ports {
+    Dante_Out[1..8]: out(etherCON) [Dante]
+  }
+}
+
+template MixerRack {
+  ports {
+    Filler_In[1..12]: in
+    Dante_In[1..8]: in(etherCON) [Dante]
+  }
+}
+
+instance SL_Box is Stagebox
+instance FOH_Rack is MixerRack
+
+connect SL_Box.Dante_Out[1..8] -> FOH_Rack.Dante_In[1..8]

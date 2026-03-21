@@ -1,0 +1,36 @@
+# ============================================================
+# Cisco Network Switches — Managed Gigabit Ethernet
+# SG350-28 and SG550X-48 for Dante/AES67 audio networks
+# ============================================================
+
+template SG350_28 {
+  meta {
+    manufacturer: "Cisco"
+    model: "SG350-28"
+    category: "Network Switch"
+    protocols: "Ethernet 1GbE, IGMP Snooping, QoS"
+  }
+  ports {
+    GbE[1..24]: io(RJ45) [Dante, AES67]
+    Combo_RJ45[1..2]: io(RJ45) [Dante, AES67]
+    Combo_SFP[1..2]: io(SFP)
+    SFP_Uplink[1..2]: io(SFP)
+    Console: io(RJ45)
+  }
+}
+
+template SG550X_48 {
+  meta {
+    manufacturer: "Cisco"
+    model: "SG550X-48"
+    category: "Network Switch"
+    protocols: "Dante, AES67, PTPv2"
+  }
+  ports {
+    GbE[1..48]: io(RJ45) [Dante, AES67]
+    TenG_Combo[1..2]: io(SFP_Plus)
+    TenG_SFP[1..2]: io(SFP_Plus)
+    Mgmt: io(RJ45)
+    Console: io(RJ45)
+  }
+}

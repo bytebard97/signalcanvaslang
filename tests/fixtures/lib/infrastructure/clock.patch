@@ -1,0 +1,51 @@
+# ============================================================
+# Audio Word Clocks and Frequency Distribution
+# Master clocks for studio and live sound environments
+# ============================================================
+
+template Antelope_OCX_HD {
+  meta {
+    manufacturer: "Antelope Audio"
+    model: "OCX HD"
+    category: "Master Clock"
+    protocols: "Word Clock, AES3, S/PDIF, 10MHz"
+  }
+  ports {
+    WC_Out[1..10]: out(BNC_75) [WordClock]
+    AES_Out[1..4]: out(XLR) [AES3]
+    WC_In[1..2]: in(BNC_75) [WordClock]
+    Video_In: in(BNC_75) [BlackBurst, TriLevel]
+    Atomic_In: in(BNC_75)
+    AES_In: in(XLR) [AES3]
+  }
+}
+
+template Brainstorm_DCD_8 {
+  meta {
+    manufacturer: "Brainstorm Electronics"
+    model: "DCD-8"
+    category: "Master Clock"
+    protocols: "Word Clock, AES3, S/PDIF, ADAT"
+  }
+  ports {
+    WC_In[1..3]: in(BNC_75) [WordClock]
+    WC_Out[1..8]: out(BNC_75) [WordClock]
+    AES_In[1..3]: in(XLR) [AES3]
+    Video_In: in(BNC_75) [BlackBurst, TriLevel]
+  }
+}
+
+template Mutec_MC3_Plus {
+  meta {
+    manufacturer: "Mutec"
+    model: "MC-3+"
+    category: "Audio Clock"
+    protocols: "Word Clock, AES3, S/PDIF"
+  }
+  ports {
+    WC_In: in(BNC_75) [WordClock]
+    WC_Out[1..6]: out(BNC_75) [WordClock]
+    AES_In: in(XLR) [AES3]
+    AES_Out: out(XLR) [AES3]
+  }
+}

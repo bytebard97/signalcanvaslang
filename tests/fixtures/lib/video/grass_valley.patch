@@ -1,0 +1,40 @@
+# ============================================================
+# Grass Valley — Studio Cameras (NativeIP and Legacy)
+# Standard library templates for Grass Valley broadcast devices.
+# ============================================================
+
+# --- LDX 100: NativeIP 4K Studio Camera ----------------------
+
+template LDX_100 {
+  meta {
+    manufacturer: "Grass Valley"
+    model: "LDX 100"
+    category: "Camera"
+  }
+  ports {
+    IP_Link: io(SFP_Plus) [SMPTE_2110, UHD]
+    SDI_Out[1..2]: out(BNC_75) [SDI, UHD]
+    Mic_In[1..2]: in(XLR) [analog, mic_level]
+    Intercom: io(XLR_5) [analog]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+}
+
+# --- LDK 4482: Legacy Triax Studio Camera ---------------------
+
+template LDK_4482 {
+  meta {
+    manufacturer: "Grass Valley"
+    model: "LDK 4482"
+    category: "Camera"
+  }
+  ports {
+    SDI_Out[1..2]: out(BNC_75) [SDI, HD]
+    Triax: io(LEMO)
+    Mic_In[1..2]: in(XLR) [analog, mic_level, phantom_48V]
+    Intercom: io(XLR_5) [analog]
+    Genlock_In: in(BNC_75) [BlackBurst, TriLevel]
+  }
+  bridge Mic_In -> Triax
+}

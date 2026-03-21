@@ -1,0 +1,35 @@
+# ============================================================
+# RTS Intercom Systems
+# ADAM-M matrix and KP-5032 OMNEO panel
+# ============================================================
+
+template ADAM_M {
+  meta {
+    manufacturer: "RTS"
+    model: "ADAM-M"
+    category: "Intercom Matrix"
+    protocols: "OMNEO, AES67, Dante, RVON"
+    ports_capacity: "256"
+  }
+  ports {
+    Controller[1..2]: io(RJ45) [AES67, Dante]
+    Serial: io(virtual)
+    GPIO: io(DB25)
+  }
+  slot Card_Slot[1..8]: Interface_Card
+}
+
+template KP_5032 {
+  meta {
+    manufacturer: "RTS"
+    model: "KP-5032"
+    category: "Intercom Panel"
+    protocols: "OMNEO, RVON"
+  }
+  ports {
+    Headset: io(XLR)
+    LAN_Pri: io(RJ45) [Dante, AES67, primary]
+    LAN_Sec: io(RJ45) [Dante, AES67, secondary]
+    Mic_In: in(XLR)
+  }
+}

@@ -1,0 +1,229 @@
+# ============================================================
+# Yamaha Professional Audio — Standard Library Templates
+# CL Series, QL Series, Rio D2 Series, RIVAGE PM Series
+# ============================================================
+
+# --- CL Series ------------------------------------------------
+
+template CL5 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "CL5"
+    category: "Console"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    OMNI_In[1..8]: in(XLR) [analog, mic_level]
+    OMNI_Out[1..8]: out(XLR) [analog, line_level]
+    AES_Out[1..2]: out(XLR) [AES3]
+    WordClock_Out: out(BNC_75) [WordClock]
+    WordClock_In: in(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot MY_Slot[1..3]: MY_Card
+  bridge OMNI_In -> Dante_Pri
+}
+
+template CL3 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "CL3"
+    category: "Console"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    OMNI_In[1..8]: in(XLR) [analog, mic_level]
+    OMNI_Out[1..8]: out(XLR) [analog, line_level]
+    AES_Out[1..2]: out(XLR) [AES3]
+    WordClock_Out: out(BNC_75) [WordClock]
+    WordClock_In: in(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot MY_Slot[1..3]: MY_Card
+  bridge OMNI_In -> Dante_Pri
+}
+
+template CL1 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "CL1"
+    category: "Console"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    OMNI_In[1..8]: in(XLR) [analog, mic_level]
+    OMNI_Out[1..8]: out(XLR) [analog, line_level]
+    AES_Out[1..2]: out(XLR) [AES3]
+    WordClock_Out: out(BNC_75) [WordClock]
+    WordClock_In: in(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot MY_Slot[1..3]: MY_Card
+  bridge OMNI_In -> Dante_Pri
+}
+
+# --- QL Series ------------------------------------------------
+
+template QL5 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "QL5"
+    category: "Console"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Mic_In[1..32]: in(XLR) [analog, mic_level]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    WordClock_Out: out(BNC_75) [WordClock]
+    WordClock_In: in(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot MY_Slot[1..2]: MY_Card
+  bridge Mic_In -> Dante_Pri
+}
+
+template QL1 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "QL1"
+    category: "Console"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Mic_In[1..16]: in(XLR) [analog, mic_level]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    WordClock_Out: out(BNC_75) [WordClock]
+    WordClock_In: in(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot MY_Slot[1..2]: MY_Card
+  bridge Mic_In -> Dante_Pri
+}
+
+# --- Rio D2 Series (Dante Stageboxes) -------------------------
+
+template Rio3224_D2 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "Rio3224-D2"
+    category: "Stagebox"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Mic_In[1..32]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    AES_Out[1..8]: out(XLR) [AES3]
+  }
+  bridge Mic_In -> Dante_Pri
+  bridge Dante_Pri -> Line_Out
+}
+
+template Rio1608_D2 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "Rio1608-D2"
+    category: "Stagebox"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+  }
+  bridge Mic_In -> Dante_Pri
+  bridge Dante_Pri -> Line_Out
+}
+
+# --- RIVAGE PM Series -----------------------------------------
+
+template RIVAGE_PM10 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RIVAGE PM10"
+    category: "Console"
+  }
+  ports {
+    Analog_In[1..8]: in(XLR) [analog, mic_level, SILK]
+    Analog_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..8]: in(XLR) [AES3, SRC]
+    AES_Out[1..8]: out(XLR) [AES3]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot HY_Slot[1..4]: HY_Card
+  slot MY_Slot[1..2]: MY_Card
+  bridge Analog_In -> AES_Out
+}
+
+template RIVAGE_PM7 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RIVAGE PM7"
+    category: "Console"
+  }
+  ports {
+    Analog_In[1..8]: in(XLR) [analog, mic_level, SILK]
+    Analog_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..8]: in(XLR) [AES3, SRC]
+    AES_Out[1..8]: out(XLR) [AES3]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot HY_Slot[1..3]: HY_Card
+  slot MY_Slot[1..2]: MY_Card
+  bridge Analog_In -> AES_Out
+}
+
+template RIVAGE_PM5 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RIVAGE PM5"
+    category: "Console"
+  }
+  ports {
+    Analog_In[1..8]: in(XLR) [analog, mic_level]
+    Analog_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3, SRC]
+    AES_Out[1..4]: out(XLR) [AES3]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot HY_Slot[1..4]: HY_Card
+  slot MY_Slot[1..2]: MY_Card
+  bridge Analog_In -> AES_Out
+}
+
+template RIVAGE_PM3 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RIVAGE PM3"
+    category: "Console"
+  }
+  ports {
+    Analog_In[1..8]: in(XLR) [analog, mic_level]
+    Analog_Out[1..8]: out(XLR) [analog, line_level]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot HY_Slot[1..4]: HY_Card
+  slot MY_Slot[1..2]: MY_Card
+}

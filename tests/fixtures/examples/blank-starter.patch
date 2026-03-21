@@ -1,0 +1,20 @@
+# Blank Starter
+# Replace this with your own devices and connections.
+
+template MyDevice {
+  ports {
+    Input[1..2]: input(XLR)
+    Output[1..2]: output(XLR)
+  }
+  bridge Input -> Output
+}
+
+instance Device_A is MyDevice {
+  location: "Location A"
+}
+
+instance Device_B is MyDevice {
+  location: "Location B"
+}
+
+connect Device_A.Output[1] -> Device_B.Input[1]

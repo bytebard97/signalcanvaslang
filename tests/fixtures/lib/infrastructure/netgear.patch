@@ -1,0 +1,20 @@
+# ============================================================
+# Netgear M4300-28G Managed Switch
+# SDVoE-ready with high PoE budget for AoIP networks
+# ============================================================
+
+template M4300_28G {
+  meta {
+    manufacturer: "Netgear"
+    model: "M4300-28G (GSM4328PB)"
+    category: "Network Switch"
+    protocols: "Dante, AES67, PTPv2, SDVoE"
+  }
+  ports {
+    GbE_PoE[1..24]: io(RJ45) [Dante, AES67, PoE]
+    TenG_Copper[1..2]: io(RJ45)
+    TenG_SFP[1..2]: io(SFP_Plus)
+    OOB_Mgmt: io(RJ45)
+    Console: io(RJ45)
+  }
+}

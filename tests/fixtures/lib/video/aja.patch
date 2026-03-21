@@ -1,0 +1,76 @@
+# ============================================================
+# AJA Video Systems — Frame Sync, I/O Cards, Sync Gen,
+# and Fiber Converters
+# Standard library templates for AJA broadcast devices.
+# ============================================================
+
+# --- FS4: 4-Channel Frame Synchronizer / Converter -----------
+
+template FS4 {
+  meta {
+    manufacturer: "AJA"
+    model: "FS4"
+    category: "Frame Synchronizer"
+  }
+  ports {
+    SDI_In[1..4]: in(BNC_75) [SDI, HD]
+    SDI_Out[1..4]: out(BNC_75) [SDI, HD]
+    SFP_IO[1..2]: io(SFP) [SDI]
+    Mon_Out: out(BNC_75) [SDI, HD]
+    AES_IO: io(DB25) [AES3]
+    MADI_In: in(BNC_75) [MADI]
+    MADI_Out: out(BNC_75) [MADI]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge SDI_In -> SFP_IO
+}
+
+# --- Corvid Ultra: PCIe I/O Card for Playout -----------------
+
+template Corvid_Ultra {
+  meta {
+    manufacturer: "AJA"
+    model: "Corvid Ultra"
+    category: "I/O Card"
+  }
+  ports {
+    SDI_In[1..4]: in(BNC_75) [SDI, HD]
+    SDI_Out[1..4]: out(BNC_75) [SDI, HD]
+    HDMI_Out: out(HDMI) [UHD]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LTC_In: in(BNC_75) [analog]
+    LTC_Out: out(BNC_75) [analog]
+  }
+  bridge SDI_In -> SDI_Out
+}
+
+# --- GEN10: 8-Output Sync Generator --------------------------
+
+template GEN10 {
+  meta {
+    manufacturer: "AJA"
+    model: "GEN10"
+    category: "Sync"
+  }
+  ports {
+    Ref_Out[1..8]: out(BNC_75) [BlackBurst, TriLevel]
+  }
+}
+
+# --- FiDO 4R-12G: Quad-Channel 12G Fiber to SDI Receiver -----
+
+template FiDO_4R_12G {
+  meta {
+    manufacturer: "AJA"
+    model: "FiDO-4R-12G"
+    category: "Converter"
+  }
+  ports {
+    Fiber_In[1..4]: in(SFP) [SDI]
+    SDI_Out[1..4]: out(BNC_75) [SDI, UHD]
+  }
+  bridge Fiber_In -> SDI_Out
+}

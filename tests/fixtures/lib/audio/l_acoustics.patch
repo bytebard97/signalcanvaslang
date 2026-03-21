@@ -1,0 +1,42 @@
+# ============================================================
+# L-Acoustics Professional Audio — Standard Library Templates
+# LA4X and LA12X Amplified Controllers
+# ============================================================
+
+template LA4X {
+  meta {
+    manufacturer: "L-Acoustics"
+    model: "LA4X"
+    category: "Amplifier"
+  }
+  ports {
+    Analog_In[1..4]: in(XLR) [analog, line_level]
+    AES_In[1..2]: in(XLR) [AES3]
+    Dante_Pri: io(etherCON) [Dante, AES67, primary]
+    Dante_Sec: io(etherCON) [Dante, AES67, secondary]
+    Speaker_Out[1..4]: out(NL4) [speaker_level]
+    Network_Control: io(etherCON)
+    WordClock_In: in(BNC_75) [WordClock]
+  }
+  bridge Analog_In -> Speaker_Out
+  bridge Dante_Pri -> Speaker_Out
+}
+
+template LA12X {
+  meta {
+    manufacturer: "L-Acoustics"
+    model: "LA12X"
+    category: "Amplifier"
+  }
+  ports {
+    Analog_In[1..4]: in(XLR) [analog, line_level]
+    AES_In[1..2]: in(XLR) [AES3]
+    Dante_Pri: io(etherCON) [Dante, AES67, primary]
+    Dante_Sec: io(etherCON) [Dante, AES67, secondary]
+    Speaker_Out[1..4]: out(NL4) [speaker_level]
+    Network_Control: io(etherCON)
+    WordClock_In: in(BNC_75) [WordClock]
+  }
+  bridge Analog_In -> Speaker_Out
+  bridge Dante_Pri -> Speaker_Out
+}

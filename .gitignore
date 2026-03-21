@@ -1,0 +1,13 @@
+/target/
+**/*.rs.bk
+Cargo.lock
+*.wasm
+pkg/
+pkg-web/
+*.egg-info/
+__pycache__/
+dist/
+*.so
+*.dylib
+*.dll
+.claude/
