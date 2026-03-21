@@ -93,13 +93,20 @@ fn convert_param_def(p: &ast::ParamDef) -> TsParamDef {
 
 fn convert_port_def(p: &ast::PortDef) -> TsPortDef {
     let named_attrs = kv_to_string_record(&p.named_attributes);
+    // Chevrotain visitor puts named attribute VALUES into the flat attributes array too
+    let mut attributes = p.attributes.clone();
+    for kv in &p.named_attributes {
+        if let ast::KvValue::Str { value } = &kv.value {
+            attributes.push(value.clone());
+        }
+    }
     TsPortDef {
         name: p.name.clone(),
         range_start: p.range.as_ref().map(|r| r.start),
         range_end: p.range.as_ref().map(|r| r.end),
         direction: convert_direction(&p.direction),
         connector: p.connector.clone(),
-        attributes: p.attributes.clone(),
+        attributes,
         named_attributes: if named_attrs.is_empty() {
             None
         } else {
