@@ -4,6 +4,8 @@
 
 # PatchLang
 
+[![Documentation](https://img.shields.io/badge/docs-bytebard97.github.io-blue)](https://bytebard97.github.io/SignalCanvasLang/)
+
 A domain-specific language for describing signal flow in broadcast and live production environments. PatchLang defines device templates, physical instances, cable connections, logical signal mappings, and channel configuration.
 
 ```
