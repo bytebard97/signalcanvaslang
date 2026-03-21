@@ -1,6 +1,7 @@
 use crate::ast::*;
 use crate::error::{ParseError, ParseResult, Span};
 use crate::lexer::{SpannedToken, Token, tokenize};
+use crate::template_parser::TemplateParserExt;
 
 /// Parse PatchLang source text into a program with errors.
 pub fn parse(source: &str) -> ParseResult {
@@ -26,11 +27,11 @@ const RECOVERY_TOKENS: &[Token] = &[
     Token::Use,
 ];
 
-struct Parser<'a> {
+pub(crate) struct Parser<'a> {
     tokens: &'a [SpannedToken],
     pos: usize,
     source: &'a str,
-    errors: Vec<ParseError>,
+    pub(crate) errors: Vec<ParseError>,
 }
 
 impl<'a> Parser<'a> {
@@ -45,21 +46,21 @@ impl<'a> Parser<'a> {
 
     // ── Helpers ──────────────────────────────────────────────
 
-    fn peek(&self) -> Option<&Token> {
+    pub(crate) fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.pos).map(|t| &t.token)
     }
 
-    fn at_end(&self) -> bool {
+    pub(crate) fn at_end(&self) -> bool {
         self.pos >= self.tokens.len()
     }
 
-    fn advance(&mut self) -> &SpannedToken {
+    pub(crate) fn advance(&mut self) -> &SpannedToken {
         let t = &self.tokens[self.pos];
         self.pos += 1;
         t
     }
 
-    fn current_span(&self) -> Span {
+    pub(crate) fn current_span(&self) -> Span {
         if let Some(t) = self.tokens.get(self.pos) {
             Span {
                 start: t.span.start,
@@ -71,7 +72,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn span_from(&self, start: usize) -> Span {
+    pub(crate) fn span_from(&self, start: usize) -> Span {
         let end = if self.pos > 0 {
             self.tokens[self.pos - 1].span.end
         } else {
@@ -80,7 +81,7 @@ impl<'a> Parser<'a> {
         Span { start, end }
     }
 
-    fn expect(&mut self, expected: &Token) -> bool {
+    pub(crate) fn expect(&mut self, expected: &Token) -> bool {
         if self.peek() == Some(expected) {
             self.advance();
             true
@@ -95,7 +96,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn expect_identifier(&mut self) -> Option<String> {
+    pub(crate) fn expect_identifier(&mut self) -> Option<String> {
         match self.peek().cloned() {
             Some(Token::Identifier(name)) => {
                 self.advance();
@@ -111,6 +112,20 @@ impl<'a> Parser<'a> {
                 None
             }
         }
+    }
+
+    /// Check if the current token can serve as a property key (identifier or keyword).
+    pub(crate) fn is_property_key(&self) -> bool {
+        matches!(
+            self.peek(),
+            Some(Token::Identifier(_))
+                | Some(Token::Label)
+                | Some(Token::Stream)
+                | Some(Token::Route)
+                | Some(Token::Bus)
+                | Some(Token::Routing)
+                | Some(Token::Config)
+        )
     }
 
     fn is_recovery_token(&self) -> bool {
@@ -152,7 +167,7 @@ impl<'a> Parser<'a> {
 
     fn parse_statement(&mut self) -> Option<Statement> {
         match self.peek()? {
-            Token::Template => Some(Statement::Template(self.parse_template())),
+            Token::Template => Some(Statement::Template(self.parse_template_decl())),
             Token::Instance => Some(Statement::Instance(self.parse_instance())),
             Token::Connect => Some(Statement::Connect(self.parse_connect())),
             Token::Bridge => Some(Statement::Bridge(self.parse_bridge())),
@@ -169,36 +184,6 @@ impl<'a> Parser<'a> {
 
     // ── Stub implementations (to be filled in) ──────────────
 
-    fn parse_template(&mut self) -> TemplateDecl {
-        let start = self.current_span().start;
-        self.advance(); // consume 'template'
-        let name = self.expect_identifier().unwrap_or_default();
-
-        // TODO: parse params, meta, ports, bridges, instances, connects, slots
-        let _ = self.expect(&Token::LBrace);
-        // Skip body for now
-        let mut depth = 1u32;
-        while !self.at_end() && depth > 0 {
-            match self.peek() {
-                Some(Token::LBrace) => { self.advance(); depth += 1; }
-                Some(Token::RBrace) => { self.advance(); depth -= 1; }
-                _ => { self.advance(); }
-            }
-        }
-
-        TemplateDecl {
-            name,
-            params: Vec::new(),
-            meta: Vec::new(),
-            ports: Vec::new(),
-            bridges: Vec::new(),
-            instances: Vec::new(),
-            connects: Vec::new(),
-            slots: Vec::new(),
-            span: self.span_from(start),
-        }
-    }
-
     fn parse_instance(&mut self) -> InstanceDecl {
         let start = self.current_span().start;
         self.advance(); // consume 'instance'
@@ -206,27 +191,39 @@ impl<'a> Parser<'a> {
         self.expect(&Token::Is);
         let template_name = self.expect_identifier().unwrap_or_default();
 
-        // TODO: parse optional body { properties, routes, buses, slots }
+        let args = self.parse_optional_arg_list();
+        let version_constraint = self.parse_optional_version();
+
+        let mut properties = Vec::new();
+        let mut routes = Vec::new();
+        let mut buses = Vec::new();
+        let mut slot_assignments = Vec::new();
+
         if self.peek() == Some(&Token::LBrace) {
             self.advance();
-            let mut depth = 1u32;
-            while !self.at_end() && depth > 0 {
+            while self.peek() != Some(&Token::RBrace) && !self.at_end() {
                 match self.peek() {
-                    Some(Token::LBrace) => { self.advance(); depth += 1; }
-                    Some(Token::RBrace) => { self.advance(); depth -= 1; }
+                    Some(Token::Route) => routes.push(self.parse_route_entry()),
+                    Some(Token::Bus) => buses.push(self.parse_bus_entry()),
+                    Some(Token::Slot) => slot_assignments.push(self.parse_slot_assignment()),
+                    _ if self.is_property_key() => {
+                        properties.push(self.parse_key_value_full());
+                    }
                     _ => { self.advance(); }
                 }
             }
+            self.expect(&Token::RBrace);
         }
 
         InstanceDecl {
             name,
             template_name,
-            args: Vec::new(),
-            properties: Vec::new(),
-            routes: Vec::new(),
-            buses: Vec::new(),
-            slot_assignments: Vec::new(),
+            args,
+            version_constraint,
+            properties,
+            routes,
+            buses,
+            slot_assignments,
             span: self.span_from(start),
         }
     }
@@ -238,15 +235,33 @@ impl<'a> Parser<'a> {
         self.expect(&Token::Arrow);
         let target = self.parse_port_ref();
 
-        // TODO: parse optional properties, suppressions, mapping
-        ConnectDecl {
-            source,
-            target,
-            properties: Vec::new(),
-            suppressions: Vec::new(),
-            mapping: None,
-            span: self.span_from(start),
+        let mut properties = Vec::new();
+        let mut suppressions = Vec::new();
+        let mut mapping = None;
+
+        if self.peek() == Some(&Token::LBrace) {
+            self.advance();
+            if self.peek() == Some(&Token::Suppress) {
+                suppressions = self.parse_suppress_annotation();
+            }
+            while self.peek() != Some(&Token::RBrace) && !self.at_end() {
+                if self.is_property_key() {
+                    let kv = self.parse_key_value_full();
+                    if kv.key == "mapping" {
+                        if let KvValue::Str { ref value } = kv.value {
+                            mapping = Some(value.clone());
+                        }
+                    } else {
+                        properties.push(kv);
+                    }
+                } else {
+                    self.advance();
+                }
+            }
+            self.expect(&Token::RBrace);
         }
+
+        ConnectDecl { source, target, properties, suppressions, mapping, span: self.span_from(start) }
     }
 
     fn parse_bridge(&mut self) -> BridgeDecl {
@@ -262,24 +277,48 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Parse `bridge_group Target.Port { Source1.Port Source2.Port ... }`
     fn parse_bridge_group(&mut self) -> BridgeGroupDecl {
         let start = self.current_span().start;
         self.advance(); // consume 'bridge_group'
-        // TODO: parse target and sources
+        let target = self.parse_port_ref();
+        let mut sources = Vec::new();
+        if self.expect(&Token::LBrace) {
+            while !self.at_end() && self.peek() != Some(&Token::RBrace) {
+                sources.push(self.parse_port_ref());
+            }
+            self.expect(&Token::RBrace);
+        }
         BridgeGroupDecl {
-            target: PortRef { instance: None, port: String::new(), index: None },
-            sources: Vec::new(),
+            target,
+            sources,
             span: self.span_from(start),
         }
     }
 
+    /// Parse `link_group Name { connect A -> B  key: "value" ... }`
     fn parse_link_group(&mut self) -> LinkGroupDecl {
         let start = self.current_span().start;
         self.advance(); // consume 'link_group'
-        // TODO: parse target and sources
+        let name = self.expect_identifier().unwrap_or_default();
+        let mut connects = Vec::new();
+        let mut properties = Vec::new();
+        if self.expect(&Token::LBrace) {
+            while !self.at_end() && self.peek() != Some(&Token::RBrace) {
+                if self.peek() == Some(&Token::Connect) {
+                    connects.push(self.parse_connect());
+                } else if self.is_property_key() {
+                    properties.push(self.parse_key_value_full());
+                } else {
+                    self.advance();
+                }
+            }
+            self.expect(&Token::RBrace);
+        }
         LinkGroupDecl {
-            target: PortRef { instance: None, port: String::new(), index: None },
-            sources: Vec::new(),
+            name,
+            connects,
+            properties,
             span: self.span_from(start),
         }
     }
@@ -288,65 +327,127 @@ impl<'a> Parser<'a> {
         let start = self.current_span().start;
         self.advance(); // consume 'signal'
         let name = self.expect_identifier().unwrap_or_default();
-        // TODO: parse properties and origin
-        SignalDecl {
-            name,
-            properties: Vec::new(),
-            origin: None,
-            span: self.span_from(start),
-        }
+        let (properties, origin) = self.parse_body_with_port_ref_key("origin");
+        SignalDecl { name, properties, origin, span: self.span_from(start) }
     }
 
     fn parse_flag(&mut self) -> FlagDecl {
         let start = self.current_span().start;
         self.advance(); // consume 'flag'
         let name = self.expect_identifier().unwrap_or_default();
-        // TODO: parse properties
-        FlagDecl {
-            name,
-            properties: Vec::new(),
-            span: self.span_from(start),
-        }
+        let properties = self.parse_optional_kv_body();
+        FlagDecl { name, properties, span: self.span_from(start) }
     }
 
     fn parse_stream(&mut self) -> StreamDecl {
         let start = self.current_span().start;
         self.advance(); // consume 'stream'
         let name = self.expect_identifier().unwrap_or_default();
-        // TODO: parse properties and source
-        StreamDecl {
-            name,
-            properties: Vec::new(),
-            source: None,
-            span: self.span_from(start),
-        }
+        let (properties, source) = self.parse_body_with_port_ref_key("source");
+        StreamDecl { name, properties, source, span: self.span_from(start) }
     }
 
     fn parse_config(&mut self) -> ConfigDecl {
         let start = self.current_span().start;
         self.advance(); // consume 'config'
         let name = self.expect_identifier().unwrap_or_default();
-        // TODO: parse labels
-        ConfigDecl {
-            name,
-            labels: Vec::new(),
+        let mut labels = Vec::new();
+        if self.peek() == Some(&Token::LBrace) {
+            self.advance();
+            while self.peek() != Some(&Token::RBrace) && !self.at_end() {
+                if self.peek() == Some(&Token::Label) {
+                    labels.push(self.parse_config_label());
+                } else {
+                    self.advance();
+                }
+            }
+            self.expect(&Token::RBrace);
+        }
+        ConfigDecl { name, labels, span: self.span_from(start) }
+    }
+
+    /// Parse `use ns.sub { T1, T2 }` or `use ns.sub.*` or `use ns`
+    fn parse_use(&mut self) -> UseDecl {
+        let start = self.current_span().start;
+        self.advance(); // consume 'use'
+
+        // Collect dotted namespace parts, stopping at '*' or '{'
+        let mut parts = Vec::new();
+        if let Some(first) = self.expect_identifier() {
+            parts.push(first);
+        }
+        let mut wildcard = false;
+        while self.peek() == Some(&Token::Dot) {
+            self.advance(); // consume '.'
+            if self.peek() == Some(&Token::Star) {
+                self.advance(); // consume '*'
+                wildcard = true;
+                break;
+            }
+            if let Some(ident) = self.expect_identifier() {
+                parts.push(ident);
+            } else {
+                break;
+            }
+        }
+
+        let namespace = parts.join(".");
+
+        // If not wildcard, check for optional braced template list
+        let mut templates = Vec::new();
+        if !wildcard && self.peek() == Some(&Token::LBrace) {
+            self.advance(); // consume '{'
+            // Parse comma-separated identifiers
+            while !self.at_end() && self.peek() != Some(&Token::RBrace) {
+                if let Some(tmpl) = self.expect_identifier() {
+                    templates.push(tmpl);
+                }
+                if self.peek() == Some(&Token::Comma) {
+                    self.advance();
+                } else {
+                    break;
+                }
+            }
+            self.expect(&Token::RBrace);
+        }
+
+        UseDecl {
+            namespace,
+            templates,
+            wildcard,
             span: self.span_from(start),
         }
     }
 
-    fn parse_use(&mut self) -> UseDecl {
-        let start = self.current_span().start;
-        self.advance(); // consume 'use'
-        let path = self.expect_identifier().unwrap_or_default();
-        UseDecl {
-            path,
-            span: self.span_from(start),
+    // ── Key-value pairs ──────────────────────────────────────
+
+    /// Try to consume a token usable as a property key.
+    /// Accepts identifiers and keyword tokens commonly used as property names
+    /// (label, stream, route, bus, routing, config).
+    pub(crate) fn try_consume_property_key(&mut self) -> Option<String> {
+        match self.peek() {
+            Some(Token::Identifier(_)) => self.expect_identifier(),
+            Some(Token::Label) => { self.advance(); Some("label".to_string()) }
+            Some(Token::Stream) => { self.advance(); Some("stream".to_string()) }
+            Some(Token::Route) => { self.advance(); Some("route".to_string()) }
+            Some(Token::Bus) => { self.advance(); Some("bus".to_string()) }
+            Some(Token::Routing) => { self.advance(); Some("routing".to_string()) }
+            Some(Token::Config) => { self.advance(); Some("config".to_string()) }
+            _ => {
+                let span = self.current_span();
+                self.errors.push(ParseError {
+                    message: "expected property key".to_string(),
+                    span,
+                    hint: None,
+                });
+                None
+            }
         }
     }
 
     // ── Port references ─────────────────────────────────────
 
-    fn parse_port_ref(&mut self) -> PortRef {
+    pub(crate) fn parse_port_ref(&mut self) -> PortRef {
         let first = self.expect_identifier().unwrap_or_default();
 
         // Check for Instance.Port
@@ -369,7 +470,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_optional_index(&mut self) -> Option<IndexSpec> {
+    pub(crate) fn parse_optional_index(&mut self) -> Option<IndexSpec> {
         if self.peek() != Some(&Token::LBracket) {
             return None;
         }
@@ -405,85 +506,29 @@ impl<'a> Parser<'a> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// ── TemplateParserExt trait implementation ───────────────────
 
-    #[test]
-    fn parse_empty_program() {
-        let result = parse("");
-        assert!(result.is_valid());
-        assert!(result.program.statements.is_empty());
+impl<'a> TemplateParserExt for Parser<'a> {
+    fn peek_token(&self) -> Option<&Token> { self.peek() }
+    fn at_end_of_input(&self) -> bool { self.at_end() }
+    fn advance_token(&mut self) -> &SpannedToken { self.advance() }
+    fn current_span_ext(&self) -> Span { self.current_span() }
+    fn span_from_ext(&self, start: usize) -> Span { self.span_from(start) }
+    fn expect_tok(&mut self, expected: &Token) -> bool { self.expect(expected) }
+    fn expect_ident(&mut self) -> Option<String> { self.expect_identifier() }
+
+    fn push_error(&mut self, message: String, span: Span, hint: Option<String>) {
+        self.errors.push(ParseError { message, span, hint });
     }
 
-    #[test]
-    fn parse_simple_instance() {
-        let result = parse("instance FOH is CL5");
-        assert!(result.is_valid());
-        assert_eq!(result.program.statements.len(), 1);
-        match &result.program.statements[0] {
-            Statement::Instance(i) => {
-                assert_eq!(i.name, "FOH");
-                assert_eq!(i.template_name, "CL5");
-            }
-            other => panic!("expected Instance, got {other:?}"),
-        }
+    fn parse_port_ref(&mut self) -> PortRef {
+        Parser::parse_port_ref(self)
     }
 
-    #[test]
-    fn parse_simple_connect() {
-        let result = parse("connect FOH.Dante_Out -> Stagebox.Dante_In");
-        assert!(result.is_valid());
-        match &result.program.statements[0] {
-            Statement::Connect(c) => {
-                assert_eq!(c.source.instance.as_deref(), Some("FOH"));
-                assert_eq!(c.source.port, "Dante_Out");
-                assert_eq!(c.target.instance.as_deref(), Some("Stagebox"));
-                assert_eq!(c.target.port, "Dante_In");
-            }
-            other => panic!("expected Connect, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn parse_connect_with_index() {
-        let result = parse("connect FOH.Dante_Out[1..16] -> Stagebox.Dante_In[1..16]");
-        assert!(result.is_valid());
-        match &result.program.statements[0] {
-            Statement::Connect(c) => {
-                let idx = c.source.index.as_ref().unwrap();
-                assert_eq!(idx.elements.len(), 1);
-                match &idx.elements[0] {
-                    IndexElement::Range { start, end } => {
-                        assert_eq!(*start, 1);
-                        assert_eq!(*end, 16);
-                    }
-                    other => panic!("expected Range, got {other:?}"),
-                }
-            }
-            other => panic!("expected Connect, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn error_recovery_continues_parsing() {
-        let result = parse("!!! bad stuff\ninstance FOH is CL5");
-        assert!(!result.is_valid());
-        // Should have recovered and parsed the instance
-        let instances: Vec<_> = result.program.statements.iter().filter(|s| matches!(s, Statement::Instance(_))).collect();
-        assert_eq!(instances.len(), 1);
-    }
-
-    #[test]
-    fn parse_simple_bridge() {
-        let result = parse("bridge Mic_In -> Dante_Pri");
-        assert!(result.is_valid());
-        match &result.program.statements[0] {
-            Statement::Bridge(b) => {
-                assert_eq!(b.source.port, "Mic_In");
-                assert_eq!(b.target.port, "Dante_Pri");
-            }
-            other => panic!("expected Bridge, got {other:?}"),
-        }
+    fn parse_optional_index(&mut self) -> Option<IndexSpec> {
+        Parser::parse_optional_index(self)
     }
 }
+
+#[cfg(test)]
+mod tests;

@@ -30,7 +30,8 @@ pub enum Statement {
 #[derive(Debug, Clone, Serialize)]
 pub struct TemplateDecl {
     pub name: String,
-    pub params: Vec<String>,
+    pub params: Vec<ParamDef>,
+    pub version: Option<String>,
     pub meta: Vec<KeyValue>,
     pub ports: Vec<PortDef>,
     pub bridges: Vec<BridgeDecl>,
@@ -40,11 +41,19 @@ pub struct TemplateDecl {
     pub span: Span,
 }
 
+/// A template parameter with a name and default value.
+#[derive(Debug, Clone, Serialize)]
+pub struct ParamDef {
+    pub name: String,
+    pub default_value: ParamValue,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct InstanceDecl {
     pub name: String,
     pub template_name: String,
-    pub args: Vec<String>,
+    pub args: Vec<KeyValue>,
+    pub version_constraint: Option<String>,
     pub properties: Vec<KeyValue>,
     pub routes: Vec<RouteEntry>,
     pub buses: Vec<BusEntry>,
@@ -78,8 +87,9 @@ pub struct BridgeGroupDecl {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct LinkGroupDecl {
-    pub target: PortRef,
-    pub sources: Vec<PortRef>,
+    pub name: String,
+    pub connects: Vec<ConnectDecl>,
+    pub properties: Vec<KeyValue>,
     pub span: Span,
 }
 
@@ -109,13 +119,23 @@ pub struct StreamDecl {
 #[derive(Debug, Clone, Serialize)]
 pub struct ConfigDecl {
     pub name: String,
-    pub labels: Vec<KeyValue>,
+    pub labels: Vec<ConfigLabel>,
     pub span: Span,
+}
+
+/// A label entry inside a config block.
+#[derive(Debug, Clone, Serialize)]
+pub struct ConfigLabel {
+    pub port: PortRef,
+    pub label: String,
+    pub properties: Vec<KeyValue>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UseDecl {
-    pub path: String,
+    pub namespace: String,
+    pub templates: Vec<String>,
+    pub wildcard: bool,
     pub span: Span,
 }
 
@@ -126,6 +146,7 @@ pub struct PortDef {
     pub direction: PortDirection,
     pub connector: Option<String>,
     pub attributes: Vec<String>,
+    pub named_attributes: Vec<KeyValue>,
     pub span: Span,
 }
 
@@ -161,36 +182,56 @@ pub enum IndexElement {
     Range { start: u32, end: u32 },
 }
 
+/// Value in a key-value pair: string, number, or port reference.
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type")]
+pub enum ParamValue {
+    Str { value: String },
+    Num { value: u32 },
+}
+
+/// Value in a key-value property pair.
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "kind")]
+pub enum KvValue {
+    Str { value: String },
+    Num { value: u32 },
+    PortRef(PortRef),
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct KeyValue {
     pub key: String,
-    pub value: String,
+    pub value: KvValue,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct SlotDef {
     pub name: String,
-    pub properties: Vec<KeyValue>,
+    pub range: Option<RangeSpec>,
+    pub slot_type: String,
     pub span: Span,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct RouteEntry {
-    pub source: String,
-    pub target: String,
+    pub source: PortRef,
+    pub target: PortRef,
     pub span: Span,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct BusEntry {
     pub name: String,
-    pub properties: Vec<KeyValue>,
+    pub inputs: Vec<PortRef>,
+    pub outputs: Vec<PortRef>,
     pub span: Span,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct SlotAssignment {
     pub slot_name: String,
+    pub index: Option<u32>,
     pub card_name: String,
     pub span: Span,
 }
