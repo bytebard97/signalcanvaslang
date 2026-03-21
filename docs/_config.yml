@@ -1,0 +1,5 @@
+title: PatchLang
+description: "A domain-specific language for broadcast and live production signal flow"
+theme: jekyll-theme-cayman
+exclude:
+  - plan-frontend-integration.md
