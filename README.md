@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/logo.png" alt="SignalCanvas" width="500">
+</p>
+
 # PatchLang
 
 A domain-specific language for describing signal flow in broadcast and live production environments. PatchLang defines device templates, physical instances, cable connections, logical signal mappings, and channel configuration.
