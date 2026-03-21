@@ -43,22 +43,26 @@ body {
     }
     tr:nth-child(2n) {
       background-color: #161b22;
+      td {
+        background-color: #161b22;
+      }
     }
   }
 
   code {
-    background-color: #161b22;
+    background-color: #1c2129;
     color: #e6edf3;
     border: 1px solid #30363d;
   }
 
   pre {
-    background-color: #161b22;
+    background-color: #1c2129;
     border: 1px solid #30363d;
     color: #e6edf3;
 
     code {
       border: none;
+      color: #e6edf3;
     }
   }
 
@@ -69,6 +73,10 @@ body {
 
   hr {
     border-bottom-color: #21262d;
+  }
+
+  img {
+    background: transparent;
   }
 }
 
@@ -93,3 +101,35 @@ body {
     }
   }
 }
+
+/* Override Rouge syntax highlighting for dark theme */
+.highlight {
+  background-color: #1c2129;
+
+  /* Reset all Rouge token colors for dark background */
+  .c, .c1, .cm, .cs { color: #6e7681; } /* comments */
+  .k, .kd, .kn, .kp, .kr, .kt { color: #ff7b72; } /* keywords */
+  .s, .s1, .s2, .sb, .sc, .sd, .sh, .sx { color: #a5d6ff; } /* strings */
+  .n, .na, .nb, .nc, .nd, .ne, .nf, .ni, .nn, .no, .nt, .nv { color: #e6edf3; } /* names */
+  .m, .mf, .mh, .mi, .mo { color: #79c0ff; } /* numbers */
+  .o, .ow { color: #c9d1d9; } /* operators */
+  .p { color: #c9d1d9; } /* punctuation */
+  .w { color: #c9d1d9; } /* whitespace */
+  .err { color: #ffa657; } /* errors */
+  .gp { color: #8b949e; } /* generic prompt */
+  .gs { font-weight: bold; } /* generic strong */
+  .gu { color: #4ade80; } /* generic subheading */
+}
+
+/* PatchLang syntax highlighting (applied via JavaScript) */
+.pl-keyword { color: #ff7b72; font-weight: bold; }
+.pl-name { color: #d2a8ff; }
+.pl-string { color: #a5d6ff; }
+.pl-number { color: #79c0ff; }
+.pl-comment { color: #6e7681; font-style: italic; }
+.pl-operator { color: #4ade80; }
+.pl-bracket { color: #8b949e; }
+.pl-property { color: #ffa657; }
+.pl-direction { color: #f0883e; }
+.pl-connector { color: #d2a8ff; }
+.pl-attribute { color: #7ee787; }
