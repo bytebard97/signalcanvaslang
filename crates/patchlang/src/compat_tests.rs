@@ -390,6 +390,7 @@ fn slot_assignment_without_index() {
 #[test]
 fn statement_type_tags_correct() {
     let template_stmt = TsStatement::Template(TsTemplateDecl {
+        type_tag: "Template",
         name: "Test".into(),
         params: vec![],
         meta: Default::default(),
@@ -404,6 +405,7 @@ fn statement_type_tags_correct() {
     assert_eq!(json["type"], "Template");
 
     let use_stmt = TsStatement::Use(TsUseDecl {
+        type_tag: "Use",
         namespace: "yamaha".into(),
         templates: vec!["CL5".into()],
         wildcard: false,

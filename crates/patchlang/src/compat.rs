@@ -68,6 +68,7 @@ fn convert_statement(stmt: &ast::Statement) -> Option<TsStatement> {
 
 fn convert_template(t: &ast::TemplateDecl) -> TsTemplateDecl {
     TsTemplateDecl {
+        type_tag: "Template",
         name: t.name.clone(),
         params: t.params.iter().map(convert_param_def).collect(),
         meta: kv_to_string_record(&t.meta),
@@ -121,6 +122,7 @@ fn convert_instance(i: &ast::InstanceDecl) -> TsInstanceDecl {
     let slots: Vec<TsSlotAssign> = i.slot_assignments.iter().map(convert_slot_assign).collect();
 
     TsInstanceDecl {
+        type_tag: "Instance",
         name: i.name.clone(),
         template_name: i.template_name.clone(),
         args: kv_to_arg_record(&i.args),
@@ -134,6 +136,7 @@ fn convert_instance(i: &ast::InstanceDecl) -> TsInstanceDecl {
 
 fn convert_connect(c: &ast::ConnectDecl) -> TsConnectDecl {
     TsConnectDecl {
+        type_tag: "Connect",
         source: convert_port_ref(&c.source),
         target: convert_port_ref(&c.target),
         properties: kv_to_string_record(&c.properties),
@@ -150,6 +153,7 @@ fn convert_connect(c: &ast::ConnectDecl) -> TsConnectDecl {
 
 fn convert_bridge(b: &ast::BridgeDecl) -> TsBridgeDecl {
     TsBridgeDecl {
+        type_tag: "Bridge",
         source: convert_port_ref(&b.source),
         target: convert_port_ref(&b.target),
     }
@@ -157,6 +161,7 @@ fn convert_bridge(b: &ast::BridgeDecl) -> TsBridgeDecl {
 
 fn convert_bridge_group(bg: &ast::BridgeGroupDecl) -> TsBridgeGroupDecl {
     TsBridgeGroupDecl {
+        type_tag: "BridgeGroup",
         target: convert_port_ref(&bg.target),
         sources: bg.sources.iter().map(convert_port_ref).collect(),
     }
@@ -164,6 +169,7 @@ fn convert_bridge_group(bg: &ast::BridgeGroupDecl) -> TsBridgeGroupDecl {
 
 fn convert_link_group(lg: &ast::LinkGroupDecl) -> TsLinkGroupDecl {
     TsLinkGroupDecl {
+        type_tag: "LinkGroup",
         name: lg.name.clone(),
         connects: lg.connects.iter().map(convert_connect).collect(),
         properties: kv_to_string_record(&lg.properties),
@@ -172,6 +178,7 @@ fn convert_link_group(lg: &ast::LinkGroupDecl) -> TsLinkGroupDecl {
 
 fn convert_signal(s: &ast::SignalDecl) -> TsSignalDecl {
     TsSignalDecl {
+        type_tag: "Signal",
         name: s.name.clone(),
         properties: kv_to_string_record(&s.properties),
         origin: s.origin.as_ref().map(convert_port_ref),
@@ -180,6 +187,7 @@ fn convert_signal(s: &ast::SignalDecl) -> TsSignalDecl {
 
 fn convert_flag(f: &ast::FlagDecl) -> TsFlagDecl {
     TsFlagDecl {
+        type_tag: "Flag",
         name: f.name.clone(),
         properties: kv_to_string_record(&f.properties),
     }
@@ -187,6 +195,7 @@ fn convert_flag(f: &ast::FlagDecl) -> TsFlagDecl {
 
 fn convert_stream(s: &ast::StreamDecl) -> TsStreamDecl {
     TsStreamDecl {
+        type_tag: "Stream",
         name: s.name.clone(),
         properties: kv_to_string_record(&s.properties),
         source: s.source.as_ref().map(convert_port_ref),
@@ -195,6 +204,7 @@ fn convert_stream(s: &ast::StreamDecl) -> TsStreamDecl {
 
 fn convert_config(c: &ast::ConfigDecl) -> TsConfigDecl {
     TsConfigDecl {
+        type_tag: "Config",
         name: c.name.clone(),
         labels: c.labels.iter().map(convert_config_label).collect(),
     }
@@ -210,6 +220,7 @@ fn convert_config_label(cl: &ast::ConfigLabel) -> TsConfigLabel {
 
 fn convert_use(u: &ast::UseDecl) -> TsUseDecl {
     TsUseDecl {
+        type_tag: "Use",
         namespace: u.namespace.clone(),
         templates: u.templates.clone(),
         wildcard: u.wildcard,
