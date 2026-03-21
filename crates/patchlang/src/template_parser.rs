@@ -31,6 +31,7 @@ pub(crate) trait TemplateParserExt {
     fn push_error(&mut self, message: String, span: crate::error::Span, hint: Option<String>);
     fn parse_port_ref(&mut self) -> PortRef;
     fn parse_optional_index(&mut self) -> Option<IndexSpec>;
+    fn parse_arg_list(&mut self) -> Vec<KeyValue>;
 
     // ── Template top-level ───────────────────────────────────
 
@@ -335,7 +336,7 @@ pub(crate) trait TemplateParserExt {
         let template_name = self.expect_ident().unwrap_or_default();
 
         // Optional arg list: instance B is Box(count: 4)
-        let args = self.parse_optional_args();
+        let args = self.parse_arg_list();
 
         let mut properties = Vec::new();
         if self.peek_token() == Some(&Token::LBrace) {
@@ -470,39 +471,6 @@ pub(crate) trait TemplateParserExt {
             }
         };
         Some(KeyValue { key, value })
-    }
-
-    /// Parse optional arg list: (name: value, name2: value2)
-    fn parse_optional_args(&mut self) -> Vec<KeyValue> {
-        if self.peek_token() != Some(&Token::LParen) {
-            return Vec::new();
-        }
-        self.advance_token(); // consume '('
-        let mut args = Vec::new();
-        loop {
-            if self.peek_token() == Some(&Token::RParen) || self.at_end_of_input() {
-                break;
-            }
-            let key = self.expect_ident().unwrap_or_default();
-            self.expect_tok(&Token::Colon);
-            let value = match self.peek_token().cloned() {
-                Some(Token::Number(n)) => { self.advance_token(); KvValue::Num { value: n } }
-                Some(Token::StringLiteral(s)) => { self.advance_token(); KvValue::Str { value: s } }
-                _ => {
-                    let span = self.current_span_ext();
-                    self.push_error("expected number or string in arg list".into(), span, None);
-                    KvValue::Str { value: String::new() }
-                }
-            };
-            args.push(KeyValue { key, value });
-            if self.peek_token() == Some(&Token::Comma) {
-                self.advance_token();
-            } else {
-                break;
-            }
-        }
-        self.expect_tok(&Token::RParen);
-        args
     }
 
     /// Parse a property key — an identifier or one of the keyword tokens

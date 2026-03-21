@@ -21,7 +21,10 @@ fn main() {
     let result = patchlang::parse(&source);
 
     if result.is_valid() {
-        println!("{}", serde_json::to_string_pretty(&result.program).unwrap());
+        println!("{}", serde_json::to_string_pretty(&result.program).unwrap_or_else(|e| {
+            eprintln!("error: failed to serialize AST: {e}");
+            process::exit(2);
+        }));
     } else {
         for err in &result.errors {
             let (line, col) = patchlang::error::line_col(&source, err.span.start);
@@ -31,7 +34,10 @@ fn main() {
             }
         }
         // Still output the partial AST to stdout
-        println!("{}", serde_json::to_string_pretty(&result.program).unwrap());
+        println!("{}", serde_json::to_string_pretty(&result.program).unwrap_or_else(|e| {
+            eprintln!("error: failed to serialize AST: {e}");
+            process::exit(2);
+        }));
         process::exit(1);
     }
 }
