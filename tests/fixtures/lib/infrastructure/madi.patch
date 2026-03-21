@@ -1,0 +1,56 @@
+# ============================================================
+# MADI Infrastructure — High Channel Count Audio Transport
+# Converters and routers for AES10 MADI ecosystems
+# ============================================================
+
+template DirectOut_ANDIAMO_2XT {
+  meta {
+    manufacturer: "DirectOut"
+    model: "ANDIAMO 2 XT"
+    category: "MADI Interface"
+    protocols: "MADI, AES3, Analog"
+  }
+  ports {
+    Analog_IO[1..8]: io(DB25) [analog, line_level]
+    AES3_IO[1..4]: io(DB25) [AES3]
+    MADI_1: io(SFP) [MADI, ch64]
+    MADI_2: io(BNC_75) [MADI, ch64]
+    WC_In: in(BNC_75) [WordClock]
+    WC_Out: out(BNC_75) [WordClock]
+  }
+  bridge Analog_IO -> MADI_1
+  bridge AES3_IO -> MADI_1
+}
+
+template RME_MADI_Router {
+  meta {
+    manufacturer: "RME"
+    model: "MADI Router"
+    category: "MADI Router"
+    protocols: "MADI"
+  }
+  ports {
+    MADI_Opt[1..4]: io(SFP) [MADI]
+    MADI_Coax[1..4]: io(BNC_75) [MADI]
+    MADI_TP[1..4]: io(RJ45) [MADI]
+    WC_In: in(BNC_75) [WordClock]
+    WC_Out: out(BNC_75) [WordClock]
+  }
+}
+
+template Ferrofish_A32 {
+  meta {
+    manufacturer: "Ferrofish"
+    model: "A32"
+    category: "Audio Interface"
+    protocols: "MADI, ADAT, Dante"
+  }
+  ports {
+    Analog_IO[1..8]: io(DB25) [analog, line_level]
+    MADI_SFP[1..2]: io(SFP) [MADI, ch64]
+    ADAT_IO[1..8]: io(OpticalCon) [ADAT]
+    WC_In: in(BNC_75) [WordClock]
+    WC_Out: out(BNC_75) [WordClock]
+  }
+  bridge Analog_IO -> MADI_SFP
+}

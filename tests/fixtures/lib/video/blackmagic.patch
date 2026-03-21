@@ -1,0 +1,145 @@
+# ============================================================
+# Blackmagic Design — Switchers, Routers, Recorders,
+# Multiviewers, Sync, and Converters
+# Standard library templates for Blackmagic broadcast devices.
+# ============================================================
+
+# --- ATEM Constellation 8K: Flagship Production Switcher ------
+
+template ATEM_Constellation_8K {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "ATEM Constellation 8K"
+    category: "Video Switcher"
+  }
+  ports {
+    SDI_In[1..40]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..24]: out(BNC_75) [SDI, UHD]
+    MV_Out[1..4]: out(BNC_75) [SDI, UHD]
+    MADI_In: in(BNC_75) [MADI]
+    MADI_Out[1..2]: out(BNC_75) [MADI]
+    Analog_In[1..2]: in(TRS) [analog, line_level]
+    Analog_Out[1..2]: out(TRS) [analog, line_level]
+    Talkback: io(XLR_5) [analog]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge SDI_In -> MV_Out
+}
+
+# --- ATEM 4 M/E Constellation HD: Large-Scale HD Switcher -----
+
+template ATEM_4ME_HD {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "ATEM 4 M/E Constellation HD"
+    category: "Video Switcher"
+  }
+  ports {
+    SDI_In[1..40]: in(BNC_75) [SDI, HD]
+    SDI_Out[1..24]: out(BNC_75) [SDI, HD]
+    MV_Out[1..4]: out(BNC_75) [SDI, HD]
+    MADI_In: in(BNC_75) [MADI]
+    MADI_Out[1..2]: out(BNC_75) [MADI]
+    Analog_In[1..2]: in(TRS) [analog, line_level]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge SDI_In -> MV_Out
+}
+
+# --- Smart Videohub 40x40: Affordable SDI Router -------------
+
+template Smart_Videohub_40x40 {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "Smart Videohub 40x40"
+    category: "Video Router"
+  }
+  ports {
+    SDI_In[1..40]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..40]: out(BNC_75) [SDI, UHD]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+}
+
+# --- HyperDeck Studio 4K Pro: Professional Recorder ----------
+
+template HyperDeck_Studio_4K_Pro {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "HyperDeck Studio 4K Pro"
+    category: "Recorder"
+  }
+  ports {
+    SDI_12G_In: in(BNC_75) [SDI, UHD]
+    SDI_12G_Out[1..2]: out(BNC_75) [SDI, UHD]
+    SDI_Mon: out(BNC_75) [SDI, HD]
+    HDMI_In: in(HDMI) [UHD]
+    HDMI_Out: out(HDMI) [UHD]
+    Headphone: out(TRS) [analog, line_level]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    TC_In: in(XLR) [analog]
+    TC_Out: out(XLR) [analog]
+    LAN: io(RJ45)
+  }
+  bridge SDI_12G_In -> SDI_12G_Out
+}
+
+# --- MultiView 16: 16-Input Multiviewer ----------------------
+
+template MultiView_16 {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "MultiView 16"
+    category: "Multiviewer"
+  }
+  ports {
+    SDI_In[1..16]: in(BNC_75) [SDI, UHD]
+    SDI_Loop[1..16]: out(BNC_75) [SDI, UHD]
+    HD_SDI_Out[1..2]: out(BNC_75) [SDI, HD]
+    SDI_6G_Out[1..2]: out(BNC_75) [SDI, UHD]
+    HDMI_Out: out(HDMI) [UHD]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Loop
+  bridge SDI_In -> HD_SDI_Out
+  bridge SDI_In -> SDI_6G_Out
+  bridge SDI_In -> HDMI_Out
+}
+
+# --- Sync Generator: Blackburst and Tri-Level Sync -----------
+
+template Sync_Generator {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "Sync Generator"
+    category: "Sync"
+  }
+  ports {
+    Ref_Out[1..6]: out(BNC_75) [BlackBurst, TriLevel]
+  }
+}
+
+# --- Mini Converter SDI to Fiber: Compact SDI-to-Fiber --------
+
+template Mini_Converter_SDI_to_Fiber {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "Mini Converter SDI to Fiber"
+    category: "Converter"
+  }
+  ports {
+    SDI_In: in(BNC_75) [SDI, HD]
+    SDI_Loop: out(BNC_75) [SDI, HD]
+    Fiber_Out: out(SFP) [SDI]
+  }
+  bridge SDI_In -> Fiber_Out
+  bridge SDI_In -> SDI_Loop
+}

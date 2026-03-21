@@ -1,0 +1,90 @@
+# ============================================================
+# Riedel Communications
+# Artist intercom matrices, SmartPanels, Bolero wireless,
+# and MediorNet fiber transport nodes
+# ============================================================
+
+template Artist_1024 {
+  meta {
+    manufacturer: "Riedel"
+    model: "Artist-1024"
+    category: "Intercom Matrix"
+    protocols: "AES67, Dante, MADI, Artist Fiber, ST 2110-30"
+    ports_capacity: "1024"
+  }
+  ports {
+    Mgmt[1..2]: io(RJ45)
+    GPIO: io(DB25)
+  }
+  slot UIC_Slot[1..8]: UIC_128
+  slot NIC_Slot[1..2]: NIC_Fiber
+}
+
+template Artist_128 {
+  meta {
+    manufacturer: "Riedel"
+    model: "Artist-128"
+    category: "Intercom Matrix"
+    protocols: "Artist Fiber, AVB, AES67, MADI"
+    ports_capacity: "128"
+  }
+  ports {
+    Mgmt: io(RJ45)
+  }
+  slot Client_Slot[1..16]: Client_Card
+  slot Controller_Bay[1..2]: Controller_Module
+}
+
+template RSP_1232HL {
+  meta {
+    manufacturer: "Riedel"
+    model: "RSP-1232HL"
+    category: "Intercom Panel"
+    protocols: "ST 2110-30, AES67, Dante"
+  }
+  ports {
+    LAN_Pri: io(RJ45) [AES67, Dante, primary]
+    LAN_Sec: io(RJ45) [AES67, Dante, secondary]
+    Headset[1..2]: io(XLR_5)
+  }
+}
+
+template Bolero {
+  meta {
+    manufacturer: "Riedel"
+    model: "Bolero"
+    category: "Intercom Beltpack"
+    protocols: "DECT, IP"
+  }
+  ports {
+    Headset: io(XLR)
+  }
+}
+
+template MediorNet_MicroN {
+  meta {
+    manufacturer: "Riedel"
+    model: "MediorNet MicroN"
+    category: "Fiber Transport"
+    protocols: "3G-SDI, MediorNet 10G, ST 2110"
+  }
+  ports {
+    SDI[1..12]: io(BNC_75) [SDI]
+    MediorNet_Link[1..8]: io(SFP_Plus)
+    Sync[1..2]: io(BNC_75) [BlackBurst, TriLevel]
+    LAN[1..2]: io(RJ45)
+  }
+}
+
+template MediorNet_FusioN {
+  meta {
+    manufacturer: "Riedel"
+    model: "MediorNet FusioN"
+    category: "Media Network Node"
+    protocols: "ST 2110, ST 2022-6, HDMI"
+  }
+  ports {
+    Media[1..2]: io(SFP_Plus) [SMPTE_2110]
+    Control: io(RJ45)
+  }
+}

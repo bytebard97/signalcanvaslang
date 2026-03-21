@@ -1,0 +1,147 @@
+# ============================================================
+# DiGiCo Professional Audio — Standard Library Templates
+# SD Series, Quantum Series, SD-Rack
+# ============================================================
+
+# --- SD Series ------------------------------------------------
+
+template SD7 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD7"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..12]: in(XLR) [analog, mic_level]
+    Line_Out[1..12]: out(XLR) [analog, line_level]
+    AES_In[1..6]: in(XLR) [AES3]
+    AES_Out[1..6]: out(XLR) [AES3]
+    MADI_A_Pri: io(BNC_75) [MADI, primary]
+    MADI_A_Sec: io(BNC_75) [MADI, redundant]
+    MADI_B_Pri: io(BNC_75) [MADI, primary]
+    MADI_B_Sec: io(BNC_75) [MADI, redundant]
+    MADI_C_Pri: io(BNC_75) [MADI, primary]
+    MADI_C_Sec: io(BNC_75) [MADI, redundant]
+    MADI_D_Pri: io(BNC_75) [MADI, primary]
+    MADI_D_Sec: io(BNC_75) [MADI, redundant]
+    Optocore_A: io(OpticalCon) [Optocore]
+    Optocore_B: io(OpticalCon) [Optocore]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  bridge Mic_In -> MADI_A_Pri
+}
+
+template SD12 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD12"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..8]: in(XLR) [analog, mic_level]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+    MADI_A: io(BNC_75) [MADI]
+    MADI_B: io(BNC_75) [MADI]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  slot DMI_Slot[1..2]: DMI_Card
+  bridge Mic_In -> MADI_A
+}
+
+template SD5 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD5"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..8]: in(XLR) [analog, mic_level]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+    MADI_A: io(BNC_75) [MADI]
+    MADI_B: io(BNC_75) [MADI]
+    Optocore_A: io(OpticalCon) [Optocore]
+    Optocore_B: io(OpticalCon) [Optocore]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  slot DMI_Slot[1..2]: DMI_Card
+  bridge Mic_In -> MADI_A
+}
+
+# --- Quantum Series -------------------------------------------
+
+template Quantum7 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "Quantum 7"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..12]: in(XLR) [analog, mic_level]
+    Line_Out[1..12]: out(XLR) [analog, line_level]
+    AES_In[1..6]: in(XLR) [AES3]
+    AES_Out[1..6]: out(XLR) [AES3]
+    MADI_A_Pri: io(BNC_75) [MADI, primary]
+    MADI_A_Sec: io(BNC_75) [MADI, redundant]
+    MADI_B_Pri: io(BNC_75) [MADI, primary]
+    MADI_B_Sec: io(BNC_75) [MADI, redundant]
+    MADI_C_Pri: io(BNC_75) [MADI, primary]
+    MADI_C_Sec: io(BNC_75) [MADI, redundant]
+    MADI_D_Pri: io(BNC_75) [MADI, primary]
+    MADI_D_Sec: io(BNC_75) [MADI, redundant]
+    Optocore_A: io(OpticalCon) [Optocore]
+    Optocore_B: io(OpticalCon) [Optocore]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  slot DMI_Slot[1..4]: DMI_Card
+  bridge Mic_In -> MADI_A_Pri
+}
+
+template Quantum338 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "Quantum 338"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..8]: in(XLR) [analog, mic_level]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+    MADI_A: io(BNC_75) [MADI]
+    MADI_B: io(BNC_75) [MADI]
+    Optocore_A: io(OpticalCon) [Optocore]
+    Optocore_B: io(OpticalCon) [Optocore]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  slot DMI_Slot[1..2]: DMI_Card
+  bridge Mic_In -> MADI_A
+}
+
+# --- SD-Rack --------------------------------------------------
+
+template SD_Rack {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack"
+    category: "Stagebox"
+  }
+  ports {
+    Optocore_A: io(OpticalCon) [Optocore]
+    Optocore_B: io(OpticalCon) [Optocore]
+    MADI_A: io(BNC_75) [MADI]
+    MADI_B: io(BNC_75) [MADI]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  slot IO_Slot[1..14]: SD_IO_Card
+  bridge Optocore_A -> MADI_A
+}

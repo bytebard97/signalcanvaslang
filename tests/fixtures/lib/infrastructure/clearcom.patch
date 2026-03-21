@@ -1,0 +1,67 @@
+# ============================================================
+# Clear-Com Intercom Systems
+# Eclipse HX matrices, V-Series panels, and RS beltpacks
+# ============================================================
+
+template Eclipse_HX_Omega {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "Eclipse HX-Omega"
+    category: "Intercom Matrix"
+    protocols: "IVC, AES67, Dante, MADI"
+    ports_capacity: "496"
+  }
+  ports {
+    LAN[1..2]: io(RJ45)
+    GPI: in(DB25)
+    GPO: out(DB25)
+    Partyline[1..4]: io(XLR)
+    Serial: io(virtual)
+  }
+  slot Card_Slot[1..15]: Interface_Card
+}
+
+template Eclipse_HX_Delta {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "Eclipse HX-Delta"
+    category: "Intercom Matrix"
+    protocols: "IVC, AES67, Dante, MADI"
+    ports_capacity: "416"
+  }
+  ports {
+    LAN[1..2]: io(RJ45)
+    GPI: in(DB25)
+    GPO: out(DB25)
+  }
+  slot Card_Slot[1..4]: Interface_Card
+  slot Module_Slot[1..3]: Interface_Module
+}
+
+template V_Series_V12 {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "V-Series V12"
+    category: "Intercom Panel"
+    protocols: "IVC, AES67"
+  }
+  ports {
+    Headset: io(XLR)
+    LAN: io(RJ45)
+    Matrix: io(RJ45)
+  }
+}
+
+template RS_702 {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "RS-702"
+    category: "Intercom Beltpack"
+    protocols: "Analog 2-Wire"
+  }
+  ports {
+    Intercom_In: io(XLR)
+    Intercom_Out: io(XLR)
+    Headset: io(XLR)
+  }
+}

@@ -1,0 +1,33 @@
+# ============================================================
+# Green-GO Intercom Systems
+# Peer-to-peer IP intercom — no central matrix required
+# ============================================================
+
+template MCXD {
+  meta {
+    manufacturer: "Green-GO"
+    model: "MCXD"
+    category: "Intercom Panel"
+    protocols: "Green-GO IP"
+    channels: "32"
+  }
+  ports {
+    Network_Pri: io(etherCON) [primary]
+    Network_Sec: io(etherCON) [secondary]
+    Headset: io(XLR)
+  }
+}
+
+template WBPX {
+  meta {
+    manufacturer: "Green-GO"
+    model: "WBPX"
+    category: "Intercom Beltpack"
+    protocols: "Green-GO IP Wireless"
+    channels: "4"
+  }
+  ports {
+    Network: io(RJ45)
+    Headset: io(XLR)
+  }
+}

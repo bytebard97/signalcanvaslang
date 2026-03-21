@@ -1,0 +1,78 @@
+# ============================================================
+# Concert Venue — Audio Device Templates
+# Reusable templates for mixing consoles, stageboxes,
+# amplifiers, wireless receivers, and audio networking.
+# ============================================================
+
+template DiGiCo_SD7 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD7"
+    category: "Console"
+  }
+  ports {
+    Optocore_A: io(OpticalCon) [Optocore, primary]
+    Optocore_B: io(OpticalCon) [Optocore, secondary]
+    Local_In[1..12]: in(XLR)
+    Local_Out[1..12]: out(XLR)
+    AES_Out[1..8]: out(BNC_75) [AES3]
+    MADI_A: io(BNC_75) [MADI, ch64]
+    MADI_B: io(BNC_75) [MADI, ch64]
+  }
+}
+
+template SD_Rack {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack"
+    category: "Stagebox"
+  }
+  ports {
+    Optocore_A: io(OpticalCon) [Optocore, primary]
+    Optocore_B: io(OpticalCon) [Optocore, secondary]
+    Mic_In[1..56]: in(XLR)
+    Line_Out[1..16]: out(XLR)
+  }
+  bridge Mic_In -> Optocore_A
+}
+
+template Lab_gruppen_PLM {
+  meta {
+    manufacturer: "Lab.gruppen"
+    model: "PLM_20K44"
+    category: "Amplifier"
+  }
+  ports {
+    AES_In[1..4]: in(XLR) [AES3]
+    Speaker_Out[1..4]: out(SpeakON)
+  }
+  bridge AES_In -> Speaker_Out
+}
+
+template Shure_Axient {
+  meta {
+    manufacturer: "Shure"
+    model: "Axient_Digital_AD4Q"
+    category: "Wireless"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Analog_Out[1..4]: out(XLR)
+    Antenna_In[1..2]: in(BNC_50) [RF]
+  }
+  bridge Antenna_In -> Analog_Out
+}
+
+template OptoSplitter {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "Optocore_DD32R"
+    category: "Network"
+  }
+  ports {
+    Loop_In: io(OpticalCon) [Optocore]
+    Loop_Out: io(OpticalCon) [Optocore]
+    MADI_Out: out(BNC_75) [MADI, ch64]
+  }
+}

@@ -1,0 +1,58 @@
+# ============================================================
+# Concert Venue — Comms & Network Templates
+# Intercom system, Dante network switches, and sync
+# generator for tying the whole venue together.
+# ============================================================
+
+template RTS_ADAM {
+  meta {
+    manufacturer: "RTS"
+    model: "ADAM_M"
+    category: "Intercom"
+  }
+  ports {
+    Trunk[1..8]: io(etherCON) [OMNEO]
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+    GPIO[1..8]: io(DB25)
+  }
+}
+
+template RTS_KP {
+  meta {
+    manufacturer: "RTS"
+    model: "KP_5032"
+    category: "Intercom Panel"
+  }
+  ports {
+    Trunk: io(etherCON) [OMNEO]
+    Headset: io(XLR5)
+  }
+}
+
+template Luminex_GigaCore {
+  meta {
+    manufacturer: "Luminex"
+    model: "GigaCore_26i"
+    category: "Network Switch"
+  }
+  ports {
+    Port[1..24]: io(etherCON) [Ethernet, Gigabit]
+    SFP[1..2]: io(SFP) [Ethernet, G10]
+  }
+}
+
+template Sync_Generator {
+  meta {
+    manufacturer: "Evertz"
+    model: "5601MSC"
+    category: "Sync"
+  }
+  ports {
+    BB_Out[1..8]: out(BNC_75) [BlackBurst]
+    TriLevel_Out[1..8]: out(BNC_75) [TriLevel]
+    LTC_Out[1..4]: out(XLR) [Timecode]
+    GPS_In: in(BNC_75) [GPS]
+    WordClock_Out[1..4]: out(BNC_75) [WordClock]
+  }
+}

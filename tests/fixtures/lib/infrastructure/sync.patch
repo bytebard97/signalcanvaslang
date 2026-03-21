@@ -1,0 +1,64 @@
+# ============================================================
+# Sync Generators — Master Reference for Video and Audio
+# Black Burst, Tri-Level, Word Clock, and PTP sources
+# ============================================================
+
+template AJA_GEN10 {
+  meta {
+    manufacturer: "AJA"
+    model: "GEN10"
+    category: "Sync Generator"
+    protocols: "Black Burst, Tri-Level, AES-11"
+  }
+  ports {
+    Sync_Out_Grp1[1..4]: out(BNC_75) [BlackBurst, TriLevel]
+    Sync_Out_Grp2[1..2]: out(BNC_75) [BlackBurst, TriLevel]
+    AES11_Out: out(BNC_75) [AES3, clk_48kHz]
+  }
+}
+
+template Evertz_5601MSC {
+  meta {
+    manufacturer: "Evertz"
+    model: "5601MSC"
+    category: "Master Clock"
+    protocols: "Black Burst, Tri-Level, Word Clock, PTP, NTP, LTC"
+  }
+  ports {
+    Sync_Out[1..6]: out(BNC_75) [BlackBurst, TriLevel]
+    WC_Out: out(BNC_75) [WordClock, clk_48kHz]
+    TenMHz_Out: out(BNC_75)
+    LTC_Out[1..2]: out(XLR)
+    LTC_In: in(XLR)
+    GPS_In: in(BNC_50)
+    Network: io(RJ45)
+  }
+}
+
+template BM_Sync_Generator {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "Sync Generator"
+    category: "Sync Generator"
+    protocols: "Black Burst, Tri-Level"
+  }
+  ports {
+    Ref_Out[1..6]: out(BNC_75) [BlackBurst, TriLevel]
+  }
+}
+
+template Tektronix_SPG8000A {
+  meta {
+    manufacturer: "Tektronix"
+    model: "SPG8000A"
+    category: "Sync Generator"
+    protocols: "Black Burst, Tri-Level, Word Clock, PTP, 10MHz"
+  }
+  ports {
+    Genlock_In[1..2]: in(BNC_75) [BlackBurst, TriLevel]
+    Black_Out[1..3]: out(BNC_75) [BlackBurst, TriLevel]
+    WC_Out: out(BNC_75) [WordClock, clk_48kHz]
+    GPS_In: in(BNC_50)
+    Network: io(RJ45)
+  }
+}

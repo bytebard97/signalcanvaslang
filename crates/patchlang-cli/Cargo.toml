@@ -1,0 +1,14 @@
+[package]
+name = "patchlang-cli"
+description = "PatchLang parser — command-line interface"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "patchlang"
+path = "src/main.rs"
+
+[dependencies]
+patchlang = { path = "../patchlang" }
+serde_json = "1"

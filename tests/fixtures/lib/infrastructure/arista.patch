@@ -1,0 +1,19 @@
+# ============================================================
+# Arista 7010T-48 Data Center Switch
+# Low-latency switch with deep buffers for ST 2110 video
+# ============================================================
+
+template Arista_7010T_48 {
+  meta {
+    manufacturer: "Arista"
+    model: "7010T-48"
+    category: "Network Switch"
+    protocols: "ST 2110, ST 2022-7, PTP, OSPF, BGP"
+  }
+  ports {
+    GbE[1..48]: io(RJ45) [SMPTE_2110, AES67]
+    TenG_SFP[1..4]: io(SFP_Plus)
+    Mgmt: io(RJ45)
+    Console: io(RJ45)
+  }
+}

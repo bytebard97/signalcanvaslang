@@ -1,0 +1,30 @@
+# ============================================================
+# Luminex GigaCore AV Network Switches
+# Purpose-built for Dante, AES67, AVB, and ST 2110
+# ============================================================
+
+template GigaCore_30i {
+  meta {
+    manufacturer: "Luminex"
+    model: "GigaCore 30i"
+    category: "Network Switch"
+    protocols: "Dante, AES67, ST 2110, AVB"
+  }
+  ports {
+    GbE_PoE[1..24]: io(RJ45) [Dante, AES67, PoE]
+    SFP_Plus[1..6]: io(SFP_Plus)
+  }
+}
+
+template GigaCore_16Xt {
+  meta {
+    manufacturer: "Luminex"
+    model: "GigaCore 16Xt"
+    category: "Network Switch"
+    protocols: "Dante, AVB, AES67, PTPv2"
+  }
+  ports {
+    GbE[1..12]: io(etherCON) [Dante, AES67]
+    SFP_Uplink[1..4]: io(SFP)
+  }
+}

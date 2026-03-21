@@ -1,0 +1,76 @@
+# ============================================================
+# Dante Audio Interfaces and Converters
+# Analog, AES3, and modular converters for Dante/AES67 networks
+# ============================================================
+
+template Focusrite_RedNet_A16R {
+  meta {
+    manufacturer: "Focusrite"
+    model: "RedNet A16R MkII"
+    category: "Audio Interface"
+    protocols: "Dante, AES67, ST 2110-30"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Analog_In[1..2]: in(DB25) [analog, line_level]
+    Analog_Out[1..2]: out(DB25) [analog, line_level]
+    AES_In: in(XLR) [AES3]
+    AES_Out: out(XLR) [AES3]
+    WC_In: in(BNC_75) [WordClock]
+    WC_Out: out(BNC_75) [WordClock]
+  }
+  bridge Analog_In -> Dante_Pri
+  bridge Dante_Pri -> Analog_Out
+}
+
+template Focusrite_RedNet_D16R {
+  meta {
+    manufacturer: "Focusrite"
+    model: "RedNet D16R MkII"
+    category: "Audio Interface"
+    protocols: "Dante, AES67, AES3"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    AES3_IO[1..2]: io(DB25) [AES3]
+    AES_Alt_In: in(XLR) [AES3]
+    AES_Alt_Out: out(XLR) [AES3]
+    WC_In: in(BNC_75) [WordClock]
+    WC_Out: out(BNC_75) [WordClock]
+  }
+  bridge AES3_IO -> Dante_Pri
+}
+
+template Audinate_AVIO_Analog {
+  meta {
+    manufacturer: "Audinate"
+    model: "AVIO Analog"
+    category: "Audio Interface"
+    protocols: "Dante"
+  }
+  ports {
+    Dante_Net: io(RJ45) [Dante, PoE]
+    Analog_In: in(XLR) [analog, line_level]
+    Analog_Out: out(XLR) [analog, line_level]
+  }
+  bridge Analog_In -> Dante_Net
+  bridge Dante_Net -> Analog_Out
+}
+
+template DirectOut_PRODIGY_MC {
+  meta {
+    manufacturer: "DirectOut"
+    model: "PRODIGY.MC"
+    category: "Audio Converter"
+    protocols: "MADI, Dante, RAVENNA, AES67, ST 2110-30"
+  }
+  ports {
+    Network_Pri: io(etherCON) [Dante, AES67, primary]
+    Network_Sec: io(etherCON) [Dante, AES67, secondary]
+    MADI_1: io(BNC_75) [MADI, ch64]
+    MADI_2: io(SFP) [MADI, ch64]
+  }
+  slot IO_Slot[1..8]: IO_Module
+}

@@ -1,0 +1,24 @@
+# ============================================================
+# Telestream — Software-Based Production Tools
+# Standard library templates for Telestream broadcast products.
+# ============================================================
+
+# --- Wirecast Pro: Software Encoder/Switcher ------------------
+# Wirecast is a software product with minimal physical I/O.
+# Physical ports depend on capture hardware (Blackmagic, AJA, etc).
+# This template models the logical network interfaces.
+
+template Wirecast_Pro {
+  meta {
+    manufacturer: "Telestream"
+    model: "Wirecast Pro"
+    category: "Software Encoder"
+  }
+  ports {
+    NDI_In[1..8]: in(virtual) [NDI]
+    NDI_Out: out(virtual) [NDI]
+    Stream_Out[1..3]: out(virtual)
+    LAN: io(RJ45)
+  }
+  bridge NDI_In -> NDI_Out
+}

@@ -1,0 +1,266 @@
+# ============================================================
+# Concert Venue — Connections & Signals
+# Physical cabling, logical bridges, and named signals
+# tying the entire venue together.
+# ============================================================
+
+# --- Optocore Ring (Audio Fiber) -----------------------------
+
+connect FOH_Console.Optocore_A -> Opto_Split.Loop_In {
+  cable: "SM_Fiber_FOH_A"
+  length: "60m"
+}
+
+connect Opto_Split.Loop_Out -> MON_Console.Optocore_A {
+  cable: "SM_Fiber_MON_A"
+  length: "5m"
+}
+
+connect MON_Console.Optocore_B -> Stage_Rack_A.Optocore_A {
+  cable: "SM_Fiber_SRA"
+  length: "10m"
+}
+
+connect Stage_Rack_A.Optocore_B -> Stage_Rack_B.Optocore_A {
+  cable: "SM_Fiber_Cross"
+  length: "25m"
+}
+
+connect Stage_Rack_B.Optocore_B -> FOH_Console.Optocore_B {
+  cable: "SM_Fiber_Return"
+  length: "65m"
+}
+
+# --- MADI: FOH to Recording ---------------------------------
+
+connect FOH_Console.MADI_A -> FOH_Rack.Optocore_A {
+  cable: "MADI_FOH_Rec"
+  length: "3m"
+}
+
+# --- Audio Network Switches ---------------------------------
+
+connect Audio_SW_FOH.SFP[1] -> Audio_SW_Stage.SFP[1] {
+  cable: "SM_Fiber_NetTrunk"
+  length: "60m"
+}
+
+connect Wireless_Rack_1.Dante_Pri -> Audio_SW_Stage.Port[1] {
+  cable: "Cat6a_WR1_Pri"
+  length: "8m"
+}
+
+connect Wireless_Rack_1.Dante_Sec -> Audio_SW_Stage.Port[2] {
+  cable: "Cat6a_WR1_Sec"
+  length: "8m"
+}
+
+connect Wireless_Rack_2.Dante_Pri -> Audio_SW_Stage.Port[3] {
+  cable: "Cat6a_WR2_Pri"
+  length: "12m"
+}
+
+connect Wireless_Rack_2.Dante_Sec -> Audio_SW_Stage.Port[4] {
+  cable: "Cat6a_WR2_Sec"
+  length: "12m"
+}
+
+# --- Amplifier Feeds (AES from FOH Console) ------------------
+
+connect FOH_Console.AES_Out[1] -> Amp_Main_L.AES_In[1] {
+  cable: "AES_Main_L_Hi"
+  length: "40m"
+}
+
+connect FOH_Console.AES_Out[2] -> Amp_Main_L.AES_In[2] {
+  cable: "AES_Main_L_Lo"
+  length: "40m"
+}
+
+connect FOH_Console.AES_Out[3] -> Amp_Main_R.AES_In[1] {
+  cable: "AES_Main_R_Hi"
+  length: "45m"
+}
+
+connect FOH_Console.AES_Out[4] -> Amp_Main_R.AES_In[2] {
+  cable: "AES_Main_R_Lo"
+  length: "45m"
+}
+
+connect FOH_Console.AES_Out[5] -> Amp_Subs.AES_In[1] {
+  cable: "AES_Subs_L"
+  length: "35m"
+}
+
+connect FOH_Console.AES_Out[6] -> Amp_Subs.AES_In[2] {
+  cable: "AES_Subs_R"
+  length: "35m"
+}
+
+connect FOH_Console.AES_Out[7] -> Amp_Front_Fill.AES_In[1] {
+  cable: "AES_FF_L"
+  length: "30m"
+}
+
+connect FOH_Console.AES_Out[8] -> Amp_Front_Fill.AES_In[2] {
+  cable: "AES_FF_R"
+  length: "30m"
+}
+
+# --- Video: Cameras to Switcher -----------------------------
+
+connect IMAG_Cam_1.SDI_Out -> Video_Switcher.SDI_In[1] {
+  cable: "SDI_IMAG1"
+  length: "50m"
+}
+
+connect IMAG_Cam_2.SDI_Out -> Video_Switcher.SDI_In[2] {
+  cable: "SDI_IMAG2"
+  length: "30m"
+}
+
+connect IMAG_Cam_3.SDI_Out -> Video_Switcher.SDI_In[3] {
+  cable: "SDI_IMAG3"
+  length: "35m"
+}
+
+# --- Video: Media Server to Switcher ------------------------
+
+connect Media_Server.SDI_Out[1] -> Video_Switcher.SDI_In[5] {
+  cable: "SDI_MS_Lyrics"
+  length: "3m"
+}
+
+connect Media_Server.SDI_Out[2] -> Video_Switcher.SDI_In[6] {
+  cable: "SDI_MS_BG"
+  length: "3m"
+}
+
+# --- Video: Switcher to LED Processor -----------------------
+
+connect Video_Switcher.SDI_Out[1] -> LED_Processor.SDI_In[1] {
+  cable: "SDI_PGM_LED"
+  length: "2m"
+}
+
+connect Video_Switcher.SDI_Out[2] -> LED_Processor.SDI_In[2] {
+  cable: "SDI_IMAG_LED"
+  length: "2m"
+}
+
+connect Video_Switcher.SDI_Aux[1] -> LED_Processor.SDI_In[3] {
+  cable: "SDI_AUX_LED"
+  length: "2m"
+}
+
+# --- Comms: Intercom Panels ---------------------------------
+
+connect Intercom_Frame.Trunk[1] -> KP_Stage_Manager.Trunk {
+  cable: "Cat6a_KP_SM"
+  length: "15m"
+}
+
+connect Intercom_Frame.Trunk[2] -> KP_Lighting.Trunk {
+  cable: "Cat6a_KP_LX"
+  length: "20m"
+}
+
+connect Intercom_Frame.Trunk[3] -> KP_FOH_Audio.Trunk {
+  cable: "Cat6a_KP_FOH"
+  length: "60m"
+}
+
+connect Intercom_Frame.Trunk[4] -> KP_Video.Trunk {
+  cable: "Cat6a_KP_VID"
+  length: "10m"
+}
+
+# --- Sync Distribution --------------------------------------
+
+connect House_Sync.BB_Out[1] -> Video_Switcher.SDI_In[20] {
+  cable: "BB_Switcher"
+  length: "5m"
+}
+
+connect House_Sync.TriLevel_Out[1] -> IMAG_Cam_1.Genlock_In {
+  cable: "TL_Cam1"
+  length: "55m"
+}
+
+connect House_Sync.TriLevel_Out[2] -> IMAG_Cam_2.Genlock_In {
+  cable: "TL_Cam2"
+  length: "35m"
+}
+
+connect House_Sync.TriLevel_Out[3] -> IMAG_Cam_3.Genlock_In {
+  cable: "TL_Cam3"
+  length: "40m"
+}
+
+connect House_Sync.WordClock_Out[1] -> FOH_Console.Local_In[12] {
+  cable: "WC_FOH"
+  length: "5m"
+}
+
+# --- Audio Bridges (logical signal mapping) ------------------
+
+bridge Stage_Rack_A.Mic_In[1..56] -> FOH_Console.Local_In[1..12]
+bridge Stage_Rack_B.Mic_In[1..32] -> MON_Console.Local_In[1..12]
+
+# --- Named Signals ------------------------------------------
+
+signal Lead_Vocal {
+  origin: Stage_Rack_A.Mic_In[1]
+  channel: "1"
+  description: "Lead vocalist — wireless handheld via Axient"
+}
+
+signal Guitar_DI {
+  origin: Stage_Rack_A.Mic_In[5]
+  channel: "5"
+  description: "Electric guitar direct box"
+}
+
+signal Bass_DI {
+  origin: Stage_Rack_A.Mic_In[6]
+  channel: "6"
+  description: "Bass guitar direct box"
+}
+
+signal Kick_In {
+  origin: Stage_Rack_A.Mic_In[10]
+  channel: "10"
+  description: "Kick drum — inside mic"
+}
+
+signal Kick_Out {
+  origin: Stage_Rack_A.Mic_In[11]
+  channel: "11"
+  description: "Kick drum — outside mic"
+}
+
+signal Snare_Top {
+  origin: Stage_Rack_A.Mic_In[12]
+  channel: "12"
+  description: "Snare drum — top mic"
+}
+
+signal IMAG_Program {
+  description: "IMAG program feed to LED walls"
+}
+
+signal Lyrics_Feed {
+  description: "Lyrics/lower-thirds from media server"
+}
+
+# --- Flags ---------------------------------------------------
+
+flag All_Sync_Locked {
+  description: "House sync distributed to all video sources"
+  severity: "info"
+}
+
+flag Optocore_Ring_OK {
+  description: "Optocore fiber ring closed — redundant path active"
+  severity: "info"
+}

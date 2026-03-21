@@ -1,0 +1,46 @@
+# ============================================================
+# Panasonic — Studio and PTZ Cameras
+# Standard library templates for Panasonic broadcast devices.
+# ============================================================
+
+# --- AK-UC4000: 4K Studio Camera with B4 Mount ---------------
+
+template AK_UC4000 {
+  meta {
+    manufacturer: "Panasonic"
+    model: "AK-UC4000"
+    category: "Camera"
+  }
+  ports {
+    SDI_12G_Out: out(BNC_75) [SDI, UHD]
+    SDI_3G_Out[1..4]: out(BNC_75) [SDI, HD]
+    SDI_Mon: out(BNC_75) [SDI, HD]
+    Prompter_In: in(BNC_75) [SDI]
+    CCU_Fiber: io(LEMO)
+    Mic_In[1..2]: in(XLR) [analog, mic_level, phantom_48V]
+    Intercom: io(XLR_5) [analog]
+    Genlock_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge Mic_In -> CCU_Fiber
+}
+
+# --- AW-UE150: 4K PTZ Camera with NDI and ST 2110 ------------
+
+template AW_UE150 {
+  meta {
+    manufacturer: "Panasonic"
+    model: "AW-UE150"
+    category: "PTZ Camera"
+  }
+  ports {
+    SDI_12G_Out: out(BNC_75) [SDI, UHD]
+    SDI_3G_Out[1..2]: out(BNC_75) [SDI, HD]
+    HDMI_Out: out(HDMI) [UHD]
+    SFP_IO: io(SFP_Plus) [SMPTE_2110]
+    Audio_In[1..2]: in(XLR) [analog, mic_level, phantom_48V]
+    Genlock_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45) [PoE]
+    NDI_Out: out(virtual) [NDI]
+  }
+}

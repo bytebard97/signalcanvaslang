@@ -1,0 +1,15 @@
+[package]
+name = "patchlang-python"
+description = "PatchLang parser — Python bindings via PyO3"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "patchlang_python"
+crate-type = ["cdylib"]
+
+[dependencies]
+patchlang = { path = "../patchlang" }
+pyo3 = { version = "0.22", features = ["extension-module"] }
+serde_json = "1"

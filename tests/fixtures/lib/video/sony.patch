@@ -1,0 +1,135 @@
+# ============================================================
+# Sony — Studio Cameras, CCUs, PTZ Cameras
+# Standard library templates for Sony broadcast video devices.
+# ============================================================
+
+# --- HDC-3500: 4K CMOS Studio Camera (Camera Head) -----------
+
+template HDC_3500 {
+  meta {
+    manufacturer: "Sony"
+    model: "HDC-3500"
+    category: "Camera"
+  }
+  ports {
+    SDI_Out[1..2]: out(BNC_75) [SDI, HD]
+    SDI_Mon: out(BNC_75) [SDI, HD]
+    Test_Out: out(BNC_75) [analog, SD]
+    Prompter_In: in(BNC_75) [SDI]
+    CCU: io(LEMO)
+    Mic_In[1..2]: in(XLR) [analog, mic_level, phantom_48V]
+    Intercom[1..2]: io(XLR_5) [analog]
+    Genlock_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge Mic_In -> CCU
+}
+
+# --- HDC-5500: UHB 4K Studio Camera (Camera Head) ------------
+
+template HDC_5500 {
+  meta {
+    manufacturer: "Sony"
+    model: "HDC-5500"
+    category: "Camera"
+  }
+  ports {
+    SDI_Out[1..2]: out(BNC_75) [SDI, UHD]
+    SDI_Mon: out(BNC_75) [SDI, HD]
+    Test_Out: out(BNC_75) [analog, SD]
+    Prompter_In: in(BNC_75) [SDI]
+    CCU: io(LEMO)
+    Mic_In[1..2]: in(XLR) [analog, mic_level, phantom_48V]
+    Intercom: io(XLR_5) [analog]
+    Genlock_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge Mic_In -> CCU
+}
+
+# --- HDCU-3500: Half-Rack Camera Control Unit -----------------
+
+template HDCU_3500 {
+  meta {
+    manufacturer: "Sony"
+    model: "HDCU-3500"
+    category: "Camera Control Unit"
+  }
+  ports {
+    Camera_Fiber: io(LEMO)
+    UHD_SDI_Out[1..2]: out(BNC_75) [SDI, UHD]
+    UHD_SDI_IO[1..2]: io(BNC_75) [SDI, UHD]
+    SDI_Out[1..4]: out(BNC_75) [SDI, HD]
+    SDI_IO[1..4]: io(BNC_75) [SDI, HD]
+    SDI_Ret[1..4]: in(BNC_75) [SDI, HD]
+    Audio_Out[1..2]: out(XLR) [analog, line_level]
+    AES_Out: out(BNC_75) [AES3]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+    Network_Trunk: io(RJ45)
+  }
+  bridge Camera_Fiber -> SDI_Out
+  bridge Camera_Fiber -> UHD_SDI_Out
+  bridge SDI_Ret -> Camera_Fiber
+}
+
+# --- HDCU-5500: Full-Capability UHB Camera Control Unit -------
+
+template HDCU_5500 {
+  meta {
+    manufacturer: "Sony"
+    model: "HDCU-5500"
+    category: "Camera Control Unit"
+  }
+  ports {
+    Camera_Fiber: io(LEMO)
+    SDI_12G_Out[1..4]: out(BNC_75) [SDI, UHD]
+    SDI_3G_Out[1..4]: out(BNC_75) [SDI, HD]
+    SDI_Ret[1..4]: in(BNC_75) [SDI, HD]
+    SFP_IO[1..2]: io(SFP_Plus) [SMPTE_2110]
+    Audio_Out[1..2]: out(XLR) [analog, line_level]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge Camera_Fiber -> SDI_12G_Out
+  bridge Camera_Fiber -> SDI_3G_Out
+  bridge SDI_Ret -> Camera_Fiber
+}
+
+# --- FR7: Full-Frame PTZ Camera with E-Mount -----------------
+
+template FR7 {
+  meta {
+    manufacturer: "Sony"
+    model: "FR7"
+    category: "PTZ Camera"
+  }
+  ports {
+    SDI_12G_Out: out(BNC_75) [SDI, UHD]
+    HDMI_Out: out(HDMI) [UHD]
+    Optical_Out: out(SFP_Plus) [SDI]
+    Audio_In: in(XLR_5) [analog, mic_level]
+    TC_In: in(BNC_75) [analog]
+    Genlock_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45) [PoE]
+    NDI_Out: out(virtual) [NDI]
+  }
+}
+
+# --- BRC-X1000: 4K PTZ Camera --------------------------------
+
+template BRC_X1000 {
+  meta {
+    manufacturer: "Sony"
+    model: "BRC-X1000"
+    category: "PTZ Camera"
+  }
+  ports {
+    SDI_Out[1..2]: out(BNC_75) [SDI, HD]
+    HDMI_Out: out(HDMI) [UHD]
+    Sync_In: in(BNC_75) [BlackBurst]
+    LAN: io(RJ45)
+  }
+}

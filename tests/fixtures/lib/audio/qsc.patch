@@ -1,0 +1,23 @@
+# ============================================================
+# QSC Professional Audio — Standard Library Templates
+# Q-SYS Core DSP Processors
+# ============================================================
+
+template Q_SYS_Core_110f {
+  meta {
+    manufacturer: "QSC"
+    model: "Q-SYS Core 110f"
+    category: "DSP Processor"
+  }
+  ports {
+    Network_A: io(RJ45) [Dante, primary]
+    Network_B: io(RJ45) [Dante, secondary]
+    Mic_In[1..8]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    Flex_IO[1..8]: io(XLR) [analog, line_level]
+    AES_In[1..2]: in(XLR) [AES3]
+    AES_Out[1..2]: out(XLR) [AES3]
+  }
+  bridge Mic_In -> Network_A
+  bridge Network_A -> Line_Out
+}

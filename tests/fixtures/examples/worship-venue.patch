@@ -1,0 +1,132 @@
+# ============================================================
+# Worship Venue — Dante Audio Network
+# A typical house-of-worship audio system with Yamaha stageboxes,
+# a CL5 mixing console, and a Dante network switch.
+# ============================================================
+
+# --- Templates ------------------------------------------------
+
+template Rio3224 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "Rio3224"
+    category: "Stagebox"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Mic_In[1..32]: in(XLR)
+    Line_Out[1..16]: out(XLR)
+  }
+  bridge Mic_In -> Dante_Pri
+}
+
+template CL5 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "CL5"
+    category: "Console"
+  }
+  ports {
+    Dante_Pri: io(etherCON) [Dante, primary]
+    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Ch[1..72]: in [Dante]
+    Mix_Bus[1..24]: out
+  }
+}
+
+template GigabitSwitch {
+  meta {
+    manufacturer: "Cisco"
+    model: "SG350"
+    category: "Network"
+  }
+  ports {
+    Port[1..24]: io(RJ45) [Ethernet, Gigabit]
+  }
+}
+
+# --- Instances ------------------------------------------------
+
+instance Stage_Left is Rio3224 {
+  location: "Stage Left Wing"
+  ip: "192.168.1.31"
+}
+
+instance Stage_Right is Rio3224 {
+  location: "Stage Right Wing"
+  ip: "192.168.1.32"
+}
+
+instance FOH_Console is CL5 {
+  location: "Front of House"
+  ip: "192.168.1.10"
+}
+
+instance Dante_Switch is GigabitSwitch {
+  location: "FOH Rack"
+  ip: "192.168.1.1"
+}
+
+# --- Connections (physical cables) ----------------------------
+
+connect Stage_Left.Dante_Pri -> Dante_Switch.Port[1] {
+  cable: "Cat6a_SL_Pri"
+  length: "30m"
+}
+
+connect Stage_Left.Dante_Sec -> Dante_Switch.Port[2] {
+  cable: "Cat6a_SL_Sec"
+  length: "30m"
+}
+
+connect Stage_Right.Dante_Pri -> Dante_Switch.Port[3] {
+  cable: "Cat6a_SR_Pri"
+  length: "25m"
+}
+
+connect Stage_Right.Dante_Sec -> Dante_Switch.Port[4] {
+  cable: "Cat6a_SR_Sec"
+  length: "25m"
+}
+
+connect Dante_Switch.Port[5] -> FOH_Console.Dante_Pri {
+  cable: "Cat6a_FOH_Pri"
+  length: "3m"
+}
+
+connect Dante_Switch.Port[6] -> FOH_Console.Dante_Sec {
+  cable: "Cat6a_FOH_Sec"
+  length: "3m"
+}
+
+# --- Bridges (logical signal mapping) -------------------------
+
+bridge Stage_Left.Mic_In[1..32] -> FOH_Console.Dante_Ch[1..32]
+bridge Stage_Right.Mic_In[1..16] -> FOH_Console.Dante_Ch[33..48]
+
+# --- Signals --------------------------------------------------
+
+signal Lead_Vocal {
+  origin: Stage_Left.Mic_In[1]
+  channel: "1"
+  description: "Worship leader vocal"
+}
+
+signal Kick_Drum {
+  origin: Stage_Left.Mic_In[5]
+  channel: "5"
+  description: "Kick drum mic"
+}
+
+signal Snare_Top {
+  origin: Stage_Left.Mic_In[6]
+  channel: "6"
+  description: "Snare top mic"
+}
+
+signal Pastor_Lav {
+  origin: Stage_Right.Mic_In[1]
+  channel: "33"
+  description: "Pastor lavalier"
+}

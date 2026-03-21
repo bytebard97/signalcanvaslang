@@ -1,0 +1,67 @@
+# ============================================================
+# Ross Video — Switchers and Routers
+# Standard library templates for Ross broadcast video devices.
+# ============================================================
+
+# --- Carbonite Ultra: Mid-Range Production Switcher -----------
+
+template Carbonite_Ultra {
+  meta {
+    manufacturer: "Ross Video"
+    model: "Carbonite Ultra"
+    category: "Video Switcher"
+  }
+  ports {
+    SDI_In[1..24]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..12]: out(BNC_75) [SDI, UHD]
+    MV_Out[1..2]: out(BNC_75) [SDI, HD]
+    AES_Out[1..2]: out(BNC_75) [AES3]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LTC_In: in(BNC_75) [analog]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge SDI_In -> MV_Out
+}
+
+# --- Carbonite Black Solo: Compact 1ME Switcher ---------------
+
+template Carbonite_Black_Solo {
+  meta {
+    manufacturer: "Ross Video"
+    model: "Carbonite Black Solo"
+    category: "Video Switcher"
+  }
+  ports {
+    SDI_In[1..6]: in(BNC_75) [SDI, HD]
+    HDMI_In[1..3]: in(HDMI) [HD]
+    SDI_Out[1..5]: out(BNC_75) [SDI, HD]
+    HDMI_Out: out(HDMI) [HD]
+    AES_Out: out(BNC_75) [AES3]
+    Ref_In: in(BNC_75) [BlackBurst]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge HDMI_In -> SDI_Out
+}
+
+# --- Ultrix FR-12: Hybrid SDI/IP Router ----------------------
+
+template Ultrix_FR12 {
+  meta {
+    manufacturer: "Ross Video"
+    model: "Ultrix FR-12"
+    category: "Video Router"
+  }
+  ports {
+    SDI_In[1..16]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..16]: out(BNC_75) [SDI, UHD]
+    SFP_IO[1..16]: io(SFP_Plus) [SMPTE_2110]
+    AUX_SFP[1..32]: io(SFP_Plus)
+    Ref_In[1..2]: in(BNC_75) [BlackBurst, TriLevel]
+    LAN[1..2]: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge SDI_In -> SFP_IO
+  bridge SFP_IO -> SDI_Out
+}

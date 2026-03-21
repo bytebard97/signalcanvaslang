@@ -1,0 +1,152 @@
+# ============================================================
+# Allen & Heath Professional Audio — Standard Library Templates
+# dLive Series, GLD Series, SQ Series, DX Expanders, DM MixRack
+# ============================================================
+
+# --- dLive Series ---------------------------------------------
+
+template dLive_S7000 {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "dLive S7000"
+    category: "Console"
+  }
+  ports {
+    GigaACE_Pri: io(etherCON) [GigaACE, primary]
+    GigaACE_Sec: io(etherCON) [GigaACE, redundant]
+    Mic_In[1..8]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3, SRC]
+    AES_Out[1..6]: out(XLR) [AES3]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot IO_Port[1..2]: AH_IO_Card
+  bridge Mic_In -> GigaACE_Pri
+}
+
+template dLive_C3500 {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "dLive C3500"
+    category: "Console"
+  }
+  ports {
+    GigaACE_Pri: io(etherCON) [GigaACE, primary]
+    GigaACE_Sec: io(etherCON) [GigaACE, redundant]
+    Mic_In[1..8]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3, SRC]
+    AES_Out[1..6]: out(XLR) [AES3]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot IO_Port[1..2]: AH_IO_Card
+  bridge Mic_In -> GigaACE_Pri
+}
+
+# --- GLD Series -----------------------------------------------
+
+template GLD_112 {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "GLD-112"
+    category: "Console"
+  }
+  ports {
+    DX_Link: io(etherCON) [DX]
+    Mic_In[1..28]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    AES_In[1..2]: in(XLR) [AES3]
+    AES_Out[1..6]: out(XLR) [AES3]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot IO_Port: AH_IO_Card
+  bridge Mic_In -> DX_Link
+}
+
+# --- SQ Series ------------------------------------------------
+
+template SQ_7 {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "SQ-7"
+    category: "Console"
+  }
+  ports {
+    SLink_Port: io(etherCON) [SLink]
+    Mic_In[1..32]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    Monitor_Out[1..2]: out(TRS) [analog, line_level]
+    AES_Out[1..2]: out(XLR) [AES3]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot IO_Port: AH_IO_Card
+  bridge Mic_In -> SLink_Port
+}
+
+template SQ_6 {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "SQ-6"
+    category: "Console"
+  }
+  ports {
+    SLink_Port: io(etherCON) [SLink]
+    Mic_In[1..24]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..12]: out(XLR) [analog, line_level]
+    Monitor_Out[1..2]: out(TRS) [analog, line_level]
+    AES_Out[1..2]: out(XLR) [AES3]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot IO_Port: AH_IO_Card
+  bridge Mic_In -> SLink_Port
+}
+
+# --- DX Expanders ---------------------------------------------
+
+template DX168 {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "DX168"
+    category: "Stagebox"
+  }
+  ports {
+    DX_Pri: io(etherCON) [DX, primary]
+    DX_Sec: io(etherCON) [DX, redundant]
+    Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+  }
+  bridge Mic_In -> DX_Pri
+  bridge DX_Pri -> Line_Out
+}
+
+# --- DM MixRack ----------------------------------------------
+
+template DM64 {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "DM64"
+    category: "Stagebox"
+  }
+  ports {
+    GigaACE_Pri: io(etherCON) [GigaACE, primary]
+    GigaACE_Sec: io(etherCON) [GigaACE, redundant]
+    Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3, SRC]
+    AES_Out[1..6]: out(XLR) [AES3]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  slot IO_Port[1..3]: AH_IO_Card
+  bridge Mic_In -> GigaACE_Pri
+  bridge GigaACE_Pri -> Line_Out
+}

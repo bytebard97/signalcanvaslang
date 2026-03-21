@@ -1,0 +1,24 @@
+# ============================================================
+# Atomos — Monitor/Recorders
+# Standard library templates for Atomos broadcast devices.
+# ============================================================
+
+# --- Shogun 7: HDR Monitor/Recorder/Switcher -----------------
+
+template Shogun_7 {
+  meta {
+    manufacturer: "Atomos"
+    model: "Shogun 7"
+    category: "Monitor Recorder"
+  }
+  ports {
+    SDI_In[1..4]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..4]: out(BNC_75) [SDI, UHD]
+    HDMI_In: in(HDMI) [UHD]
+    HDMI_Out: out(HDMI) [UHD]
+    TC_In: in(BNC_75) [analog]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Headphone: out(TRS) [analog, line_level]
+  }
+  bridge SDI_In -> SDI_Out
+}
