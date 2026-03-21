@@ -1,0 +1,95 @@
+---
+---
+
+@import "jekyll-theme-cayman";
+
+/* Dark theme override */
+body {
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.main-content {
+  background-color: #0d1117;
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #58a6ff;
+  }
+
+  a {
+    color: #4ade80;
+
+    &:hover {
+      color: #86efac;
+    }
+  }
+
+  p, li, td, th {
+    color: #c9d1d9;
+  }
+
+  table {
+    th {
+      background-color: #161b22;
+      color: #c9d1d9;
+    }
+    td {
+      background-color: #0d1117;
+      color: #c9d1d9;
+    }
+    tr {
+      border-top: 1px solid #21262d;
+      background-color: #0d1117;
+    }
+    tr:nth-child(2n) {
+      background-color: #161b22;
+    }
+  }
+
+  code {
+    background-color: #161b22;
+    color: #e6edf3;
+    border: 1px solid #30363d;
+  }
+
+  pre {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    color: #e6edf3;
+
+    code {
+      border: none;
+    }
+  }
+
+  blockquote {
+    border-left-color: #4ade80;
+    color: #8b949e;
+  }
+
+  hr {
+    border-bottom-color: #21262d;
+  }
+}
+
+.page-header {
+  background-image: linear-gradient(120deg, #0d1117, #064e3b, #0d1117);
+
+  .project-name {
+    color: #4ade80;
+  }
+
+  .project-tagline {
+    color: #a7f3d0;
+  }
+
+  .btn {
+    color: #4ade80;
+    border-color: #4ade80;
+
+    &:hover {
+      background-color: #4ade80;
+      color: #0d1117;
+    }
+  }
+}
