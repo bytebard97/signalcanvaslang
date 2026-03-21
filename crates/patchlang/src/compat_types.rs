@@ -34,6 +34,8 @@ pub enum TsStatement {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTemplateDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub name: String,
     pub params: Vec<TsParamDef>,
     pub meta: BTreeMap<String, String>,
@@ -80,6 +82,8 @@ pub struct TsPortDef {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsInstanceDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub name: String,
     pub template_name: String,
     pub args: BTreeMap<String, TsArgValue>,
@@ -106,6 +110,8 @@ pub enum TsArgValue {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsConnectDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub source: TsPortRef,
     pub target: TsPortRef,
     pub properties: BTreeMap<String, String>,
@@ -118,6 +124,8 @@ pub struct TsConnectDecl {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsBridgeDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub source: TsPortRef,
     pub target: TsPortRef,
 }
@@ -125,6 +133,8 @@ pub struct TsBridgeDecl {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsBridgeGroupDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub target: TsPortRef,
     pub sources: Vec<TsPortRef>,
 }
@@ -132,6 +142,8 @@ pub struct TsBridgeGroupDecl {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsLinkGroupDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub name: String,
     pub connects: Vec<TsConnectDecl>,
     pub properties: BTreeMap<String, String>,
@@ -140,6 +152,8 @@ pub struct TsLinkGroupDecl {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsSignalDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub name: String,
     pub properties: BTreeMap<String, String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -149,6 +163,8 @@ pub struct TsSignalDecl {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsFlagDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub name: String,
     pub properties: BTreeMap<String, String>,
 }
@@ -156,6 +172,8 @@ pub struct TsFlagDecl {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsStreamDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub name: String,
     pub properties: BTreeMap<String, String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -165,6 +183,8 @@ pub struct TsStreamDecl {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsConfigDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub name: String,
     pub labels: Vec<TsConfigLabel>,
 }
@@ -180,6 +200,8 @@ pub struct TsConfigLabel {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TsUseDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
     pub namespace: String,
     pub templates: Vec<String>,
     pub wildcard: bool,
