@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en-US' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% seo %}
+  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+</head>
+<body>
+  <header class="page-header" role="banner">
+    <h1 class="project-name">{{ page.title | default: site.title }}</h1>
+    <h2 class="project-tagline">{{ page.description | default: site.description }}</h2>
+    <a href="{{ site.github.repository_url }}" class="btn">View on GitHub</a>
+    <a href="{{ '/' | relative_url }}" class="btn">Home</a>
+    <a href="{{ '/specification' | relative_url }}" class="btn">Spec</a>
+    <a href="{{ '/examples' | relative_url }}" class="btn">Examples</a>
+  </header>
+
+  <main id="content" class="main-content" role="main">
+    {{ content }}
+    <footer class="site-footer">
+      <span class="site-footer-owner">
+        <a href="{{ site.github.repository_url }}">PatchLang</a> is part of
+        <a href="https://github.com/ByteBard97/SignalCanvas">SignalCanvas</a>.
+      </span>
+    </footer>
+  </main>
+
+  <script>
+    // PatchLang syntax highlighter for untagged code blocks
+    document.addEventListener('DOMContentLoaded', function() {
+      const KEYWORDS = /\b(template|instance|is|connect|bridge|bridge_group|link_group|signal|flag|stream|config|ports|meta|slot|use|route|bus|label|routing|for|over|generate)\b/g;
+      const DIRECTIONS = /\b(in|out|io)\b/g;
+      const ANNOTATIONS = /@(suppress|version)/g;
+      const STRINGS = /"[^"]*"/g;
+      const NUMBERS = /\b(\d+)\b/g;
+      const COMMENTS = /#.*/g;
+      const ARROW = /->/g;
+      const RANGE = /\.\./g;
+
+      document.querySelectorAll('pre > code').forEach(function(block) {
+        // Skip blocks that already have syntax highlighting (Rouge)
+        if (block.className && block.className.match(/language-|highlight/)) return;
+
+        var text = block.textContent;
+
+        // Only apply to blocks that look like PatchLang
+        if (!text.match(/\b(template|instance|connect|bridge|signal|ports|meta)\b/)) return;
+
+        // Escape HTML first
+        var html = text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        // Apply highlighting in order (comments last to override)
+        html = html.replace(STRINGS, '<span class="pl-string">$&</span>');
+        html = html.replace(ARROW, '<span class="pl-operator">$&</span>');
+        html = html.replace(RANGE, '<span class="pl-operator">$&</span>');
+        html = html.replace(ANNOTATIONS, '<span class="pl-keyword">$&</span>');
+        html = html.replace(KEYWORDS, '<span class="pl-keyword">$1</span>');
+        html = html.replace(DIRECTIONS, function(match, dir, offset) {
+          // Only highlight if it looks like a direction (after : or start of token)
+          var before = html.substring(Math.max(0, offset - 2), offset);
+          if (before.match(/:\s*$/) || before.match(/^\s*$/)) {
+            return '<span class="pl-direction">' + dir + '</span>';
+          }
+          return match;
+        });
+        html = html.replace(COMMENTS, '<span class="pl-comment">$&</span>');
+
+        block.innerHTML = html;
+      });
+    });
+  </script>
+</body>
+</html>
