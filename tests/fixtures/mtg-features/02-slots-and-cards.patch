@@ -1,0 +1,46 @@
+# MTG Feature Test: Card slots and installed cards
+# Source: MTG.json — AVID Venue FOH Rack with HDX and MADI cards
+
+template HDX_Card {
+  meta {
+    manufacturer: "AVID"
+    model: "HDX Card"
+  }
+  ports {
+    USB[1..64]: io(USB)
+  }
+}
+
+template MADI_Card {
+  meta {
+    manufacturer: "AVID"
+    model: "MADI"
+  }
+  ports {
+    MADI[1..48]: io(BNC_75) [MADI]
+    Word_Clock: io(BNC_75) [WordClock]
+  }
+}
+
+template Venue_FOH_Rack {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue FOH Rack"
+  }
+  ports {
+    AES[1..2]: io(XLR) [AES3]
+    LINE[1..8]: io(TRS_14)
+    Talkback: in(XLR) [Analogue]
+    Monitor[1..2]: out(TRS_14) [Analogue]
+    Two_Track[1..2]: io(TRS_14) [Analogue]
+  }
+  slot Expansion[1..3]: HDX_Card
+  slot Snake[1..2]: MADI_Card
+}
+
+instance FOH_Engine is Venue_FOH_Rack {
+  slot Expansion[1]: "HDX_Card"
+  slot Expansion[2]: "HDX_Card"
+  slot Snake[1]: "MADI_Card"
+  slot Snake[2]: "MADI_Card"
+}

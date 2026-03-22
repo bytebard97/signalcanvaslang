@@ -1,0 +1,34 @@
+# MTG Feature Test: Channel labels via config blocks
+# Source: MTG.json — Drums stage box with mic labels and metadata
+
+template StageBox_16x0 {
+  meta {
+    model: "16x0 XLR"
+  }
+  ports {
+    Stage_Box_Inputs[1..16]: in(XLR) [Analogue]
+    Inputs_to_Patch[1..16]: out(XLR) [Analogue]
+  }
+}
+
+instance Drums is StageBox_16x0 {
+  location: "Stage Left"
+}
+
+config Drums {
+  label Stage_Box_Inputs[1]: "Kick In" { phantom: "true", stand: "Short Boom" }
+  label Stage_Box_Inputs[2]: "Kick Out" { stand: "Short Boom" }
+  label Stage_Box_Inputs[3]: "Snare Top" { stand: "Short Boom" }
+  label Stage_Box_Inputs[4]: "Snare Bottom" { stand: "LP Claw" }
+  label Stage_Box_Inputs[5]: "Hats" { phantom: "true", stand: "Short Boom" }
+  label Stage_Box_Inputs[6]: "Tom 1"
+  label Stage_Box_Inputs[7]: "Tom 2"
+  label Stage_Box_Inputs[8]: "Tom 3"
+  label Stage_Box_Inputs[10]: "OH SR" { phantom: "true", stand: "Tall Boom" }
+  label Stage_Box_Inputs[11]: "OH SL" { phantom: "true", stand: "Tall Boom" }
+  label Stage_Box_Inputs[12]: "Tom 1 Trigger"
+  label Stage_Box_Inputs[13]: "Tom 2 Trigger"
+  label Stage_Box_Inputs[14]: "AC 1"
+  label Stage_Box_Inputs[15]: "Gtr 1 L"
+  label Stage_Box_Inputs[16]: "Gtr 1 R"
+}

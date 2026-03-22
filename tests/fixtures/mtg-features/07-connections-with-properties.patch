@@ -1,0 +1,52 @@
+# MTG Feature Test: Connections between diverse device types
+# Source: MTG.json — Dante, MADI, and analogue connections
+
+template TIO_1608_D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "TIO 1608-D"
+  }
+  ports {
+    Mic_Line_Input[1..16]: in(XLR) [Analogue]
+    Line_Output[1..8]: out(XLR) [Analogue]
+    DANTE[1..8]: io(RJ45_etherCON) [Dante]
+  }
+}
+
+template DM7_Compact {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "DM7 Compact"
+  }
+  ports {
+    DANTE[1..64]: io(RJ45_etherCON) [Dante]
+    Omni_Out[1..12]: out(XLR) [Analogue]
+    AES[1..4]: io(XLR) [AES3]
+  }
+}
+
+template RMIO64_D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "RMIO64-D"
+  }
+  ports {
+    MADI[1..64]: io(BNC_75) [MADI]
+    DANTE[1..64]: io(RJ45_etherCON) [Dante]
+  }
+}
+
+instance Aud_TIO is TIO_1608_D
+instance MON_Console is DM7_Compact
+instance RMIO is RMIO64_D
+
+# Dante connection — TIO outputs to console inputs
+connect Aud_TIO.DANTE[1..8] -> MON_Console.DANTE[1..8]
+
+# MADI to Dante bridge via RMIO
+connect RMIO.MADI[1..48] -> RMIO.DANTE[1..48]
+
+# Analogue output from console
+connect MON_Console.Omni_Out[1..8] -> Aud_TIO.Line_Output[1..8] {
+  mapping: "1->1, 2->2, 3->3, 4->4, 5->5, 6->6, 7->7, 8->8"
+}
