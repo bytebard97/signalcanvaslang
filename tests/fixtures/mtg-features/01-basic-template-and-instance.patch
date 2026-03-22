@@ -1,0 +1,22 @@
+# MTG Feature Test: Basic template with ports and instance
+# Source: MTG.json — "12×4 XLR" stage box (simplest device)
+
+template StageBox_12x4 {
+  meta {
+    model: "12x4 XLR"
+  }
+  ports {
+    Stage_Box_Inputs[1..12]: in(XLR) [Analogue]
+    Inputs_to_Patch[1..12]: out(XLR) [Analogue]
+    Returns_from_Patch[1..4]: in(XLR) [Analogue]
+    Stage_Box_Outputs[1..4]: out(XLR) [Analogue]
+  }
+}
+
+instance Drums is StageBox_12x4 {
+  location: "Stage Left"
+}
+
+instance Bass is StageBox_12x4 {
+  location: "Stage Right"
+}

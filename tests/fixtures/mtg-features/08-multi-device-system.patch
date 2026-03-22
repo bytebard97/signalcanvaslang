@@ -1,0 +1,100 @@
+# MTG Feature Test: Realistic multi-device signal chain
+# Source: MTG.json — Drums stage box -> Mic Splitter -> FOH + MON consoles
+# Tests templates, instances, connections, routes, buses, labels together
+
+template StageBox_16x0 {
+  meta {
+    model: "16x0 XLR"
+  }
+  ports {
+    Stage_Box_Inputs[1..16]: in(XLR) [Analogue]
+    Inputs_to_Patch[1..16]: out(XLR) [Analogue]
+  }
+}
+
+template Splitter_80ch {
+  meta {
+    model: "80-ch 3-way Splitter"
+  }
+  ports {
+    Inputs[1..80]: in(XLR)
+    Output_A[1..80]: out(XLR)
+    Output_B[1..80]: out(XLR)
+    Output_C[1..80]: out(XLR)
+  }
+}
+
+template Venue_Stage_Rack {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue Stage Rack"
+  }
+  ports {
+    MADI[1..48]: io(BNC_75) [MADI]
+  }
+  slot Venue_Input_Slot[1..6]: VSR_Input_Card
+  slot Venue_Output_Slot[1..6]: VSR_Output_Card
+}
+
+template VSR_Input_Card {
+  ports {
+    Input[1..8]: in(XLR) [Analogue]
+  }
+}
+
+template Console {
+  meta {
+    model: "Mixing Console"
+  }
+  ports {
+    MADI[1..48]: io(BNC_75) [MADI]
+    Main_L: out(XLR) [Analogue]
+    Main_R: out(XLR) [Analogue]
+  }
+}
+
+# Instances
+instance Drums is StageBox_16x0 {
+  location: "Stage Left"
+}
+
+instance Mic_Splits is Splitter_80ch {
+  location: "Patch Room"
+}
+
+instance FOH_Stage_Rack is Venue_Stage_Rack {
+  location: "Stage Left Rack"
+}
+
+instance FOH_Console is Console {
+  location: "Front of House"
+  bus PA_Matrix {
+    output: MADI[9]
+    output: MADI[10]
+  }
+  bus Monitor_Send {
+    output: MADI[11]
+    output: MADI[12]
+  }
+  route MADI[41] -> Main_L
+  route MADI[42] -> Main_R
+}
+
+# Signal chain: Drums -> Splitter -> Stage Rack -> Console
+connect Drums.Inputs_to_Patch[1..16] -> Mic_Splits.Inputs[1..16]
+connect Mic_Splits.Output_A[1..16] -> FOH_Stage_Rack.MADI[1..16]
+connect FOH_Stage_Rack.MADI[1..48] -> FOH_Console.MADI[1..48]
+
+# Channel labels
+config Drums {
+  label Stage_Box_Inputs[1]: "Kick In" { phantom: "true" }
+  label Stage_Box_Inputs[2]: "Kick Out"
+  label Stage_Box_Inputs[3]: "Snare Top"
+  label Stage_Box_Inputs[4]: "Snare Bottom"
+  label Stage_Box_Inputs[5]: "Hats" { phantom: "true" }
+  label Stage_Box_Inputs[6]: "Tom 1"
+  label Stage_Box_Inputs[7]: "Tom 2"
+  label Stage_Box_Inputs[8]: "Tom 3"
+  label Stage_Box_Inputs[10]: "OH SR" { phantom: "true" }
+  label Stage_Box_Inputs[11]: "OH SL" { phantom: "true" }
+}

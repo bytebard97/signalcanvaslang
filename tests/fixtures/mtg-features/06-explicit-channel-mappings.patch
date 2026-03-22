@@ -1,0 +1,41 @@
+# MTG Feature Test: Non-1:1 channel mappings on connections
+# Source: MTG.json — Stage boxes to mic splitter with offset/reordered channels
+
+template StageBox_16x0 {
+  meta {
+    model: "16x0 XLR"
+  }
+  ports {
+    Inputs[1..16]: in(XLR) [Analogue]
+    Outputs[1..16]: out(XLR) [Analogue]
+  }
+}
+
+template Splitter_80ch {
+  meta {
+    model: "80-ch 3-way Splitter"
+  }
+  ports {
+    Inputs[1..80]: in(XLR)
+    Output_A[1..80]: out(XLR)
+    Output_B[1..80]: out(XLR)
+    Output_C[1..80]: out(XLR)
+  }
+}
+
+instance Drums is StageBox_16x0
+instance Bass is StageBox_16x0
+instance Splitter is Splitter_80ch
+
+# Simple 1:1 sequential — drums channels 1-16 to splitter inputs 1-16
+connect Drums.Outputs[1..16] -> Splitter.Inputs[1..16]
+
+# Offset mapping — bass channels mapped to splitter starting at channel 17
+connect Bass.Outputs -> Splitter.Inputs {
+  mapping: "1->17, 2->18, 3->19, 4->20, 5->21, 6->22, 7->23, 8->24"
+}
+
+# Complex reordering — individual channels remapped
+connect Splitter.Output_A -> Drums.Inputs {
+  mapping: "1->1, 2->2, 3->3, 4->4, 10->9, 11->10, 15->15, 16->16, 12->32, 13->33, 14->19"
+}

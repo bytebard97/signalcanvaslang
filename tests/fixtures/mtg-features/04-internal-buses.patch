@@ -1,0 +1,50 @@
+# MTG Feature Test: Internal mix buses with output destinations
+# Source: MTG.json — FOH Engine mix buses routed to MADI snake outputs
+
+template Venue_FOH_Rack {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue FOH Rack"
+  }
+  ports {
+    MADI[1..48]: io(BNC_75) [MADI]
+    LINE[1..8]: io(TRS_14)
+  }
+}
+
+instance FOH_Engine is Venue_FOH_Rack {
+  bus PA_Matrix {
+    output: MADI[9]
+    output: MADI[10]
+  }
+  bus Front_Fill_Matrix {
+    output: MADI[11]
+  }
+  bus Floor_Sub_Matrix {
+    output: MADI[12]
+  }
+  bus PQ_MM {
+    output: MADI[1]
+    output: MADI[2]
+  }
+  bus PQ_Band {
+    output: MADI[3]
+    output: MADI[4]
+  }
+  bus PQ_Vox {
+    output: MADI[5]
+  }
+  bus PQ_MC {
+    output: MADI[6]
+  }
+  bus PQ_PGM {
+    output: MADI[7]
+    output: MADI[8]
+  }
+  bus VoxVerb_LP {
+    output: MADI[13]
+  }
+  bus DrumVerb_LP {
+    output: MADI[14]
+  }
+}
