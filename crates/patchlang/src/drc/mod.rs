@@ -4,6 +4,8 @@ pub mod electrical;
 pub mod helpers;
 pub mod logical;
 pub mod mechanical;
+pub mod meta;
+pub mod slots;
 pub mod structural;
 pub mod temporal;
 pub mod types;

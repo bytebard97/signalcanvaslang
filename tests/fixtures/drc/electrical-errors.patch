@@ -11,13 +11,19 @@ template LineDevice {
   }
 }
 
-template Speaker {
-  ports { In: in(SpeakON) [speaker_level] }
+template Amp {
+  ports {
+    Out: out(SpeakON) [speaker_level]
+    In: in(SpeakON) [speaker_level]
+  }
 }
 
 instance M is Mic
 instance D is LineDevice
-instance S is Speaker
+instance A is Amp
 
 # Valid — same level
 connect D.Out -> D.In
+
+# E01 — speaker_level to line_level (destructive level gap)
+connect A.Out -> D.In
