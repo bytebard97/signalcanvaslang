@@ -75,11 +75,11 @@ Read full reasoning in `../SignalCanvasFrontend/docs/REID-TODO-PATCHLANG-MIGRATI
 
 2. **`ring` keyword with hybrid member syntax.** `member Console` (implicit port resolution) and `member Console.OptoCore` (explicit port) both accepted. Needs new grammar: `Ring` and `Member` tokens, `RingDecl` AST node, `parse_ring()` function.
 
-3. **Reserve `card` now, not `ring`.** Add `Card` token to lexer immediately (prevents use as identifier). `Ring` gets added when the ring feature is implemented.
+3. **Reserve `card`, `ring`, and `member` now.** Add `Card` token to lexer immediately (prevents use as identifier). `Ring` gets added when the ring feature is implemented.
 
 4. **`io` direction convention only.** Parser accepts `io` with any protocol — no enforcement. The frontend emitter handles the convention (Dante/MADI → `in`/`out`, OptoCore/TWINLANe → `io`). Update example fixtures to follow convention.
 
-5. **Deterministic IDs via exported utility function.** Add `generate_port_id(instance_name, template_name, port_name, index) -> String` as a pure function exported from the crate. Format: `pl_{templateName}_{portName}[_{index}]`. Export via WASM and Python bindings. Ship conformance tests.
+5. **Deterministic IDs via exported utility function.** Add `generate_port_id(instance_name, template_name, port_name, index) -> String` as a pure function exported from the crate. Format: `pl::{templateName}::{portName}[_{index}]` (double-colon separator eliminates underscore ambiguity). Export via WASM and Python bindings. Ship conformance tests.
 
 ## Code Rules
 
