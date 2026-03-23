@@ -155,7 +155,7 @@ fn convert_connect(c: &ast::ConnectDecl) -> TsConnectDecl {
                 layers: c.suppressions.clone(),
             })
         },
-        mapping: c.mapping.as_ref().map(|raw| parse_mapping_spec(raw)),
+        mapping: c.mapping.as_ref().and_then(|raw| parse_mapping_spec(raw)),
     }
 }
 
@@ -379,17 +379,17 @@ fn stringify_port_ref(pr: &ast::PortRef) -> String {
 /// - `"1:1"` → `OneToOne`
 /// - `"offset 16"` or `"offset -8"` → `Offset { offset: 16 }`
 /// - `"1->3, 2->4"` → `Explicit { pairs: [...] }`
-pub fn parse_mapping_spec(raw: &str) -> TsMappingSpec {
+pub fn parse_mapping_spec(raw: &str) -> Option<TsMappingSpec> {
     let trimmed = raw.trim();
 
     if trimmed == "1:1" {
-        return TsMappingSpec::OneToOne;
+        return Some(TsMappingSpec::OneToOne);
     }
 
     if let Some(rest) = trimmed.strip_prefix("offset") {
         let rest = rest.trim();
         if let Ok(offset) = rest.parse::<i64>() {
-            return TsMappingSpec::Offset { offset };
+            return Some(TsMappingSpec::Offset { offset });
         }
     }
 
@@ -406,11 +406,11 @@ pub fn parse_mapping_spec(raw: &str) -> TsMappingSpec {
         .collect();
 
     if !pairs.is_empty() {
-        return TsMappingSpec::Explicit { pairs };
+        return Some(TsMappingSpec::Explicit { pairs });
     }
 
-    // Fallback: treat unknown as one-to-one (defensive)
-    TsMappingSpec::OneToOne
+    // Unrecognized mapping spec — return None so the caller can decide
+    None
 }
 
 #[cfg(test)]
