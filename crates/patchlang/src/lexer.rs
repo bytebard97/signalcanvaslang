@@ -55,8 +55,6 @@ pub enum Token {
     Bus,
     #[token("label")]
     Label,
-    #[token("card")]
-    Card,
     #[token("ring")]
     Ring,
     #[token("member")]
