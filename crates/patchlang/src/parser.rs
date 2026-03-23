@@ -25,6 +25,7 @@ const RECOVERY_TOKENS: &[Token] = &[
     Token::Stream,
     Token::Config,
     Token::Use,
+    Token::Ring,
 ];
 
 pub(crate) struct Parser<'a> {
@@ -178,6 +179,7 @@ impl<'a> Parser<'a> {
             Token::Stream => Some(Statement::Stream(self.parse_stream())),
             Token::Config => Some(Statement::Config(self.parse_config())),
             Token::Use => Some(Statement::Use(self.parse_use())),
+            Token::Ring => Some(Statement::Ring(self.parse_ring())),
             _ => None,
         }
     }
@@ -415,6 +417,56 @@ impl<'a> Parser<'a> {
             namespace,
             templates,
             wildcard,
+            span: self.span_from(start),
+        }
+    }
+
+    // ── Ring ────────────────────────────────────────────────
+
+    /// Parse `ring Name { protocol: "OptoCore"  member Console  member Rack.Port_B }`
+    fn parse_ring(&mut self) -> RingDecl {
+        let start = self.current_span().start;
+        self.advance(); // consume 'ring'
+        let name = self.expect_identifier().unwrap_or_default();
+
+        let mut properties = Vec::new();
+        let mut members = Vec::new();
+
+        if self.expect(&Token::LBrace) {
+            while !self.at_end() && self.peek() != Some(&Token::RBrace) {
+                if self.peek() == Some(&Token::Member) {
+                    members.push(self.parse_ring_member());
+                } else if self.is_property_key() {
+                    properties.push(self.parse_key_value_full());
+                } else {
+                    self.advance(); // skip unknown token, avoid infinite loop
+                }
+            }
+            self.expect(&Token::RBrace);
+        }
+
+        RingDecl {
+            name,
+            properties,
+            members,
+            span: self.span_from(start),
+        }
+    }
+
+    /// Parse `member InstanceName` or `member InstanceName.PortName`
+    fn parse_ring_member(&mut self) -> RingMember {
+        let start = self.current_span().start;
+        self.advance(); // consume 'member'
+        let instance_name = self.expect_identifier().unwrap_or_default();
+        let port_name = if self.peek() == Some(&Token::Dot) {
+            self.advance(); // consume '.'
+            Some(self.expect_identifier().unwrap_or_default())
+        } else {
+            None
+        };
+        RingMember {
+            instance_name,
+            port_name,
             span: self.span_from(start),
         }
     }

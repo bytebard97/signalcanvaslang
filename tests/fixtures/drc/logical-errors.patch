@@ -1,0 +1,35 @@
+# DRC fixture: protocol mismatch
+
+template DanteDevice {
+  ports {
+    Net_In: in(etherCON) [Dante]
+    Net_Out: out(etherCON) [Dante]
+  }
+}
+
+template MADIDevice {
+  ports {
+    MADI_In: in(BNC_75) [MADI]
+    MADI_Out: out(BNC_75) [MADI]
+  }
+}
+
+template AES67Device {
+  ports {
+    Net_In: in(etherCON) [AES67]
+    Net_Out: out(etherCON) [AES67]
+  }
+}
+
+instance D is DanteDevice
+instance M is MADIDevice
+instance A is AES67Device
+
+# L01 — protocol mismatch (Dante -> MADI)
+connect D.Net_Out -> M.MADI_In
+
+# Valid — Dante and AES67 are in the same compatibility group
+connect D.Net_Out -> A.Net_In
+
+# Suppressed
+connect D.Net_Out -> M.MADI_In { @suppress(logical) }

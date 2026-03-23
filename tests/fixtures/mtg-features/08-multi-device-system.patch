@@ -30,7 +30,8 @@ template Venue_Stage_Rack {
     model: "Venue Stage Rack"
   }
   ports {
-    MADI[1..48]: io(BNC_75) [MADI]
+    MADI_In[1..48]: in(BNC_75) [MADI]
+    MADI_Out[1..48]: out(BNC_75) [MADI]
   }
   slot Venue_Input_Slot[1..6]: VSR_Input_Card
   slot Venue_Output_Slot[1..6]: VSR_Output_Card
@@ -47,7 +48,8 @@ template Console {
     model: "Mixing Console"
   }
   ports {
-    MADI[1..48]: io(BNC_75) [MADI]
+    MADI_In[1..48]: in(BNC_75) [MADI]
+    MADI_Out[1..48]: out(BNC_75) [MADI]
     Main_L: out(XLR) [Analogue]
     Main_R: out(XLR) [Analogue]
   }
@@ -69,21 +71,21 @@ instance FOH_Stage_Rack is Venue_Stage_Rack {
 instance FOH_Console is Console {
   location: "Front of House"
   bus PA_Matrix {
-    output: MADI[9]
-    output: MADI[10]
+    output: MADI_Out[9]
+    output: MADI_Out[10]
   }
   bus Monitor_Send {
-    output: MADI[11]
-    output: MADI[12]
+    output: MADI_Out[11]
+    output: MADI_Out[12]
   }
-  route MADI[41] -> Main_L
-  route MADI[42] -> Main_R
+  route MADI_In[41] -> Main_L
+  route MADI_In[42] -> Main_R
 }
 
 # Signal chain: Drums -> Splitter -> Stage Rack -> Console
 connect Drums.Inputs_to_Patch[1..16] -> Mic_Splits.Inputs[1..16]
-connect Mic_Splits.Output_A[1..16] -> FOH_Stage_Rack.MADI[1..16]
-connect FOH_Stage_Rack.MADI[1..48] -> FOH_Console.MADI[1..48]
+connect Mic_Splits.Output_A[1..16] -> FOH_Stage_Rack.MADI_In[1..16]
+connect FOH_Stage_Rack.MADI_Out[1..48] -> FOH_Console.MADI_In[1..48]
 
 # Channel labels
 config Drums {

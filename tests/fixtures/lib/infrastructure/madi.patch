@@ -13,13 +13,15 @@ template DirectOut_ANDIAMO_2XT {
   ports {
     Analog_IO[1..8]: io(DB25) [analog, line_level]
     AES3_IO[1..4]: io(DB25) [AES3]
-    MADI_1: io(SFP) [MADI, ch64]
-    MADI_2: io(BNC_75) [MADI, ch64]
+    MADI_1_In[1..64]: in(SFP) [MADI, ch64]
+    MADI_1_Out[1..64]: out(SFP) [MADI, ch64]
+    MADI_2_In[1..64]: in(BNC_75) [MADI, ch64]
+    MADI_2_Out[1..64]: out(BNC_75) [MADI, ch64]
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }
-  bridge Analog_IO -> MADI_1
-  bridge AES3_IO -> MADI_1
+  bridge Analog_IO -> MADI_1_Out
+  bridge AES3_IO -> MADI_1_Out
 }
 
 template RME_MADI_Router {
@@ -30,9 +32,12 @@ template RME_MADI_Router {
     protocols: "MADI"
   }
   ports {
-    MADI_Opt[1..4]: io(SFP) [MADI]
-    MADI_Coax[1..4]: io(BNC_75) [MADI]
-    MADI_TP[1..4]: io(RJ45) [MADI]
+    MADI_Opt_In[1..4]: in(SFP) [MADI]
+    MADI_Opt_Out[1..4]: out(SFP) [MADI]
+    MADI_Coax_In[1..4]: in(BNC_75) [MADI]
+    MADI_Coax_Out[1..4]: out(BNC_75) [MADI]
+    MADI_TP_In[1..4]: in(RJ45) [MADI]
+    MADI_TP_Out[1..4]: out(RJ45) [MADI]
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }
@@ -47,10 +52,11 @@ template Ferrofish_A32 {
   }
   ports {
     Analog_IO[1..8]: io(DB25) [analog, line_level]
-    MADI_SFP[1..2]: io(SFP) [MADI, ch64]
+    MADI_SFP_In[1..2]: in(SFP) [MADI, ch64]
+    MADI_SFP_Out[1..2]: out(SFP) [MADI, ch64]
     ADAT_IO[1..8]: io(OpticalCon) [ADAT]
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }
-  bridge Analog_IO -> MADI_SFP
+  bridge Analog_IO -> MADI_SFP_Out
 }

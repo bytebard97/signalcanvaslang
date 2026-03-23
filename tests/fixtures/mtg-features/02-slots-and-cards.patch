@@ -17,7 +17,8 @@ template MADI_Card {
     model: "MADI"
   }
   ports {
-    MADI[1..48]: io(BNC_75) [MADI]
+    MADI_In[1..48]: in(BNC_75) [MADI]
+    MADI_Out[1..48]: out(BNC_75) [MADI]
     Word_Clock: io(BNC_75) [WordClock]
   }
 }

@@ -1,0 +1,59 @@
+# MTG Feature Test: Ring network declarations
+# Tests both implicit and explicit member port syntax
+
+template OptoCore_Console {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD12"
+  }
+  ports {
+    OptoCore_A: io [OptoCore]
+    OptoCore_B: io [OptoCore]
+  }
+}
+
+template OptoCore_Rack {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack"
+  }
+  ports {
+    OptoCore_A: io [OptoCore]
+    OptoCore_B: io [OptoCore]
+  }
+}
+
+instance Console is OptoCore_Console {
+  location: "FOH"
+}
+
+instance StageRack_1 is OptoCore_Rack {
+  location: "Stage Left"
+}
+
+instance StageRack_2 is OptoCore_Rack {
+  location: "Stage Right"
+}
+
+instance MonitorRack is OptoCore_Rack {
+  location: "Stage Monitor World"
+}
+
+# Primary ring — implicit port resolution for all members
+ring OptoCore_Primary {
+  protocol: "OptoCore"
+  member Console
+  member StageRack_1
+  member StageRack_2
+  member MonitorRack
+}
+
+# Secondary ring — explicit port references for dual-homed console
+ring OptoCore_Redundant {
+  protocol: "OptoCore"
+  label: "Redundant ring via B ports"
+  member Console.OptoCore_B
+  member StageRack_1.OptoCore_B
+  member StageRack_2.OptoCore_B
+  member MonitorRack.OptoCore_B
+}

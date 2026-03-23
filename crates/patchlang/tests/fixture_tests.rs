@@ -11,6 +11,9 @@ use patchlang::ast::Statement;
 /// Path from the crate root to the workspace-level fixtures directory.
 const FIXTURES_DIR: &str = "../../tests/fixtures/examples";
 
+/// Path from the crate root to the MTG feature fixtures directory.
+const MTG_FIXTURES_DIR: &str = "../../tests/fixtures/mtg-features";
+
 /// Helper to load and parse a fixture file, returning the parse result.
 fn parse_fixture(filename: &str) -> patchlang::error::ParseResult {
     let path = format!("{FIXTURES_DIR}/{filename}");
@@ -32,6 +35,7 @@ struct StatementCounts {
     streams: usize,
     configs: usize,
     uses: usize,
+    rings: usize,
     errors: usize,
 }
 
@@ -48,6 +52,7 @@ fn count_statements(statements: &[Statement]) -> StatementCounts {
         streams: 0,
         configs: 0,
         uses: 0,
+        rings: 0,
         errors: 0,
     };
     for stmt in statements {
@@ -63,6 +68,7 @@ fn count_statements(statements: &[Statement]) -> StatementCounts {
             Statement::Stream(_) => counts.streams += 1,
             Statement::Config(_) => counts.configs += 1,
             Statement::Use(_) => counts.uses += 1,
+            Statement::Ring(_) => counts.rings += 1,
             Statement::Error(_) => counts.errors += 1,
         }
     }
@@ -75,6 +81,25 @@ fn template_names(statements: &[Statement]) -> Vec<String> {
         .iter()
         .filter_map(|s| match s {
             Statement::Template(t) => Some(t.name.clone()),
+            _ => None,
+        })
+        .collect()
+}
+
+/// Helper to load and parse an MTG feature fixture file.
+fn parse_mtg_fixture(filename: &str) -> patchlang::error::ParseResult {
+    let path = format!("{MTG_FIXTURES_DIR}/{filename}");
+    let source = std::fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("failed to read MTG fixture {path}: {e}"));
+    patchlang::parse(&source)
+}
+
+/// Collect ring names from parsed statements.
+fn ring_names(statements: &[Statement]) -> Vec<String> {
+    statements
+        .iter()
+        .filter_map(|s| match s {
+            Statement::Ring(r) => Some(r.name.clone()),
             _ => None,
         })
         .collect()
@@ -111,7 +136,7 @@ fn worship_venue_statement_counts() {
 
     assert_eq!(counts.templates, 3, "expected 3 templates");
     assert_eq!(counts.instances, 4, "expected 4 instances");
-    assert_eq!(counts.connects, 6, "expected 6 connects");
+    assert_eq!(counts.connects, 12, "expected 12 connects (two per bidirectional cable)");
     assert_eq!(counts.bridges, 2, "expected 2 bridges");
     assert_eq!(counts.signals, 4, "expected 4 signals");
     assert_eq!(counts.errors, 0, "expected 0 error nodes");
@@ -129,7 +154,7 @@ fn worship_venue_instance_refs() {
     let result = parse_fixture("worship-venue.patch");
     let pairs = instance_pairs(&result.program.statements);
 
-    let expected = vec![
+    let expected = [
         ("Stage_Left", "Rio3224"),
         ("Stage_Right", "Rio3224"),
         ("FOH_Console", "CL5"),
@@ -182,7 +207,7 @@ fn broadcast_truck_instance_refs() {
     let result = parse_fixture("broadcast-truck.patch");
     let pairs = instance_pairs(&result.program.statements);
 
-    let expected = vec![
+    let expected = [
         ("Cam1", "Camera"),
         ("Cam2", "Camera"),
         ("Cam3", "Camera"),
@@ -291,7 +316,7 @@ fn concert_venue_hierarchical_instance_refs() {
     let result = parse_fixture("concert-venue-hierarchical.patch");
     let pairs = instance_pairs(&result.program.statements);
 
-    let expected = vec![
+    let expected = [
         ("Audio_FOH", "AudioFOH"),
         ("Audio_Stage", "AudioStage"),
         ("Audio_Net", "AudioNetwork"),
@@ -303,5 +328,63 @@ fn concert_venue_hierarchical_instance_refs() {
     for (i, (name, tmpl)) in expected.iter().enumerate() {
         assert_eq!(pairs[i].0, *name, "instance {i} name mismatch");
         assert_eq!(pairs[i].1, *tmpl, "instance {i} template mismatch");
+    }
+}
+
+// ── 09-ring-network.patch (MTG features) ───────────────────────────
+
+#[test]
+fn ring_network_parses_without_errors() {
+    let result = parse_mtg_fixture("09-ring-network.patch");
+    assert!(
+        result.errors.is_empty(),
+        "ring-network parse errors: {:?}",
+        result.errors
+    );
+}
+
+#[test]
+fn ring_network_statement_counts() {
+    let result = parse_mtg_fixture("09-ring-network.patch");
+    let counts = count_statements(&result.program.statements);
+
+    assert_eq!(counts.templates, 2, "expected 2 templates");
+    assert_eq!(counts.instances, 4, "expected 4 instances");
+    assert_eq!(counts.connects, 0, "expected 0 connects");
+    assert_eq!(counts.rings, 2, "expected 2 rings");
+    assert_eq!(counts.errors, 0, "expected 0 error nodes");
+}
+
+#[test]
+fn ring_network_ring_names() {
+    let result = parse_mtg_fixture("09-ring-network.patch");
+    let names = ring_names(&result.program.statements);
+    assert_eq!(names, vec!["OptoCore_Primary", "OptoCore_Redundant"]);
+}
+
+#[test]
+fn ring_network_primary_members() {
+    let result = parse_mtg_fixture("09-ring-network.patch");
+    let rings: Vec<_> = result.program.statements.iter().filter_map(|s| {
+        if let Statement::Ring(r) = s { Some(r) } else { None }
+    }).collect();
+    let primary = rings.iter().find(|r| r.name == "OptoCore_Primary").unwrap();
+    assert_eq!(primary.members.len(), 4);
+    for m in &primary.members {
+        assert!(m.port_name.is_none(), "primary ring members should have implicit ports");
+    }
+}
+
+#[test]
+fn ring_network_redundant_members() {
+    let result = parse_mtg_fixture("09-ring-network.patch");
+    let rings: Vec<_> = result.program.statements.iter().filter_map(|s| {
+        if let Statement::Ring(r) = s { Some(r) } else { None }
+    }).collect();
+    let redundant = rings.iter().find(|r| r.name == "OptoCore_Redundant").unwrap();
+    assert_eq!(redundant.members.len(), 4);
+    for m in &redundant.members {
+        assert_eq!(m.port_name.as_deref(), Some("OptoCore_B"),
+            "redundant ring members should have explicit OptoCore_B port");
     }
 }

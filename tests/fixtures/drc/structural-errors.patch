@@ -1,0 +1,34 @@
+# DRC fixture: structural errors
+# Tests: unknown template ref, unknown port ref, duplicate instance name,
+#        duplicate signal name, unknown config ref, unknown signal origin
+
+template ValidDevice {
+  ports {
+    Audio_In[1..4]: in(XLR)
+    Audio_Out[1..2]: out(XLR)
+  }
+}
+
+# S01 — references GhostTemplate which is not defined
+instance Bad_Device is GhostTemplate
+
+# S10 — duplicate instance name
+instance FOH is ValidDevice
+instance FOH is ValidDevice
+
+# S03 — connect references port that doesn't exist on ValidDevice
+connect FOH.Dante_Out -> Bad_Device.Audio_In
+
+# S07 — config references unknown instance
+config Nonexistent_Device {
+  label Audio_In[1]: "Test"
+}
+
+# S08 — signal origin references unknown instance
+signal TestSig {
+  origin: Ghost_Box.Audio_In[1]
+}
+
+# S11 — duplicate signal name
+signal DupSig { }
+signal DupSig { }

@@ -16,20 +16,28 @@ template SD7 {
     Line_Out[1..12]: out(XLR) [analog, line_level]
     AES_In[1..6]: in(XLR) [AES3]
     AES_Out[1..6]: out(XLR) [AES3]
-    MADI_A_Pri: io(BNC_75) [MADI, primary]
-    MADI_A_Sec: io(BNC_75) [MADI, redundant]
-    MADI_B_Pri: io(BNC_75) [MADI, primary]
-    MADI_B_Sec: io(BNC_75) [MADI, redundant]
-    MADI_C_Pri: io(BNC_75) [MADI, primary]
-    MADI_C_Sec: io(BNC_75) [MADI, redundant]
-    MADI_D_Pri: io(BNC_75) [MADI, primary]
-    MADI_D_Sec: io(BNC_75) [MADI, redundant]
+    MADI_A_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_A_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_A_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_A_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
+    MADI_B_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_B_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_B_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_B_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
+    MADI_C_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_C_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_C_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_C_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
+    MADI_D_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_D_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_D_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_D_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
     Optocore_A: io(OpticalCon) [Optocore]
     Optocore_B: io(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
-  bridge Mic_In -> MADI_A_Pri
+  bridge Mic_In -> MADI_A_Pri_Out
 }
 
 template SD12 {
@@ -43,13 +51,15 @@ template SD12 {
     Line_Out[1..8]: out(XLR) [analog, line_level]
     AES_In[1..4]: in(XLR) [AES3]
     AES_Out[1..4]: out(XLR) [AES3]
-    MADI_A: io(BNC_75) [MADI]
-    MADI_B: io(BNC_75) [MADI]
+    MADI_A_In[1..64]: in(BNC_75) [MADI]
+    MADI_A_Out[1..64]: out(BNC_75) [MADI]
+    MADI_B_In[1..64]: in(BNC_75) [MADI]
+    MADI_B_Out[1..64]: out(BNC_75) [MADI]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
   slot DMI_Slot[1..2]: DMI_Card
-  bridge Mic_In -> MADI_A
+  bridge Mic_In -> MADI_A_Out
 }
 
 template SD5 {
@@ -63,15 +73,17 @@ template SD5 {
     Line_Out[1..8]: out(XLR) [analog, line_level]
     AES_In[1..4]: in(XLR) [AES3]
     AES_Out[1..4]: out(XLR) [AES3]
-    MADI_A: io(BNC_75) [MADI]
-    MADI_B: io(BNC_75) [MADI]
+    MADI_A_In[1..64]: in(BNC_75) [MADI]
+    MADI_A_Out[1..64]: out(BNC_75) [MADI]
+    MADI_B_In[1..64]: in(BNC_75) [MADI]
+    MADI_B_Out[1..64]: out(BNC_75) [MADI]
     Optocore_A: io(OpticalCon) [Optocore]
     Optocore_B: io(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
   slot DMI_Slot[1..2]: DMI_Card
-  bridge Mic_In -> MADI_A
+  bridge Mic_In -> MADI_A_Out
 }
 
 # --- Quantum Series -------------------------------------------
@@ -87,21 +99,29 @@ template Quantum7 {
     Line_Out[1..12]: out(XLR) [analog, line_level]
     AES_In[1..6]: in(XLR) [AES3]
     AES_Out[1..6]: out(XLR) [AES3]
-    MADI_A_Pri: io(BNC_75) [MADI, primary]
-    MADI_A_Sec: io(BNC_75) [MADI, redundant]
-    MADI_B_Pri: io(BNC_75) [MADI, primary]
-    MADI_B_Sec: io(BNC_75) [MADI, redundant]
-    MADI_C_Pri: io(BNC_75) [MADI, primary]
-    MADI_C_Sec: io(BNC_75) [MADI, redundant]
-    MADI_D_Pri: io(BNC_75) [MADI, primary]
-    MADI_D_Sec: io(BNC_75) [MADI, redundant]
+    MADI_A_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_A_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_A_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_A_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
+    MADI_B_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_B_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_B_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_B_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
+    MADI_C_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_C_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_C_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_C_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
+    MADI_D_Pri_In[1..64]: in(BNC_75) [MADI, primary]
+    MADI_D_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
+    MADI_D_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
+    MADI_D_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
     Optocore_A: io(OpticalCon) [Optocore]
     Optocore_B: io(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
   slot DMI_Slot[1..4]: DMI_Card
-  bridge Mic_In -> MADI_A_Pri
+  bridge Mic_In -> MADI_A_Pri_Out
 }
 
 template Quantum338 {
@@ -115,15 +135,17 @@ template Quantum338 {
     Line_Out[1..8]: out(XLR) [analog, line_level]
     AES_In[1..4]: in(XLR) [AES3]
     AES_Out[1..4]: out(XLR) [AES3]
-    MADI_A: io(BNC_75) [MADI]
-    MADI_B: io(BNC_75) [MADI]
+    MADI_A_In[1..64]: in(BNC_75) [MADI]
+    MADI_A_Out[1..64]: out(BNC_75) [MADI]
+    MADI_B_In[1..64]: in(BNC_75) [MADI]
+    MADI_B_Out[1..64]: out(BNC_75) [MADI]
     Optocore_A: io(OpticalCon) [Optocore]
     Optocore_B: io(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
   slot DMI_Slot[1..2]: DMI_Card
-  bridge Mic_In -> MADI_A
+  bridge Mic_In -> MADI_A_Out
 }
 
 # --- SD-Rack --------------------------------------------------
@@ -137,11 +159,13 @@ template SD_Rack {
   ports {
     Optocore_A: io(OpticalCon) [Optocore]
     Optocore_B: io(OpticalCon) [Optocore]
-    MADI_A: io(BNC_75) [MADI]
-    MADI_B: io(BNC_75) [MADI]
+    MADI_A_In[1..64]: in(BNC_75) [MADI]
+    MADI_A_Out[1..64]: out(BNC_75) [MADI]
+    MADI_B_In[1..64]: in(BNC_75) [MADI]
+    MADI_B_Out[1..64]: out(BNC_75) [MADI]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
   slot IO_Slot[1..14]: SD_IO_Card
-  bridge Optocore_A -> MADI_A
+  bridge Optocore_A -> MADI_A_Out
 }

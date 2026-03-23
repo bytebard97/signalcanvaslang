@@ -1,0 +1,401 @@
+{
+  "port_id_cases": [
+    {
+      "id": "happy_single_port",
+      "description": "Clean template and port name, no index",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "AES50A",
+      "index": null,
+      "expected": "pl::CL5::AES50A"
+    },
+    {
+      "id": "happy_ranged_port_1",
+      "description": "Ranged port with index 1",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Dante_In",
+      "index": 1,
+      "expected": "pl::CL5::Dante_In_1"
+    },
+    {
+      "id": "happy_ranged_port_16",
+      "description": "Ranged port with index 16",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Dante_In",
+      "index": 16,
+      "expected": "pl::CL5::Dante_In_16"
+    },
+    {
+      "id": "happy_ranged_port_zero",
+      "description": "Ranged port with index 0 (0-based indexing)",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Dante_In",
+      "index": 0,
+      "expected": "pl::CL5::Dante_In_0"
+    },
+    {
+      "id": "happy_instance_name_ignored",
+      "description": "Different instance_name produces same ID as happy_single_port",
+      "instance_name": "Monitor_Desk",
+      "template_name": "CL5",
+      "port_name": "AES50A",
+      "index": null,
+      "expected": "pl::CL5::AES50A"
+    },
+    {
+      "id": "happy_large_index",
+      "description": "Large channel index",
+      "instance_name": "Stage_Box",
+      "template_name": "RIO3224D3",
+      "port_name": "Mic_Line_Inputs",
+      "index": 32,
+      "expected": "pl::RIO3224D3::Mic_Line_Inputs_32"
+    },
+    {
+      "id": "space_in_template",
+      "description": "Space in template name becomes underscore",
+      "instance_name": "FOH",
+      "template_name": "CL 5",
+      "port_name": "Dante",
+      "index": null,
+      "expected": "pl::CL_5::Dante"
+    },
+    {
+      "id": "space_in_port",
+      "description": "Space in port name becomes underscore",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Dante In",
+      "index": 1,
+      "expected": "pl::CL5::Dante_In_1"
+    },
+    {
+      "id": "leading_space_template",
+      "description": "Leading space in template is trimmed after sanitization",
+      "instance_name": "FOH",
+      "template_name": " CL5",
+      "port_name": "Out",
+      "index": null,
+      "expected": "pl::CL5::Out"
+    },
+    {
+      "id": "trailing_space_port",
+      "description": "Trailing space in port is trimmed after sanitization",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Out ",
+      "index": null,
+      "expected": "pl::CL5::Out"
+    },
+    {
+      "id": "hyphen_in_template",
+      "description": "Hyphens in template become underscores",
+      "instance_name": "Stage_Box",
+      "template_name": "RIO-3224-D3",
+      "port_name": "Mic",
+      "index": null,
+      "expected": "pl::RIO_3224_D3::Mic"
+    },
+    {
+      "id": "hyphen_in_port",
+      "description": "Hyphen in port name becomes underscore",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Mic-Line",
+      "index": null,
+      "expected": "pl::CL5::Mic_Line"
+    },
+    {
+      "id": "slash_in_port",
+      "description": "Slash in port name becomes underscore",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "AES/EBU",
+      "index": null,
+      "expected": "pl::CL5::AES_EBU"
+    },
+    {
+      "id": "parentheses_in_port",
+      "description": "Parentheses in port name become underscores, collapsed and trimmed",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Out(L)",
+      "index": null,
+      "expected": "pl::CL5::Out_L"
+    },
+    {
+      "id": "dot_in_template",
+      "description": "Dot in template name becomes underscore",
+      "instance_name": "Stage_Box",
+      "template_name": "RIO3224.v2",
+      "port_name": "Input",
+      "index": 1,
+      "expected": "pl::RIO3224_v2::Input_1"
+    },
+    {
+      "id": "mixed_special",
+      "description": "Multiple special characters sanitized and collapsed",
+      "instance_name": "FOH",
+      "template_name": "SC-48 (mk2)",
+      "port_name": "In/Out",
+      "index": null,
+      "expected": "pl::SC_48_mk2::In_Out"
+    },
+    {
+      "id": "double_underscore_template",
+      "description": "Consecutive underscores collapsed to single",
+      "instance_name": "FOH",
+      "template_name": "FOO__BAR",
+      "port_name": "In",
+      "index": null,
+      "expected": "pl::FOO_BAR::In"
+    },
+    {
+      "id": "multiple_special_runs",
+      "description": "Run of special characters collapsed to single underscore",
+      "instance_name": "FOH",
+      "template_name": "A---B",
+      "port_name": "X",
+      "index": null,
+      "expected": "pl::A_B::X"
+    },
+    {
+      "id": "consecutive_spaces",
+      "description": "Multiple spaces collapsed to single underscore",
+      "instance_name": "FOH",
+      "template_name": "CL  5",
+      "port_name": "Out",
+      "index": null,
+      "expected": "pl::CL_5::Out"
+    },
+    {
+      "id": "underscores_with_specials",
+      "description": "Mixed underscores and special chars collapsed",
+      "instance_name": "FOH",
+      "template_name": "A_-_B",
+      "port_name": "Port",
+      "index": null,
+      "expected": "pl::A_B::Port"
+    },
+    {
+      "id": "leading_hyphen_template",
+      "description": "Leading hyphen becomes underscore then trimmed",
+      "instance_name": "FOH",
+      "template_name": "-CL5",
+      "port_name": "In",
+      "index": null,
+      "expected": "pl::CL5::In"
+    },
+    {
+      "id": "trailing_hyphen_port",
+      "description": "Trailing hyphen becomes underscore then trimmed",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "Out-",
+      "index": null,
+      "expected": "pl::CL5::Out"
+    },
+    {
+      "id": "both_ends_special",
+      "description": "Special chars on both ends of both fields trimmed",
+      "instance_name": "FOH",
+      "template_name": "-CL5-",
+      "port_name": "-Out-",
+      "index": null,
+      "expected": "pl::CL5::Out"
+    },
+    {
+      "id": "empty_template_name",
+      "description": "Empty template name falls back to unnamed",
+      "instance_name": "FOH",
+      "template_name": "",
+      "port_name": "Out",
+      "index": null,
+      "expected": "pl::unnamed::Out"
+    },
+    {
+      "id": "empty_port_name",
+      "description": "Empty port name falls back to unnamed",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "",
+      "index": null,
+      "expected": "pl::CL5::unnamed"
+    },
+    {
+      "id": "all_special_template",
+      "description": "All-special-char template falls back to unnamed",
+      "instance_name": "FOH",
+      "template_name": "---",
+      "port_name": "Out",
+      "index": null,
+      "expected": "pl::unnamed::Out"
+    },
+    {
+      "id": "unicode_in_port",
+      "description": "Non-ASCII chars are stripped, empty result falls back to unnamed",
+      "instance_name": "FOH",
+      "template_name": "CL5",
+      "port_name": "\u5165\u529b",
+      "index": null,
+      "expected": "pl::CL5::unnamed"
+    }
+  ],
+  "route_id_cases": [
+    {
+      "id": "route_happy_path",
+      "description": "Clean route ID generation",
+      "template_name": "CL5",
+      "source_port": "AES50A",
+      "target_port": "Dante_Out",
+      "expected": "rule::CL5::AES50A::Dante_Out"
+    },
+    {
+      "id": "route_with_hyphens",
+      "description": "Hyphens sanitized in route ID",
+      "template_name": "RIO-3224-D3",
+      "source_port": "Mic-In",
+      "target_port": "Dante-Out",
+      "expected": "rule::RIO_3224_D3::Mic_In::Dante_Out"
+    },
+    {
+      "id": "route_with_spaces",
+      "description": "Spaces sanitized in route ID",
+      "template_name": "CL 5",
+      "source_port": "Dante In",
+      "target_port": "Dante Out",
+      "expected": "rule::CL_5::Dante_In::Dante_Out"
+    },
+    {
+      "id": "route_with_slashes",
+      "description": "Slashes sanitized in route ID",
+      "template_name": "CL5",
+      "source_port": "AES/EBU",
+      "target_port": "Out/Main",
+      "expected": "rule::CL5::AES_EBU::Out_Main"
+    },
+    {
+      "id": "route_empty_template",
+      "description": "Empty template falls back to unnamed in route",
+      "template_name": "",
+      "source_port": "In",
+      "target_port": "Out",
+      "expected": "rule::unnamed::In::Out"
+    },
+    {
+      "id": "route_empty_source",
+      "description": "Empty source port falls back to unnamed in route",
+      "template_name": "CL5",
+      "source_port": "",
+      "target_port": "Out",
+      "expected": "rule::CL5::unnamed::Out"
+    },
+    {
+      "id": "route_empty_target",
+      "description": "Empty target port falls back to unnamed in route",
+      "template_name": "CL5",
+      "source_port": "In",
+      "target_port": "",
+      "expected": "rule::CL5::In::unnamed"
+    },
+    {
+      "id": "route_special_chars",
+      "description": "Mixed special characters in route fields",
+      "template_name": "SC-48 (mk2)",
+      "source_port": "In/Out",
+      "target_port": "AES(L)",
+      "expected": "rule::SC_48_mk2::In_Out::AES_L"
+    },
+    {
+      "id": "route_consecutive_underscores",
+      "description": "Consecutive underscores collapsed in route",
+      "template_name": "FOO__BAR",
+      "source_port": "A---B",
+      "target_port": "C___D",
+      "expected": "rule::FOO_BAR::A_B::C_D"
+    },
+    {
+      "id": "route_leading_trailing_special",
+      "description": "Leading/trailing special chars trimmed in route",
+      "template_name": "-CL5-",
+      "source_port": "-In-",
+      "target_port": "-Out-",
+      "expected": "rule::CL5::In::Out"
+    }
+  ],
+  "slot_id_cases": [
+    {
+      "id": "slot_happy_path",
+      "description": "Clean slot ID generation",
+      "template_name": "CL5",
+      "slot_name": "MY_Card",
+      "expected": "slot::CL5::MY_Card"
+    },
+    {
+      "id": "slot_with_hyphens",
+      "description": "Hyphens sanitized in slot ID",
+      "template_name": "RIO-3224-D3",
+      "slot_name": "Card-Slot",
+      "expected": "slot::RIO_3224_D3::Card_Slot"
+    },
+    {
+      "id": "slot_with_spaces",
+      "description": "Spaces sanitized in slot ID",
+      "template_name": "CL 5",
+      "slot_name": "Card Slot",
+      "expected": "slot::CL_5::Card_Slot"
+    },
+    {
+      "id": "slot_with_slashes",
+      "description": "Slashes sanitized in slot ID",
+      "template_name": "CL5",
+      "slot_name": "I/O",
+      "expected": "slot::CL5::I_O"
+    },
+    {
+      "id": "slot_empty_template",
+      "description": "Empty template falls back to unnamed in slot",
+      "template_name": "",
+      "slot_name": "Card",
+      "expected": "slot::unnamed::Card"
+    },
+    {
+      "id": "slot_empty_slot_name",
+      "description": "Empty slot name falls back to unnamed",
+      "template_name": "CL5",
+      "slot_name": "",
+      "expected": "slot::CL5::unnamed"
+    },
+    {
+      "id": "slot_special_chars",
+      "description": "Mixed special characters in slot fields",
+      "template_name": "SC-48 (mk2)",
+      "slot_name": "Card(A)",
+      "expected": "slot::SC_48_mk2::Card_A"
+    },
+    {
+      "id": "slot_consecutive_underscores",
+      "description": "Consecutive underscores collapsed in slot",
+      "template_name": "FOO__BAR",
+      "slot_name": "A---B",
+      "expected": "slot::FOO_BAR::A_B"
+    },
+    {
+      "id": "slot_leading_trailing_special",
+      "description": "Leading/trailing special chars trimmed in slot",
+      "template_name": "-CL5-",
+      "slot_name": "-Card-",
+      "expected": "slot::CL5::Card"
+    },
+    {
+      "id": "slot_unicode",
+      "description": "Non-ASCII chars stripped, falls back to unnamed",
+      "template_name": "CL5",
+      "slot_name": "\u30b9\u30ed\u30c3\u30c8",
+      "expected": "slot::CL5::unnamed"
+    }
+  ]
+}

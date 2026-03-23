@@ -33,7 +33,7 @@ connect Stage_Rack_B.Optocore_B -> FOH_Console.Optocore_B {
 
 # --- MADI: FOH to Recording ---------------------------------
 
-connect FOH_Console.MADI_A -> FOH_Rack.Optocore_A {
+connect FOH_Console.MADI_A_Out -> FOH_Rack.Optocore_A {
   cable: "MADI_FOH_Rec"
   length: "3m"
 }
@@ -45,25 +45,29 @@ connect Audio_SW_FOH.SFP[1] -> Audio_SW_Stage.SFP[1] {
   length: "60m"
 }
 
-connect Wireless_Rack_1.Dante_Pri -> Audio_SW_Stage.Port[1] {
+connect Wireless_Rack_1.Dante_Pri_Out -> Audio_SW_Stage.Port[1] {
   cable: "Cat6a_WR1_Pri"
   length: "8m"
 }
+connect Audio_SW_Stage.Port[1] -> Wireless_Rack_1.Dante_Pri_In
 
-connect Wireless_Rack_1.Dante_Sec -> Audio_SW_Stage.Port[2] {
+connect Wireless_Rack_1.Dante_Sec_Out -> Audio_SW_Stage.Port[2] {
   cable: "Cat6a_WR1_Sec"
   length: "8m"
 }
+connect Audio_SW_Stage.Port[2] -> Wireless_Rack_1.Dante_Sec_In
 
-connect Wireless_Rack_2.Dante_Pri -> Audio_SW_Stage.Port[3] {
+connect Wireless_Rack_2.Dante_Pri_Out -> Audio_SW_Stage.Port[3] {
   cable: "Cat6a_WR2_Pri"
   length: "12m"
 }
+connect Audio_SW_Stage.Port[3] -> Wireless_Rack_2.Dante_Pri_In
 
-connect Wireless_Rack_2.Dante_Sec -> Audio_SW_Stage.Port[4] {
+connect Wireless_Rack_2.Dante_Sec_Out -> Audio_SW_Stage.Port[4] {
   cable: "Cat6a_WR2_Sec"
   length: "12m"
 }
+connect Audio_SW_Stage.Port[4] -> Wireless_Rack_2.Dante_Sec_In
 
 # --- Amplifier Feeds (AES from FOH Console) ------------------
 

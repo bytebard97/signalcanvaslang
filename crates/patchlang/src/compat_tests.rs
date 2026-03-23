@@ -534,6 +534,71 @@ fn error_statements_are_filtered_out() {
     }
 }
 
+// ── Ring compat ─────────────────────────────────────────────────────
+
+#[test]
+fn ring_decl_serializes_type_tag() {
+    let ring = RingDecl {
+        name: "Primary".into(),
+        properties: vec![KeyValue {
+            key: "protocol".into(),
+            value: KvValue::Str { value: "OptoCore".into() },
+        }],
+        members: vec![RingMember {
+            instance_name: "Console".into(),
+            port_name: None,
+            span: span(),
+        }],
+        span: span(),
+    };
+    let ts = convert_ring(&ring);
+    let json = serde_json::to_value(&ts).unwrap();
+    assert_eq!(json["type"], "Ring");
+    assert_eq!(json["name"], "Primary");
+}
+
+#[test]
+fn ring_member_implicit_no_port_name_field() {
+    let member = RingMember {
+        instance_name: "Console".into(),
+        port_name: None,
+        span: span(),
+    };
+    let ts = convert_ring_member(&member);
+    let json = serde_json::to_value(&ts).unwrap();
+    assert_eq!(json["instanceName"], "Console");
+    assert!(json.get("portName").is_none(), "portName should be absent when None");
+}
+
+#[test]
+fn ring_member_explicit_has_port_name() {
+    let member = RingMember {
+        instance_name: "Console".into(),
+        port_name: Some("OptoCore_B".into()),
+        span: span(),
+    };
+    let ts = convert_ring_member(&member);
+    let json = serde_json::to_value(&ts).unwrap();
+    assert_eq!(json["instanceName"], "Console");
+    assert_eq!(json["portName"], "OptoCore_B");
+}
+
+#[test]
+fn ring_properties_in_camel_case() {
+    let ring = RingDecl {
+        name: "Test".into(),
+        properties: vec![
+            KeyValue { key: "protocol".into(), value: KvValue::Str { value: "OptoCore".into() } },
+            KeyValue { key: "label".into(), value: KvValue::Str { value: "Main ring".into() } },
+        ],
+        members: vec![],
+        span: span(),
+    };
+    let ts = convert_ring(&ring);
+    assert_eq!(ts.properties.get("protocol").unwrap(), "OptoCore");
+    assert_eq!(ts.properties.get("label").unwrap(), "Main ring");
+}
+
 // ── PortRef stringify edge cases ───────────────────────────────────
 
 #[test]

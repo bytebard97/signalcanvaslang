@@ -12,8 +12,10 @@ template CL5 {
     category: "Console"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..72]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..24]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..72]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..24]: out(etherCON) [Dante, secondary]
     OMNI_In[1..8]: in(XLR) [analog, mic_level]
     OMNI_Out[1..8]: out(XLR) [analog, line_level]
     AES_Out[1..2]: out(XLR) [AES3]
@@ -23,7 +25,7 @@ template CL5 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot MY_Slot[1..3]: MY_Card
-  bridge OMNI_In -> Dante_Pri
+  bridge OMNI_In -> Dante_Pri_Out
 }
 
 template CL3 {
@@ -33,8 +35,10 @@ template CL3 {
     category: "Console"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     OMNI_In[1..8]: in(XLR) [analog, mic_level]
     OMNI_Out[1..8]: out(XLR) [analog, line_level]
     AES_Out[1..2]: out(XLR) [AES3]
@@ -44,7 +48,7 @@ template CL3 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot MY_Slot[1..3]: MY_Card
-  bridge OMNI_In -> Dante_Pri
+  bridge OMNI_In -> Dante_Pri_Out
 }
 
 template CL1 {
@@ -54,8 +58,10 @@ template CL1 {
     category: "Console"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..48]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..8]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..48]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..8]: out(etherCON) [Dante, secondary]
     OMNI_In[1..8]: in(XLR) [analog, mic_level]
     OMNI_Out[1..8]: out(XLR) [analog, line_level]
     AES_Out[1..2]: out(XLR) [AES3]
@@ -65,7 +71,7 @@ template CL1 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot MY_Slot[1..3]: MY_Card
-  bridge OMNI_In -> Dante_Pri
+  bridge OMNI_In -> Dante_Pri_Out
 }
 
 # --- QL Series ------------------------------------------------
@@ -77,8 +83,10 @@ template QL5 {
     category: "Console"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR) [analog, mic_level]
     Line_Out[1..16]: out(XLR) [analog, line_level]
     WordClock_Out: out(BNC_75) [WordClock]
@@ -87,7 +95,7 @@ template QL5 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot MY_Slot[1..2]: MY_Card
-  bridge Mic_In -> Dante_Pri
+  bridge Mic_In -> Dante_Pri_Out
 }
 
 template QL1 {
@@ -97,8 +105,10 @@ template QL1 {
     category: "Console"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..32]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     Mic_In[1..16]: in(XLR) [analog, mic_level]
     Line_Out[1..8]: out(XLR) [analog, line_level]
     WordClock_Out: out(BNC_75) [WordClock]
@@ -107,7 +117,7 @@ template QL1 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot MY_Slot[1..2]: MY_Card
-  bridge Mic_In -> Dante_Pri
+  bridge Mic_In -> Dante_Pri_Out
 }
 
 # --- Rio D2 Series (Dante Stageboxes) -------------------------
@@ -119,14 +129,16 @@ template Rio3224_D2 {
     category: "Stagebox"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..32]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..16]: out(XLR) [analog, line_level]
     AES_Out[1..8]: out(XLR) [AES3]
   }
-  bridge Mic_In -> Dante_Pri
-  bridge Dante_Pri -> Line_Out
+  bridge Mic_In -> Dante_Pri_Out
+  bridge Dante_Pri_In -> Line_Out
 }
 
 template Rio1608_D2 {
@@ -136,13 +148,15 @@ template Rio1608_D2 {
     category: "Stagebox"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..8]: out(XLR) [analog, line_level]
   }
-  bridge Mic_In -> Dante_Pri
-  bridge Dante_Pri -> Line_Out
+  bridge Mic_In -> Dante_Pri_Out
+  bridge Dante_Pri_In -> Line_Out
 }
 
 # --- RIVAGE PM Series -----------------------------------------
