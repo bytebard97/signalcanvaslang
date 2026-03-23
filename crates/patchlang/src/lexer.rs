@@ -57,6 +57,10 @@ pub enum Token {
     Label,
     #[token("card")]
     Card,
+    #[token("ring")]
+    Ring,
+    #[token("member")]
+    Member,
 
     // Annotations
     #[token("@suppress")]
