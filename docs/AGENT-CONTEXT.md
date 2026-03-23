@@ -247,6 +247,55 @@ Both `.patch` and `.layout.json` diffs should be stored in the database for vers
 - `.layout.json` diffs track position changes
 - The backend stores diffs per-save, enabling undo/history/collaboration
 
+## JSON Schema Validation — To Be Built in Rust
+
+The Rust crate should validate not just `.patch` files but also the JSON sidecar and project manifest schemas. This ensures the frontend, backend, and CLI all use identical validation.
+
+### Functions to Add
+
+```rust
+// Validate .layout.json schema
+pub fn validate_layout(json: &str) -> String;
+// Returns: { "valid": true/false, "errors": [...] }
+
+// Validate project manifest schema
+pub fn validate_project(json: &str) -> String;
+// Returns: { "valid": true/false, "errors": [...] }
+
+// Cross-validate: check that layout instance names match .patch instances
+pub fn validate_project_consistency(patch_source: &str, layout_json: &str) -> String;
+// Returns: { "valid": true/false, "errors": [...], "warnings": [...] }
+// Warnings for: layout keys with no matching instance, instances with no layout position
+```
+
+### What to Validate
+
+**`.layout.json`:**
+- `version` field present, equals 1
+- `positions` values have numeric `x` and `y`
+- `groupBoxes` entries have required fields (`id`, `label`, `x`, `y`, `width`, `height`)
+- `collapsed` is boolean if present
+- No unknown fields (strict schema)
+
+**Project manifest:**
+- Required fields present (`name`, `facilityId`)
+- `patchContent` is parseable PatchLang
+- `layoutJson` passes layout validation
+- Size limits: `patchContent` < 1MB, `layoutJson` < 5MB serialized
+
+**Cross-validation (patch + layout together):**
+- Every instance name in `.patch` should have a position in `.layout.json` (warning if missing)
+- Every key in `.layout.json` positions should match an instance in `.patch` (warning if orphaned)
+- Group box IDs should be unique
+
+### Export via WASM and Python
+
+All validation functions exported alongside `parse()`:
+- WASM: `#[wasm_bindgen]` exports for browser and Node.js
+- Python: `#[pyfunction]` exports for Django backend
+
+See `/Users/ceres/Desktop/SignalCanvas/docs/PRODUCT_ARCHITECTURE_SPEC.md` for the full JSON schemas these functions validate against.
+
 ## What NOT to Change
 
 - The existing parser grammar for all current keywords — don't break existing `.patch` files
