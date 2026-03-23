@@ -1,0 +1,25 @@
+# DRC fixture: direction errors
+
+template Mixer {
+  ports {
+    Audio_In[1..8]: in(XLR) [analog]
+    Audio_Out[1..4]: out(XLR) [analog]
+    Network: io(etherCON) [Dante]
+  }
+}
+
+instance FOH is Mixer
+instance MON is Mixer
+instance Stagebox is Mixer
+
+# D01 — output to output
+connect FOH.Audio_Out[1] -> MON.Audio_Out[1]
+
+# D02 — input to input
+connect FOH.Audio_In[1] -> Stagebox.Audio_In[1]
+
+# Valid — out to in
+connect FOH.Audio_Out[2] -> MON.Audio_In[1]
+
+# Valid — io is always skipped
+connect FOH.Network -> MON.Network

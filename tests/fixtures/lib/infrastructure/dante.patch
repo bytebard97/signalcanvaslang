@@ -11,8 +11,10 @@ template Focusrite_RedNet_A16R {
     protocols: "Dante, AES67, ST 2110-30"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     Analog_In[1..2]: in(DB25) [analog, line_level]
     Analog_Out[1..2]: out(DB25) [analog, line_level]
     AES_In: in(XLR) [AES3]
@@ -20,8 +22,8 @@ template Focusrite_RedNet_A16R {
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }
-  bridge Analog_In -> Dante_Pri
-  bridge Dante_Pri -> Analog_Out
+  bridge Analog_In -> Dante_Pri_Out
+  bridge Dante_Pri_In -> Analog_Out
 }
 
 template Focusrite_RedNet_D16R {
@@ -32,15 +34,17 @@ template Focusrite_RedNet_D16R {
     protocols: "Dante, AES67, AES3"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     AES3_IO[1..2]: io(DB25) [AES3]
     AES_Alt_In: in(XLR) [AES3]
     AES_Alt_Out: out(XLR) [AES3]
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }
-  bridge AES3_IO -> Dante_Pri
+  bridge AES3_IO -> Dante_Pri_Out
 }
 
 template Audinate_AVIO_Analog {
@@ -51,12 +55,13 @@ template Audinate_AVIO_Analog {
     protocols: "Dante"
   }
   ports {
-    Dante_Net: io(RJ45) [Dante, PoE]
+    Dante_Net_In: in(RJ45) [Dante, PoE]
+    Dante_Net_Out: out(RJ45) [Dante, PoE]
     Analog_In: in(XLR) [analog, line_level]
     Analog_Out: out(XLR) [analog, line_level]
   }
-  bridge Analog_In -> Dante_Net
-  bridge Dante_Net -> Analog_Out
+  bridge Analog_In -> Dante_Net_Out
+  bridge Dante_Net_In -> Analog_Out
 }
 
 template DirectOut_PRODIGY_MC {
@@ -67,10 +72,14 @@ template DirectOut_PRODIGY_MC {
     protocols: "MADI, Dante, RAVENNA, AES67, ST 2110-30"
   }
   ports {
-    Network_Pri: io(etherCON) [Dante, AES67, primary]
-    Network_Sec: io(etherCON) [Dante, AES67, secondary]
-    MADI_1: io(BNC_75) [MADI, ch64]
-    MADI_2: io(SFP) [MADI, ch64]
+    Network_Pri_In[1..64]: in(etherCON) [Dante, AES67, primary]
+    Network_Pri_Out[1..64]: out(etherCON) [Dante, AES67, primary]
+    Network_Sec_In[1..64]: in(etherCON) [Dante, AES67, secondary]
+    Network_Sec_Out[1..64]: out(etherCON) [Dante, AES67, secondary]
+    MADI_1_In[1..64]: in(BNC_75) [MADI, ch64]
+    MADI_1_Out[1..64]: out(BNC_75) [MADI, ch64]
+    MADI_2_In[1..64]: in(SFP) [MADI, ch64]
+    MADI_2_Out[1..64]: out(SFP) [MADI, ch64]
   }
   slot IO_Slot[1..8]: IO_Module
 }

@@ -23,6 +23,7 @@ pub enum Statement {
     Stream(StreamDecl),
     Config(ConfigDecl),
     Use(UseDecl),
+    Ring(RingDecl),
     /// Placeholder for recovered error regions.
     Error(Span),
 }
@@ -233,5 +234,20 @@ pub struct SlotAssignment {
     pub slot_name: String,
     pub index: Option<u32>,
     pub card_name: String,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct RingMember {
+    pub instance_name: String,
+    pub port_name: Option<String>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct RingDecl {
+    pub name: String,
+    pub properties: Vec<KeyValue>,
+    pub members: Vec<RingMember>,
     pub span: Span,
 }

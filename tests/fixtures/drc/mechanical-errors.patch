@@ -1,0 +1,38 @@
+# DRC fixture: connector mismatch warnings
+
+template XLR_Device {
+  ports {
+    Audio_In: in(XLR)
+    Audio_Out: out(XLR)
+  }
+}
+
+template BNC_Device {
+  ports {
+    Video_In: in(BNC_75)
+    Video_Out: out(BNC_75)
+  }
+}
+
+template Virtual_Device {
+  ports {
+    Net_In: in(virtual)
+    Net_Out: out(virtual)
+  }
+}
+
+instance Audio is XLR_Device
+instance Video is BNC_Device
+instance Virt is Virtual_Device
+
+# M01 — connector type mismatch (XLR -> BNC_75)
+connect Audio.Audio_Out -> Video.Video_In
+
+# Valid (same connector)
+connect Audio.Audio_Out -> Audio.Audio_In
+
+# Valid — virtual ports are skipped
+connect Virt.Net_Out -> Virt.Net_In
+
+# Suppressed — no diagnostic expected
+connect Audio.Audio_Out -> Video.Video_In { @suppress(mechanical) }

@@ -1,0 +1,23 @@
+# DRC fixture: signal level mismatch
+
+template Mic {
+  ports { Out: out(XLR) [mic_level] }
+}
+
+template LineDevice {
+  ports {
+    Out: out(XLR) [line_level]
+    In: in(XLR) [line_level]
+  }
+}
+
+template Speaker {
+  ports { In: in(SpeakON) [speaker_level] }
+}
+
+instance M is Mic
+instance D is LineDevice
+instance S is Speaker
+
+# Valid — same level
+connect D.Out -> D.In

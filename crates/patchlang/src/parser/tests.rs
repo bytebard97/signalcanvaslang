@@ -766,6 +766,140 @@ fn mixed_index_spec_ranges_and_singles() {
     }
 }
 
+// ── Ring ────────────────────────────────────────────────────
+
+#[test]
+fn ring_minimal_no_members() {
+    let result = parse("ring MyRing { }");
+    assert!(result.is_valid());
+    match &result.program.statements[0] {
+        Statement::Ring(r) => {
+            assert_eq!(r.name, "MyRing");
+            assert!(r.members.is_empty());
+            assert!(r.properties.is_empty());
+        }
+        other => panic!("expected Ring, got {other:?}"),
+    }
+}
+
+#[test]
+fn ring_with_protocol_property() {
+    let src = r#"ring MyRing {
+        protocol: "OptoCore"
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid());
+    match &result.program.statements[0] {
+        Statement::Ring(r) => {
+            assert_eq!(r.properties.len(), 1);
+            assert_eq!(r.properties[0].key, "protocol");
+            assert_eq!(kv_str(&r.properties[0]), "OptoCore");
+        }
+        other => panic!("expected Ring, got {other:?}"),
+    }
+}
+
+#[test]
+fn ring_member_implicit() {
+    let src = r#"ring MyRing {
+        member Console
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid());
+    match &result.program.statements[0] {
+        Statement::Ring(r) => {
+            assert_eq!(r.members.len(), 1);
+            assert_eq!(r.members[0].instance_name, "Console");
+            assert!(r.members[0].port_name.is_none());
+        }
+        other => panic!("expected Ring, got {other:?}"),
+    }
+}
+
+#[test]
+fn ring_member_explicit_port() {
+    let src = r#"ring MyRing {
+        member Console.OptoCore_B
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid());
+    match &result.program.statements[0] {
+        Statement::Ring(r) => {
+            assert_eq!(r.members.len(), 1);
+            assert_eq!(r.members[0].instance_name, "Console");
+            assert_eq!(r.members[0].port_name.as_deref(), Some("OptoCore_B"));
+        }
+        other => panic!("expected Ring, got {other:?}"),
+    }
+}
+
+#[test]
+fn ring_mixed_members() {
+    let src = r#"ring MyRing {
+        member Console
+        member Rack.OptoCore_B
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid());
+    match &result.program.statements[0] {
+        Statement::Ring(r) => {
+            assert_eq!(r.members.len(), 2);
+            assert_eq!(r.members[0].instance_name, "Console");
+            assert!(r.members[0].port_name.is_none());
+            assert_eq!(r.members[1].instance_name, "Rack");
+            assert_eq!(r.members[1].port_name.as_deref(), Some("OptoCore_B"));
+        }
+        other => panic!("expected Ring, got {other:?}"),
+    }
+}
+
+#[test]
+fn ring_properties_and_members_interleaved() {
+    let src = r#"ring MyRing {
+        protocol: "OptoCore"
+        member Console
+        label: "Primary ring"
+        member Rack
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid());
+    match &result.program.statements[0] {
+        Statement::Ring(r) => {
+            assert_eq!(r.properties.len(), 2);
+            assert_eq!(r.members.len(), 2);
+            assert_eq!(r.properties[0].key, "protocol");
+            assert_eq!(r.properties[1].key, "label");
+            assert_eq!(r.members[0].instance_name, "Console");
+            assert_eq!(r.members[1].instance_name, "Rack");
+        }
+        other => panic!("expected Ring, got {other:?}"),
+    }
+}
+
+#[test]
+fn ring_multiple_in_program() {
+    let src = r#"ring Ring_A { }
+    ring Ring_B { }"#;
+    let result = parse(src);
+    assert!(result.is_valid());
+    let rings: Vec<_> = result.program.statements.iter().filter_map(|s| {
+        if let Statement::Ring(r) = s { Some(r) } else { None }
+    }).collect();
+    assert_eq!(rings.len(), 2);
+    assert_eq!(rings[0].name, "Ring_A");
+    assert_eq!(rings[1].name, "Ring_B");
+}
+
+#[test]
+fn ring_error_recovery() {
+    let src = "ring Broken { !!! }\ninstance FOH is CL5";
+    let result = parse(src);
+    let instances: Vec<_> = result.program.statements.iter()
+        .filter(|s| matches!(s, Statement::Instance(_)))
+        .collect();
+    assert_eq!(instances.len(), 1, "instance after malformed ring should be recovered");
+}
+
 // ── Worship venue integration ───────────────────────────────
 
 #[test]

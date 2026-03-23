@@ -37,7 +37,8 @@ template AVID_Venue_Stage_Rack {
     model: "Venue Stage Rack"
   }
   ports {
-    MADI[1..48]: io(BNC_75) [MADI, redundant]
+    MADI_In[1..48]: in(BNC_75) [MADI, redundant]
+    MADI_Out[1..48]: out(BNC_75) [MADI, redundant]
   }
   slot Venue_Input_Slot[1..6]: Venue_Input_Slot
   slot Venue_Output_Slot[1..6]: Venue_Output_Slot
@@ -75,10 +76,11 @@ template YAMAHA_TIO_1608_D {
   ports {
     Mic_Line_Input[1..16]: in(XLR) [Analogue]
     Line_Output[1..8]: out(XLR) [Analogue]
-    DANTE[1..8]: io(RJ45_etherCON) [Dante, redundant]
+    DANTE_In[1..8]: in(RJ45_etherCON) [Dante, redundant]
+    DANTE_Out[1..8]: out(RJ45_etherCON) [Dante, redundant]
   }
-  bridge Mic_Line_Input -> DANTE
-  bridge DANTE -> Line_Output
+  bridge Mic_Line_Input -> DANTE_Out
+  bridge DANTE_In -> Line_Output
 }
 
 template DOTEC_ANDIAMO_v1 {
@@ -104,8 +106,10 @@ template Ross_ULTRIX_FR2 {
     model: "ULTRIX FR2"
   }
   ports {
-    MADI_1[1..64]: io(SC_Fiber) [MADI]
-    MADI_2[1..64]: io(SC_Fiber) [MADI]
+    MADI_1_In[1..64]: in(SC_Fiber) [MADI]
+    MADI_1_Out[1..64]: out(SC_Fiber) [MADI]
+    MADI_2_In[1..64]: in(SC_Fiber) [MADI]
+    MADI_2_Out[1..64]: out(SC_Fiber) [MADI]
     SDI[1..72]: io(SDI_BNC) [SDI]
   }
 }
@@ -116,9 +120,12 @@ template DOTEC_ExBox_MD {
     model: "ExBox.MD"
   }
   ports {
-    DANTE[1..64]: io(RJ45_etherCON) [Dante, redundant]
-    SC_MADI[1..64]: io(SC_Fiber) [MADI]
-    SFP_MADI[1..64]: io(SFP) [MADI]
+    DANTE_In[1..64]: in(RJ45_etherCON) [Dante, redundant]
+    DANTE_Out[1..64]: out(RJ45_etherCON) [Dante, redundant]
+    SC_MADI_In[1..64]: in(SC_Fiber) [MADI]
+    SC_MADI_Out[1..64]: out(SC_Fiber) [MADI]
+    SFP_MADI_In[1..64]: in(SFP) [MADI]
+    SFP_MADI_Out[1..64]: out(SFP) [MADI]
     Word_Clock: in(BNC_75) [WordClock]
   }
 }
@@ -129,11 +136,13 @@ template YAMAHA_RMIO64_D {
     model: "RMIO64-D"
   }
   ports {
-    DANTE[1..64]: io(RJ45_etherCON) [Dante, redundant]
-    SC_MADI[1..64]: io(SC_Fiber) [MADI]
+    DANTE_In[1..64]: in(RJ45_etherCON) [Dante, redundant]
+    DANTE_Out[1..64]: out(RJ45_etherCON) [Dante, redundant]
+    SC_MADI_In[1..64]: in(SC_Fiber) [MADI]
+    SC_MADI_Out[1..64]: out(SC_Fiber) [MADI]
   }
-  bridge DANTE -> SC_MADI
-  bridge SC_MADI -> DANTE
+  bridge DANTE_In -> SC_MADI_Out
+  bridge SC_MADI_In -> DANTE_Out
 }
 
 template GENERIC_Live_Professor_PC_w_PCIE_DANTE_Card {
@@ -142,7 +151,8 @@ template GENERIC_Live_Professor_PC_w_PCIE_DANTE_Card {
     model: "Live Professor PC w/ PCIE DANTE Card"
   }
   ports {
-    DANTE[1..128]: io(RJ45_etherCON) [Dante, redundant]
+    DANTE_In[1..128]: in(RJ45_etherCON) [Dante, redundant]
+    DANTE_Out[1..128]: out(RJ45_etherCON) [Dante, redundant]
   }
 }
 
@@ -170,7 +180,8 @@ template QSYS_Core_250i {
     model: "Core 250i"
   }
   ports {
-    QLAN[1..64]: io(RJ45_etherCON) [AES67, redundant]
+    QLAN_In[1..64]: in(RJ45_etherCON) [AES67, redundant]
+    QLAN_Out[1..64]: out(RJ45_etherCON) [AES67, redundant]
   }
   slot Type2[1..8]: Type2
 }
@@ -202,12 +213,18 @@ template YAMAHA_PM1D {
     model: "PM1D"
   }
   ports {
-    MADI_1[1..32]: io(BNC_75) [MADI]
-    MADI_2[1..32]: io(BNC_75) [MADI]
-    MADI_3[1..32]: io(BNC_75) [MADI]
-    MADI_4[1..32]: io(BNC_75) [MADI]
-    MADI_5[1..32]: io(BNC_75) [MADI]
-    MADI_6[1..32]: io(BNC_75) [MADI]
+    MADI_1_In[1..32]: in(BNC_75) [MADI]
+    MADI_1_Out[1..32]: out(BNC_75) [MADI]
+    MADI_2_In[1..32]: in(BNC_75) [MADI]
+    MADI_2_Out[1..32]: out(BNC_75) [MADI]
+    MADI_3_In[1..32]: in(BNC_75) [MADI]
+    MADI_3_Out[1..32]: out(BNC_75) [MADI]
+    MADI_4_In[1..32]: in(BNC_75) [MADI]
+    MADI_4_Out[1..32]: out(BNC_75) [MADI]
+    MADI_5_In[1..32]: in(BNC_75) [MADI]
+    MADI_5_Out[1..32]: out(BNC_75) [MADI]
+    MADI_6_In[1..32]: in(BNC_75) [MADI]
+    MADI_6_Out[1..32]: out(BNC_75) [MADI]
     Line[1..8]: out(XLR) [Analogue]
   }
 }
@@ -232,7 +249,8 @@ template SHURE_AD4Q {
   ports {
     XLR_Out[1..4]: out(XLR) [Analogue, AES3]
     TRS[1..4]: out(TRS_3) [Analogue]
-    DANTE[1..4]: io(RJ45_etherCON) [Dante]
+    DANTE_In[1..4]: in(RJ45_etherCON) [Dante]
+    DANTE_Out[1..4]: out(RJ45_etherCON) [Dante]
   }
 }
 
@@ -412,207 +430,207 @@ instance b33e060d_e741_409d_b3f3_48697ceb7a8d is DOTEC_ANDIAMO_v1 {
 }
 instance cbfed6a8_ee24_4f24_b8fa_707a95bb6821 is Ross_ULTRIX_FR2 {
   bus Link_1 {
-    output: MADI_1[1], MADI_2[1]
-    output: MADI_1[2], MADI_2[2]
-    output: MADI_1[3], MADI_2[3]
-    output: MADI_1[4], MADI_2[4]
-    output: MADI_1[5], MADI_2[5]
-    output: MADI_1[6], MADI_2[6]
-    output: MADI_1[7], MADI_2[7]
-    output: MADI_1[8], MADI_2[8]
+    output: MADI_1_Out[1], MADI_2[1]
+    output: MADI_1_Out[2], MADI_2[2]
+    output: MADI_1_Out[3], MADI_2[3]
+    output: MADI_1_Out[4], MADI_2[4]
+    output: MADI_1_Out[5], MADI_2[5]
+    output: MADI_1_Out[6], MADI_2[6]
+    output: MADI_1_Out[7], MADI_2[7]
+    output: MADI_1_Out[8], MADI_2[8]
   }
   bus Link_2 {
-    output: MADI_1[9], MADI_2[9]
-    output: MADI_1[10], MADI_2[10]
-    output: MADI_1[11], MADI_2[11]
-    output: MADI_1[12], MADI_2[12]
-    output: MADI_1[13], MADI_2[13]
-    output: MADI_1[14], MADI_2[14]
-    output: MADI_1[15], MADI_2[15]
-    output: MADI_1[16], MADI_2[16]
+    output: MADI_1_Out[9], MADI_2[9]
+    output: MADI_1_Out[10], MADI_2[10]
+    output: MADI_1_Out[11], MADI_2[11]
+    output: MADI_1_Out[12], MADI_2[12]
+    output: MADI_1_Out[13], MADI_2[13]
+    output: MADI_1_Out[14], MADI_2[14]
+    output: MADI_1_Out[15], MADI_2[15]
+    output: MADI_1_Out[16], MADI_2[16]
   }
   bus VID_PB_1 {
-    output: MADI_1[17], MADI_2[17]
-    output: MADI_1[18], MADI_2[18]
-    output: MADI_1[19], MADI_2[19]
-    output: MADI_1[20], MADI_2[20]
-    output: MADI_1[21], MADI_2[21]
-    output: MADI_1[22], MADI_2[22]
-    output: MADI_1[23], MADI_2[23]
-    output: MADI_1[24], MADI_2[24]
+    output: MADI_1_Out[17], MADI_2[17]
+    output: MADI_1_Out[18], MADI_2[18]
+    output: MADI_1_Out[19], MADI_2[19]
+    output: MADI_1_Out[20], MADI_2[20]
+    output: MADI_1_Out[21], MADI_2[21]
+    output: MADI_1_Out[22], MADI_2[22]
+    output: MADI_1_Out[23], MADI_2[23]
+    output: MADI_1_Out[24], MADI_2[24]
   }
   bus VID_PB_2 {
-    output: MADI_1[25], MADI_2[25]
-    output: MADI_1[26], MADI_2[26]
-    output: MADI_1[27], MADI_2[27]
-    output: MADI_1[28], MADI_2[28]
-    output: MADI_1[29], MADI_2[29]
-    output: MADI_1[30], MADI_2[30]
-    output: MADI_1[31], MADI_2[31]
-    output: MADI_1[32], MADI_2[32]
+    output: MADI_1_Out[25], MADI_2[25]
+    output: MADI_1_Out[26], MADI_2[26]
+    output: MADI_1_Out[27], MADI_2[27]
+    output: MADI_1_Out[28], MADI_2[28]
+    output: MADI_1_Out[29], MADI_2[29]
+    output: MADI_1_Out[30], MADI_2[30]
+    output: MADI_1_Out[31], MADI_2[31]
+    output: MADI_1_Out[32], MADI_2[32]
   }
   bus QLAB_ {
-    output: MADI_2[49]
-    output: MADI_2[50]
-    output: MADI_2[51]
-    output: MADI_2[52]
-    output: MADI_2[53]
-    output: MADI_2[54]
-    output: MADI_2[55]
-    output: MADI_2[56]
-    output: MADI_2[57]
-    output: MADI_2[58]
-    output: MADI_2[59]
-    output: MADI_2[60]
-    output: MADI_2[61]
-    output: MADI_2[62]
-    output: MADI_2[63]
-    output: MADI_2[64]
+    output: MADI_2_Out[49]
+    output: MADI_2_Out[50]
+    output: MADI_2_Out[51]
+    output: MADI_2_Out[52]
+    output: MADI_2_Out[53]
+    output: MADI_2_Out[54]
+    output: MADI_2_Out[55]
+    output: MADI_2_Out[56]
+    output: MADI_2_Out[57]
+    output: MADI_2_Out[58]
+    output: MADI_2_Out[59]
+    output: MADI_2_Out[60]
+    output: MADI_2_Out[61]
+    output: MADI_2_Out[62]
+    output: MADI_2_Out[63]
+    output: MADI_2_Out[64]
   }
 }
 instance _2d3c5595_7f61_47df_bdb4_572ddb77f0eb is DOTEC_ExBox_MD {
-  route DANTE[1] -> SC_MADI[1]
-  route DANTE[2] -> SC_MADI[2]
-  route DANTE[3] -> SC_MADI[3]
-  route DANTE[4] -> SC_MADI[4]
-  route DANTE[5] -> SC_MADI[5]
-  route DANTE[6] -> SC_MADI[6]
-  route DANTE[7] -> SC_MADI[7]
-  route DANTE[8] -> SC_MADI[8]
-  route DANTE[9] -> SC_MADI[9]
-  route DANTE[10] -> SC_MADI[10]
-  route DANTE[11] -> SC_MADI[11]
-  route DANTE[12] -> SC_MADI[12]
-  route DANTE[13] -> SC_MADI[13]
-  route DANTE[14] -> SC_MADI[14]
-  route DANTE[15] -> SC_MADI[15]
-  route DANTE[16] -> SC_MADI[16]
-  route DANTE[17] -> SC_MADI[17]
-  route DANTE[18] -> SC_MADI[18]
-  route DANTE[19] -> SC_MADI[19]
-  route DANTE[20] -> SC_MADI[20]
-  route DANTE[21] -> SC_MADI[21]
-  route DANTE[22] -> SC_MADI[22]
-  route DANTE[23] -> SC_MADI[23]
-  route DANTE[24] -> SC_MADI[24]
-  route DANTE[25] -> SC_MADI[25]
-  route DANTE[26] -> SC_MADI[26]
-  route DANTE[27] -> SC_MADI[27]
-  route DANTE[28] -> SC_MADI[28]
-  route DANTE[29] -> SC_MADI[29]
-  route DANTE[30] -> SC_MADI[30]
-  route DANTE[31] -> SC_MADI[31]
-  route DANTE[32] -> SC_MADI[32]
-  route DANTE[33] -> SC_MADI[33]
-  route DANTE[34] -> SC_MADI[34]
-  route DANTE[35] -> SC_MADI[35]
-  route DANTE[36] -> SC_MADI[36]
-  route DANTE[37] -> SC_MADI[37]
-  route DANTE[38] -> SC_MADI[38]
-  route DANTE[39] -> SC_MADI[39]
-  route DANTE[40] -> SC_MADI[40]
-  route DANTE[41] -> SC_MADI[41]
-  route DANTE[42] -> SC_MADI[42]
-  route DANTE[43] -> SC_MADI[43]
-  route DANTE[44] -> SC_MADI[44]
-  route DANTE[45] -> SC_MADI[45]
-  route DANTE[46] -> SC_MADI[46]
-  route DANTE[47] -> SC_MADI[47]
-  route DANTE[48] -> SC_MADI[48]
-  route DANTE[49] -> SC_MADI[49]
-  route DANTE[50] -> SC_MADI[50]
-  route DANTE[51] -> SC_MADI[51]
-  route DANTE[52] -> SC_MADI[52]
-  route DANTE[53] -> SC_MADI[53]
-  route DANTE[54] -> SC_MADI[54]
-  route DANTE[55] -> SC_MADI[55]
-  route DANTE[56] -> SC_MADI[56]
-  route DANTE[57] -> SC_MADI[57]
-  route DANTE[58] -> SC_MADI[58]
-  route DANTE[59] -> SC_MADI[59]
-  route DANTE[60] -> SC_MADI[60]
-  route DANTE[61] -> SC_MADI[61]
-  route DANTE[62] -> SC_MADI[62]
-  route DANTE[63] -> SC_MADI[63]
-  route DANTE[64] -> SC_MADI[64]
-  route SC_MADI[1] -> DANTE[1]
-  route SC_MADI[2] -> DANTE[2]
-  route SC_MADI[3] -> DANTE[3]
-  route SC_MADI[4] -> DANTE[4]
-  route SC_MADI[5] -> DANTE[5]
-  route SC_MADI[6] -> DANTE[6]
-  route SC_MADI[7] -> DANTE[7]
-  route SC_MADI[8] -> DANTE[8]
-  route SC_MADI[9] -> DANTE[9]
-  route SC_MADI[10] -> DANTE[10]
-  route SC_MADI[11] -> DANTE[11]
-  route SC_MADI[12] -> DANTE[12]
-  route SC_MADI[13] -> DANTE[13]
-  route SC_MADI[14] -> DANTE[14]
-  route SC_MADI[15] -> DANTE[15]
-  route SC_MADI[16] -> DANTE[16]
-  route SC_MADI[17] -> DANTE[17]
-  route SC_MADI[18] -> DANTE[18]
-  route SC_MADI[19] -> DANTE[19]
-  route SC_MADI[20] -> DANTE[20]
-  route SC_MADI[21] -> DANTE[21]
-  route SC_MADI[22] -> DANTE[22]
-  route SC_MADI[23] -> DANTE[23]
-  route SC_MADI[24] -> DANTE[24]
-  route SC_MADI[25] -> DANTE[25]
-  route SC_MADI[26] -> DANTE[26]
-  route SC_MADI[27] -> DANTE[27]
-  route SC_MADI[28] -> DANTE[28]
-  route SC_MADI[29] -> DANTE[29]
-  route SC_MADI[30] -> DANTE[30]
-  route SC_MADI[31] -> DANTE[31]
-  route SC_MADI[32] -> DANTE[32]
-  route SC_MADI[33] -> DANTE[33]
-  route SC_MADI[34] -> DANTE[34]
-  route SC_MADI[35] -> DANTE[35]
-  route SC_MADI[36] -> DANTE[36]
-  route SC_MADI[37] -> DANTE[37]
-  route SC_MADI[38] -> DANTE[38]
-  route SC_MADI[39] -> DANTE[39]
-  route SC_MADI[40] -> DANTE[40]
-  route SC_MADI[41] -> DANTE[41]
-  route SC_MADI[42] -> DANTE[42]
-  route SC_MADI[43] -> DANTE[43]
-  route SC_MADI[44] -> DANTE[44]
-  route SC_MADI[45] -> DANTE[45]
-  route SC_MADI[46] -> DANTE[46]
-  route SC_MADI[47] -> DANTE[47]
-  route SC_MADI[48] -> DANTE[48]
-  route SC_MADI[49] -> DANTE[49]
-  route SC_MADI[50] -> DANTE[50]
-  route SC_MADI[51] -> DANTE[51]
-  route SC_MADI[52] -> DANTE[52]
-  route SC_MADI[53] -> DANTE[53]
-  route SC_MADI[54] -> DANTE[54]
-  route SC_MADI[55] -> DANTE[55]
-  route SC_MADI[56] -> DANTE[56]
-  route SC_MADI[57] -> DANTE[57]
-  route SC_MADI[58] -> DANTE[58]
-  route SC_MADI[59] -> DANTE[59]
-  route SC_MADI[60] -> DANTE[60]
-  route SC_MADI[61] -> DANTE[61]
-  route SC_MADI[62] -> DANTE[62]
-  route SC_MADI[63] -> DANTE[63]
-  route SC_MADI[64] -> DANTE[64]
+  route DANTE_In[1] -> SC_MADI_Out[1]
+  route DANTE_In[2] -> SC_MADI_Out[2]
+  route DANTE_In[3] -> SC_MADI_Out[3]
+  route DANTE_In[4] -> SC_MADI_Out[4]
+  route DANTE_In[5] -> SC_MADI_Out[5]
+  route DANTE_In[6] -> SC_MADI_Out[6]
+  route DANTE_In[7] -> SC_MADI_Out[7]
+  route DANTE_In[8] -> SC_MADI_Out[8]
+  route DANTE_In[9] -> SC_MADI_Out[9]
+  route DANTE_In[10] -> SC_MADI_Out[10]
+  route DANTE_In[11] -> SC_MADI_Out[11]
+  route DANTE_In[12] -> SC_MADI_Out[12]
+  route DANTE_In[13] -> SC_MADI_Out[13]
+  route DANTE_In[14] -> SC_MADI_Out[14]
+  route DANTE_In[15] -> SC_MADI_Out[15]
+  route DANTE_In[16] -> SC_MADI_Out[16]
+  route DANTE_In[17] -> SC_MADI_Out[17]
+  route DANTE_In[18] -> SC_MADI_Out[18]
+  route DANTE_In[19] -> SC_MADI_Out[19]
+  route DANTE_In[20] -> SC_MADI_Out[20]
+  route DANTE_In[21] -> SC_MADI_Out[21]
+  route DANTE_In[22] -> SC_MADI_Out[22]
+  route DANTE_In[23] -> SC_MADI_Out[23]
+  route DANTE_In[24] -> SC_MADI_Out[24]
+  route DANTE_In[25] -> SC_MADI_Out[25]
+  route DANTE_In[26] -> SC_MADI_Out[26]
+  route DANTE_In[27] -> SC_MADI_Out[27]
+  route DANTE_In[28] -> SC_MADI_Out[28]
+  route DANTE_In[29] -> SC_MADI_Out[29]
+  route DANTE_In[30] -> SC_MADI_Out[30]
+  route DANTE_In[31] -> SC_MADI_Out[31]
+  route DANTE_In[32] -> SC_MADI_Out[32]
+  route DANTE_In[33] -> SC_MADI_Out[33]
+  route DANTE_In[34] -> SC_MADI_Out[34]
+  route DANTE_In[35] -> SC_MADI_Out[35]
+  route DANTE_In[36] -> SC_MADI_Out[36]
+  route DANTE_In[37] -> SC_MADI_Out[37]
+  route DANTE_In[38] -> SC_MADI_Out[38]
+  route DANTE_In[39] -> SC_MADI_Out[39]
+  route DANTE_In[40] -> SC_MADI_Out[40]
+  route DANTE_In[41] -> SC_MADI_Out[41]
+  route DANTE_In[42] -> SC_MADI_Out[42]
+  route DANTE_In[43] -> SC_MADI_Out[43]
+  route DANTE_In[44] -> SC_MADI_Out[44]
+  route DANTE_In[45] -> SC_MADI_Out[45]
+  route DANTE_In[46] -> SC_MADI_Out[46]
+  route DANTE_In[47] -> SC_MADI_Out[47]
+  route DANTE_In[48] -> SC_MADI_Out[48]
+  route DANTE_In[49] -> SC_MADI_Out[49]
+  route DANTE_In[50] -> SC_MADI_Out[50]
+  route DANTE_In[51] -> SC_MADI_Out[51]
+  route DANTE_In[52] -> SC_MADI_Out[52]
+  route DANTE_In[53] -> SC_MADI_Out[53]
+  route DANTE_In[54] -> SC_MADI_Out[54]
+  route DANTE_In[55] -> SC_MADI_Out[55]
+  route DANTE_In[56] -> SC_MADI_Out[56]
+  route DANTE_In[57] -> SC_MADI_Out[57]
+  route DANTE_In[58] -> SC_MADI_Out[58]
+  route DANTE_In[59] -> SC_MADI_Out[59]
+  route DANTE_In[60] -> SC_MADI_Out[60]
+  route DANTE_In[61] -> SC_MADI_Out[61]
+  route DANTE_In[62] -> SC_MADI_Out[62]
+  route DANTE_In[63] -> SC_MADI_Out[63]
+  route DANTE_In[64] -> SC_MADI_Out[64]
+  route SC_MADI_In[1] -> DANTE_Out[1]
+  route SC_MADI_In[2] -> DANTE_Out[2]
+  route SC_MADI_In[3] -> DANTE_Out[3]
+  route SC_MADI_In[4] -> DANTE_Out[4]
+  route SC_MADI_In[5] -> DANTE_Out[5]
+  route SC_MADI_In[6] -> DANTE_Out[6]
+  route SC_MADI_In[7] -> DANTE_Out[7]
+  route SC_MADI_In[8] -> DANTE_Out[8]
+  route SC_MADI_In[9] -> DANTE_Out[9]
+  route SC_MADI_In[10] -> DANTE_Out[10]
+  route SC_MADI_In[11] -> DANTE_Out[11]
+  route SC_MADI_In[12] -> DANTE_Out[12]
+  route SC_MADI_In[13] -> DANTE_Out[13]
+  route SC_MADI_In[14] -> DANTE_Out[14]
+  route SC_MADI_In[15] -> DANTE_Out[15]
+  route SC_MADI_In[16] -> DANTE_Out[16]
+  route SC_MADI_In[17] -> DANTE_Out[17]
+  route SC_MADI_In[18] -> DANTE_Out[18]
+  route SC_MADI_In[19] -> DANTE_Out[19]
+  route SC_MADI_In[20] -> DANTE_Out[20]
+  route SC_MADI_In[21] -> DANTE_Out[21]
+  route SC_MADI_In[22] -> DANTE_Out[22]
+  route SC_MADI_In[23] -> DANTE_Out[23]
+  route SC_MADI_In[24] -> DANTE_Out[24]
+  route SC_MADI_In[25] -> DANTE_Out[25]
+  route SC_MADI_In[26] -> DANTE_Out[26]
+  route SC_MADI_In[27] -> DANTE_Out[27]
+  route SC_MADI_In[28] -> DANTE_Out[28]
+  route SC_MADI_In[29] -> DANTE_Out[29]
+  route SC_MADI_In[30] -> DANTE_Out[30]
+  route SC_MADI_In[31] -> DANTE_Out[31]
+  route SC_MADI_In[32] -> DANTE_Out[32]
+  route SC_MADI_In[33] -> DANTE_Out[33]
+  route SC_MADI_In[34] -> DANTE_Out[34]
+  route SC_MADI_In[35] -> DANTE_Out[35]
+  route SC_MADI_In[36] -> DANTE_Out[36]
+  route SC_MADI_In[37] -> DANTE_Out[37]
+  route SC_MADI_In[38] -> DANTE_Out[38]
+  route SC_MADI_In[39] -> DANTE_Out[39]
+  route SC_MADI_In[40] -> DANTE_Out[40]
+  route SC_MADI_In[41] -> DANTE_Out[41]
+  route SC_MADI_In[42] -> DANTE_Out[42]
+  route SC_MADI_In[43] -> DANTE_Out[43]
+  route SC_MADI_In[44] -> DANTE_Out[44]
+  route SC_MADI_In[45] -> DANTE_Out[45]
+  route SC_MADI_In[46] -> DANTE_Out[46]
+  route SC_MADI_In[47] -> DANTE_Out[47]
+  route SC_MADI_In[48] -> DANTE_Out[48]
+  route SC_MADI_In[49] -> DANTE_Out[49]
+  route SC_MADI_In[50] -> DANTE_Out[50]
+  route SC_MADI_In[51] -> DANTE_Out[51]
+  route SC_MADI_In[52] -> DANTE_Out[52]
+  route SC_MADI_In[53] -> DANTE_Out[53]
+  route SC_MADI_In[54] -> DANTE_Out[54]
+  route SC_MADI_In[55] -> DANTE_Out[55]
+  route SC_MADI_In[56] -> DANTE_Out[56]
+  route SC_MADI_In[57] -> DANTE_Out[57]
+  route SC_MADI_In[58] -> DANTE_Out[58]
+  route SC_MADI_In[59] -> DANTE_Out[59]
+  route SC_MADI_In[60] -> DANTE_Out[60]
+  route SC_MADI_In[61] -> DANTE_Out[61]
+  route SC_MADI_In[62] -> DANTE_Out[62]
+  route SC_MADI_In[63] -> DANTE_Out[63]
+  route SC_MADI_In[64] -> DANTE_Out[64]
 }
 instance _059a528c_dc90_4e1f_b873_3a66ca2d2854 is DOTEC_ANDIAMO_v1 {
   location: "Analogue/MADI<>LP"
 }
 instance c58ecc82_d2c0_48ec_8ece_d06f26a6d34d is YAMAHA_RMIO64_D
 instance _54f580fa_a87f_49b8_8ee4_e48b152fb95d is GENERIC_Live_Professor_PC_w_PCIE_DANTE_Card {
-  route DANTE[1] -> DANTE[1]
-  route DANTE[2] -> DANTE[2]
-  route DANTE[3] -> DANTE[3]
-  route DANTE[4] -> DANTE[4]
-  route DANTE[5] -> DANTE[5]
-  route DANTE[6] -> DANTE[6]
-  route DANTE[7] -> DANTE[7]
-  route DANTE[8] -> DANTE[8]
+  route DANTE_In[1] -> DANTE_Out[1]
+  route DANTE_In[2] -> DANTE_Out[2]
+  route DANTE_In[3] -> DANTE_Out[3]
+  route DANTE_In[4] -> DANTE_Out[4]
+  route DANTE_In[5] -> DANTE_Out[5]
+  route DANTE_In[6] -> DANTE_Out[6]
+  route DANTE_In[7] -> DANTE_Out[7]
+  route DANTE_In[8] -> DANTE_Out[8]
 }
 instance c2b63ef3_5465_4af6_ba5e_59801e5f5889 is GENERIC_DVS_Computer {
   location: "Ableton Laptop"
@@ -627,25 +645,25 @@ instance fc6b533c_5a52_4a29_a31a_a3a80ad4c7de is RIEDEL_Artist_64 {
 instance _86b83d5a_0a22_45d0_bcba_fa4cbbabe096 is QSYS_Core_250i {
   location: "AUD Q-SYS Core"
   slot _85e272f3_57bc_4dd9_8127_fa5773125ba2__8: "8209cd68-870a-4ee5-83cf-cbb13e47dc23"
-  route QLAN[1] -> _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[41]
+  route QLAN_In[1] -> _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[41]
   bus Shouts__MD_Conf {
-    output: QLAN[1]
+    output: QLAN_Out[1]
   }
   bus Shouts__Show_Conf {
     input: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[1]
-    output: QLAN[2]
+    output: QLAN_Out[2]
   }
   bus Shouts__Audio_Conf {
-    output: QLAN[3]
+    output: QLAN_Out[3]
   }
   bus PGM__Comms_ {
-    output: QLAN[4]
+    output: QLAN_Out[4]
   }
   bus Vid_Solo__Comms {
-    output: QLAN[6]
+    output: QLAN_Out[6]
   }
   bus MONS_IEM {
-    input: QLAN[2], QLAN[3]
+    input: QLAN_In[2], QLAN[3]
     output: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[42]
   }
   bus SpotifyFOH {
@@ -667,112 +685,112 @@ instance add5ce29_c211_4411_8691_86897aacb1bc is GENERIC_DVS_Computer {
 }
 instance a596a349_04b5_4242_813b_b3a6607fb135 is YAMAHA_PM1D {
   location: "MONITORS"
-  route MADI_5[9] -> MADI_2[1]
-  route MADI_5[10] -> MADI_2[2]
-  route MADI_4[16] -> MADI_2[3]
+  route MADI_5_In[9] -> MADI_2_Out[1]
+  route MADI_5_In[10] -> MADI_2_Out[2]
+  route MADI_4_In[16] -> MADI_2_Out[3]
   bus Drums {
-    output: MADI_3[1]
-    output: MADI_3[2]
+    output: MADI_3_Out[1]
+    output: MADI_3_Out[2]
   }
   bus Bass {
-    output: MADI_3[3]
-    output: MADI_3[4]
+    output: MADI_3_Out[3]
+    output: MADI_3_Out[4]
   }
   bus Gtr_1 {
-    output: MADI_1[17]
-    output: MADI_1[18]
+    output: MADI_1_Out[17]
+    output: MADI_1_Out[18]
   }
   bus Gtr_2 {
-    output: MADI_1[19]
-    output: MADI_1[20]
+    output: MADI_1_Out[19]
+    output: MADI_1_Out[20]
   }
   bus Keys_1 {
-    output: MADI_3[5]
-    output: MADI_3[6]
+    output: MADI_3_Out[5]
+    output: MADI_3_Out[6]
   }
   bus Keys_2 {
-    output: MADI_3[7]
-    output: MADI_3[8]
+    output: MADI_3_Out[7]
+    output: MADI_3_Out[8]
   }
   bus Spare_1 {
-    output: MADI_1[21]
-    output: MADI_1[22]
+    output: MADI_1_Out[21]
+    output: MADI_1_Out[22]
   }
   bus Spare_2 {
-    output: MADI_1[23]
-    output: MADI_1[24]
+    output: MADI_1_Out[23]
+    output: MADI_1_Out[24]
   }
   bus Spare_3 {
-    output: MADI_1[25]
-    output: MADI_1[26]
+    output: MADI_1_Out[25]
+    output: MADI_1_Out[26]
   }
   bus Spare_4 {
-    output: MADI_1[27]
-    output: MADI_1[28]
+    output: MADI_1_Out[27]
+    output: MADI_1_Out[28]
   }
   bus WL_1 {
-    output: MADI_1[1]
-    output: MADI_1[2]
+    output: MADI_1_Out[1]
+    output: MADI_1_Out[2]
   }
   bus WL_2 {
-    output: MADI_1[3]
-    output: MADI_1[4]
+    output: MADI_1_Out[3]
+    output: MADI_1_Out[4]
   }
   bus Vox_1 {
-    output: MADI_1[5]
-    output: MADI_1[6]
+    output: MADI_1_Out[5]
+    output: MADI_1_Out[6]
   }
   bus Vox_2 {
-    output: MADI_1[7]
-    output: MADI_1[8]
+    output: MADI_1_Out[7]
+    output: MADI_1_Out[8]
   }
   bus Vox_3 {
-    output: MADI_1[9]
-    output: MADI_1[10]
+    output: MADI_1_Out[9]
+    output: MADI_1_Out[10]
   }
   bus Vox_4 {
-    output: MADI_1[11]
-    output: MADI_1[12]
+    output: MADI_1_Out[11]
+    output: MADI_1_Out[12]
   }
   bus Vox_5 {
-    output: MADI_1[13]
-    output: MADI_1[14]
+    output: MADI_1_Out[13]
+    output: MADI_1_Out[14]
   }
   bus Vox_6 {
-    output: MADI_1[15]
-    output: MADI_1[16]
+    output: MADI_1_Out[15]
+    output: MADI_1_Out[16]
   }
   bus MD {
-    output: MADI_1[29]
-    output: MADI_1[30]
+    output: MADI_1_Out[29]
+    output: MADI_1_Out[30]
   }
   bus Cue {
     output: Line[1]
     output: Line[2]
   }
   bus DSL_MONS {
-    output: MADI_2[21]
+    output: MADI_2_Out[21]
   }
   bus DSC_MONS {
-    output: MADI_2[22]
+    output: MADI_2_Out[22]
   }
   bus DSR_MONS {
-    output: MADI_2[23]
+    output: MADI_2_Out[23]
   }
   bus MONS_SPR_1_ {
-    output: MADI_2[24]
+    output: MADI_2_Out[24]
   }
   bus MONS_SPR_2 {
-    output: MADI_2[25]
+    output: MADI_2_Out[25]
   }
   bus MON_CUE_WEDGE {
     output: Line[3]
   }
   bus ClicLink {
-    output: MADI_2[27]
+    output: MADI_2_Out[27]
   }
   bus MD_CUELink {
-    output: MADI_2[28]
+    output: MADI_2_Out[28]
   }
 }
 instance _3d2e735b_edff_4034_b1e4_a2c41eab7d72 is Audinate_AVIO_AO2
@@ -786,10 +804,10 @@ instance _1fa46009_bccb_44ef_bc09_85440bd1ff2b is SHURE_AD4Q {
   route __rf_receive__[2] -> TRS[2]
   route __rf_receive__[3] -> TRS[3]
   route __rf_receive__[4] -> TRS[4]
-  route __rf_receive__[1] -> DANTE[1]
-  route __rf_receive__[2] -> DANTE[2]
-  route __rf_receive__[3] -> DANTE[3]
-  route __rf_receive__[4] -> DANTE[4]
+  route __rf_receive__[1] -> DANTE_Out[1]
+  route __rf_receive__[2] -> DANTE_Out[2]
+  route __rf_receive__[3] -> DANTE_Out[3]
+  route __rf_receive__[4] -> DANTE_Out[4]
 }
 instance _1f07776c_30a8_4679_a76d_0c2bc9fcc29d is SHURE_AD4Q {
   location: "Vox 5-6/WL1-2"
@@ -801,10 +819,10 @@ instance _1f07776c_30a8_4679_a76d_0c2bc9fcc29d is SHURE_AD4Q {
   route __rf_receive__[2] -> TRS[2]
   route __rf_receive__[3] -> TRS[3]
   route __rf_receive__[4] -> TRS[4]
-  route __rf_receive__[1] -> DANTE[1]
-  route __rf_receive__[2] -> DANTE[2]
-  route __rf_receive__[3] -> DANTE[3]
-  route __rf_receive__[4] -> DANTE[4]
+  route __rf_receive__[1] -> DANTE_Out[1]
+  route __rf_receive__[2] -> DANTE_Out[2]
+  route __rf_receive__[3] -> DANTE_Out[3]
+  route __rf_receive__[4] -> DANTE_Out[4]
 }
 instance _6c375284_21e7_4510_ad1b_51b8be4d9219 is SHURE_AD4Q {
   location: "MCs"
@@ -816,10 +834,10 @@ instance _6c375284_21e7_4510_ad1b_51b8be4d9219 is SHURE_AD4Q {
   route __rf_receive__[2] -> TRS[2]
   route __rf_receive__[3] -> TRS[3]
   route __rf_receive__[4] -> TRS[4]
-  route __rf_receive__[1] -> DANTE[1]
-  route __rf_receive__[2] -> DANTE[2]
-  route __rf_receive__[3] -> DANTE[3]
-  route __rf_receive__[4] -> DANTE[4]
+  route __rf_receive__[1] -> DANTE_Out[1]
+  route __rf_receive__[2] -> DANTE_Out[2]
+  route __rf_receive__[3] -> DANTE_Out[3]
+  route __rf_receive__[4] -> DANTE_Out[4]
 }
 instance _2ab92dc0_c6a2_4337_b7fc_6c3127281c1a is SHURE_AD4Q {
   location: "Beltpacks"
@@ -831,10 +849,10 @@ instance _2ab92dc0_c6a2_4337_b7fc_6c3127281c1a is SHURE_AD4Q {
   route __rf_receive__[2] -> TRS[2]
   route __rf_receive__[3] -> TRS[3]
   route __rf_receive__[4] -> TRS[4]
-  route __rf_receive__[1] -> DANTE[1]
-  route __rf_receive__[2] -> DANTE[2]
-  route __rf_receive__[3] -> DANTE[3]
-  route __rf_receive__[4] -> DANTE[4]
+  route __rf_receive__[1] -> DANTE_Out[1]
+  route __rf_receive__[2] -> DANTE_Out[2]
+  route __rf_receive__[3] -> DANTE_Out[3]
+  route __rf_receive__[4] -> DANTE_Out[4]
 }
 instance _353ba81d_8dc6_40d6_b271_2389ffe222b5 is SHURE_QLXD4 {
   location: "MD Talk"
@@ -1018,7 +1036,7 @@ connect _603cdaf3_31cd_4fbb_95c7_119d5be99958.Inputs_to_Patch -> ab5b1a2e_1662_4
 connect f8b8e190_b57d_4cb9_8d0a_4667573b8104.Inputs_to_Patch -> ab5b1a2e_1662_4963_a569_7f44f82379cc.Inputs {
   mapping: "1->21, 2->22, 3->23, 4->24, 7->20, 5->17, 6->18"
 }
-connect _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 -> d01fcc6f_83d8_4554_ab16_bb6a2c2d4db6.MADI
+connect _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 -> d01fcc6f_83d8_4554_ab16_bb6a2c2d4db6.MADI_In
 connect ab5b1a2e_1662_4963_a569_7f44f82379cc.Output_A -> d01fcc6f_83d8_4554_ab16_bb6a2c2d4db6.e44ad1b8_ab39_42e2_99fc_9cb317829d99__1__4abba544_4268_4a9d_8808_3481ceff9400
 connect ab5b1a2e_1662_4963_a569_7f44f82379cc.Output_A -> d01fcc6f_83d8_4554_ab16_bb6a2c2d4db6.e44ad1b8_ab39_42e2_99fc_9cb317829d99__2__4abba544_4268_4a9d_8808_3481ceff9400 {
   mapping: "offset -8"
@@ -1038,8 +1056,8 @@ connect ab5b1a2e_1662_4963_a569_7f44f82379cc.Output_A -> d01fcc6f_83d8_4554_ab16
 connect _0edb70be_1bb0_45a0_9327_7660b0e9391a.Inputs_to_Patch -> ab5b1a2e_1662_4963_a569_7f44f82379cc.Inputs {
   mapping: "offset 24"
 }
-connect cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_2 -> b33e060d_e741_409d_b3f3_48697ceb7a8d.MADI_In
-connect _2d3c5595_7f61_47df_bdb4_572ddb77f0eb.SC_MADI -> cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_1
+connect cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_2_Out -> b33e060d_e741_409d_b3f3_48697ceb7a8d.MADI_In
+connect _2d3c5595_7f61_47df_bdb4_572ddb77f0eb.SC_MADI_Out -> cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_1_In
 connect b33e060d_e741_409d_b3f3_48697ceb7a8d.Analogue_Outputs -> ab5b1a2e_1662_4963_a569_7f44f82379cc.Inputs {
   mapping: "1->65, 2->66, 3->67, 4->68, 5->69, 6->70, 9->71, 10->72, 17->73, 18->74, 21->75, 22->76, 23->77, 24->78, 25->79, 26->80"
 }
@@ -1055,20 +1073,20 @@ connect ab5b1a2e_1662_4963_a569_7f44f82379cc.Output_A -> _8a37c6f1_b616_4641_a11
 connect ab5b1a2e_1662_4963_a569_7f44f82379cc.Output_A -> _8a37c6f1_b616_4641_a114_bb1866c11656.e44ad1b8_ab39_42e2_99fc_9cb317829d99__4__4abba544_4268_4a9d_8808_3481ceff9400 {
   mapping: "offset -72"
 }
-connect d01fcc6f_83d8_4554_ab16_bb6a2c2d4db6.MADI -> _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20
-connect _8a37c6f1_b616_4641_a114_bb1866c11656.MADI -> _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20
-connect c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.SC_MADI -> _059a528c_dc90_4e1f_b873_3a66ca2d2854.MADI_In
-connect _059a528c_dc90_4e1f_b873_3a66ca2d2854.MADI_Out -> c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.SC_MADI
-connect _54f580fa_a87f_49b8_8ee4_e48b152fb95d.DANTE -> c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.DANTE
-connect c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.DANTE -> _54f580fa_a87f_49b8_8ee4_e48b152fb95d.DANTE
+connect d01fcc6f_83d8_4554_ab16_bb6a2c2d4db6.MADI_Out -> _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20
+connect _8a37c6f1_b616_4641_a114_bb1866c11656.MADI_Out -> _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20
+connect c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.SC_MADI_Out -> _059a528c_dc90_4e1f_b873_3a66ca2d2854.MADI_In
+connect _059a528c_dc90_4e1f_b873_3a66ca2d2854.MADI_Out -> c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.SC_MADI_In
+connect _54f580fa_a87f_49b8_8ee4_e48b152fb95d.DANTE_Out -> c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.DANTE_In
+connect c58ecc82_d2c0_48ec_8ece_d06f26a6d34d.DANTE_Out -> _54f580fa_a87f_49b8_8ee4_e48b152fb95d.DANTE_In
 connect _059a528c_dc90_4e1f_b873_3a66ca2d2854.Analogue_Outputs -> _11260614_f74c_489c_8f24_04db0114b216.LINE
 connect _71c16ec6_acef_47e9_9a89_fb26b4eec76e.Line_Output -> ab5b1a2e_1662_4963_a569_7f44f82379cc.Inputs {
   mapping: "1->39, 2->40, 7->63, 8->64"
 }
-connect c2b63ef3_5465_4af6_ba5e_59801e5f5889.DVS_DANTE -> _71c16ec6_acef_47e9_9a89_fb26b4eec76e.DANTE
+connect c2b63ef3_5465_4af6_ba5e_59801e5f5889.DVS_DANTE -> _71c16ec6_acef_47e9_9a89_fb26b4eec76e.DANTE_In
 connect _11260614_f74c_489c_8f24_04db0114b216.LINE -> _059a528c_dc90_4e1f_b873_3a66ca2d2854.Analogue_Inputs
-connect fc6b533c_5a52_4a29_a31a_a3a80ad4c7de._851f2b1b_87a9_4eb1_9195_a1f53da2de00__2__ed13a12f_775d_4dbb_95c9_1bf44ad873c1 -> _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN
-connect _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 -> _8a37c6f1_b616_4641_a114_bb1866c11656.MADI
+connect fc6b533c_5a52_4a29_a31a_a3a80ad4c7de._851f2b1b_87a9_4eb1_9195_a1f53da2de00__2__ed13a12f_775d_4dbb_95c9_1bf44ad873c1 -> _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN_In
+connect _11260614_f74c_489c_8f24_04db0114b216._75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 -> _8a37c6f1_b616_4641_a114_bb1866c11656.MADI_In
 connect _8a37c6f1_b616_4641_a114_bb1866c11656.a2e5c99c_7719_4b99_bd65_7ba405fb88d2__1__faf463ea_fb43_4deb_bd64_66e49b6ceb14 -> b33e060d_e741_409d_b3f3_48697ceb7a8d.Analogue_Inputs {
   mapping: "1->1, 2->2, 3->3, 4->4, 5->5, 6->6, 7->9, 8->10"
 }
@@ -1076,15 +1094,15 @@ connect _8a37c6f1_b616_4641_a114_bb1866c11656.a2e5c99c_7719_4b99_bd65_7ba405fb88
   mapping: "offset 4"
 }
 connect add5ce29_c211_4411_8691_86897aacb1bc.DVS_DANTE -> _86b83d5a_0a22_45d0_bcba_fa4cbbabe096._85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5
-connect _86b83d5a_0a22_45d0_bcba_fa4cbbabe096._85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 -> _71c16ec6_acef_47e9_9a89_fb26b4eec76e.DANTE {
+connect _86b83d5a_0a22_45d0_bcba_fa4cbbabe096._85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 -> _71c16ec6_acef_47e9_9a89_fb26b4eec76e.DANTE_In {
   mapping: "offset -18"
 }
 connect d01fcc6f_83d8_4554_ab16_bb6a2c2d4db6.a2e5c99c_7719_4b99_bd65_7ba405fb88d2__1__faf463ea_fb43_4deb_bd64_66e49b6ceb14 -> b33e060d_e741_409d_b3f3_48697ceb7a8d.Analogue_Inputs {
   mapping: "offset 10"
 }
-connect b33e060d_e741_409d_b3f3_48697ceb7a8d.MADI_Out -> cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_2
-connect cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_1 -> _2d3c5595_7f61_47df_bdb4_572ddb77f0eb.SC_MADI
-connect _2d3c5595_7f61_47df_bdb4_572ddb77f0eb.DANTE -> _86b83d5a_0a22_45d0_bcba_fa4cbbabe096._85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 {
+connect b33e060d_e741_409d_b3f3_48697ceb7a8d.MADI_Out -> cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_2_In
+connect cbfed6a8_ee24_4f24_b8fa_707a95bb6821.MADI_1_Out -> _2d3c5595_7f61_47df_bdb4_572ddb77f0eb.SC_MADI_In
+connect _2d3c5595_7f61_47df_bdb4_572ddb77f0eb.DANTE_Out -> _86b83d5a_0a22_45d0_bcba_fa4cbbabe096._85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 {
   mapping: "47->3, 48->4, 45->5, 46->6, 35->33, 36->34, 37->35, 38->36, 43->37, 44->38, 41->39, 42->40, 17->41, 18->42, 25->43, 26->44, 1->45, 2->46, 9->47, 10->48"
 }
 connect _86b83d5a_0a22_45d0_bcba_fa4cbbabe096._85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 -> _3d2e735b_edff_4034_b1e4_a2c41eab7d72.DANTE {
@@ -1184,11 +1202,11 @@ connect ab5b1a2e_1662_4963_a569_7f44f82379cc.Output_B -> b1ff05b6_325d_49d8_a7b0
 connect ab5b1a2e_1662_4963_a569_7f44f82379cc.Output_B -> b1ff05b6_325d_49d8_a7b0_6175e91ed542._2f8fb28a_ecf9_4a8c_9259_841ed7d87a81__4__d45c8f1c_0f70_4a5d_a781_bca0215fd897 {
   mapping: "offset -78"
 }
-connect _2443cc7a_7664_4fa7_83e7_7e0c9b5857e9.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_1
-connect _7556fc6d_ca85_41dc_95a9_bb7403474238.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_2
-connect _81c38b77_7669_4b44_a64e_b6fbed46c20a.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_3
-connect b1ff05b6_325d_49d8_a7b0_6175e91ed542.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_4
-connect e0ec7798_3641_404b_a55e_69c699639f79.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_5
+connect _2443cc7a_7664_4fa7_83e7_7e0c9b5857e9.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_1_In
+connect _7556fc6d_ca85_41dc_95a9_bb7403474238.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_2_In
+connect _81c38b77_7669_4b44_a64e_b6fbed46c20a.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_3_In
+connect b1ff05b6_325d_49d8_a7b0_6175e91ed542.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_4_In
+connect e0ec7798_3641_404b_a55e_69c699639f79.MADI -> a596a349_04b5_4242_813b_b3a6607fb135.MADI_5_In
 connect _71c16ec6_acef_47e9_9a89_fb26b4eec76e.Line_Output -> b1ff05b6_325d_49d8_a7b0_6175e91ed542._2f8fb28a_ecf9_4a8c_9259_841ed7d87a81__4__d45c8f1c_0f70_4a5d_a781_bca0215fd897 {
   mapping: "3->3, 4->4"
 }
@@ -1202,7 +1220,7 @@ connect _8e983eb6_55a2_488d_ad7b_9b750328439c.Stage_Box_Outputs -> _59520f55_ffe
 connect a596a349_04b5_4242_813b_b3a6607fb135.Line -> ab35d5ac_a709_4684_b590_e24dd945c1aa.Input {
   mapping: "offset 2"
 }
-connect _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN -> fc6b533c_5a52_4a29_a31a_a3a80ad4c7de._851f2b1b_87a9_4eb1_9195_a1f53da2de00__4__ed13a12f_775d_4dbb_95c9_1bf44ad873c1
+connect _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN_Out -> fc6b533c_5a52_4a29_a31a_a3a80ad4c7de._851f2b1b_87a9_4eb1_9195_a1f53da2de00__4__ed13a12f_775d_4dbb_95c9_1bf44ad873c1
 connect _8c9d282b_e141_4329_a368_367379f81f73._0db931ca_b512_46d3_a289_230e831b6327__7__cad5f8db_e3c6_4e68_9f20_6368476ba65f -> b33e060d_e741_409d_b3f3_48697ceb7a8d.Analogue_Inputs {
   mapping: "offset 4"
 }
@@ -1210,9 +1228,9 @@ connect b149f0e2_ebc8_4bcc_a20b_122912ca31f3._0db931ca_b512_46d3_a289_230e831b63
 connect b149f0e2_ebc8_4bcc_a20b_122912ca31f3._0db931ca_b512_46d3_a289_230e831b6327__1__cad5f8db_e3c6_4e68_9f20_6368476ba65f -> _86e45161_1661_4282_908a_c9c9002dee3d.Line_In {
   mapping: "offset -2"
 }
-connect a596a349_04b5_4242_813b_b3a6607fb135.MADI_1 -> _185383f4_0cc1_4c34_9d6c_feede370cb53.MADI
-connect a596a349_04b5_4242_813b_b3a6607fb135.MADI_2 -> _8c9d282b_e141_4329_a368_367379f81f73.MADI
-connect a596a349_04b5_4242_813b_b3a6607fb135.MADI_3 -> b149f0e2_ebc8_4bcc_a20b_122912ca31f3.MADI
+connect a596a349_04b5_4242_813b_b3a6607fb135.MADI_1_Out -> _185383f4_0cc1_4c34_9d6c_feede370cb53.MADI
+connect a596a349_04b5_4242_813b_b3a6607fb135.MADI_2_Out -> _8c9d282b_e141_4329_a368_367379f81f73.MADI
+connect a596a349_04b5_4242_813b_b3a6607fb135.MADI_3_Out -> b149f0e2_ebc8_4bcc_a20b_122912ca31f3.MADI
 connect _185383f4_0cc1_4c34_9d6c_feede370cb53._0db931ca_b512_46d3_a289_230e831b6327__1__cad5f8db_e3c6_4e68_9f20_6368476ba65f -> _376a197e_20c9_4922_969e_23641832ca6f.Input
 connect _185383f4_0cc1_4c34_9d6c_feede370cb53._0db931ca_b512_46d3_a289_230e831b6327__2__cad5f8db_e3c6_4e68_9f20_6368476ba65f -> f6e2ebb1_a449_4c42_8546_e6cdcac40d76.Input
 connect _185383f4_0cc1_4c34_9d6c_feede370cb53._0db931ca_b512_46d3_a289_230e831b6327__3__cad5f8db_e3c6_4e68_9f20_6368476ba65f -> ff44c90b_288d_44bf_a538_e2cf0f74c360.Input
@@ -1473,12 +1491,12 @@ stream QSYSCOMMS {
 }
 
 stream to_Comms {
-  source: _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN
+  source: _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN_Out
   channels: "8"
   protocol: "AES67"
 }
 stream From_Comms {
-  source: _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN
+  source: _86b83d5a_0a22_45d0_bcba_fa4cbbabe096.QLAN_In
   channels: "8"
   direction: "rx"
   protocol: "AES67"

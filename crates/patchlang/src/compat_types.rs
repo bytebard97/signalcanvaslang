@@ -29,6 +29,7 @@ pub enum TsStatement {
     Stream(TsStreamDecl),
     Config(TsConfigDecl),
     Use(TsUseDecl),
+    Ring(TsRingDecl),
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -264,6 +265,24 @@ pub struct TsSlotAssign {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub slot_index: Option<u32>,
     pub card_type_name: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsRingMember {
+    pub instance_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub port_name: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsRingDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
+    pub name: String,
+    pub properties: BTreeMap<String, String>,
+    pub members: Vec<TsRingMember>,
 }
 
 #[derive(Debug, Clone, Serialize)]

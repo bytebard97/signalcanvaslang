@@ -56,7 +56,7 @@ template Disguise_GX2C {
     SDI_In[1..2]: in(BNC_75) [SDI, G3]
     SDI_Out[1..4]: out(BNC_75) [SDI, UHD]
     DisplayPort_Out[1..4]: out(DP) [UHD]
-    Dante_Out: io(etherCON) [Dante]
+    Dante_Out: out(etherCON) [Dante]
     NDI_Out: io(etherCON) [NDI]
   }
 }

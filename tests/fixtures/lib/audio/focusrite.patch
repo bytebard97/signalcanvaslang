@@ -10,8 +10,10 @@ template RedNet_A16R_MkII {
     category: "Dante Interface"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     Analog_In[1..16]: in(XLR) [analog, line_level]
     Analog_Out[1..16]: out(XLR) [analog, line_level]
     WordClock_In: in(BNC_75) [WordClock]
@@ -19,8 +21,8 @@ template RedNet_A16R_MkII {
     MIDI_In: in(XLR_5) [MIDI]
     MIDI_Out: out(XLR_5) [MIDI]
   }
-  bridge Analog_In -> Dante_Pri
-  bridge Dante_Pri -> Analog_Out
+  bridge Analog_In -> Dante_Pri_Out
+  bridge Dante_Pri_In -> Analog_Out
 }
 
 template RedNet_D16R_MkII {
@@ -30,8 +32,10 @@ template RedNet_D16R_MkII {
     category: "Dante Interface"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     AES_In[1..16]: in(DB25) [AES3, SRC]
     AES_Out[1..16]: out(DB25) [AES3]
     WordClock_In: in(BNC_75) [WordClock]
@@ -39,6 +43,6 @@ template RedNet_D16R_MkII {
     MIDI_In: in(XLR_5) [MIDI]
     MIDI_Out: out(XLR_5) [MIDI]
   }
-  bridge AES_In -> Dante_Pri
-  bridge Dante_Pri -> AES_Out
+  bridge AES_In -> Dante_Pri_Out
+  bridge Dante_Pri_In -> AES_Out
 }

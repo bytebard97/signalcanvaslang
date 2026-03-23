@@ -1,0 +1,24 @@
+# DRC fixture: clock domain mismatch
+
+template SRC_48 {
+  ports {
+    Audio_In: in(etherCON) [Dante, clk_48kHz]
+    Audio_Out: out(etherCON) [Dante, clk_48kHz]
+  }
+}
+
+template SRC_96 {
+  ports {
+    Audio_In: in(etherCON) [Dante, clk_96kHz]
+    Audio_Out: out(etherCON) [Dante, clk_96kHz]
+  }
+}
+
+instance A is SRC_48
+instance B is SRC_96
+
+# T01 — clock mismatch (48kHz -> 96kHz)
+connect A.Audio_Out -> B.Audio_In
+
+# Suppressed
+connect A.Audio_Out -> B.Audio_In { @suppress(temporal) }

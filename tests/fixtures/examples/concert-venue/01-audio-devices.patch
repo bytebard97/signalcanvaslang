@@ -16,8 +16,10 @@ template DiGiCo_SD7 {
     Local_In[1..12]: in(XLR)
     Local_Out[1..12]: out(XLR)
     AES_Out[1..8]: out(BNC_75) [AES3]
-    MADI_A: io(BNC_75) [MADI, ch64]
-    MADI_B: io(BNC_75) [MADI, ch64]
+    MADI_A_In[1..64]: in(BNC_75) [MADI, ch64]
+    MADI_A_Out[1..64]: out(BNC_75) [MADI, ch64]
+    MADI_B_In[1..64]: in(BNC_75) [MADI, ch64]
+    MADI_B_Out[1..64]: out(BNC_75) [MADI, ch64]
   }
 }
 
@@ -56,8 +58,10 @@ template Shure_Axient {
     category: "Wireless"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
+    Dante_Pri_In[1..4]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..4]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..4]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..4]: out(etherCON) [Dante, secondary]
     Analog_Out[1..4]: out(XLR)
     Antenna_In[1..2]: in(BNC_50) [RF]
   }

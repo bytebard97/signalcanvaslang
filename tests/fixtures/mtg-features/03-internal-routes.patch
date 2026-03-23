@@ -9,17 +9,18 @@ template Venue_FOH_Rack {
   ports {
     AES[1..2]: io(XLR) [AES3]
     LINE[1..8]: io(TRS_14)
-    MADI[1..48]: io(BNC_75) [MADI]
+    MADI_In[1..48]: in(BNC_75) [MADI]
+    MADI_Out[1..48]: out(BNC_75) [MADI]
   }
 }
 
 instance FOH_Engine is Venue_FOH_Rack {
-  route MADI[41] -> LINE[1]
-  route MADI[42] -> LINE[2]
-  route MADI[43] -> LINE[3]
-  route MADI[44] -> LINE[4]
-  route MADI[45] -> LINE[5]
-  route MADI[46] -> LINE[6]
-  route MADI[47] -> LINE[7]
-  route MADI[48] -> LINE[8]
+  route MADI_In[41] -> LINE[1]
+  route MADI_In[42] -> LINE[2]
+  route MADI_In[43] -> LINE[3]
+  route MADI_In[44] -> LINE[4]
+  route MADI_In[45] -> LINE[5]
+  route MADI_In[46] -> LINE[6]
+  route MADI_In[47] -> LINE[7]
+  route MADI_In[48] -> LINE[8]
 }

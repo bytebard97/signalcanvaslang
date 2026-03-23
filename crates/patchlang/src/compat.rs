@@ -60,6 +60,7 @@ fn convert_statement(stmt: &ast::Statement) -> Option<TsStatement> {
         ast::Statement::Stream(s) => Some(TsStatement::Stream(convert_stream(s))),
         ast::Statement::Config(c) => Some(TsStatement::Config(convert_config(c))),
         ast::Statement::Use(u) => Some(TsStatement::Use(convert_use(u))),
+        ast::Statement::Ring(r) => Some(TsStatement::Ring(convert_ring(r))),
         ast::Statement::Error(_) => None, // Error nodes are dropped in TS output
     }
 }
@@ -231,6 +232,22 @@ fn convert_use(u: &ast::UseDecl) -> TsUseDecl {
         namespace: u.namespace.clone(),
         templates: u.templates.clone(),
         wildcard: u.wildcard,
+    }
+}
+
+pub(crate) fn convert_ring(r: &ast::RingDecl) -> TsRingDecl {
+    TsRingDecl {
+        type_tag: "Ring",
+        name: r.name.clone(),
+        properties: kv_to_string_record(&r.properties),
+        members: r.members.iter().map(convert_ring_member).collect(),
+    }
+}
+
+pub(crate) fn convert_ring_member(m: &ast::RingMember) -> TsRingMember {
+    TsRingMember {
+        instance_name: m.instance_name.clone(),
+        port_name: m.port_name.clone(),
     }
 }
 
