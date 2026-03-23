@@ -898,6 +898,7 @@ fn ring_error_recovery() {
         .filter(|s| matches!(s, Statement::Instance(_)))
         .collect();
     assert_eq!(instances.len(), 1, "instance after malformed ring should be recovered");
+    assert!(!result.errors.is_empty(), "malformed ring should produce at least one parse error");
 }
 
 // ── Worship venue integration ───────────────────────────────

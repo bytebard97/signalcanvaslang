@@ -559,6 +559,21 @@ mod integration {
     }
 
     #[test]
+    fn check_skips_drc_when_parse_errors_exist() {
+        // Deliberately malformed source — parser will produce errors
+        let result = crate::check("template { INVALID SYNTAX @@@ }}}");
+        assert!(
+            !result.errors.is_empty(),
+            "source should produce parse errors"
+        );
+        assert!(
+            result.diagnostics.is_empty(),
+            "DRC diagnostics should be empty when parse errors exist, got: {:?}",
+            result.diagnostics
+        );
+    }
+
+    #[test]
     fn check_function_with_direction_error_produces_diagnostic() {
         let result = crate::check(
             "template T { ports { Out: out(XLR) } }\ninstance A is T\ninstance B is T\nconnect A.Out -> B.Out",
@@ -567,5 +582,120 @@ mod integration {
             .diagnostics
             .iter()
             .any(|d| { d.layer == crate::drc::DRCLayer::Direction }));
+    }
+
+    // --- DRC fixture file tests ---
+
+    #[test]
+    fn fixture_structural_errors() {
+        let source = include_str!("../../../../tests/fixtures/drc/structural-errors.patch");
+        let result = parse(source);
+        let diags = drc::run_all(&result.program);
+        let structural_errors: Vec<_> = diags
+            .iter()
+            .filter(|d| {
+                d.layer == crate::drc::DRCLayer::Structural
+                    && d.severity == crate::drc::Severity::Error
+            })
+            .collect();
+        assert!(
+            !structural_errors.is_empty(),
+            "structural-errors.patch should produce structural errors"
+        );
+        // S01 — unknown template
+        assert!(structural_errors.iter().any(|d| d.message.contains("GhostTemplate")));
+        // S10 — duplicate instance
+        assert!(structural_errors.iter().any(|d| d.message.contains("Duplicate instance")));
+        // S07 — unknown config instance
+        assert!(structural_errors.iter().any(|d| d.message.contains("Config block")));
+        // S08 — unknown signal origin instance
+        assert!(structural_errors.iter().any(|d| d.message.contains("Signal") && d.message.contains("Ghost_Box")));
+        // S11 — duplicate signal
+        assert!(structural_errors.iter().any(|d| d.message.contains("Duplicate signal")));
+    }
+
+    #[test]
+    fn fixture_direction_errors() {
+        let source = include_str!("../../../../tests/fixtures/drc/direction-errors.patch");
+        let result = parse(source);
+        let diags = drc::run_all(&result.program);
+        let direction_errors: Vec<_> = diags
+            .iter()
+            .filter(|d| d.layer == crate::drc::DRCLayer::Direction)
+            .collect();
+        assert!(
+            !direction_errors.is_empty(),
+            "direction-errors.patch should produce direction errors"
+        );
+        // D01 — output to output
+        assert!(direction_errors.iter().any(|d| d.message.contains("output to output")));
+        // D02 — input to input
+        assert!(direction_errors.iter().any(|d| d.message.contains("input to input")));
+    }
+
+    #[test]
+    fn fixture_mechanical_errors() {
+        let source = include_str!("../../../../tests/fixtures/drc/mechanical-errors.patch");
+        let result = parse(source);
+        let diags = drc::run_all(&result.program);
+        let mech_errors: Vec<_> = diags
+            .iter()
+            .filter(|d| d.layer == crate::drc::DRCLayer::Mechanical)
+            .collect();
+        assert!(
+            !mech_errors.is_empty(),
+            "mechanical-errors.patch should produce mechanical errors"
+        );
+        // M01 — connector mismatch
+        assert!(mech_errors.iter().any(|d| d.message.contains("XLR") && d.message.contains("BNC_75")));
+    }
+
+    #[test]
+    fn fixture_electrical_errors() {
+        let source = include_str!("../../../../tests/fixtures/drc/electrical-errors.patch");
+        let result = parse(source);
+        let diags = drc::run_all(&result.program);
+        let elec_errors: Vec<_> = diags
+            .iter()
+            .filter(|d| d.layer == crate::drc::DRCLayer::Electrical)
+            .collect();
+        assert!(
+            !elec_errors.is_empty(),
+            "electrical-errors.patch should produce electrical errors"
+        );
+    }
+
+    #[test]
+    fn fixture_logical_errors() {
+        let source = include_str!("../../../../tests/fixtures/drc/logical-errors.patch");
+        let result = parse(source);
+        let diags = drc::run_all(&result.program);
+        let logical_errors: Vec<_> = diags
+            .iter()
+            .filter(|d| d.layer == crate::drc::DRCLayer::Logical)
+            .collect();
+        assert!(
+            !logical_errors.is_empty(),
+            "logical-errors.patch should produce logical errors"
+        );
+        // L01 — protocol mismatch
+        assert!(logical_errors.iter().any(|d| d.message.contains("Dante") && d.message.contains("MADI")));
+    }
+
+    #[test]
+    fn fixture_temporal_errors() {
+        let source = include_str!("../../../../tests/fixtures/drc/temporal-errors.patch");
+        let result = parse(source);
+        let diags = drc::run_all(&result.program);
+        let temporal_errors: Vec<_> = diags
+            .iter()
+            .filter(|d| d.layer == crate::drc::DRCLayer::Temporal)
+            .collect();
+        assert!(
+            !temporal_errors.is_empty(),
+            "temporal-errors.patch should produce temporal errors"
+        );
+        // T01 — clock mismatch
+        assert!(temporal_errors.iter().any(|d| d.message.contains("clk_48kHz") && d.message.contains("clk_96kHz")));
     }
 }

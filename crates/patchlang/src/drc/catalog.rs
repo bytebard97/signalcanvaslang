@@ -62,6 +62,13 @@ pub fn get_tag_by_category<'a>(attributes: &'a [String], category: &TagCategory)
 
 /// Signal level ordering. Returns `None` for unknown or `digital` tags.
 /// Higher values = hotter signal.
+///
+/// Ordinal assignments:
+/// - `instrument_level` and `line_level` share ordinal 1 intentionally —
+///   they are treated as equivalent levels (no pad/gain needed between them).
+/// - `speaker_level` is ordinal 3, skipping 2 — no intermediate level exists
+///   between line and speaker. The gap of 2 ensures that speaker→line is
+///   always classified as a destructive level mismatch (gap >= LEVEL_GAP_DESTRUCTIVE).
 fn level_order(tag: &str) -> Option<i32> {
     match tag {
         "mic_level" => Some(0),

@@ -29,10 +29,18 @@ pub use parser::parse;
 
 /// Parse PatchLang source and run all DRC checks.
 /// Returns AST, parse errors, and semantic diagnostics.
+///
+/// When the source contains parse errors, DRC is skipped entirely because
+/// the AST may be incomplete or malformed — running semantic checks on a
+/// partial tree would produce misleading false positives.
 pub fn check(source: &str) -> CheckResult {
     let parse_result = parse(source);
     let ts_result = to_ts_result(&parse_result);
-    let diagnostics = drc::run_all(&parse_result.program);
+    let diagnostics = if parse_result.errors.is_empty() {
+        drc::run_all(&parse_result.program)
+    } else {
+        Vec::new()
+    };
     CheckResult {
         program: ts_result.program,
         errors: ts_result.errors,

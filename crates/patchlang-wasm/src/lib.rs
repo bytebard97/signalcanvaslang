@@ -1,5 +1,8 @@
 use wasm_bindgen::prelude::*;
 
+/// Sentinel value indicating a non-ranged (single) port in [`generate_port_id`].
+pub const NO_INDEX: i32 = -1;
+
 /// Parse PatchLang source and return JSON result.
 /// Returns JSON with { program, errors } in TypeScript-compatible shape.
 /// The program field matches the `PatchProgram` type from the frontend.
@@ -21,7 +24,7 @@ pub fn validate(source: &str) -> bool {
 /// Generate a deterministic port ID.
 ///
 /// `index` uses `i32` because `wasm_bindgen` does not support `Option<u32>`.
-/// Pass `-1` (or any negative value) for single (non-ranged) ports.
+/// Pass [`NO_INDEX`] (`-1`) for single (non-ranged) ports.
 /// Pass a non-negative value as the channel index for ranged ports.
 #[wasm_bindgen]
 pub fn generate_port_id(

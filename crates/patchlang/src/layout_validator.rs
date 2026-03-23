@@ -20,6 +20,9 @@ const GROUPBOX_ALLOWED_FIELDS: &[&str] = &["id", "label", "x", "y", "width", "he
 
 const VIEWPORT_ALLOWED_FIELDS: &[&str] = &["x", "y", "zoom"];
 
+const GROUPBOX_STRING_FIELDS: &[&str] = &["id", "label"];
+const GROUPBOX_NUMERIC_FIELDS: &[&str] = &["x", "y", "width", "height"];
+
 // ── Result types (serialised to JSON for callers) ───────────────────
 
 #[derive(Debug, Serialize)]
@@ -218,6 +221,8 @@ fn check_unknown_fields(
     }
 }
 
+// Version dispatch: match on version number to route to version-specific validation.
+// When v2 is added, add a new arm here and a validate_v2() function.
 fn check_version(obj: &serde_json::Map<String, Value>, errors: &mut Vec<ValidationError>) {
     match obj.get("version") {
         None => {
@@ -396,7 +401,7 @@ fn validate_group_box(
 
     // Type checks for present fields
     // String fields: id, label
-    for &field_name in &["id", "label"] {
+    for &field_name in GROUPBOX_STRING_FIELDS {
         if let Some(v) = obj.get(field_name) {
             if !v.is_string() {
                 errors.push(ValidationError {
@@ -408,7 +413,7 @@ fn validate_group_box(
     }
 
     // Numeric fields: x, y, width, height
-    for &field_name in &["x", "y", "width", "height"] {
+    for &field_name in GROUPBOX_NUMERIC_FIELDS {
         if let Some(v) = obj.get(field_name) {
             if !v.is_number() {
                 errors.push(ValidationError {
