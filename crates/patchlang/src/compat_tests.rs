@@ -201,14 +201,14 @@ fn direction_serializes_lowercase() {
 
 #[test]
 fn mapping_one_to_one() {
-    let spec = parse_mapping_spec("1:1");
+    let spec = parse_mapping_spec("1:1").expect("should parse 1:1");
     let json = serde_json::to_value(&spec).unwrap();
     assert_eq!(json["type"], "one-to-one");
 }
 
 #[test]
 fn mapping_offset_positive() {
-    let spec = parse_mapping_spec("offset 16");
+    let spec = parse_mapping_spec("offset 16").expect("should parse offset 16");
     let json = serde_json::to_value(&spec).unwrap();
     assert_eq!(json["type"], "offset");
     assert_eq!(json["offset"], 16);
@@ -216,7 +216,7 @@ fn mapping_offset_positive() {
 
 #[test]
 fn mapping_offset_negative() {
-    let spec = parse_mapping_spec("offset -8");
+    let spec = parse_mapping_spec("offset -8").expect("should parse offset -8");
     let json = serde_json::to_value(&spec).unwrap();
     assert_eq!(json["type"], "offset");
     assert_eq!(json["offset"], -8);
@@ -224,7 +224,7 @@ fn mapping_offset_negative() {
 
 #[test]
 fn mapping_explicit_pairs() {
-    let spec = parse_mapping_spec("1->3, 2->4, 3->1");
+    let spec = parse_mapping_spec("1->3, 2->4, 3->1").expect("should parse explicit pairs");
     let json = serde_json::to_value(&spec).unwrap();
     assert_eq!(json["type"], "explicit");
     let pairs = json["pairs"].as_array().unwrap();
@@ -237,7 +237,7 @@ fn mapping_explicit_pairs() {
 
 #[test]
 fn mapping_offset_with_extra_whitespace() {
-    let spec = parse_mapping_spec("  offset   -42  ");
+    let spec = parse_mapping_spec("  offset   -42  ").expect("should parse offset with whitespace");
     let json = serde_json::to_value(&spec).unwrap();
     assert_eq!(json["type"], "offset");
     assert_eq!(json["offset"], -42);
@@ -597,6 +597,52 @@ fn ring_properties_in_camel_case() {
     let ts = convert_ring(&ring);
     assert_eq!(ts.properties.get("protocol").unwrap(), "OptoCore");
     assert_eq!(ts.properties.get("label").unwrap(), "Main ring");
+}
+
+// ── Ring roundtrip through to_ts_result ─────────────────────────────
+
+#[test]
+fn ring_roundtrip_through_to_ts_result() {
+    let source = r#"ring Primary {
+        protocol: "OptoCore"
+        member Console
+        member StageBox.OptoCore_A
+    }"#;
+    let result = crate::parser::parse(source);
+    assert!(result.is_valid(), "ring source should parse cleanly: {:?}", result.errors);
+
+    let ts_result = to_ts_result(&result);
+    let json = serde_json::to_value(&ts_result).unwrap();
+
+    let stmts = json["program"]["statements"].as_array().unwrap();
+    assert_eq!(stmts.len(), 1, "should have exactly one statement");
+    assert_eq!(stmts[0]["type"], "Ring");
+    assert_eq!(stmts[0]["name"], "Primary");
+    assert_eq!(stmts[0]["properties"]["protocol"], "OptoCore");
+
+    let members = stmts[0]["members"].as_array().unwrap();
+    assert_eq!(members.len(), 2);
+    assert_eq!(members[0]["instanceName"], "Console");
+    assert_eq!(members[1]["instanceName"], "StageBox");
+    assert_eq!(members[1]["portName"], "OptoCore_A");
+}
+
+// ── Mapping spec returns None for unrecognized input ───────────────
+
+#[test]
+fn mapping_unrecognized_returns_none() {
+    assert!(
+        parse_mapping_spec("banana").is_none(),
+        "unrecognized mapping spec should return None"
+    );
+    assert!(
+        parse_mapping_spec("").is_none(),
+        "empty mapping spec should return None"
+    );
+    assert!(
+        parse_mapping_spec("offset abc").is_none(),
+        "offset with non-numeric value should return None"
+    );
 }
 
 // ── PortRef stringify edge cases ───────────────────────────────────

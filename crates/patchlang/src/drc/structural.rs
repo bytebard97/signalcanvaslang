@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use crate::ast::{
     ConnectDecl, PatchProgram, PortRef, Statement,
 };
-use crate::drc::helpers::{collect_all_connects, DRCContext, port_ref_label};
+use crate::drc::helpers::{collect_all_connects, resolve_port_on_template, DRCContext, port_ref_label};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Structural;
@@ -197,6 +197,27 @@ fn check_port_ref_exists(
     }
 }
 
+/// Emit a diagnostic when a port name does not exist on a template.
+fn emit_missing_port_diagnostic(
+    port_name: &str,
+    template_name: &str,
+    context_label: &str,
+    span: &crate::error::Span,
+    diags: &mut Vec<Diagnostic>,
+) {
+    diags.push(Diagnostic {
+        severity: Severity::Error,
+        layer: LAYER.clone(),
+        message: format!(
+            "{context_label} '{port_name}' does not exist on template '{template_name}'"
+        ),
+        span: Some(span.clone()),
+        source: None,
+        target: None,
+        fix: Some(format!("Check the port name on template '{template_name}'")),
+    });
+}
+
 /// S04 — Route references port that doesn't exist on the instance's template.
 fn check_route_port_refs(
     program: &PatchProgram,
@@ -211,49 +232,23 @@ fn check_route_port_refs(
             };
 
             for route in &inst.routes {
-                // Check source port
-                if template
-                    .ports
-                    .iter()
-                    .all(|p| p.name != route.source.port)
-                {
-                    diags.push(Diagnostic {
-                        severity: Severity::Error,
-                        layer: LAYER.clone(),
-                        message: format!(
-                            "Route references port '{}' which does not exist on template '{}'",
-                            route.source.port, inst.template_name
-                        ),
-                        span: Some(route.span.clone()),
-                        source: None,
-                        target: None,
-                        fix: Some(format!(
-                            "Check the port name on template '{}'",
-                            inst.template_name
-                        )),
-                    });
+                if resolve_port_on_template(&route.source.port, template).is_none() {
+                    emit_missing_port_diagnostic(
+                        &route.source.port,
+                        &inst.template_name,
+                        "Route references port",
+                        &route.span,
+                        diags,
+                    );
                 }
-                // Check target port
-                if template
-                    .ports
-                    .iter()
-                    .all(|p| p.name != route.target.port)
-                {
-                    diags.push(Diagnostic {
-                        severity: Severity::Error,
-                        layer: LAYER.clone(),
-                        message: format!(
-                            "Route references port '{}' which does not exist on template '{}'",
-                            route.target.port, inst.template_name
-                        ),
-                        span: Some(route.span.clone()),
-                        source: None,
-                        target: None,
-                        fix: Some(format!(
-                            "Check the port name on template '{}'",
-                            inst.template_name
-                        )),
-                    });
+                if resolve_port_on_template(&route.target.port, template).is_none() {
+                    emit_missing_port_diagnostic(
+                        &route.target.port,
+                        &inst.template_name,
+                        "Route references port",
+                        &route.span,
+                        diags,
+                    );
                 }
             }
         }
@@ -275,41 +270,25 @@ fn check_bus_port_refs(
 
             for bus in &inst.buses {
                 for output in &bus.outputs {
-                    if template.ports.iter().all(|p| p.name != output.port) {
-                        diags.push(Diagnostic {
-                            severity: Severity::Error,
-                            layer: LAYER.clone(),
-                            message: format!(
-                                "Bus output '{}' does not exist on template '{}'",
-                                output.port, inst.template_name
-                            ),
-                            span: Some(bus.span.clone()),
-                            source: None,
-                            target: None,
-                            fix: Some(format!(
-                                "Check the port name on template '{}'",
-                                inst.template_name
-                            )),
-                        });
+                    if resolve_port_on_template(&output.port, template).is_none() {
+                        emit_missing_port_diagnostic(
+                            &output.port,
+                            &inst.template_name,
+                            "Bus output",
+                            &bus.span,
+                            diags,
+                        );
                     }
                 }
                 for input in &bus.inputs {
-                    if template.ports.iter().all(|p| p.name != input.port) {
-                        diags.push(Diagnostic {
-                            severity: Severity::Error,
-                            layer: LAYER.clone(),
-                            message: format!(
-                                "Bus input '{}' does not exist on template '{}'",
-                                input.port, inst.template_name
-                            ),
-                            span: Some(bus.span.clone()),
-                            source: None,
-                            target: None,
-                            fix: Some(format!(
-                                "Check the port name on template '{}'",
-                                inst.template_name
-                            )),
-                        });
+                    if resolve_port_on_template(&input.port, template).is_none() {
+                        emit_missing_port_diagnostic(
+                            &input.port,
+                            &inst.template_name,
+                            "Bus input",
+                            &bus.span,
+                            diags,
+                        );
                     }
                 }
             }

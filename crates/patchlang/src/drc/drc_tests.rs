@@ -544,8 +544,26 @@ mod integration {
             "fixture should parse cleanly: {:?}",
             result.errors
         );
-        let _diags = drc::run_all(&result.program);
-        // If we got here without panicking, the DRC handles the fixture correctly
+        let diags = drc::run_all(&result.program);
+
+        // Diagnostic count should be bounded — not an explosion
+        assert!(
+            diags.len() < 500,
+            "hillsong-mtg.patch produced {} diagnostics, expected fewer than 500",
+            diags.len()
+        );
+
+        // No temporal diagnostics expected — fixture uses consistent clock domains
+        let temporal_diags: Vec<_> = diags
+            .iter()
+            .filter(|d| d.layer == crate::drc::DRCLayer::Temporal)
+            .collect();
+        assert!(
+            temporal_diags.is_empty(),
+            "hillsong-mtg.patch should have zero temporal diagnostics, got {}: {:?}",
+            temporal_diags.len(),
+            temporal_diags
+        );
     }
 
     #[test]
@@ -582,6 +600,53 @@ mod integration {
             .diagnostics
             .iter()
             .any(|d| { d.layer == crate::drc::DRCLayer::Direction }));
+    }
+
+    #[test]
+    fn check_empty_input_produces_no_diagnostics() {
+        let result = crate::check("");
+        assert!(
+            result.errors.is_empty(),
+            "empty input should produce no parse errors, got: {:?}",
+            result.errors
+        );
+        assert!(
+            result.diagnostics.is_empty(),
+            "empty input should produce no diagnostics, got: {:?}",
+            result.diagnostics
+        );
+        assert!(
+            result.program.statements.is_empty(),
+            "empty input should produce no statements, got {} statements",
+            result.program.statements.len()
+        );
+    }
+
+    #[test]
+    fn suppress_all_silences_direction_error() {
+        let result = crate::check(
+            "template T { ports { Out: out(XLR) } }\n\
+             instance A is T\n\
+             instance B is T\n\
+             connect A.Out -> B.Out { @suppress(all) }",
+        );
+        assert!(
+            result.errors.is_empty(),
+            "should parse without errors: {:?}",
+            result.errors
+        );
+        // Without @suppress(all), this connect would produce a direction error (output to output).
+        // With @suppress(all), zero diagnostics should be emitted for this connect.
+        let direction_diags: Vec<_> = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.layer == crate::drc::DRCLayer::Direction)
+            .collect();
+        assert!(
+            direction_diags.is_empty(),
+            "@suppress(all) should silence direction errors, got: {:?}",
+            direction_diags
+        );
     }
 
     // --- DRC fixture file tests ---
@@ -662,6 +727,12 @@ mod integration {
         assert!(
             !elec_errors.is_empty(),
             "electrical-errors.patch should produce electrical errors"
+        );
+        // E01 — destructive level gap: speaker_level -> line_level
+        assert!(
+            elec_errors.iter().any(|d| d.message.contains("speaker_level") && d.message.contains("line_level")),
+            "should detect speaker_level to line_level mismatch, got: {:?}",
+            elec_errors.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
     }
 
