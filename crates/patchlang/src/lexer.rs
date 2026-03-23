@@ -55,6 +55,8 @@ pub enum Token {
     Bus,
     #[token("label")]
     Label,
+    #[token("card")]
+    Card,
 
     // Annotations
     #[token("@suppress")]
