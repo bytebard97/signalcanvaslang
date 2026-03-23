@@ -177,6 +177,76 @@ The `check()` function should be exported alongside `parse()` and `validate()`:
 - WASM: `#[wasm_bindgen] pub fn check(source: &str) -> String` (returns JSON)
 - Python: `#[pyfunction] fn check(source: &str) -> String`
 
+## Unique Instance Name Enforcement
+
+Instance names MUST be unique within a compilation scope. Duplicate instance names are a **hard DRC error**. Instance names are the canonical identifier used by:
+- The layout sidecar (`.layout.json`) to map positions
+- The graph store to key device nodes
+- Connections to reference source/target devices
+- Signal origins to reference devices
+
+The parser does not currently enforce this — it accepts duplicate instance names silently. The DRC must catch it.
+
+## Project Architecture (Three-Layer Model)
+
+PatchLang files exist within a project architecture with three distinct layers:
+
+### Layer 1: `.patch` files (PatchLang source)
+Signal flow definitions. Parsed by the Rust compiler. These are the source of truth.
+- **System files** — the actual project (instances, connections, routes, buses)
+- **Template library files** — reusable device definitions (templates only, no instances)
+- Multi-file projects use `use "other-file.patch"` to import
+
+### Layer 2: `.layout.json` sidecar
+Visual positions of device blocks on the canvas. Keyed by instance name.
+```json
+{
+  "version": 1,
+  "positions": {
+    "FOH_Console": { "x": 500, "y": 200 },
+    "Drums": { "x": -987, "y": 530 }
+  }
+}
+```
+
+### Layer 3: Project manifest (`project.json` — backend/database concern)
+Project metadata that doesn't belong in PatchLang:
+```json
+{
+  "id": "uuid",
+  "name": "Hillsong MTG",
+  "created": "2026-03-15T10:00:00Z",
+  "updated": "2026-03-23T12:00:00Z",
+  "owner": "reid",
+  "organization": "hillsong",
+  "files": [
+    { "path": "system/foh.patch", "type": "system" },
+    { "path": "system/monitors.patch", "type": "system" },
+    { "path": "templates/consoles.patch", "type": "library" }
+  ],
+  "layout": "project.layout.json",
+  "libraryRefs": [
+    { "scope": "stock", "version": "1.0" },
+    { "scope": "org", "id": "hillsong-custom-devices" }
+  ]
+}
+```
+
+### Template Library Tiers
+Device templates come from multiple sources, resolved in priority order:
+1. **Stock library** — ships with SignalCanvas, read-only (e.g., Yamaha CL5, Shure AD4Q)
+2. **Organization library** — shared within an org, managed by admins
+3. **User library** — personal device definitions
+4. **Project-local** — templates defined inline in the project's `.patch` files
+
+When a `use` statement or instance references a template name, it resolves through these tiers.
+
+### Diff Storage
+Both `.patch` and `.layout.json` diffs should be stored in the database for version history:
+- `.patch` diffs are human-readable (plain text, line-based diffs work naturally)
+- `.layout.json` diffs track position changes
+- The backend stores diffs per-save, enabling undo/history/collaboration
+
 ## What NOT to Change
 
 - The existing parser grammar for all current keywords — don't break existing `.patch` files
