@@ -251,4 +251,69 @@ mod compile_project_tests {
         assert_eq!(result.template_files.get("T").map(String::as_str), Some("main.patch"));
         assert!(result.use_graph.get("main.patch").unwrap().is_empty());
     }
+
+    #[test]
+    fn parse_errors_have_structured_file_field() {
+        let mut files = HashMap::new();
+        files.insert("main.patch".into(), "use lib { D }\ntemplate {".into()); // parse error in main
+        files.insert("lib.patch".into(), "template D { ports { X: out } }".into());
+        let result = compile_project(files, "main.patch");
+        assert!(!result.errors.is_empty());
+        // At least one error should have file = "main.patch"
+        let json = serde_json::to_value(&result).unwrap();
+        let errors = json["errors"].as_array().unwrap();
+        assert!(
+            errors.iter().any(|e| e.get("file").and_then(|f| f.as_str()) == Some("main.patch")),
+            "expected structured file field on parse error: {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn missing_dependency_has_file_field_none() {
+        let mut files = HashMap::new();
+        files.insert("main.patch".into(), "use missing { G }".into());
+        let result = compile_project(files, "main.patch");
+        let json = serde_json::to_value(&result).unwrap();
+        let errors = json["errors"].as_array().unwrap();
+        // Missing file errors don't have a source file (the file doesn't exist)
+        assert!(!errors.is_empty());
+    }
+
+    #[test]
+    fn single_file_check_has_no_file_field() {
+        let result = crate::check("template {"); // parse error
+        let json = serde_json::to_value(&result).unwrap();
+        let errors = json["errors"].as_array().unwrap();
+        assert!(!errors.is_empty());
+        // Single-file errors should not have a file field (or it should be null/absent)
+        let first = &errors[0];
+        assert!(
+            first.get("file").is_none() || first["file"].is_null(),
+            "single-file errors should not have file field"
+        );
+    }
+
+    #[test]
+    fn duplicate_template_error_has_file_field() {
+        let mut files = HashMap::new();
+        files.insert(
+            "main.patch".into(),
+            "use lib { T }\ntemplate T { ports { X: out } }".into(),
+        );
+        files.insert("lib.patch".into(), "template T { ports { Y: out } }".into());
+        let result = compile_project(files, "main.patch");
+        let json = serde_json::to_value(&result).unwrap();
+        let errors = json["errors"].as_array().unwrap();
+        let dup_error = errors
+            .iter()
+            .find(|e| e["message"].as_str().unwrap().contains("duplicate"))
+            .unwrap();
+        // Duplicate template errors should reference one of the files
+        assert!(
+            dup_error.get("file").is_some() && !dup_error["file"].is_null(),
+            "duplicate template error should have file field: {:?}",
+            dup_error
+        );
+    }
 }

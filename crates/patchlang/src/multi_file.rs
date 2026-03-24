@@ -96,6 +96,7 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectRe
             message: format!("entry file not found: {entry}"),
             span: empty_span,
             hint: None,
+            file: None,
         }]);
     }
 
@@ -128,6 +129,7 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectRe
                     hint: Some(format!(
                         "required by a use statement (namespace resolved to {file_path})"
                     )),
+                    file: None,
                 });
                 continue;
             }
@@ -163,6 +165,7 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectRe
                     message: format!("[{}] {}", file_path, ts_err.message),
                     span: ts_err.span,
                     hint: ts_err.hint,
+                    file: Some(file_path.clone()),
                 });
             }
         }
@@ -188,6 +191,7 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectRe
                         ),
                         span: TsSpan { start: 0, end: 0 },
                         hint: Some("rename one of the templates to avoid collision".into()),
+                        file: Some(file_path.clone()),
                     });
                 } else {
                     template_defs.insert(name_owned, file_path.clone());

@@ -26,6 +26,7 @@ pub fn to_ts_result(result: &ParseResult) -> TsParseResult {
                     end: e.span.end,
                 },
                 hint: e.hint.clone(),
+                file: None,
             })
             .collect(),
     }
