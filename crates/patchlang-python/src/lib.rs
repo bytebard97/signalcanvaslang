@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 
@@ -56,6 +58,24 @@ fn check(source: &str) -> PyResult<String> {
         .map_err(|e| PyValueError::new_err(format!("serialization failed: {e}")))
 }
 
+/// Quick-parse source and return namespace strings from `use` statements.
+#[pyfunction]
+fn resolve_uses(source: &str) -> PyResult<Vec<String>> {
+    Ok(patchlang::resolve_uses(source))
+}
+
+/// Multi-file compilation with namespace resolution and merged DRC.
+///
+/// `files` is a dict mapping file paths to source strings.
+/// `entry` is the path of the entry file.
+/// Returns JSON string with { program, errors, diagnostics }.
+#[pyfunction]
+fn compile_project(files: HashMap<String, String>, entry: &str) -> PyResult<String> {
+    let result = patchlang::compile_project(files, entry);
+    serde_json::to_string(&result)
+        .map_err(|e| PyValueError::new_err(format!("serialization failed: {e}")))
+}
+
 /// Validate a `.layout.json` string against the schema.
 /// Returns JSON: `{ "valid": bool, "errors": [...] }`.
 #[pyfunction]
@@ -76,6 +96,8 @@ fn patchlang_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parse, m)?)?;
     m.add_function(wrap_pyfunction!(validate, m)?)?;
     m.add_function(wrap_pyfunction!(check, m)?)?;
+    m.add_function(wrap_pyfunction!(resolve_uses, m)?)?;
+    m.add_function(wrap_pyfunction!(compile_project, m)?)?;
     m.add_function(wrap_pyfunction!(generate_port_id, m)?)?;
     m.add_function(wrap_pyfunction!(generate_route_id, m)?)?;
     m.add_function(wrap_pyfunction!(generate_slot_id, m)?)?;
