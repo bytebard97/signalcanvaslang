@@ -96,6 +96,49 @@ pub fn check_meta_info_hints(program: &PatchProgram, diags: &mut Vec<Diagnostic>
                     }
                 }
             }
+
+            // M-I05 — rf_min_channels must be positive
+            let rf_min = t.meta.iter().find(|kv| kv.key == "rf_min_channels");
+            let rf_max = t.meta.iter().find(|kv| kv.key == "rf_max_channels");
+
+            if let Some(min_kv) = rf_min {
+                if let KvValue::Num { value: min_val } = &min_kv.value {
+                    if *min_val == 0 {
+                        diags.push(Diagnostic {
+                            severity: Severity::Warning,
+                            layer: LAYER.clone(),
+                            message: "rf_min_channels must be positive (got 0)".to_string(),
+                            span: Some(t.span.clone()),
+                            source: None,
+                            target: None,
+                            fix: Some("Set rf_min_channels to at least 1".to_string()),
+                        });
+                    }
+
+                    // M-I06 — rf_max_channels must be >= rf_min_channels
+                    if let Some(max_kv) = rf_max {
+                        if let KvValue::Num { value: max_val } = &max_kv.value {
+                            if max_val < min_val {
+                                diags.push(Diagnostic {
+                                    severity: Severity::Warning,
+                                    layer: LAYER.clone(),
+                                    message: format!(
+                                        "rf_max_channels ({}) must be >= rf_min_channels ({})",
+                                        max_val, min_val
+                                    ),
+                                    span: Some(t.span.clone()),
+                                    source: None,
+                                    target: None,
+                                    fix: Some(format!(
+                                        "Set rf_max_channels to at least {}",
+                                        min_val
+                                    )),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
