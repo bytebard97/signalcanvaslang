@@ -1,0 +1,12 @@
+# Hillsong Mini — Campus Level
+
+use buildings.foh { FOH_System }
+use buildings.stage { Stage_System }
+
+instance FOH is FOH_System { location: "Front of House" }
+instance Stage is Stage_System { location: "Main Stage" }
+
+connect FOH.Dante_Out -> Stage.Dante_In {
+  cable: "Cat6a_FOH_STG"
+  length: "60m"
+}

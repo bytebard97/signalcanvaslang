@@ -1,0 +1,21 @@
+# Front of House
+
+use yamaha { CL5, Rio3224 }
+
+template FOH_System {
+  meta { category: "Building" }
+  ports {
+    Dante_Out: out(etherCON) [Dante]
+    Dante_In: in(etherCON) [Dante]
+  }
+}
+
+instance Console is CL5 { location: "FOH Mix Position" }
+instance SL_Rack is Rio3224 { location: "Stage Left" }
+
+connect SL_Rack.Dante_Pri_Out -> Console.Dante_Pri_In {
+  cable: "Cat6a_SL"
+  length: "30m"
+}
+
+bridge SL_Rack.Mic_In[1..32] -> Console.Dante_Pri_In[1..32]
