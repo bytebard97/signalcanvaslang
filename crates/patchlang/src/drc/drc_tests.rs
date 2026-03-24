@@ -770,3 +770,66 @@ mod integration {
         assert!(temporal_errors.iter().any(|d| d.message.contains("clk_48kHz") && d.message.contains("clk_96kHz")));
     }
 }
+
+#[cfg(test)]
+mod meta_rf {
+    use crate::drc::{self, Severity};
+    use crate::parser::parse;
+
+    fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
+        let result = parse(source);
+        drc::run_all(&result.program)
+    }
+
+    #[test]
+    fn rf_min_channels_zero_warns() {
+        let diags = check(r#"template T {
+            meta {
+                device_type: "rf-system"
+                rf_subtype: "radio-mic"
+                rf_min_channels: 0
+                rf_max_channels: 4
+            }
+            ports { X: out }
+        }"#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Warning
+                && d.message.contains("rf_min_channels")
+                && d.message.contains("positive")
+        }), "expected warning about rf_min_channels, got: {:?}", diags);
+    }
+
+    #[test]
+    fn rf_max_less_than_min_warns() {
+        let diags = check(r#"template T {
+            meta {
+                device_type: "rf-system"
+                rf_subtype: "radio-mic"
+                rf_min_channels: 8
+                rf_max_channels: 4
+            }
+            ports { X: out }
+        }"#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Warning
+                && d.message.contains("rf_max_channels")
+                && d.message.contains("rf_min_channels")
+        }), "expected warning about max < min, got: {:?}", diags);
+    }
+
+    #[test]
+    fn valid_rf_channels_no_warning() {
+        let diags = check(r#"template T {
+            meta {
+                device_type: "rf-system"
+                rf_subtype: "radio-mic"
+                rf_min_channels: 4
+                rf_max_channels: 4
+            }
+            ports { X: out }
+        }"#);
+        assert!(!diags.iter().any(|d| {
+            d.message.contains("rf_min_channels") || d.message.contains("rf_max_channels")
+        }), "unexpected RF channel warning: {:?}", diags);
+    }
+}
