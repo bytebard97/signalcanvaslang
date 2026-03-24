@@ -66,10 +66,11 @@ impl<'a> Parser<'a> {
             Span {
                 start: t.span.start,
                 end: t.span.end,
+                file: None,
             }
         } else {
             let end = self.source.len();
-            Span { start: end, end }
+            Span { start: end, end, file: None }
         }
     }
 
@@ -79,7 +80,7 @@ impl<'a> Parser<'a> {
         } else {
             start
         };
-        Span { start, end }
+        Span { start, end, file: None }
     }
 
     pub(crate) fn expect(&mut self, expected: &Token) -> bool {

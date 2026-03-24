@@ -7,7 +7,7 @@ use crate::error::Span;
 // ── Helper: dummy span (stripped in compat output) ──────────────────
 
 fn span() -> Span {
-    Span { start: 0, end: 0 }
+    Span { start: 0, end: 0, file: None }
 }
 
 // ── KeyValue → Record tests ────────────────────────────────────────
@@ -432,6 +432,7 @@ fn spans_are_stripped_from_output() {
         span: Span {
             start: 10,
             end: 50,
+            file: None,
         },
     };
     let ts = convert_instance(&instance);
@@ -520,7 +521,7 @@ fn worship_venue_fixture_roundtrip() {
 fn error_statements_are_filtered_out() {
     let program = PatchProgram {
         statements: vec![
-            Statement::Error(Span { start: 0, end: 5 }),
+            Statement::Error(Span { start: 0, end: 5, file: None }),
             Statement::Flag(FlagDecl {
                 name: "test".into(),
                 properties: vec![],
