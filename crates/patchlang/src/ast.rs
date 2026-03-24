@@ -211,6 +211,7 @@ pub struct SlotDef {
     pub name: String,
     pub range: Option<RangeSpec>,
     pub slot_type: String,
+    pub properties: Vec<KeyValue>,
     pub span: Span,
 }
 

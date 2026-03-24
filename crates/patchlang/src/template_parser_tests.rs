@@ -385,6 +385,47 @@ mod tests {
         }
     }
 
+    // ── Slot definition with optional body block ────────────
+
+    #[test]
+    fn slot_def_with_body_block() {
+        let result = parse(r#"template Dev {
+            slot Expansion[1..8]: Expansion {
+                direction: "any"
+                channels: 16
+            }
+        }"#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        match &result.program.statements[0] {
+            Statement::Template(t) => {
+                assert_eq!(t.slots.len(), 1);
+                assert_eq!(t.slots[0].name, "Expansion");
+                assert_eq!(t.slots[0].properties.len(), 2);
+                assert_eq!(t.slots[0].properties[0].key, "direction");
+                assert!(matches!(&t.slots[0].properties[0].value, KvValue::Str { value } if value == "any"));
+                assert_eq!(t.slots[0].properties[1].key, "channels");
+                assert!(matches!(t.slots[0].properties[1].value, KvValue::Num { value: 16 }));
+            }
+            other => panic!("expected Template, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn slot_def_without_body_still_works() {
+        let result = parse(r#"template Dev {
+            slot MY_Slot[1..3]: MY_Format
+        }"#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        match &result.program.statements[0] {
+            Statement::Template(t) => {
+                assert_eq!(t.slots.len(), 1);
+                assert_eq!(t.slots[0].name, "MY_Slot");
+                assert!(t.slots[0].properties.is_empty());
+            }
+            other => panic!("expected Template, got {other:?}"),
+        }
+    }
+
     // ── @version annotation ─────────────────────────────────
 
     #[test]

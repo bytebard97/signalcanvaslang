@@ -257,6 +257,7 @@ fn convert_slot_def(s: &ast::SlotDef) -> TsSlotDef {
         range_start: s.range.as_ref().map(|r| r.start),
         range_end: s.range.as_ref().map(|r| r.end),
         slot_type: s.slot_type.clone(),
+        properties: kv_to_string_record(&s.properties),
     }
 }
 

@@ -405,12 +405,34 @@ pub(crate) trait TemplateParserExt {
         let range = self.parse_range_spec_if_present();
         self.expect_tok(&Token::Colon);
         let slot_type = self.expect_ident().unwrap_or_default();
+
+        let properties = if self.peek_token() == Some(&Token::LBrace) {
+            self.parse_slot_body()
+        } else {
+            Vec::new()
+        };
+
         SlotDef {
             name,
             range,
             slot_type,
+            properties,
             span: self.span_from_ext(start),
         }
+    }
+
+    fn parse_slot_body(&mut self) -> Vec<KeyValue> {
+        self.advance_token(); // consume '{'
+        let mut entries = Vec::new();
+        while !self.at_end_of_input() && self.peek_token() != Some(&Token::RBrace) {
+            if let Some(kv) = self.parse_key_value_pair() {
+                entries.push(kv);
+            } else {
+                self.advance_token();
+            }
+        }
+        self.expect_tok(&Token::RBrace);
+        entries
     }
 
     // ── Port reference (local or qualified) ─────────────────
