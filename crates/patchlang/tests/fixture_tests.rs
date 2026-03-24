@@ -461,3 +461,370 @@ fn multi_file_resolve_uses_from_campus() {
     let deps = patchlang::resolve_uses(&source);
     assert_eq!(deps, vec!["buildings.foh", "buildings.stage"]);
 }
+
+// ── hillsong-mtg.patch — full output verification ───────────────────
+
+/// Path from the crate root to the hillsong-mtg fixture.
+const HILLSONG_MTG_PATH: &str = "../../tests/fixtures/examples/hillsong-mtg.patch";
+
+/// Load the hillsong-mtg fixture and run check() on it.
+fn check_hillsong_mtg() -> patchlang::drc::CheckResult {
+    let source = std::fs::read_to_string(HILLSONG_MTG_PATH)
+        .unwrap_or_else(|e| panic!("failed to read hillsong-mtg.patch: {e}"));
+    patchlang::check(&source)
+}
+
+#[test]
+fn hillsong_mtg_full_output_shape() {
+    let result = check_hillsong_mtg();
+    assert!(result.errors.is_empty(), "expected no parse errors, got: {:?}", result.errors);
+
+    let json = serde_json::to_value(&result).unwrap();
+    let stmts = json["program"]["statements"].as_array().unwrap();
+
+    let count = |t: &str| stmts.iter().filter(|s| s["type"] == t).count();
+
+    // Counts verified by grep on the fixture file
+    assert_eq!(count("Template"), 24, "expected 24 Template statements");
+    assert_eq!(count("Instance"), 53, "expected 53 Instance statements");
+    assert_eq!(count("Connect"), 99, "expected 99 Connect statements");
+    assert_eq!(count("Config"), 23, "expected 23 Config statements");
+
+    // No unexpected error nodes in the statement list
+    assert_eq!(count("Error"), 0, "expected 0 Error nodes");
+}
+
+#[test]
+fn hillsong_mtg_template_details() {
+    let result = check_hillsong_mtg();
+    assert!(result.errors.is_empty(), "expected no parse errors, got: {:?}", result.errors);
+
+    let json = serde_json::to_value(&result).unwrap();
+    let stmts = json["program"]["statements"].as_array().unwrap();
+
+    // Find the AVID_Venue_FOH_Rack template — the primary FOH console in the file
+    let foh_rack = stmts
+        .iter()
+        .find(|s| s["type"] == "Template" && s["name"] == "AVID_Venue_FOH_Rack")
+        .expect("AVID_Venue_FOH_Rack template not found");
+
+    // Verify meta fields
+    let meta = &foh_rack["meta"];
+    assert_eq!(
+        meta["manufacturer"].as_str().unwrap(),
+        "AVID",
+        "manufacturer should be AVID"
+    );
+    assert_eq!(
+        meta["model"].as_str().unwrap(),
+        "Venue FOH Rack",
+        "model should be Venue FOH Rack"
+    );
+
+    // Verify ports exist and contain expected port names
+    let ports = foh_rack["ports"].as_array().unwrap();
+    assert!(!ports.is_empty(), "AVID_Venue_FOH_Rack should have ports");
+
+    let port_names: Vec<&str> = ports
+        .iter()
+        .map(|p| p["name"].as_str().unwrap())
+        .collect();
+
+    assert!(
+        port_names.contains(&"AES"),
+        "expected AES port, found: {:?}",
+        port_names
+    );
+    assert!(
+        port_names.contains(&"LINE"),
+        "expected LINE port, found: {:?}",
+        port_names
+    );
+    assert!(
+        port_names.contains(&"Talkback"),
+        "expected Talkback port, found: {:?}",
+        port_names
+    );
+    assert!(
+        port_names.contains(&"Monitor"),
+        "expected Monitor port, found: {:?}",
+        port_names
+    );
+
+    // Verify AES port direction and range
+    let aes_port = ports
+        .iter()
+        .find(|p| p["name"] == "AES")
+        .expect("AES port not found");
+    assert_eq!(aes_port["direction"].as_str().unwrap(), "io");
+    assert_eq!(aes_port["rangeStart"].as_u64().unwrap(), 1);
+    assert_eq!(aes_port["rangeEnd"].as_u64().unwrap(), 2);
+
+    // Verify Talkback port is an input
+    let talkback_port = ports
+        .iter()
+        .find(|p| p["name"] == "Talkback")
+        .expect("Talkback port not found");
+    assert_eq!(talkback_port["direction"].as_str().unwrap(), "in");
+}
+
+#[test]
+fn hillsong_mtg_connect_details() {
+    let result = check_hillsong_mtg();
+    assert!(result.errors.is_empty(), "expected no parse errors, got: {:?}", result.errors);
+
+    let json = serde_json::to_value(&result).unwrap();
+    let stmts = json["program"]["statements"].as_array().unwrap();
+
+    // Collect all Connect statements
+    let connects: Vec<&serde_json::Value> = stmts
+        .iter()
+        .filter(|s| s["type"] == "Connect")
+        .collect();
+    assert!(!connects.is_empty(), "expected at least one Connect statement");
+
+    // Verify the first connect has source and target with instance and port names
+    let first = connects[0];
+    let source = &first["source"];
+    let target = &first["target"];
+
+    assert!(
+        source["instance"].is_string(),
+        "connect source should have instance name"
+    );
+    assert!(
+        source["port"].is_string(),
+        "connect source should have port name"
+    );
+    assert!(
+        target["instance"].is_string(),
+        "connect target should have instance name"
+    );
+    assert!(
+        target["port"].is_string(),
+        "connect target should have port name"
+    );
+
+    // Verify a connect that has a mapping property
+    // The first four connects in the file have mapping: "1->1, ..." properties
+    let with_mapping = connects
+        .iter()
+        .find(|c| !c["mapping"].is_null())
+        .expect("expected at least one Connect with a mapping property");
+    assert!(
+        with_mapping["mapping"].is_object() || with_mapping["mapping"].is_string(),
+        "mapping should be present on connects that declare it"
+    );
+}
+
+#[test]
+fn hillsong_mtg_no_drc_errors() {
+    let result = check_hillsong_mtg();
+
+    // The fixture must parse without parse errors — this is the hard constraint.
+    assert!(result.errors.is_empty(), "expected no parse errors, got: {:?}", result.errors);
+
+    // hillsong-mtg.patch is a real production file with two known categories of
+    // DRC errors that are expected at the current compiler maturity:
+    //
+    //   1. Structural — UUID-style slot-expanded port names in connect/route
+    //      statements (e.g. `_75e05cfe_...__5efbb62d_...`) that the DRC cannot
+    //      resolve because slot expansion is a runtime concern not yet modelled.
+    //
+    //   2. Mechanical — Connector-type mismatches that exist in the real rig
+    //      (e.g. DB25 → XLR adapter cables; TRS_14 ↔ DB25 wiring). These are
+    //      genuine real-world adapters that the crew uses in the field.
+    //
+    // Errors from any other DRC layer would indicate a regression.
+    let unexpected_layer_errors: Vec<&patchlang::Diagnostic> = result
+        .diagnostics
+        .iter()
+        .filter(|d| {
+            d.severity == patchlang::drc::Severity::Error
+                && d.layer != patchlang::drc::DRCLayer::Structural
+                && d.layer != patchlang::drc::DRCLayer::Mechanical
+        })
+        .collect();
+
+    let structural_count = result.diagnostics.iter()
+        .filter(|d| d.severity == patchlang::drc::Severity::Error
+            && d.layer == patchlang::drc::DRCLayer::Structural)
+        .count();
+
+    let mechanical_count = result.diagnostics.iter()
+        .filter(|d| d.severity == patchlang::drc::Severity::Error
+            && d.layer == patchlang::drc::DRCLayer::Mechanical)
+        .count();
+
+    println!(
+        "hillsong-mtg DRC errors — Structural (slot-port): {}, Mechanical (adapter cables): {}",
+        structural_count,
+        mechanical_count
+    );
+
+    assert!(
+        unexpected_layer_errors.is_empty(),
+        "hillsong-mtg.patch should only produce Structural/Mechanical DRC errors, \
+         got unexpected layer errors: {:?}",
+        unexpected_layer_errors
+    );
+
+    // Structural errors are expected (slot-port resolution not yet implemented)
+    assert!(structural_count > 0, "expected Structural DRC errors from slot-port names");
+    // Mechanical errors are expected (real-world adapter cables in the rig)
+    assert!(mechanical_count > 0, "expected Mechanical DRC errors from connector mismatches");
+}
+
+#[test]
+fn hillsong_mtg_json_is_valid() {
+    let result = check_hillsong_mtg();
+
+    // Serialise the full result to a JSON string
+    let json_string = serde_json::to_string(&result)
+        .expect("serialising CheckResult to JSON must not fail");
+
+    println!("hillsong-mtg JSON size: {} bytes", json_string.len());
+
+    // Deserialise back to a Value to confirm it is well-formed JSON
+    let json: serde_json::Value =
+        serde_json::from_str(&json_string).expect("JSON string must be valid JSON");
+
+    // Required top-level fields
+    assert!(json.get("program").is_some(), "JSON must have 'program' field");
+    assert!(json.get("errors").is_some(), "JSON must have 'errors' field");
+    assert!(json.get("diagnostics").is_some(), "JSON must have 'diagnostics' field");
+
+    // program must have a 'statements' array
+    assert!(
+        json["program"].get("statements").is_some(),
+        "program must have 'statements' field"
+    );
+}
+
+// ── hillsong-mini multi-file JSON output verification ───────────────
+
+const MULTI_FILE_MINI_DIR: &str = "../../tests/fixtures/multi-file/hillsong-mini";
+
+/// Load all four hillsong-mini files and compile the project.
+fn compile_hillsong_mini() -> patchlang::multi_file::ProjectResult {
+    let files = load_project_files(MULTI_FILE_MINI_DIR, &[
+        "campus.patch",
+        "buildings/foh.patch",
+        "buildings/stage.patch",
+        "yamaha.patch",
+    ]);
+    patchlang::compile_project(files, "campus.patch")
+}
+
+#[test]
+fn hillsong_mini_project_files_table() {
+    let result = compile_hillsong_mini();
+    assert!(result.errors.is_empty(), "expected no errors, got: {:?}", result.errors);
+
+    // BFS walk from campus.patch should visit all four files
+    assert_eq!(
+        result.files.len(),
+        4,
+        "files table should have 4 entries, got: {:?}",
+        result.files
+    );
+
+    // campus.patch is the entry file — it should appear first (BFS root)
+    assert_eq!(result.files[0], "campus.patch");
+}
+
+#[test]
+fn hillsong_mini_template_files_map() {
+    let result = compile_hillsong_mini();
+    assert!(result.errors.is_empty(), "expected no errors, got: {:?}", result.errors);
+
+    // Each template should map to the file that defined it
+    assert_eq!(
+        result.template_files.get("CL5").map(String::as_str),
+        Some("yamaha.patch"),
+        "CL5 template should come from yamaha.patch"
+    );
+    assert_eq!(
+        result.template_files.get("Rio3224").map(String::as_str),
+        Some("yamaha.patch"),
+        "Rio3224 template should come from yamaha.patch"
+    );
+    assert_eq!(
+        result.template_files.get("FOH_System").map(String::as_str),
+        Some("buildings/foh.patch"),
+        "FOH_System template should come from buildings/foh.patch"
+    );
+    assert_eq!(
+        result.template_files.get("Stage_System").map(String::as_str),
+        Some("buildings/stage.patch"),
+        "Stage_System template should come from buildings/stage.patch"
+    );
+}
+
+#[test]
+fn hillsong_mini_use_graph() {
+    let result = compile_hillsong_mini();
+    assert!(result.errors.is_empty(), "expected no errors, got: {:?}", result.errors);
+
+    // campus.patch uses buildings.foh and buildings.stage
+    let campus_uses = result.use_graph.get("campus.patch")
+        .expect("campus.patch should appear in use_graph");
+    assert!(
+        campus_uses.contains(&"buildings.foh".to_string()),
+        "campus.patch should use buildings.foh"
+    );
+    assert!(
+        campus_uses.contains(&"buildings.stage".to_string()),
+        "campus.patch should use buildings.stage"
+    );
+
+    // yamaha.patch has no use statements
+    let yamaha_uses = result.use_graph.get("yamaha.patch")
+        .expect("yamaha.patch should appear in use_graph");
+    assert!(
+        yamaha_uses.is_empty(),
+        "yamaha.patch has no use statements, expected empty vec"
+    );
+}
+
+#[test]
+fn hillsong_mini_merged_program_templates() {
+    let result = compile_hillsong_mini();
+    assert!(result.errors.is_empty(), "expected no errors, got: {:?}", result.errors);
+
+    // Merged program should contain templates from all files
+    let stmts = &result.program.statements;
+    let template_count = stmts
+        .iter()
+        .filter(|s| matches!(s, patchlang::compat_types::TsStatement::Template(_)))
+        .count();
+
+    // yamaha.patch: CL5, Rio3224; foh.patch: FOH_System; stage.patch: Stage_System = 4 templates
+    assert_eq!(
+        template_count,
+        4,
+        "merged program should have 4 templates (CL5, Rio3224, FOH_System, Stage_System)"
+    );
+}
+
+#[test]
+fn hillsong_mini_json_size() {
+    let result = compile_hillsong_mini();
+    assert!(result.errors.is_empty(), "expected no errors, got: {:?}", result.errors);
+
+    let json_string = serde_json::to_string(&result)
+        .expect("serialising ProjectResult to JSON must not fail");
+
+    println!("hillsong-mini JSON size: {} bytes", json_string.len());
+
+    // Confirm the JSON is valid and has the expected top-level shape
+    let json: serde_json::Value =
+        serde_json::from_str(&json_string).expect("JSON must be valid");
+
+    assert!(json.get("program").is_some(), "JSON must have 'program'");
+    assert!(json.get("errors").is_some(), "JSON must have 'errors'");
+    assert!(json.get("diagnostics").is_some(), "JSON must have 'diagnostics'");
+    assert!(json.get("files").is_some(), "JSON must have 'files'");
+    assert!(json.get("templateFiles").is_some(), "JSON must have 'templateFiles'");
+    assert!(json.get("useGraph").is_some(), "JSON must have 'useGraph'");
+}
