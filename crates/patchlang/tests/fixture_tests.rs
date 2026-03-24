@@ -388,3 +388,76 @@ fn ring_network_redundant_members() {
             "redundant ring members should have explicit OptoCore_B port");
     }
 }
+
+// ── Multi-File Compilation ──────────────────────────────────
+
+const MULTI_FILE_DIR: &str = "../../tests/fixtures/multi-file/hillsong-mini";
+
+/// Load a multi-file project from disk into a HashMap.
+fn load_project_files(root: &str, paths: &[&str]) -> std::collections::HashMap<String, String> {
+    paths
+        .iter()
+        .map(|p| {
+            let full = format!("{root}/{p}");
+            let source = std::fs::read_to_string(&full)
+                .unwrap_or_else(|e| panic!("failed to read {full}: {e}"));
+            (p.to_string(), source)
+        })
+        .collect()
+}
+
+#[test]
+fn multi_file_hillsong_mini_compiles() {
+    let files = load_project_files(MULTI_FILE_DIR, &[
+        "campus.patch",
+        "buildings/foh.patch",
+        "buildings/stage.patch",
+        "yamaha.patch",
+    ]);
+    let result = patchlang::compile_project(files, "campus.patch");
+
+    assert!(result.errors.is_empty(),
+        "compile_project should succeed without errors, got: {:?}", result.errors);
+
+    // Merged program should contain statements from all files
+    let stmts = &result.program.statements;
+    let template_count = stmts.iter()
+        .filter(|s| matches!(s, patchlang::compat_types::TsStatement::Template(_)))
+        .count();
+    let instance_count = stmts.iter()
+        .filter(|s| matches!(s, patchlang::compat_types::TsStatement::Instance(_)))
+        .count();
+    let connect_count = stmts.iter()
+        .filter(|s| matches!(s, patchlang::compat_types::TsStatement::Connect(_)))
+        .count();
+
+    // yamaha.patch: CL5, Rio3224; foh.patch: FOH_System; stage.patch: Stage_System
+    assert_eq!(template_count, 4, "expected 4 templates (CL5, Rio3224, FOH_System, Stage_System)");
+    assert!(instance_count >= 2, "expected at least campus-level instances");
+    assert!(connect_count >= 1, "expected at least the campus-level connect");
+}
+
+#[test]
+fn multi_file_hillsong_mini_drc_clean() {
+    let files = load_project_files(MULTI_FILE_DIR, &[
+        "campus.patch",
+        "buildings/foh.patch",
+        "buildings/stage.patch",
+        "yamaha.patch",
+    ]);
+    let result = patchlang::compile_project(files, "campus.patch");
+
+    let errors: Vec<_> = result.diagnostics.iter()
+        .filter(|d| d.severity == patchlang::drc::Severity::Error)
+        .collect();
+    assert!(errors.is_empty(),
+        "DRC should produce no errors on valid project, got: {:?}", errors);
+}
+
+#[test]
+fn multi_file_resolve_uses_from_campus() {
+    let path = format!("{MULTI_FILE_DIR}/campus.patch");
+    let source = std::fs::read_to_string(&path).unwrap();
+    let deps = patchlang::resolve_uses(&source);
+    assert_eq!(deps, vec!["buildings.foh", "buildings.stage"]);
+}
