@@ -169,17 +169,14 @@ pub fn are_connectors_compatible(a: &str, b: &str) -> bool {
 }
 
 /// Known device_type values for meta validation hints.
+/// Source of truth: patchlang-v022-spec.md §8.5
 pub const KNOWN_DEVICE_TYPES: &[&str] = &[
-    "mixer", "amplifier", "processor", "rf-system", "stagebox",
-    "speaker", "microphone", "di-box", "splitter", "router",
-    "converter", "recorder", "player", "monitor", "headphone-amp",
-    "intercom", "iem", "antenna", "combiner", "distro",
-    "network-switch", "dante-interface", "card",
+    "device", "card", "fixed-converter", "stage-core",
+    "mic-di", "mic-splitter", "rf-system",
 ];
 
 /// Known rf_subtype values for meta validation hints.
+/// Source of truth: patchlang-v022-spec.md §3 (RF System Configuration)
 pub const KNOWN_RF_SUBTYPES: &[&str] = &[
-    "iem", "handheld", "bodypack", "boundary", "gooseneck",
-    "headset", "lavalier", "instrument", "antenna", "combiner",
-    "distro", "receiver", "transmitter",
+    "radio-mic", "iem", "bidirectional",
 ];
