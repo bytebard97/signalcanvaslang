@@ -331,6 +331,7 @@ fn slot_def_with_range() {
         name: "MY_Slot".into(),
         range: Some(RangeSpec { start: 1, end: 3 }),
         slot_type: "MY_Card".into(),
+        properties: Vec::new(),
         span: span(),
     };
     let ts = convert_slot_def(&sd);
@@ -347,6 +348,7 @@ fn slot_def_without_range() {
         name: "IO_Port".into(),
         range: None,
         slot_type: "AH_IO_Card".into(),
+        properties: Vec::new(),
         span: span(),
     };
     let ts = convert_slot_def(&sd);

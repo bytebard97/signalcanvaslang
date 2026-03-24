@@ -237,6 +237,8 @@ pub struct TsSlotDef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_end: Option<u32>,
     pub slot_type: String,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub properties: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
