@@ -12,6 +12,7 @@ pub enum DRCLayer {
     Electrical,
     Logical,
     Temporal,
+    Ring,
 }
 
 /// How severe the diagnostic is.
