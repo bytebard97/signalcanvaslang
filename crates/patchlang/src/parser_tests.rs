@@ -281,4 +281,76 @@ mod tests {
         };
         assert_eq!(inst.slot_assignments[0].card_name, "Card");
     }
+
+    // ── Local (unqualified) port refs in config/route/bus ────
+
+    #[test]
+    fn config_label_with_local_port_ref() {
+        let result = parse(r#"
+            template Dev { ports { Dante_In[1..72]: in } }
+            instance FOH is Dev
+            config FOH {
+                label Dante_In[1]: "Lead Vocal"
+                label Dante_In[2]: "Kick Drum"
+            }
+        "#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        let config = match &result.program.statements[2] {
+            Statement::Config(c) => c,
+            other => panic!("expected Config, got {other:?}"),
+        };
+        assert_eq!(config.labels.len(), 2);
+        assert!(config.labels[0].port.instance.is_none(), "expected no instance prefix");
+        assert_eq!(config.labels[0].port.port, "Dante_In");
+        assert_eq!(config.labels[0].label, "Lead Vocal");
+        assert_eq!(config.labels[1].port.port, "Dante_In");
+        assert_eq!(config.labels[1].label, "Kick Drum");
+    }
+
+    #[test]
+    fn route_entry_with_local_port_refs() {
+        let result = parse(r#"
+            template Mixer { ports { Dante_In[1..72]: in  Fader[1..48]: out } }
+            instance Console is Mixer {
+                route Dante_In[1] -> Fader[1]
+            }
+        "#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        let inst = match &result.program.statements[1] {
+            Statement::Instance(i) => i,
+            other => panic!("expected Instance, got {other:?}"),
+        };
+        assert_eq!(inst.routes.len(), 1);
+        assert!(inst.routes[0].source.instance.is_none(), "route source should have no instance prefix");
+        assert_eq!(inst.routes[0].source.port, "Dante_In");
+        assert!(inst.routes[0].target.instance.is_none(), "route target should have no instance prefix");
+        assert_eq!(inst.routes[0].target.port, "Fader");
+    }
+
+    #[test]
+    fn bus_entry_with_local_port_refs() {
+        let result = parse(r#"
+            template Mixer { ports { Fader[1..8]: out  Matrix_Out[1..2]: out } }
+            instance Console is Mixer {
+                bus Main_LR {
+                    input: Fader[1]
+                    output: Matrix_Out[1]
+                }
+            }
+        "#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        let inst = match &result.program.statements[1] {
+            Statement::Instance(i) => i,
+            other => panic!("expected Instance, got {other:?}"),
+        };
+        assert_eq!(inst.buses.len(), 1);
+        let bus = &inst.buses[0];
+        assert_eq!(bus.name, "Main_LR");
+        assert_eq!(bus.inputs.len(), 1);
+        assert!(bus.inputs[0].instance.is_none(), "bus input should have no instance prefix");
+        assert_eq!(bus.inputs[0].port, "Fader");
+        assert_eq!(bus.outputs.len(), 1);
+        assert!(bus.outputs[0].instance.is_none(), "bus output should have no instance prefix");
+        assert_eq!(bus.outputs[0].port, "Matrix_Out");
+    }
 }
