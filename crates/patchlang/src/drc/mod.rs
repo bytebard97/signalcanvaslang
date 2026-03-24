@@ -12,7 +12,11 @@ pub mod temporal;
 pub mod types;
 
 #[cfg(test)]
-mod drc_tests;
+mod drc_tests_rules;
+#[cfg(test)]
+mod drc_tests_meta;
+#[cfg(test)]
+mod drc_tests_integration;
 
 pub use types::{CheckResult, DRCLayer, Diagnostic, Severity};
 

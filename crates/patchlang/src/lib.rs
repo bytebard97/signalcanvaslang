@@ -13,9 +13,9 @@ pub(crate) mod body_parser;
 pub(crate) mod template_parser;
 
 #[cfg(test)]
-mod parser_tests;
+mod template_parser_tests_core;
 #[cfg(test)]
-mod template_parser_tests;
+mod template_parser_tests_slots;
 #[cfg(test)]
 mod layout_validator_tests;
 #[cfg(test)]
