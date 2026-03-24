@@ -250,4 +250,35 @@ mod tests {
             other => panic!("expected Use, got {other:?}"),
         }
     }
+
+    #[test]
+    fn slot_assignment_bare_identifier() {
+        let result = parse(
+            "template Card { ports { X: out } }\n\
+             template Dev { ports { Y: out } slot Bay: MyFmt }\n\
+             instance D is Dev { slot Bay: Card }"
+        );
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        let inst = match &result.program.statements[2] {
+            Statement::Instance(i) => i,
+            other => panic!("expected Instance, got {other:?}"),
+        };
+        assert_eq!(inst.slot_assignments.len(), 1);
+        assert_eq!(inst.slot_assignments[0].card_name, "Card");
+    }
+
+    #[test]
+    fn slot_assignment_quoted_string_still_works() {
+        let result = parse(
+            "template Card { ports { X: out } }\n\
+             template Dev { ports { Y: out } slot Bay: MyFmt }\n\
+             instance D is Dev { slot Bay: \"Card\" }"
+        );
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        let inst = match &result.program.statements[2] {
+            Statement::Instance(i) => i,
+            other => panic!("expected Instance, got {other:?}"),
+        };
+        assert_eq!(inst.slot_assignments[0].card_name, "Card");
+    }
 }

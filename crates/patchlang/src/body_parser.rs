@@ -139,7 +139,25 @@ impl<'a> Parser<'a> {
             None
         };
         self.expect(&Token::Colon);
-        let card_name = self.expect_string_literal();
+        let card_name = match self.peek().cloned() {
+            Some(Token::Identifier(name)) => {
+                self.advance();
+                name
+            }
+            Some(Token::StringLiteral(name)) => {
+                self.advance();
+                name
+            }
+            _ => {
+                let span = self.current_span();
+                self.errors.push(ParseError {
+                    message: "expected card template name (identifier)".into(),
+                    span,
+                    hint: None,
+                });
+                String::new()
+            }
+        };
         SlotAssignment { slot_name, index, card_name, span: self.span_from(start) }
     }
 
