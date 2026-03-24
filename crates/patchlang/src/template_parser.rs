@@ -32,6 +32,13 @@ pub(crate) trait TemplateParserExt {
     fn parse_port_ref(&mut self) -> PortRef;
     fn parse_optional_index(&mut self) -> Option<IndexSpec>;
     fn parse_arg_list(&mut self) -> Vec<KeyValue>;
+    fn parse_optional_version_constraint(&mut self) -> Option<String>;
+    fn parse_route_entry_ext(&mut self) -> RouteEntry;
+    fn parse_bus_entry_ext(&mut self) -> BusEntry;
+    fn parse_slot_assignment_ext(&mut self) -> SlotAssignment;
+    fn parse_suppress_annotation_ext(&mut self) -> Vec<String>;
+    fn is_property_key_ext(&self) -> bool;
+    fn parse_key_value_full_ext(&mut self) -> KeyValue;
 
     // ── Template top-level ───────────────────────────────────
 
@@ -329,14 +336,25 @@ pub(crate) trait TemplateParserExt {
         // Optional arg list: instance B is Box(count: 4)
         let args = self.parse_arg_list();
 
+        // Optional @version constraint
+        let version_constraint = self.parse_optional_version_constraint();
+
         let mut properties = Vec::new();
+        let mut routes = Vec::new();
+        let mut buses = Vec::new();
+        let mut slot_assignments = Vec::new();
+
         if self.peek_token() == Some(&Token::LBrace) {
             self.advance_token();
             while !self.at_end_of_input() && self.peek_token() != Some(&Token::RBrace) {
-                if let Some(kv) = self.parse_key_value_pair() {
-                    properties.push(kv);
-                } else {
-                    self.advance_token();
+                match self.peek_token() {
+                    Some(Token::Route) => routes.push(self.parse_route_entry_ext()),
+                    Some(Token::Bus) => buses.push(self.parse_bus_entry_ext()),
+                    Some(Token::Slot) => slot_assignments.push(self.parse_slot_assignment_ext()),
+                    _ if self.is_property_key_ext() => {
+                        properties.push(self.parse_key_value_full_ext());
+                    }
+                    _ => { self.advance_token(); }
                 }
             }
             self.expect_tok(&Token::RBrace);
@@ -346,11 +364,11 @@ pub(crate) trait TemplateParserExt {
             name,
             template_name,
             args,
-            version_constraint: None,
+            version_constraint,
             properties,
-            routes: Vec::new(),
-            buses: Vec::new(),
-            slot_assignments: Vec::new(),
+            routes,
+            buses,
+            slot_assignments,
             span: self.span_from_ext(start),
         }
     }
@@ -365,11 +383,24 @@ pub(crate) trait TemplateParserExt {
         let target = self.parse_port_ref_or_local();
 
         let mut properties = Vec::new();
+        let mut suppressions = Vec::new();
+        let mut mapping = None;
+
         if self.peek_token() == Some(&Token::LBrace) {
             self.advance_token();
+            if self.peek_token() == Some(&Token::Suppress) {
+                suppressions = self.parse_suppress_annotation_ext();
+            }
             while !self.at_end_of_input() && self.peek_token() != Some(&Token::RBrace) {
-                if let Some(kv) = self.parse_key_value_pair() {
-                    properties.push(kv);
+                if self.is_property_key_ext() {
+                    let kv = self.parse_key_value_full_ext();
+                    if kv.key == "mapping" {
+                        if let KvValue::Str { ref value } = kv.value {
+                            mapping = Some(value.clone());
+                        }
+                    } else {
+                        properties.push(kv);
+                    }
                 } else {
                     self.advance_token();
                 }
@@ -381,8 +412,8 @@ pub(crate) trait TemplateParserExt {
             source,
             target,
             properties,
-            suppressions: Vec::new(),
-            mapping: None,
+            suppressions,
+            mapping,
             span: self.span_from_ext(start),
         }
     }
