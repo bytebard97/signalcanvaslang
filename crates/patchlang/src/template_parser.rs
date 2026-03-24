@@ -238,19 +238,10 @@ pub(crate) trait TemplateParserExt {
             Some(Token::In) => { self.advance_token(); PortDirection::In }
             Some(Token::Out) => { self.advance_token(); PortDirection::Out }
             Some(Token::Io) => { self.advance_token(); PortDirection::Io }
-            // Accept "input"/"output" as aliases for in/out
-            Some(Token::Identifier(name)) if name == "input" => {
-                self.advance_token();
-                PortDirection::In
-            }
-            Some(Token::Identifier(name)) if name == "output" => {
-                self.advance_token();
-                PortDirection::Out
-            }
             _ => {
                 let span = self.current_span_ext();
                 self.push_error(
-                    "expected port direction: in, out, io, input, or output".to_string(),
+                    "expected port direction: in, out, or io".to_string(),
                     span,
                     None,
                 );

@@ -3,8 +3,8 @@
 
 template MyDevice {
   ports {
-    Input[1..2]: input(XLR)
-    Output[1..2]: output(XLR)
+    Input[1..2]: in(XLR)
+    Output[1..2]: out(XLR)
   }
   bridge Input -> Output
 }
