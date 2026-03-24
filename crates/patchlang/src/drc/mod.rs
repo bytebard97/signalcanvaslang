@@ -5,6 +5,7 @@ pub mod helpers;
 pub mod logical;
 pub mod mechanical;
 pub mod meta;
+pub mod ring;
 pub mod slots;
 pub mod structural;
 pub mod temporal;
@@ -28,5 +29,6 @@ pub fn run_all(program: &PatchProgram) -> Vec<Diagnostic> {
     diags.extend(electrical::check(program, &ctx));
     diags.extend(logical::check(program, &ctx));
     diags.extend(temporal::check(program, &ctx));
+    diags.extend(ring::check(program, &ctx));
     diags
 }

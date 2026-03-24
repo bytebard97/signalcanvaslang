@@ -891,3 +891,114 @@ mod meta_rf {
         }), "unexpected RF channel warning: {:?}", diags);
     }
 }
+
+#[cfg(test)]
+mod ring_topology {
+    use crate::drc::{self, Severity};
+    use crate::parser::parse;
+
+    fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
+        let result = parse(source);
+        drc::run_all(&result.program)
+    }
+
+    #[test]
+    fn r01_member_references_unknown_instance() {
+        let diags = check(r#"
+            template Dev { ports { OptoCore_A: io [OptoCore] } }
+            ring MyRing {
+                protocol: "OptoCore"
+                member Ghost
+            }
+        "#);
+        assert!(diags.iter().any(|d| d.message.contains("Ghost")),
+            "expected error about unknown instance 'Ghost': {:?}", diags);
+    }
+
+    #[test]
+    fn r01_valid_member_no_error() {
+        let diags = check(r#"
+            template Dev { ports { OptoCore_A: io [OptoCore] } }
+            instance Console is Dev
+            ring MyRing {
+                protocol: "OptoCore"
+                member Console
+            }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("Console") && d.severity == Severity::Error),
+            "should not produce error for valid member: {:?}", diags);
+    }
+
+    #[test]
+    fn r02_explicit_member_references_unknown_port() {
+        let diags = check(r#"
+            template Dev { ports { OptoCore_A: io [OptoCore] } }
+            instance Console is Dev
+            ring MyRing {
+                protocol: "OptoCore"
+                member Console.GhostPort
+            }
+        "#);
+        assert!(diags.iter().any(|d| d.message.contains("GhostPort")),
+            "expected error about unknown port 'GhostPort': {:?}", diags);
+    }
+
+    #[test]
+    fn r03_port_protocol_mismatch() {
+        let diags = check(r#"
+            template Dev { ports { Dante_Out: out [Dante] } }
+            instance Console is Dev
+            ring MyRing {
+                protocol: "OptoCore"
+                member Console.Dante_Out
+            }
+        "#);
+        assert!(diags.iter().any(|d| d.message.contains("protocol") || d.message.contains("OptoCore")),
+            "expected warning about protocol mismatch: {:?}", diags);
+    }
+
+    #[test]
+    fn r04_implicit_member_no_matching_port() {
+        let diags = check(r#"
+            template Dev { ports { Dante_Out: out [Dante] } }
+            instance Console is Dev
+            ring MyRing {
+                protocol: "OptoCore"
+                member Console
+            }
+        "#);
+        assert!(diags.iter().any(|d| d.message.contains("Console") || d.message.contains("OptoCore")),
+            "expected error about no matching port: {:?}", diags);
+    }
+
+    #[test]
+    fn r04_implicit_member_multiple_matching_ports() {
+        let diags = check(r#"
+            template Dev { ports { OptoCore_A: io [OptoCore]  OptoCore_B: io [OptoCore] } }
+            instance Console is Dev
+            ring MyRing {
+                protocol: "OptoCore"
+                member Console
+            }
+        "#);
+        assert!(diags.iter().any(|d| d.message.contains("ambiguous") || d.message.contains("multiple")),
+            "expected error about ambiguous implicit member: {:?}", diags);
+    }
+
+    #[test]
+    fn r04_implicit_member_exactly_one_match() {
+        let diags = check(r#"
+            template Dev { ports { OptoCore_A: io [OptoCore]  Dante_Out: out [Dante] } }
+            instance Console is Dev
+            ring MyRing {
+                protocol: "OptoCore"
+                member Console
+            }
+        "#);
+        let ring_errors: Vec<_> = diags.iter()
+            .filter(|d| d.message.contains("Console") && d.severity == Severity::Error)
+            .collect();
+        assert!(ring_errors.is_empty(),
+            "single matching port should resolve without error: {:?}", ring_errors);
+    }
+}
