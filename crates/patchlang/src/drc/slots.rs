@@ -80,6 +80,10 @@ pub fn check_slot_fits_compatibility(
                         _ => None,
                     });
 
+                let fits_matches = |fits: &str| {
+                    fits.split(',').map(|s| s.trim()).any(|f| f == slot_format.as_str())
+                };
+
                 match card_fits {
                     None => {
                         diags.push(Diagnostic {
@@ -98,7 +102,7 @@ pub fn check_slot_fits_compatibility(
                             )),
                         });
                     }
-                    Some(fits) if fits != slot_format => {
+                    Some(fits) if !fits_matches(fits) => {
                         diags.push(Diagnostic {
                             severity: Severity::Warning,
                             layer: LAYER.clone(),
@@ -143,7 +147,11 @@ pub fn check_fits_format_in_scope(
         if let Statement::Template(t) = stmt {
             if let Some(fits_kv) = t.meta.iter().find(|kv| kv.key == "fits") {
                 if let KvValue::Str { value } = &fits_kv.value {
-                    if !slot_formats.contains(value.as_str()) {
+                    let any_format_in_scope = value
+                        .split(',')
+                        .map(|s| s.trim())
+                        .any(|f| slot_formats.contains(f));
+                    if !any_format_in_scope {
                         diags.push(Diagnostic {
                             severity: Severity::Warning,
                             layer: LAYER.clone(),
