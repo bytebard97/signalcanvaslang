@@ -132,6 +132,7 @@ pub fn tokenize(source: &str) -> (Vec<SpannedToken>, Vec<crate::error::ParseErro
                     span: crate::error::Span {
                         start: span.start,
                         end: span.end,
+                        file: None,
                     },
                     hint: None,
                 });

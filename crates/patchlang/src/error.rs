@@ -1,10 +1,14 @@
 use serde::Serialize;
 
 /// Byte-offset span in the source text.
+/// The optional `file` field tracks which file this span belongs to
+/// in multi-file compilation (index into a file table).
 #[derive(Debug, Clone, Serialize)]
 pub struct Span {
     pub start: usize,
     pub end: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file: Option<u16>,
 }
 
 /// A parse error with location and optional hint.
