@@ -21,6 +21,10 @@ mod layout_validator_tests;
 mod layout_cross_validation_tests;
 #[cfg(test)]
 mod multi_file_tests;
+#[cfg(test)]
+mod output_tests_templates;
+#[cfg(test)]
+mod output_tests_connections;
 
 pub use ast::PatchProgram;
 pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result};
