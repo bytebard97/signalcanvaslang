@@ -11,3 +11,4 @@ dist/
 *.dylib
 *.dll
 .claude/
+vscode/node_modules/
