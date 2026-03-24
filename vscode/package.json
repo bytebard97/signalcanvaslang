@@ -1,0 +1,57 @@
+{
+  "name": "patchlang",
+  "displayName": "PatchLang",
+  "description": "Syntax highlighting and diagnostics for PatchLang (.patch) signal flow files",
+  "version": "0.1.0",
+  "publisher": "signalcanvas",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
+  "activationEvents": [
+    "onLanguage:patchlang"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "patchlang",
+        "aliases": [
+          "PatchLang",
+          "patchlang"
+        ],
+        "extensions": [
+          ".patch"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "patchlang",
+        "scopeName": "source.patchlang",
+        "path": "./syntaxes/patchlang.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "patchlang",
+        "path": "./snippets/patchlang.json"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "copy-wasm": "cp -R ../pkg-node ./pkg-node",
+    "package": "npm run copy-wasm && npm run compile && npx @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.4.0"
+  }
+}

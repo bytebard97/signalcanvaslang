@@ -1,0 +1,225 @@
+{
+  "Template": {
+    "prefix": "template",
+    "body": [
+      "template ${1:DeviceName} {",
+      "  ports {",
+      "    ${2:PortName}: ${3|in,out,io|}(${4:XLR})",
+      "  }",
+      "}"
+    ],
+    "description": "Define a reusable device template"
+  },
+  "Template with meta": {
+    "prefix": "template-meta",
+    "body": [
+      "template ${1:DeviceName} {",
+      "  meta {",
+      "    manufacturer: \"${2:Manufacturer}\"",
+      "    model: \"${3:Model}\"",
+      "    category: \"${4|Console,Stagebox,Amplifier,Router,Camera,Monitor,Switch|}\"",
+      "  }",
+      "  ports {",
+      "    ${5:PortName}: ${6|in,out,io|}(${7:XLR})",
+      "  }",
+      "}"
+    ],
+    "description": "Define a device template with metadata"
+  },
+  "Instance": {
+    "prefix": "instance",
+    "body": [
+      "instance ${1:Name} is ${2:Template} {",
+      "  ${3:location}: \"${4:value}\"",
+      "}"
+    ],
+    "description": "Create a device instance from a template"
+  },
+  "Instance (simple)": {
+    "prefix": "inst",
+    "body": "instance ${1:Name} is ${2:Template}",
+    "description": "Create a simple device instance (no properties)"
+  },
+  "Connect": {
+    "prefix": "connect",
+    "body": "connect ${1:Source}.${2:Port} -> ${3:Target}.${4:Port}",
+    "description": "Physical cable connection between ports"
+  },
+  "Connect with properties": {
+    "prefix": "connect-props",
+    "body": [
+      "connect ${1:Source}.${2:Port} -> ${3:Target}.${4:Port} {",
+      "  cable: \"${5:Cat6a}\"",
+      "  length: \"${6:10m}\"",
+      "}"
+    ],
+    "description": "Physical cable connection with metadata"
+  },
+  "Bridge": {
+    "prefix": "bridge",
+    "body": "bridge ${1:Source}.${2:Port} -> ${3:Target}.${4:Port}",
+    "description": "Logical signal mapping between ports"
+  },
+  "Bridge range": {
+    "prefix": "bridge-range",
+    "body": "bridge ${1:Source}.${2:Port}[1..${3:32}] -> ${4:Target}.${5:Port}[1..${3:32}]",
+    "description": "Bridge a range of ports"
+  },
+  "Bridge group": {
+    "prefix": "bridge_group",
+    "body": [
+      "bridge_group ${1:Target}.${2:Port} {",
+      "  ${3:Source1}.${4:Port}[1..${5:4}]",
+      "  ${6:Source2}.${7:Port}[1..${8:4}]",
+      "}"
+    ],
+    "description": "Sequential channel mapping to a destination range"
+  },
+  "Signal": {
+    "prefix": "signal",
+    "body": [
+      "signal ${1:Name} {",
+      "  origin: ${2:Instance}.${3:Port}",
+      "  description: \"${4:description}\"",
+      "}"
+    ],
+    "description": "Named signal path"
+  },
+  "Flag": {
+    "prefix": "flag",
+    "body": [
+      "flag ${1:Name} {",
+      "  description: \"${2:description}\"",
+      "  severity: \"${3|info,warning,error|}\"",
+      "}"
+    ],
+    "description": "Status indicator or alert"
+  },
+  "Ports block": {
+    "prefix": "ports",
+    "body": [
+      "ports {",
+      "  ${1:Name}[1..${2:8}]: ${3|in,out,io|}(${4:XLR})",
+      "}"
+    ],
+    "description": "Port definition block"
+  },
+  "Port (single)": {
+    "prefix": "port",
+    "body": "${1:Name}: ${2|in,out,io|}(${3:XLR})",
+    "description": "Single port definition"
+  },
+  "Port range": {
+    "prefix": "port-range",
+    "body": "${1:Name}[1..${2:8}]: ${3|in,out,io|}(${4:XLR}) [${5:Dante}]",
+    "description": "Port range with attributes"
+  },
+  "Bus": {
+    "prefix": "bus",
+    "body": [
+      "bus ${1:Name} {",
+      "  input: ${2:InputPort}[1..${3:8}]",
+      "  output: ${4:OutputPort}[1..${5:2}]",
+      "}"
+    ],
+    "description": "Internal mix bus"
+  },
+  "Route": {
+    "prefix": "route",
+    "body": "route ${1:Input}[${2:1}] -> ${3:Output}[${4:1}]",
+    "description": "Internal signal routing within a device"
+  },
+  "Config": {
+    "prefix": "config",
+    "body": [
+      "config ${1:Instance} {",
+      "  label ${2:Port}[${3:1}]: \"${4:Label}\"",
+      "}"
+    ],
+    "description": "Channel labels and metadata"
+  },
+  "Label": {
+    "prefix": "label",
+    "body": "label ${1:Port}[${2:1}]: \"${3:Label}\"",
+    "description": "Channel label inside a config block"
+  },
+  "Use": {
+    "prefix": "use",
+    "body": "use \"${1:file}.patch\"",
+    "description": "Import another PatchLang file"
+  },
+  "Stream": {
+    "prefix": "stream",
+    "body": [
+      "stream ${1:Name} {",
+      "  source: ${2:Instance}.${3:Port}",
+      "  channels: ${4:32}",
+      "  protocol: \"${5|Dante,AES67,MADI,AVB|}\"",
+      "}"
+    ],
+    "description": "Dante/AES67 virtual channel group"
+  },
+  "Slot": {
+    "prefix": "slot",
+    "body": "slot ${1:SlotName}[1..${2:3}]: ${3:CardType}",
+    "description": "Expansion card slot"
+  },
+  "For/Generate": {
+    "prefix": "for",
+    "body": [
+      "for ${1:i} over ${2:1}..${3:4} generate {",
+      "  connect ${4:Source}.${5:Port}[${1:i}] -> ${6:Target}.${7:Port}[${1:i}]",
+      "}"
+    ],
+    "description": "Generate loop for repeated connections"
+  },
+  "Link group": {
+    "prefix": "link_group",
+    "body": [
+      "link_group ${1:Name} {",
+      "  connect ${2:Source}.${3:Port}[1] -> ${4:Target}.${5:Port}[1]",
+      "  connect ${2:Source}.${3:Port}[2] -> ${4:Target}.${5:Port}[2]",
+      "}"
+    ],
+    "description": "Grouped connections (e.g. quad-link 4K SDI)"
+  },
+  "Stagebox template": {
+    "prefix": "stagebox",
+    "body": [
+      "template ${1:Stagebox} {",
+      "  meta {",
+      "    manufacturer: \"${2:Yamaha}\"",
+      "    model: \"${3:Rio3224}\"",
+      "    category: \"Stagebox\"",
+      "  }",
+      "  ports {",
+      "    Network: io(etherCON) [Dante]",
+      "    Mic_In[1..${4:32}]: in(XLR)",
+      "    Line_Out[1..${5:16}]: out(XLR)",
+      "  }",
+      "  bridge Mic_In -> Network",
+      "  bridge Network -> Line_Out",
+      "}"
+    ],
+    "description": "Complete stagebox template with Dante network"
+  },
+  "Console template": {
+    "prefix": "console",
+    "body": [
+      "template ${1:Console} {",
+      "  meta {",
+      "    manufacturer: \"${2:Yamaha}\"",
+      "    model: \"${3:CL5}\"",
+      "    category: \"Console\"",
+      "  }",
+      "  ports {",
+      "    Dante_In[1..${4:64}]: in(etherCON) [Dante]",
+      "    Dante_Out[1..${5:32}]: out(etherCON) [Dante]",
+      "    Local_In[1..${6:8}]: in(XLR)",
+      "    Monitor_Out[1..${7:4}]: out(XLR)",
+      "  }",
+      "}"
+    ],
+    "description": "Complete mixing console template"
+  }
+}

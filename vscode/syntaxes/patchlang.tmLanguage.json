@@ -1,0 +1,77 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "PatchLang",
+  "scopeName": "source.patchlang",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#directive" },
+    { "include": "#string" },
+    { "include": "#number" },
+    { "include": "#arrow" },
+    { "include": "#range-operator" },
+    { "include": "#keyword-statement" },
+    { "include": "#keyword-block" },
+    { "include": "#keyword-direction" },
+    { "include": "#keyword-control" },
+    { "include": "#port-reference" },
+    { "include": "#identifier" }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.number-sign.patchlang",
+      "match": "#.*$"
+    },
+    "directive": {
+      "name": "keyword.control.directive.patchlang",
+      "match": "@(suppress|version)\\b"
+    },
+    "string": {
+      "name": "string.quoted.double.patchlang",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.patchlang",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "number": {
+      "name": "constant.numeric.patchlang",
+      "match": "\\b[0-9]+\\b"
+    },
+    "arrow": {
+      "name": "keyword.operator.arrow.patchlang",
+      "match": "->"
+    },
+    "range-operator": {
+      "name": "keyword.operator.range.patchlang",
+      "match": "\\.\\."
+    },
+    "keyword-statement": {
+      "name": "keyword.control.statement.patchlang",
+      "match": "\\b(template|instance|connect|bridge|bridge_group|link_group|signal|flag|stream|config|use|slot|ring)\\b"
+    },
+    "keyword-block": {
+      "name": "keyword.other.block.patchlang",
+      "match": "\\b(ports|meta|routing|route|bus|label|member|is)\\b"
+    },
+    "keyword-direction": {
+      "name": "storage.type.direction.patchlang",
+      "match": "\\b(in|out|io)\\b"
+    },
+    "keyword-control": {
+      "name": "keyword.control.loop.patchlang",
+      "match": "\\b(for|over|generate)\\b"
+    },
+    "port-reference": {
+      "comment": "Instance.Port or Instance.Port[1..4]",
+      "name": "variable.other.port-reference.patchlang",
+      "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*\\b"
+    },
+    "identifier": {
+      "name": "variable.other.patchlang",
+      "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b"
+    }
+  }
+}
