@@ -205,4 +205,50 @@ mod compile_project_tests {
             "DRC should be skipped when parse errors exist"
         );
     }
+
+    #[test]
+    fn project_result_has_file_table() {
+        let mut files = HashMap::new();
+        files.insert("main.patch".into(), "use devices { D }\ninstance A is D".into());
+        files.insert("devices.patch".into(), "template D { ports { X: out } }".into());
+        let result = compile_project(files, "main.patch");
+        assert_eq!(result.files.len(), 2);
+        assert!(result.files.contains(&"main.patch".to_string()));
+        assert!(result.files.contains(&"devices.patch".to_string()));
+    }
+
+    #[test]
+    fn project_result_has_template_files() {
+        let mut files = HashMap::new();
+        files.insert("main.patch".into(), "use lib { Dev }\ntemplate Local { ports { X: out } }".into());
+        files.insert("lib.patch".into(), "template Dev { ports { Y: out } }".into());
+        let result = compile_project(files, "main.patch");
+        assert_eq!(result.template_files.get("Local").map(String::as_str), Some("main.patch"));
+        assert_eq!(result.template_files.get("Dev").map(String::as_str), Some("lib.patch"));
+    }
+
+    #[test]
+    fn project_result_has_use_graph() {
+        let mut files = HashMap::new();
+        files.insert("campus.patch".into(), "use buildings.foh { FOH }\nuse buildings.stage { Stage }\ninstance F is FOH".into());
+        files.insert("buildings/foh.patch".into(), "use yamaha { CL5 }\ntemplate FOH { ports { Out: out } }".into());
+        files.insert("buildings/stage.patch".into(), "template Stage { ports { Out: out } }".into());
+        files.insert("yamaha.patch".into(), "template CL5 { ports { D: out } }".into());
+        let result = compile_project(files, "campus.patch");
+        let campus_deps = result.use_graph.get("campus.patch").unwrap();
+        assert!(campus_deps.contains(&"buildings.foh".to_string()));
+        assert!(campus_deps.contains(&"buildings.stage".to_string()));
+        let foh_deps = result.use_graph.get("buildings/foh.patch").unwrap();
+        assert!(foh_deps.contains(&"yamaha".to_string()));
+    }
+
+    #[test]
+    fn single_file_project_result() {
+        let mut files = HashMap::new();
+        files.insert("main.patch".into(), "template T { ports { X: out } }".into());
+        let result = compile_project(files, "main.patch");
+        assert_eq!(result.files, vec!["main.patch"]);
+        assert_eq!(result.template_files.get("T").map(String::as_str), Some("main.patch"));
+        assert!(result.use_graph.get("main.patch").unwrap().is_empty());
+    }
 }

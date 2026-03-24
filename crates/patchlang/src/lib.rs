@@ -28,7 +28,7 @@ pub use drc::{CheckResult, Diagnostic};
 pub use error::{ParseError, Span};
 pub use ids::{generate_port_id, generate_route_id, generate_slot_id};
 pub use layout_validator::{validate_layout, validate_project_consistency};
-pub use multi_file::{compile_project, resolve_uses};
+pub use multi_file::{compile_project, resolve_uses, ProjectResult};
 pub use parser::parse;
 
 /// Parse PatchLang source and run all DRC checks.

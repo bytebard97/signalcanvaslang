@@ -1,13 +1,31 @@
 //! Multi-file compilation — resolve_uses and compile_project.
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 
 use crate::ast::{PatchProgram, Statement};
 use crate::compat::{to_ts_program, to_ts_result};
 use crate::compat_types::{TsParseError, TsProgram, TsSpan};
 use crate::drc;
-use crate::drc::types::CheckResult;
 use crate::parser::parse;
+
+/// Result of multi-file project compilation.
+///
+/// Extends the basic `CheckResult` with file provenance metadata needed by
+/// the frontend to map statements, templates, and namespace edges back to
+/// their source files.
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectResult {
+    pub program: TsProgram,
+    pub errors: Vec<TsParseError>,
+    pub diagnostics: Vec<crate::drc::types::Diagnostic>,
+    /// BFS-ordered list of file paths included in compilation (index = file index).
+    pub files: Vec<String>,
+    /// Maps each template name to the file path in which it was defined.
+    pub template_files: BTreeMap<String, String>,
+    /// Maps each file path to the list of namespace strings it `use`s.
+    pub use_graph: BTreeMap<String, Vec<String>>,
+}
 
 /// Quick-parse source and return namespace strings from `use` statements.
 ///
@@ -69,7 +87,7 @@ fn template_name(stmt: &Statement) -> Option<&str> {
 /// File paths in the map should use forward slashes. Namespace resolution
 /// converts dots to slashes and appends `.patch`:
 /// `buildings.foh` becomes `buildings/foh.patch`.
-pub fn compile_project(files: HashMap<String, String>, entry: &str) -> CheckResult {
+pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectResult {
     let empty_span = TsSpan { start: 0, end: 0 };
 
     // Check entry file exists
@@ -95,8 +113,10 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> CheckResu
     // Collected results per file
     let mut all_errors: Vec<TsParseError> = Vec::new();
     let mut merged_statements: Vec<Statement> = Vec::new();
-    // Track template definitions: name -> file path
-    let mut template_defs: HashMap<String, String> = HashMap::new();
+    // Track template definitions: name -> file path (BTreeMap for deterministic JSON ordering)
+    let mut template_defs: BTreeMap<String, String> = BTreeMap::new();
+    // Track use graph: file path -> list of namespaces it imports
+    let mut use_graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
     while let Some(file_path) = queue.pop_front() {
         let source = match files.get(&file_path) {
@@ -120,6 +140,15 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> CheckResu
 
         // Parse
         let parse_result = parse(source);
+
+        // Collect namespaces used by this file for the use graph
+        let namespaces: Vec<String> = parse_result.program.statements.iter()
+            .filter_map(|s| match s {
+                Statement::Use(u) => Some(u.namespace.clone()),
+                _ => None,
+            })
+            .collect();
+        use_graph.insert(file_path.clone(), namespaces);
 
         // Convert parse errors with file prefix
         for err in &parse_result.errors {
@@ -188,21 +217,27 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> CheckResu
         Vec::new()
     };
 
-    CheckResult {
+    ProjectResult {
         program: ts_program,
         errors: all_errors,
         diagnostics,
+        files: file_table,
+        template_files: template_defs,
+        use_graph,
     }
 }
 
-/// Build an error-only CheckResult with no program content.
-fn error_result(errors: Vec<TsParseError>) -> CheckResult {
-    CheckResult {
+/// Build an error-only ProjectResult with no program content or provenance metadata.
+fn error_result(errors: Vec<TsParseError>) -> ProjectResult {
+    ProjectResult {
         program: TsProgram {
             r#type: "Program",
             statements: Vec::new(),
         },
         errors,
         diagnostics: Vec::new(),
+        files: Vec::new(),
+        template_files: BTreeMap::new(),
+        use_graph: BTreeMap::new(),
     }
 }
