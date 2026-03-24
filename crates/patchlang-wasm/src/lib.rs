@@ -66,6 +66,33 @@ pub fn check(source: &str) -> String {
     })
 }
 
+/// Quick-parse source and return JSON array of namespace strings from `use` statements.
+/// Useful for discovering file dependencies before full compilation.
+#[wasm_bindgen]
+pub fn resolve_uses(source: &str) -> String {
+    let deps = patchlang::resolve_uses(source);
+    serde_json::to_string(&deps).unwrap_or_else(|e| {
+        format!(r#"{{"error":"serialization failed: {e}"}}"#)
+    })
+}
+
+/// Multi-file compilation with namespace resolution and merged DRC.
+///
+/// `files_json` is a JSON object mapping file paths to source strings.
+/// `entry` is the path of the entry file.
+/// Returns JSON with { program, errors, diagnostics }.
+#[wasm_bindgen]
+pub fn compile_project(files_json: &str, entry: &str) -> String {
+    let files: std::collections::HashMap<String, String> = match serde_json::from_str(files_json) {
+        Ok(f) => f,
+        Err(e) => return format!(r#"{{"error":"invalid files JSON: {e}"}}"#),
+    };
+    let result = patchlang::compile_project(files, entry);
+    serde_json::to_string(&result).unwrap_or_else(|e| {
+        format!(r#"{{"error":"serialization failed: {e}"}}"#)
+    })
+}
+
 /// Validate a `.layout.json` string against the schema.
 /// Returns JSON: `{ "valid": bool, "errors": [...] }`.
 #[wasm_bindgen]
