@@ -76,6 +76,15 @@ fn compile_project(files: HashMap<String, String>, entry: &str) -> PyResult<Stri
         .map_err(|e| PyValueError::new_err(format!("serialization failed: {e}")))
 }
 
+/// Parse and validate a project.json manifest string.
+/// Returns JSON string: `{ "manifest": {...} | null, "errors": [...] }`.
+#[pyfunction]
+fn parse_manifest(json: &str) -> PyResult<String> {
+    let result = patchlang::parse_manifest(json);
+    serde_json::to_string(&result)
+        .map_err(|e| PyValueError::new_err(format!("serialization failed: {e}")))
+}
+
 /// Validate a `.layout.json` string against the schema.
 /// Returns JSON: `{ "valid": bool, "errors": [...] }`.
 #[pyfunction]
@@ -101,6 +110,7 @@ fn patchlang_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(generate_port_id, m)?)?;
     m.add_function(wrap_pyfunction!(generate_route_id, m)?)?;
     m.add_function(wrap_pyfunction!(generate_slot_id, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_manifest, m)?)?;
     m.add_function(wrap_pyfunction!(validate_layout, m)?)?;
     m.add_function(wrap_pyfunction!(validate_project_consistency, m)?)?;
     Ok(())

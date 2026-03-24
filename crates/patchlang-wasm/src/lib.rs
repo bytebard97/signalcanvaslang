@@ -93,6 +93,16 @@ pub fn compile_project(files_json: &str, entry: &str) -> String {
     })
 }
 
+/// Parse and validate a project.json manifest string.
+/// Returns JSON: `{ "manifest": {...} | null, "errors": [...] }`.
+#[wasm_bindgen]
+pub fn parse_manifest(json: &str) -> String {
+    let result = patchlang::parse_manifest(json);
+    serde_json::to_string(&result).unwrap_or_else(|e| {
+        format!(r#"{{"error":"serialization failed: {e}"}}"#)
+    })
+}
+
 /// Validate a `.layout.json` string against the schema.
 /// Returns JSON: `{ "valid": bool, "errors": [...] }`.
 #[wasm_bindgen]
