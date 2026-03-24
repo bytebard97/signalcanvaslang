@@ -27,6 +27,8 @@ mod output_tests_templates;
 mod output_tests_connections;
 #[cfg(test)]
 mod output_tests_declarations;
+#[cfg(test)]
+mod output_tests_errors;
 
 pub use ast::PatchProgram;
 pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result};
