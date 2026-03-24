@@ -585,6 +585,34 @@ impl<'a> TemplateParserExt for Parser<'a> {
     fn parse_arg_list(&mut self) -> Vec<KeyValue> {
         self.parse_optional_arg_list()
     }
+
+    fn parse_optional_version_constraint(&mut self) -> Option<String> {
+        self.parse_optional_version()
+    }
+
+    fn parse_route_entry_ext(&mut self) -> RouteEntry {
+        self.parse_route_entry()
+    }
+
+    fn parse_bus_entry_ext(&mut self) -> BusEntry {
+        self.parse_bus_entry()
+    }
+
+    fn parse_slot_assignment_ext(&mut self) -> SlotAssignment {
+        self.parse_slot_assignment()
+    }
+
+    fn parse_suppress_annotation_ext(&mut self) -> Vec<String> {
+        self.parse_suppress_annotation()
+    }
+
+    fn is_property_key_ext(&self) -> bool {
+        self.is_property_key()
+    }
+
+    fn parse_key_value_full_ext(&mut self) -> KeyValue {
+        self.parse_key_value_full()
+    }
 }
 
 #[cfg(test)]

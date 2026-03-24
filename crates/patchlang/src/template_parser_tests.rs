@@ -682,4 +682,101 @@ connect Stage_Left.Dante_Pri -> Switch.Port[1]
         assert!(matches!(&result.program.statements[1], Statement::Instance(_)));
         assert!(matches!(&result.program.statements[2], Statement::Connect(_)));
     }
+
+    // ── Bug 2: Template instance full body parsing ──────────
+
+    #[test]
+    fn template_instance_with_version_constraint() {
+        let result = parse(r#"template CL5 { ports { X: out } }
+        template FOH {
+            ports { Y: out }
+            instance Console is CL5 @version(">=4.0") { location: "FOH" }
+        }"#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        match &result.program.statements[1] {
+            Statement::Template(t) => {
+                assert_eq!(t.instances[0].version_constraint, Some(">=4.0".to_string()));
+            }
+            other => panic!("expected Template, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn template_instance_with_route() {
+        let result = parse(r#"template Mixer {
+            ports { In[1..8]: in  Out[1..8]: out }
+            instance Sub is Mixer {
+                route In[1] -> Out[1]
+            }
+        }"#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        match &result.program.statements[0] {
+            Statement::Template(t) => {
+                assert_eq!(t.instances[0].routes.len(), 1);
+            }
+            other => panic!("expected Template, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn template_instance_with_slot_assignment() {
+        let result = parse(r#"template Card { ports { X: out } }
+        template Console {
+            ports { Y: out }
+            slot Bay[1..3]: MyFmt
+            instance Sub is Console {
+                slot Bay[1]: Card
+            }
+        }"#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        match &result.program.statements[1] {
+            Statement::Template(t) => {
+                assert_eq!(t.instances[0].slot_assignments.len(), 1);
+                assert_eq!(t.instances[0].slot_assignments[0].card_name, "Card");
+            }
+            other => panic!("expected Template, got {other:?}"),
+        }
+    }
+
+    // ── Bug 3: Template connect @suppress and mapping ───────
+
+    #[test]
+    fn template_connect_with_suppress() {
+        let result = parse(r#"template System {
+            ports { A: out  B: in }
+            instance X is System
+            instance Y is System
+            connect X.A -> Y.B {
+                @suppress(mechanical)
+                cable: "Cat6"
+            }
+        }"#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        match &result.program.statements[0] {
+            Statement::Template(t) => {
+                assert_eq!(t.connects[0].suppressions, vec!["mechanical"]);
+                assert!(!t.connects[0].properties.is_empty());
+            }
+            other => panic!("expected Template, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn template_connect_with_mapping() {
+        let result = parse(r#"template System {
+            ports { Out[1..32]: out  In[1..32]: in }
+            instance X is System
+            instance Y is System
+            connect X.Out -> Y.In {
+                mapping: "1:1"
+            }
+        }"#);
+        assert!(result.is_valid(), "errors: {:?}", result.errors);
+        match &result.program.statements[0] {
+            Statement::Template(t) => {
+                assert!(t.connects[0].mapping.is_some());
+            }
+            other => panic!("expected Template, got {other:?}"),
+        }
+    }
 }
