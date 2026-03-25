@@ -416,16 +416,19 @@ A `port-ref` is always fully qualified: `Instance.Port`. A `port-ref-or-local` i
 
 ```ebnf
 index-spec    = "[" index-element { "," index-element } "]" ;
-index-element = number [ ".." number ] ;
+index-element = number [ ".." number ] | "auto" ;
 ```
 
-Supports single indices, ranges, and mixed:
+Supports single indices, ranges, mixed, and auto-assignment:
 
 ```
 [1]            # single channel
 [1..32]        # range from 1 to 32
 [1..4,7,9]     # mixed: channels 1,2,3,4,7,9
+[auto]         # auto-assign contiguous channels at compile time
 ```
+
+**`[auto]` keyword:** When used on one side of a connection, the compiler allocates the next N contiguous available channels from the port's declared range, where N is inferred from the other side. Channels are allocated in declaration order and skip explicitly claimed indices. `[auto]` must be the sole element in the index spec (cannot mix with numbers). Both sides of a connection cannot use `[auto]` simultaneously. `[auto]` is not valid in `route` or `bus` declarations. Referencing a vector port without any index spec emits a warning (S14).
 
 ### 4.3 Key-Value Pair
 
