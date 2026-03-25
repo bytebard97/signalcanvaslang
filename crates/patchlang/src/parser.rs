@@ -539,10 +539,19 @@ impl<'a> Parser<'a> {
             // Check for contextual 'auto' keyword
             if let Some(Token::Identifier(ident)) = self.peek() {
                 if ident == "auto" {
+                    let span = self.current_span();
                     self.advance();
+                    // auto must be sole element — reject if preceded by numbers or followed by comma
+                    if !elements.is_empty() {
+                        self.errors.push(ParseError {
+                            message: "[auto] must be the sole index element — cannot mix with numeric indices".into(),
+                            span,
+                            hint: Some("Remove other elements or replace [auto] with explicit indices".into()),
+                        });
+                        break;
+                    }
                     has_auto = true;
                     elements.push(IndexElement::Auto);
-                    // auto must be sole element — if comma follows, that's an error
                     if self.peek() == Some(&Token::Comma) {
                         let span = self.current_span();
                         self.errors.push(ParseError {
@@ -550,20 +559,12 @@ impl<'a> Parser<'a> {
                             span,
                             hint: Some("Remove other elements or replace [auto] with explicit indices".into()),
                         });
-                        self.advance(); // consume comma, continue to collect rest for recovery
-                        continue;
                     }
                     break;
                 }
             }
-            // Reject numeric after auto
+            // Reject numeric after auto (shouldn't reach here, but defensive)
             if has_auto {
-                let span = self.current_span();
-                self.errors.push(ParseError {
-                    message: "[auto] must be the sole index element — cannot mix with numeric indices".into(),
-                    span,
-                    hint: Some("Remove other elements or replace [auto] with explicit indices".into()),
-                });
                 break;
             }
             if let Some(Token::Number(n)) = self.peek().cloned() {
