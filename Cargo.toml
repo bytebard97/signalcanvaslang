@@ -4,6 +4,7 @@ members = [
     "crates/patchlang-wasm",
     "crates/patchlang-cli",
     "crates/patchlang-python",
+    "crates/patchlang-lsp",
 ]
 resolver = "2"
 
