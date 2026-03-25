@@ -530,8 +530,40 @@ impl<'a> Parser<'a> {
         self.advance(); // consume '['
 
         let mut elements = Vec::new();
+        let mut has_auto = false;
+
         loop {
             if self.peek() == Some(&Token::RBracket) || self.at_end() {
+                break;
+            }
+            // Check for contextual 'auto' keyword
+            if let Some(Token::Identifier(ident)) = self.peek() {
+                if ident == "auto" {
+                    self.advance();
+                    has_auto = true;
+                    elements.push(IndexElement::Auto);
+                    // auto must be sole element — if comma follows, that's an error
+                    if self.peek() == Some(&Token::Comma) {
+                        let span = self.current_span();
+                        self.errors.push(ParseError {
+                            message: "[auto] must be the sole index element — cannot mix with numeric indices".into(),
+                            span,
+                            hint: Some("Remove other elements or replace [auto] with explicit indices".into()),
+                        });
+                        self.advance(); // consume comma, continue to collect rest for recovery
+                        continue;
+                    }
+                    break;
+                }
+            }
+            // Reject numeric after auto
+            if has_auto {
+                let span = self.current_span();
+                self.errors.push(ParseError {
+                    message: "[auto] must be the sole index element — cannot mix with numeric indices".into(),
+                    span,
+                    hint: Some("Remove other elements or replace [auto] with explicit indices".into()),
+                });
                 break;
             }
             if let Some(Token::Number(n)) = self.peek().cloned() {
