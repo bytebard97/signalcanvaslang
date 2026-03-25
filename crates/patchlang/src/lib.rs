@@ -29,6 +29,8 @@ mod manifest_tests;
 #[cfg(test)]
 mod multi_file_tests;
 #[cfg(test)]
+mod output_test_helpers;
+#[cfg(test)]
 mod output_tests_templates;
 #[cfg(test)]
 mod output_tests_connections;

@@ -2,6 +2,7 @@ mod completion;
 mod diagnostics;
 mod hover;
 mod server;
+mod span_utils;
 mod symbols;
 
 use tower_lsp::{LspService, Server};

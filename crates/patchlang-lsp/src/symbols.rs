@@ -4,24 +4,10 @@
 //! Go-to-definition resolves template names after `is` to the template declaration.
 
 use patchlang::ast::{PatchProgram, Statement};
-use patchlang::error::{line_col, ParseResult, Span};
+use patchlang::error::{ParseResult, Span};
 use tower_lsp::lsp_types::*;
 
-/// Convert a byte-offset Span to an LSP Range.
-fn span_to_range(source: &str, span: &Span) -> Range {
-    let (start_line, start_col) = line_col(source, span.start);
-    let (end_line, end_col) = line_col(source, span.end);
-    Range {
-        start: Position {
-            line: start_line.saturating_sub(1) as u32,
-            character: start_col.saturating_sub(1) as u32,
-        },
-        end: Position {
-            line: end_line.saturating_sub(1) as u32,
-            character: end_col.saturating_sub(1) as u32,
-        },
-    }
-}
+use crate::span_utils::{position_to_offset, span_to_range};
 
 /// Build a DocumentSymbol from name, kind, and span.
 fn make_symbol(
@@ -250,36 +236,6 @@ pub fn goto_definition(
                 }
             }
         }
-    }
-    None
-}
-
-/// Convert an LSP Position (0-based line/character) to a byte offset.
-fn position_to_offset(source: &str, position: Position) -> Option<usize> {
-    let mut current_line: u32 = 0;
-    let mut current_col: u32 = 0;
-    for (i, ch) in source.char_indices() {
-        if current_line == position.line && current_col == position.character {
-            return Some(i);
-        }
-        if ch == '\n' {
-            // If we're on the target line but past the character, return end of line
-            if current_line == position.line {
-                return Some(i);
-            }
-            current_line += 1;
-            current_col = 0;
-        } else {
-            current_col += 1;
-        }
-    }
-    // Cursor at end of file
-    if current_line == position.line && current_col == position.character {
-        return Some(source.len());
-    }
-    // If position is past end of line content, return end of source
-    if current_line == position.line {
-        return Some(source.len());
     }
     None
 }

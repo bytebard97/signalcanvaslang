@@ -9,10 +9,15 @@
 //!   |              ^^^^^^^^
 //! ```
 
+use std::fmt::Write as _;
+
 use patchlang::error::{line_col, ParseError};
 
-/// Print a single parse error with the source line and a caret span.
-pub fn print_parse_error(source: &str, err: &ParseError) {
+/// Format a single parse error with the source line and a caret span.
+/// Returns the formatted string (does not print directly).
+pub fn format_parse_error(source: &str, err: &ParseError) -> String {
+    let mut buf = String::new();
+
     let (line, col) = line_col(source, err.span.start);
     let end_col = if err.span.end > err.span.start {
         let (end_line, ec) = line_col(source, err.span.end);
@@ -33,14 +38,15 @@ pub fn print_parse_error(source: &str, err: &ParseError) {
     let source_line = source.lines().nth(line - 1).unwrap_or("");
     let line_num_width = line.to_string().len();
 
-    eprintln!("error[{line}:{col}]: {}", err.message);
-    eprintln!("{:width$} |", "", width = line_num_width);
-    eprintln!("{line} | {source_line}");
+    let _ = writeln!(buf, "error[{line}:{col}]: {}", err.message);
+    let _ = writeln!(buf, "{:width$} |", "", width = line_num_width);
+    let _ = writeln!(buf, "{line} | {source_line}");
 
     // Build caret line: spaces up to the error start, then ^ characters
     let caret_offset = col.saturating_sub(1);
     let caret_len = end_col.saturating_sub(col).max(1);
-    eprintln!(
+    let _ = writeln!(
+        buf,
         "{:width$} | {:>padding$}{}",
         "",
         "",
@@ -50,8 +56,15 @@ pub fn print_parse_error(source: &str, err: &ParseError) {
     );
 
     if let Some(hint) = &err.hint {
-        eprintln!("{:width$} = hint: {hint}", "", width = line_num_width);
+        let _ = writeln!(buf, "{:width$} = hint: {hint}", "", width = line_num_width);
     }
+
+    buf
+}
+
+/// Print a single parse error with the source line and a caret span.
+pub fn print_parse_error(source: &str, err: &ParseError) {
+    eprint!("{}", format_parse_error(source, err));
     eprintln!();
 }
 
@@ -79,8 +92,10 @@ mod tests {
             },
             hint: None,
         };
-        // Should not panic; visual output goes to stderr
-        print_parse_error(source, &err);
+        let output = format_parse_error(source, &err);
+        assert!(output.contains("expected port direction"), "output should contain the error message");
+        assert!(output.contains("ports { X: sideways }"), "output should contain the source line");
+        assert!(output.contains("^^^^^^^^"), "output should contain caret characters");
     }
 
     #[test]
@@ -95,7 +110,10 @@ mod tests {
             },
             hint: Some("try something else".to_string()),
         };
-        print_parse_error(source, &err);
+        let output = format_parse_error(source, &err);
+        assert!(output.contains("unexpected"), "output should contain the error message");
+        assert!(output.contains("^"), "output should contain at least one caret");
+        assert!(output.contains("hint: try something else"), "output should contain the hint");
     }
 
     #[test]
@@ -110,6 +128,8 @@ mod tests {
             },
             hint: None,
         };
-        print_parse_error(source, &err);
+        let output = format_parse_error(source, &err);
+        assert!(output.contains("unexpected EOF"), "output should contain the error message");
+        assert!(output.contains("^"), "output should contain at least one caret");
     }
 }

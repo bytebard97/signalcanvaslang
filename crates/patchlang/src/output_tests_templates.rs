@@ -4,20 +4,9 @@
 //! `CheckResult` to JSON, and asserts on specific JSON paths. This verifies the
 //! complete pipeline from source text to the JSON shape consumed by the frontend.
 
-use crate::check;
+use crate::output_test_helpers::get_json;
 
 // ── Helper ───────────────────────────────────────────────────────────────────
-
-/// Parse source, assert no errors, return the serialised JSON value.
-fn get_json(source: &str) -> serde_json::Value {
-    let result = check(source);
-    assert!(
-        result.errors.is_empty(),
-        "unexpected parse errors: {:?}",
-        result.errors
-    );
-    serde_json::to_value(&result).unwrap()
-}
 
 /// Return the first statement from the parsed JSON, asserting it is a Template.
 fn first_template(source: &str) -> serde_json::Value {

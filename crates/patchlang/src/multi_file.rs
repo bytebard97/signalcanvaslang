@@ -8,6 +8,9 @@ use crate::compat_types::{TsParseError, TsProgram, TsSpan};
 use crate::drc;
 use crate::parser::parse;
 
+/// Placeholder span for synthetic errors that have no source location.
+const SYNTHETIC_SPAN: TsSpan = TsSpan { start: 0, end: 0 };
+
 /// Result of multi-file project compilation.
 ///
 /// Extends the basic `CheckResult` with file provenance metadata needed by
@@ -88,13 +91,11 @@ fn template_name(stmt: &Statement) -> Option<&str> {
 /// converts dots to slashes and appends `.patch`:
 /// `buildings.foh` becomes `buildings/foh.patch`.
 pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectResult {
-    let empty_span = TsSpan { start: 0, end: 0 };
-
     // Check entry file exists
     if !files.contains_key(entry) {
         return error_result(vec![TsParseError {
             message: format!("entry file not found: {entry}"),
-            span: empty_span,
+            span: SYNTHETIC_SPAN,
             hint: None,
             file: None,
         }]);
@@ -125,7 +126,7 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectRe
             None => {
                 all_errors.push(TsParseError {
                     message: format!("file not found: {file_path}"),
-                    span: TsSpan { start: 0, end: 0 },
+                    span: SYNTHETIC_SPAN,
                     hint: Some(format!(
                         "required by a use statement (namespace resolved to {file_path})"
                     )),
@@ -189,7 +190,7 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectRe
                         message: format!(
                             "duplicate template '{name_owned}': defined in '{prev_file}' and '{file_path}'"
                         ),
-                        span: TsSpan { start: 0, end: 0 },
+                        span: SYNTHETIC_SPAN,
                         hint: Some("rename one of the templates to avoid collision".into()),
                         file: Some(file_path.clone()),
                     });

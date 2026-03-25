@@ -4,42 +4,7 @@
 //! produced by the compat serialisation layer.  Each test exercises a distinct
 //! compiler output feature so failures pinpoint exactly what broke.
 
-use crate::check;
-
-// ── Helper ───────────────────────────────────────────────────────────────────
-
-/// Parse `source`, assert no parse errors, and return the JSON value.
-fn get_json(source: &str) -> serde_json::Value {
-    let result = check(source);
-    assert!(
-        result.errors.is_empty(),
-        "unexpected parse errors: {:?}",
-        result.errors
-    );
-    serde_json::to_value(&result).unwrap()
-}
-
-/// Return the first statement in `json["program"]["statements"]` whose
-/// `"type"` field equals `kind`.
-fn first_stmt_of<'a>(json: &'a serde_json::Value, kind: &str) -> &'a serde_json::Value {
-    json["program"]["statements"]
-        .as_array()
-        .expect("statements must be an array")
-        .iter()
-        .find(|s| s["type"] == kind)
-        .unwrap_or_else(|| panic!("no statement of type {kind} found"))
-}
-
-/// Return every statement in `json["program"]["statements"]` whose `"type"`
-/// field equals `kind`.
-fn all_stmts_of<'a>(json: &'a serde_json::Value, kind: &str) -> Vec<&'a serde_json::Value> {
-    json["program"]["statements"]
-        .as_array()
-        .expect("statements must be an array")
-        .iter()
-        .filter(|s| s["type"] == kind)
-        .collect()
-}
+use crate::output_test_helpers::{all_stmts_of, first_stmt_of, get_json};
 
 // ── Test 1: Basic instance with properties ───────────────────────────────────
 
