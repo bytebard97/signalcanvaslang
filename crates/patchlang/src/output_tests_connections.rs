@@ -498,3 +498,42 @@ fn auto_as_instance_name_is_valid() {
     }).expect("expected instance");
     assert_eq!(inst.name, "auto");
 }
+
+// ── A01: [auto] rejected in route/bus declarations ────────────────────────────
+
+#[test]
+fn auto_rejected_in_route() {
+    let src = r#"
+        template T {
+            ports { Out[1..8]: out In[1..4]: in }
+        }
+        instance Console is T {
+            route Out[auto] -> In[1..2]
+        }
+    "#;
+    let result = crate::parser::parse(src);
+    assert!(
+        result.errors.iter().any(|e| e.message.contains("A01")),
+        "expected A01 error for [auto] in route: {:?}", result.errors
+    );
+}
+
+#[test]
+fn auto_rejected_in_bus() {
+    let src = r#"
+        template T {
+            ports { Out[1..8]: out In[1..4]: in }
+        }
+        instance Console is T {
+            bus MyBus {
+                input: In[auto]
+                output: Out[1]
+            }
+        }
+    "#;
+    let result = crate::parser::parse(src);
+    assert!(
+        result.errors.iter().any(|e| e.message.contains("A01")),
+        "expected A01 error for [auto] in bus: {:?}", result.errors
+    );
+}

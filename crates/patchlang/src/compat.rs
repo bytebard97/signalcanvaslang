@@ -367,7 +367,8 @@ fn convert_index_spec(idx: &Option<ast::IndexSpec>) -> Option<Vec<TsIndexElement
                     end: *end,
                 },
                 ast::IndexElement::Auto => {
-                    // Placeholder — Task 6 replaces this with side-table lookup.
+                    // Safety fallback for non-connection contexts (routes, buses, etc.)
+                    // where [auto] should have been rejected at parse time (A01).
                     TsIndexElement::Single { value: 0 }
                 }
             })
