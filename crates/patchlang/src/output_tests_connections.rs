@@ -499,6 +499,21 @@ fn auto_as_instance_name_is_valid() {
     assert_eq!(inst.name, "auto");
 }
 
+#[test]
+fn auto_after_number_is_parse_error() {
+    let src = r#"
+        template T { ports { Out[1..8]: out  In[1..4]: in } }
+        instance A is T
+        instance B is T
+        connect A.Out[5, auto] -> B.In[1..2]
+    "#;
+    let result = crate::parser::parse(src);
+    assert!(
+        result.errors.iter().any(|e| e.message.contains("[auto] must be the sole index element")),
+        "should reject [5, auto]: {:?}", result.errors
+    );
+}
+
 // ── A01: [auto] rejected in route/bus declarations ────────────────────────────
 
 #[test]
