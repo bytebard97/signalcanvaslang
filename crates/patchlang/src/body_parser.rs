@@ -2,10 +2,28 @@
 //! key-value parsing. Separated from `parser.rs` to keep files under 500 lines.
 
 use crate::ast::*;
-use crate::error::ParseError;
+use crate::error::{ParseError, Span};
 use crate::lexer::Token;
 
 use crate::parser::Parser;
+
+/// Emit A01 error if an index spec contains `[auto]` (not valid in route/bus).
+fn reject_auto_in_index(
+    index: &Option<IndexSpec>,
+    span: &Span,
+    errors: &mut Vec<ParseError>,
+    context: &str,
+) {
+    if let Some(spec) = index {
+        if spec.elements.iter().any(|e| matches!(e, IndexElement::Auto)) {
+            errors.push(ParseError {
+                message: format!("A01: [auto] is not valid in {} declarations", context),
+                span: span.clone(),
+                hint: Some("Use explicit channel indices for routes and buses".into()),
+            });
+        }
+    }
+}
 
 impl<'a> Parser<'a> {
     // ── Instance body sub-parsers ─────────────────────────────
@@ -87,7 +105,11 @@ impl<'a> Parser<'a> {
         let source = self.parse_port_ref();
         self.expect(&Token::Arrow);
         let target = self.parse_port_ref();
-        RouteEntry { source, target, span: self.span_from(start) }
+        let span = self.span_from(start);
+        // A01: [auto] not valid in route declarations
+        reject_auto_in_index(&source.index, &span, &mut self.errors, "route");
+        reject_auto_in_index(&target.index, &span, &mut self.errors, "route");
+        RouteEntry { source, target, span }
     }
 
     /// Parse `bus Name { in/input: Port  out/output: Port }`.
@@ -119,7 +141,15 @@ impl<'a> Parser<'a> {
             }
         }
         self.expect(&Token::RBrace);
-        BusEntry { name, inputs, outputs, span: self.span_from(start) }
+        let span = self.span_from(start);
+        // A01: [auto] not valid in bus declarations
+        for input in &inputs {
+            reject_auto_in_index(&input.index, &span, &mut self.errors, "bus");
+        }
+        for output in &outputs {
+            reject_auto_in_index(&output.index, &span, &mut self.errors, "bus");
+        }
+        BusEntry { name, inputs, outputs, span }
     }
 
     /// Parse `slot Name[index]: "CardType"` inside instance body.

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::ast::{IndexElement, PortSide};
+    use crate::ast::IndexElement;
     use crate::parser::parse;
     use crate::resolve_auto::resolve_auto_indices;
 
@@ -186,6 +186,21 @@ mod tests {
         assert_eq!(res.resolutions.len(), 2);
         assert_eq!(expand_resolved(&res, 0), vec![1, 2]);
         assert_eq!(expand_resolved(&res, 1), vec![1, 2]);
+    }
+
+    #[test]
+    fn auto_contiguity_error() {
+        // Port [1..6], explicit indices [2,4,6] leave only 1,3,5 -- not contiguous for 2
+        let (_, errs) = resolve(
+            "template T { ports { Out[1..6]: out In: in } }
+             template Tgt { ports { In[1..2]: in } }
+             instance M is T  instance A is Tgt
+             connect M.Out[2] -> A.In
+             connect M.Out[4] -> A.In
+             connect M.Out[6] -> A.In
+             connect M.Out[auto] -> A.In[1..2]",
+        );
+        assert!(errs.iter().any(|e| e.code == "A05"), "expected A05 fragmentation: {:?}", errs);
     }
 
     #[test]

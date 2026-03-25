@@ -48,16 +48,55 @@ pub fn resolve_auto_indices(program: &PatchProgram) -> (AutoResolutions, Vec<Aut
     let mut resolutions = AutoResolutions::default();
     let mut errors = Vec::new();
 
-    // Phase 1: Pre-scan explicit indices
+    // Phase 1: Pre-scan explicit indices (connects)
     for_each_connect_in_order(program, |conn| {
         prescan_side(&conn.source, &ctx, &mut allocators);
         prescan_side(&conn.target, &ctx, &mut allocators);
     });
 
-    // Phase 2: Resolve [auto] in declaration order
+    // Phase 1b: Pre-scan explicit indices (bridges)
+    for stmt in &program.statements {
+        match stmt {
+            Statement::Bridge(b) => {
+                prescan_side(&b.source, &ctx, &mut allocators);
+                prescan_side(&b.target, &ctx, &mut allocators);
+            }
+            Statement::BridgeGroup(bg) => {
+                prescan_side(&bg.target, &ctx, &mut allocators);
+                for src in &bg.sources {
+                    prescan_side(src, &ctx, &mut allocators);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    // Phase 2: Resolve [auto] in declaration order (connects)
     for_each_connect_in_order(program, |conn| {
         resolve_connection(conn, &ctx, &mut allocators, &mut resolutions, &mut errors);
     });
+
+    // Phase 2b: Resolve [auto] in bridges
+    for stmt in &program.statements {
+        match stmt {
+            Statement::Bridge(b) => {
+                resolve_port_ref_pair(
+                    &b.source, &b.target, &b.span,
+                    &ctx, &mut allocators, &mut resolutions, &mut errors,
+                );
+            }
+            Statement::BridgeGroup(bg) => {
+                // Each source paired with the target
+                for src in &bg.sources {
+                    resolve_port_ref_pair(
+                        src, &bg.target, &bg.span,
+                        &ctx, &mut allocators, &mut resolutions, &mut errors,
+                    );
+                }
+            }
+            _ => {}
+        }
+    }
 
     (resolutions, errors)
 }
@@ -185,6 +224,60 @@ fn resolve_connection(
     }
 }
 
+/// Resolve [auto] on a pair of port refs (used for bridges).
+#[allow(clippy::too_many_arguments)]
+fn resolve_port_ref_pair(
+    source: &PortRef,
+    target: &PortRef,
+    span: &Span,
+    ctx: &DRCContext<'_>,
+    allocators: &mut HashMap<PortKey, PortAllocator>,
+    resolutions: &mut AutoResolutions,
+    errors: &mut Vec<AutoError>,
+) {
+    let src_is_auto = is_auto(&source.index);
+    let tgt_is_auto = is_auto(&target.index);
+
+    if src_is_auto && tgt_is_auto {
+        errors.push(AutoError {
+            code: "A02",
+            message: "Both sides use [auto] -- at least one side must specify channels".into(),
+            span: span.clone(),
+        });
+        return;
+    }
+
+    if src_is_auto {
+        if let Some(n) = infer_count(target, ctx) {
+            resolve_side(source, PortSide::Source, n, span, ctx, allocators, resolutions, errors);
+        } else {
+            errors.push(AutoError {
+                code: "A03",
+                message: format!(
+                    "[auto] on '{}' cannot infer channel count -- other side has no range",
+                    source.port
+                ),
+                span: span.clone(),
+            });
+        }
+    }
+
+    if tgt_is_auto {
+        if let Some(n) = infer_count(source, ctx) {
+            resolve_side(target, PortSide::Target, n, span, ctx, allocators, resolutions, errors);
+        } else {
+            errors.push(AutoError {
+                code: "A03",
+                message: format!(
+                    "[auto] on '{}' cannot infer channel count -- other side has no range",
+                    target.port
+                ),
+                span: span.clone(),
+            });
+        }
+    }
+}
+
 /// Resolve [auto] on one side of a connection.
 #[allow(clippy::too_many_arguments)]
 fn resolve_side(
@@ -229,16 +322,33 @@ fn resolve_side(
     let mut start_ch = alloc.cursor;
     loop {
         if start_ch + (count as u32) - 1 > alloc.range_end {
-            // A04: overflow
-            errors.push(AutoError {
-                code: "A04",
-                message: format!(
-                    "Auto-assignment on '{}' exceeded range [{}..{}] -- \
-                     need {} contiguous channels from position {}",
-                    port_ref.port, alloc.range_start, alloc.range_end, count, start_ch
-                ),
-                span: span.clone(),
-            });
+            // Distinguish A04 (overflow) from A05 (fragmentation)
+            let total_available = (alloc.range_start..=alloc.range_end)
+                .filter(|ch| !alloc.consumed.contains(ch))
+                .count();
+            if total_available >= count {
+                // A05: enough channels exist but not contiguously
+                errors.push(AutoError {
+                    code: "A05",
+                    message: format!(
+                        "Cannot allocate {} contiguous channels on '{}' -- \
+                         explicit indices fragment the available range [{}..{}]",
+                        count, port_ref.port, alloc.range_start, alloc.range_end
+                    ),
+                    span: span.clone(),
+                });
+            } else {
+                // A04: genuine overflow
+                errors.push(AutoError {
+                    code: "A04",
+                    message: format!(
+                        "Auto-assignment on '{}' exceeded range [{}..{}] -- \
+                         need {} contiguous channels from position {}",
+                        port_ref.port, alloc.range_start, alloc.range_end, count, start_ch
+                    ),
+                    span: span.clone(),
+                });
+            }
             return;
         }
 

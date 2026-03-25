@@ -118,9 +118,6 @@ fn check_connect_port_refs(
 ) {
     let connects = collect_all_connects(program);
     for conn in &connects {
-        if is_suppressed(&conn.suppressions, "structural") {
-            continue;
-        }
         check_port_ref_exists(&conn.source, ctx, conn, diags);
         check_port_ref_exists(&conn.target, ctx, conn, diags);
     }
@@ -170,7 +167,7 @@ fn check_port_ref_exists(
         }
         Some(pd) => {
             // S14 — vector port without index
-            check_vector_port_indexed(port_ref, pd, instance_name, &conn.span, diags);
+            check_vector_port_indexed(port_ref, pd, instance_name, &conn.span, &conn.suppressions, diags);
 
             // S06 — check channel index bounds
             if let Some(index_spec) = &port_ref.index {
@@ -209,8 +206,12 @@ fn check_vector_port_indexed(
     port_def: &crate::ast::PortDef,
     instance_name: &str,
     span: &crate::error::Span,
+    suppressions: &[String],
     diags: &mut Vec<Diagnostic>,
 ) {
+    if is_suppressed(suppressions, "structural") {
+        return;
+    }
     if port_ref.index.is_none() {
         if let Some(range) = &port_def.range {
             diags.push(Diagnostic {
@@ -267,23 +268,29 @@ fn check_route_port_refs(
             };
 
             for route in &inst.routes {
-                if resolve_port_on_template(&route.source.port, template).is_none() {
-                    emit_missing_port_diagnostic(
+                match resolve_port_on_template(&route.source.port, template) {
+                    None => emit_missing_port_diagnostic(
                         &route.source.port,
                         &inst.template_name,
                         "Route references port",
                         &route.span,
                         diags,
-                    );
+                    ),
+                    Some(pd) => check_vector_port_indexed(
+                        &route.source, pd, &inst.name, &route.span, &[], diags,
+                    ),
                 }
-                if resolve_port_on_template(&route.target.port, template).is_none() {
-                    emit_missing_port_diagnostic(
+                match resolve_port_on_template(&route.target.port, template) {
+                    None => emit_missing_port_diagnostic(
                         &route.target.port,
                         &inst.template_name,
                         "Route references port",
                         &route.span,
                         diags,
-                    );
+                    ),
+                    Some(pd) => check_vector_port_indexed(
+                        &route.target, pd, &inst.name, &route.span, &[], diags,
+                    ),
                 }
             }
         }
@@ -305,25 +312,31 @@ fn check_bus_port_refs(
 
             for bus in &inst.buses {
                 for output in &bus.outputs {
-                    if resolve_port_on_template(&output.port, template).is_none() {
-                        emit_missing_port_diagnostic(
+                    match resolve_port_on_template(&output.port, template) {
+                        None => emit_missing_port_diagnostic(
                             &output.port,
                             &inst.template_name,
                             "Bus output",
                             &bus.span,
                             diags,
-                        );
+                        ),
+                        Some(pd) => check_vector_port_indexed(
+                            output, pd, &inst.name, &bus.span, &[], diags,
+                        ),
                     }
                 }
                 for input in &bus.inputs {
-                    if resolve_port_on_template(&input.port, template).is_none() {
-                        emit_missing_port_diagnostic(
+                    match resolve_port_on_template(&input.port, template) {
+                        None => emit_missing_port_diagnostic(
                             &input.port,
                             &inst.template_name,
                             "Bus input",
                             &bus.span,
                             diags,
-                        );
+                        ),
+                        Some(pd) => check_vector_port_indexed(
+                            input, pd, &inst.name, &bus.span, &[], diags,
+                        ),
                     }
                 }
             }
