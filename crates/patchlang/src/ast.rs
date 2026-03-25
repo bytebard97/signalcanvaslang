@@ -185,7 +185,7 @@ pub enum IndexElement {
 }
 
 /// Which side of a connection an auto-resolution applies to.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub enum PortSide {
     Source,
     Target,

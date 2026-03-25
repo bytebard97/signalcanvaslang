@@ -4,18 +4,37 @@
 //! The frontend expects camelCase JSON with flat records and parsed enums.
 //! This module bridges the gap without modifying the internal AST.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
-use crate::ast;
+use crate::ast::{self, AutoResolutions, PortSide};
 use crate::compat_types::*;
 use crate::error::ParseResult;
+
+/// Lookup key for auto-resolutions: (span_start, span_end, side).
+/// Each `[auto]` is uniquely identified by the connection span + which side.
+type AutoLookupKey = (usize, usize, PortSide);
+
+/// Pre-built lookup table from `AutoResolutions`.
+type AutoLookup = HashMap<AutoLookupKey, ast::IndexSpec>;
 
 // ── Top-level entry point ───────────────────────────────────────────
 
 /// Convert a `ParseResult` (internal AST + errors) into TS-compatible JSON shape.
+///
+/// When `resolutions` is provided, `[auto]` index specs in connections are
+/// replaced with the concrete resolved indices from the side table.
 pub fn to_ts_result(result: &ParseResult) -> TsParseResult {
+    to_ts_result_with_resolutions(result, &AutoResolutions::default())
+}
+
+/// Like [`to_ts_result`] but merges auto-resolutions into the output.
+pub fn to_ts_result_with_resolutions(
+    result: &ParseResult,
+    resolutions: &AutoResolutions,
+) -> TsParseResult {
+    let lookup = build_auto_lookup(resolutions);
     TsParseResult {
-        program: to_ts_program(&result.program),
+        program: to_ts_program_with_lookup(&result.program, &lookup),
         errors: result
             .errors
             .iter()
@@ -32,30 +51,49 @@ pub fn to_ts_result(result: &ParseResult) -> TsParseResult {
     }
 }
 
+/// Build lookup table from auto-resolutions for O(1) access during conversion.
+fn build_auto_lookup(resolutions: &AutoResolutions) -> AutoLookup {
+    resolutions
+        .resolutions
+        .iter()
+        .map(|r| {
+            let key = (r.span.start, r.span.end, r.side.clone());
+            (key, r.resolved.clone())
+        })
+        .collect()
+}
+
 /// Convert the internal `PatchProgram` to the TS-compatible shape.
 pub fn to_ts_program(program: &ast::PatchProgram) -> TsProgram {
+    to_ts_program_with_lookup(program, &HashMap::new())
+}
+
+/// Convert with auto-resolution lookup.
+fn to_ts_program_with_lookup(program: &ast::PatchProgram, lookup: &AutoLookup) -> TsProgram {
     TsProgram {
         r#type: "Program",
         statements: program
             .statements
             .iter()
-            .filter_map(convert_statement)
+            .filter_map(|s| convert_statement(s, lookup))
             .collect(),
     }
 }
 
 // ── Statement dispatch ──────────────────────────────────────────────
 
-fn convert_statement(stmt: &ast::Statement) -> Option<TsStatement> {
+fn convert_statement(stmt: &ast::Statement, lookup: &AutoLookup) -> Option<TsStatement> {
     match stmt {
-        ast::Statement::Template(t) => Some(TsStatement::Template(convert_template(t))),
+        ast::Statement::Template(t) => Some(TsStatement::Template(convert_template(t, lookup))),
         ast::Statement::Instance(i) => Some(TsStatement::Instance(convert_instance(i))),
-        ast::Statement::Connect(c) => Some(TsStatement::Connect(convert_connect(c))),
+        ast::Statement::Connect(c) => Some(TsStatement::Connect(convert_connect(c, lookup))),
         ast::Statement::Bridge(b) => Some(TsStatement::Bridge(convert_bridge(b))),
         ast::Statement::BridgeGroup(bg) => {
             Some(TsStatement::BridgeGroup(convert_bridge_group(bg)))
         }
-        ast::Statement::LinkGroup(lg) => Some(TsStatement::LinkGroup(convert_link_group(lg))),
+        ast::Statement::LinkGroup(lg) => {
+            Some(TsStatement::LinkGroup(convert_link_group(lg, lookup)))
+        }
         ast::Statement::Signal(s) => Some(TsStatement::Signal(convert_signal(s))),
         ast::Statement::Flag(f) => Some(TsStatement::Flag(convert_flag(f))),
         ast::Statement::Stream(s) => Some(TsStatement::Stream(convert_stream(s))),
@@ -68,7 +106,7 @@ fn convert_statement(stmt: &ast::Statement) -> Option<TsStatement> {
 
 // ── Individual type converters ──────────────────────────────────────
 
-fn convert_template(t: &ast::TemplateDecl) -> TsTemplateDecl {
+fn convert_template(t: &ast::TemplateDecl, lookup: &AutoLookup) -> TsTemplateDecl {
     TsTemplateDecl {
         type_tag: "Template",
         name: t.name.clone(),
@@ -77,7 +115,7 @@ fn convert_template(t: &ast::TemplateDecl) -> TsTemplateDecl {
         ports: t.ports.iter().map(convert_port_def).collect(),
         bridges: t.bridges.iter().map(convert_bridge).collect(),
         instances: t.instances.iter().map(convert_instance).collect(),
-        connects: t.connects.iter().map(convert_connect).collect(),
+        connects: t.connects.iter().map(|c| convert_connect(c, lookup)).collect(),
         slots: t.slots.iter().map(convert_slot_def).collect(),
         version: t.version.clone(),
     }
@@ -143,11 +181,23 @@ fn convert_instance(i: &ast::InstanceDecl) -> TsInstanceDecl {
     }
 }
 
-fn convert_connect(c: &ast::ConnectDecl) -> TsConnectDecl {
+fn convert_connect(c: &ast::ConnectDecl, lookup: &AutoLookup) -> TsConnectDecl {
+    let src_key = (c.span.start, c.span.end, PortSide::Source);
+    let tgt_key = (c.span.start, c.span.end, PortSide::Target);
+
+    let source = match lookup.get(&src_key) {
+        Some(resolved) => convert_port_ref_with_resolved(&c.source, resolved),
+        None => convert_port_ref(&c.source),
+    };
+    let target = match lookup.get(&tgt_key) {
+        Some(resolved) => convert_port_ref_with_resolved(&c.target, resolved),
+        None => convert_port_ref(&c.target),
+    };
+
     TsConnectDecl {
         type_tag: "Connect",
-        source: convert_port_ref(&c.source),
-        target: convert_port_ref(&c.target),
+        source,
+        target,
         properties: kv_to_string_record(&c.properties),
         suppressions: if c.suppressions.is_empty() {
             None
@@ -176,11 +226,11 @@ fn convert_bridge_group(bg: &ast::BridgeGroupDecl) -> TsBridgeGroupDecl {
     }
 }
 
-fn convert_link_group(lg: &ast::LinkGroupDecl) -> TsLinkGroupDecl {
+fn convert_link_group(lg: &ast::LinkGroupDecl, lookup: &AutoLookup) -> TsLinkGroupDecl {
     TsLinkGroupDecl {
         type_tag: "LinkGroup",
         name: lg.name.clone(),
-        connects: lg.connects.iter().map(convert_connect).collect(),
+        connects: lg.connects.iter().map(|c| convert_connect(c, lookup)).collect(),
         properties: kv_to_string_record(&lg.properties),
     }
 }
@@ -294,6 +344,15 @@ fn convert_port_ref(pr: &ast::PortRef) -> TsPortRef {
         instance: pr.instance.clone().unwrap_or_default(),
         port: pr.port.clone(),
         index_spec: convert_index_spec(&pr.index),
+    }
+}
+
+/// Convert a port ref, substituting the resolved index spec for `[auto]`.
+fn convert_port_ref_with_resolved(pr: &ast::PortRef, resolved: &ast::IndexSpec) -> TsPortRef {
+    TsPortRef {
+        instance: pr.instance.clone().unwrap_or_default(),
+        port: pr.port.clone(),
+        index_spec: convert_index_spec(&Some(resolved.clone())),
     }
 }
 

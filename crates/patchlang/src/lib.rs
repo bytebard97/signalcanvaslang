@@ -45,9 +45,11 @@ mod output_tests_drc;
 mod output_tests_ids;
 #[cfg(test)]
 mod resolve_auto_tests;
+#[cfg(test)]
+mod output_tests_auto;
 
 pub use ast::PatchProgram;
-pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result};
+pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result, to_ts_result_with_resolutions};
 pub use drc::{CheckResult, Diagnostic};
 pub use error::{ParseError, Span};
 pub use ids::{generate_port_id, generate_route_id, generate_slot_id};
@@ -65,8 +67,8 @@ pub use parser::parse;
 /// partial tree would produce misleading false positives.
 pub fn check(source: &str) -> CheckResult {
     let parse_result = parse(source);
-    let ts_result = to_ts_result(&parse_result);
     if !parse_result.errors.is_empty() {
+        let ts_result = to_ts_result(&parse_result);
         return CheckResult {
             program: ts_result.program,
             errors: ts_result.errors,
@@ -74,7 +76,8 @@ pub fn check(source: &str) -> CheckResult {
         };
     }
 
-    let (_resolutions, auto_errors) = resolve_auto::resolve_auto_indices(&parse_result.program);
+    let (resolutions, auto_errors) = resolve_auto::resolve_auto_indices(&parse_result.program);
+    let ts_result = to_ts_result_with_resolutions(&parse_result, &resolutions);
 
     let mut diagnostics: Vec<Diagnostic> = auto_errors
         .into_iter()

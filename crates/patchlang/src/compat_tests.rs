@@ -1,5 +1,7 @@
 //! Tests for the compat serialization layer.
 
+use std::collections::HashMap;
+
 use crate::ast::*;
 use crate::compat::*;
 use crate::error::Span;
@@ -263,7 +265,7 @@ fn suppression_wrapped_when_present() {
         mapping: None,
         span: span(),
     };
-    let ts = convert_connect(&connect);
+    let ts = convert_connect(&connect, &HashMap::new());
     let sup = ts.suppressions.unwrap();
     assert_eq!(sup.layers, vec!["electrical", "logical"]);
 }
@@ -286,7 +288,7 @@ fn suppression_absent_when_empty() {
         mapping: None,
         span: span(),
     };
-    let ts = convert_connect(&connect);
+    let ts = convert_connect(&connect, &HashMap::new());
     assert!(ts.suppressions.is_none());
     // Verify it's absent in JSON too
     let json = serde_json::to_value(&ts).unwrap();
