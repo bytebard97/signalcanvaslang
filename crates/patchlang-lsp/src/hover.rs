@@ -8,6 +8,8 @@ use patchlang::ast::{
 };
 use tower_lsp::lsp_types::*;
 
+use crate::span_utils::position_to_offset;
+
 /// Build hover text for a template declaration.
 fn format_template_hover(template: &TemplateDecl) -> String {
     let mut parts = Vec::new();
@@ -131,33 +133,6 @@ fn find_template<'a>(program: &'a PatchProgram, name: &str) -> Option<&'a Templa
         }
         None
     })
-}
-
-/// Convert an LSP Position to a byte offset in source text.
-fn position_to_offset(source: &str, position: Position) -> Option<usize> {
-    let mut current_line: u32 = 0;
-    let mut current_col: u32 = 0;
-    for (i, ch) in source.char_indices() {
-        if current_line == position.line && current_col == position.character {
-            return Some(i);
-        }
-        if ch == '\n' {
-            if current_line == position.line {
-                return Some(i);
-            }
-            current_line += 1;
-            current_col = 0;
-        } else {
-            current_col += 1;
-        }
-    }
-    if current_line == position.line && current_col == position.character {
-        return Some(source.len());
-    }
-    if current_line == position.line {
-        return Some(source.len());
-    }
-    None
 }
 
 /// Extract the word (identifier) at a given byte offset in source.

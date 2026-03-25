@@ -616,6 +616,8 @@ impl<'a> TemplateParserExt for Parser<'a> {
 }
 
 #[cfg(test)]
+mod test_helpers;
+#[cfg(test)]
 mod tests_basic;
 #[cfg(test)]
 mod tests_declarations;

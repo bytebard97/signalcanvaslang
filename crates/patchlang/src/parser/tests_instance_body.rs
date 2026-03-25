@@ -1,22 +1,5 @@
 use super::*;
-
-// ── Helpers ─────────────────────────────────────────────────
-
-/// Extract the string value from a KvValue::Str.
-fn kv_str(kv: &KeyValue) -> &str {
-    match &kv.value {
-        KvValue::Str { value } => value,
-        other => panic!("expected KvValue::Str, got {other:?}"),
-    }
-}
-
-/// Extract the u32 value from a KvValue::Num.
-fn kv_num(kv: &KeyValue) -> u32 {
-    match &kv.value {
-        KvValue::Num { value } => *value,
-        other => panic!("expected KvValue::Num, got {other:?}"),
-    }
-}
+use super::test_helpers::{kv_str, kv_num};
 
 // ── Instance with properties ────────────────────────────────
 

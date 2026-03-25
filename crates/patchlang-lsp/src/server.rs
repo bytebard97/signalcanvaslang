@@ -44,7 +44,7 @@ impl PatchLangServer {
         let (parse_result, lsp_diagnostics) = diagnostics::build_diagnostics(&source);
 
         {
-            let mut docs = self.documents.lock().unwrap();
+            let mut docs = self.documents.lock().unwrap_or_else(|e| e.into_inner());
             docs.insert(
                 uri.clone(),
                 DocumentState {
@@ -64,7 +64,7 @@ impl PatchLangServer {
     where
         F: FnOnce(&str, &ParseResult, &PatchProgram) -> R,
     {
-        let docs = self.documents.lock().unwrap();
+        let docs = self.documents.lock().unwrap_or_else(|e| e.into_inner());
         let state = docs.get(uri)?;
         Some(f(&state.source, &state.parse_result, &state.parse_result.program))
     }
@@ -117,7 +117,7 @@ impl LanguageServer for PatchLangServer {
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
         let uri = params.text_document.uri;
-        let mut docs = self.documents.lock().unwrap();
+        let mut docs = self.documents.lock().unwrap_or_else(|e| e.into_inner());
         docs.remove(&uri);
     }
 

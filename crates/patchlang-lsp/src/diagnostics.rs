@@ -1,30 +1,15 @@
 //! Convert PatchLang parse errors and DRC diagnostics to LSP Diagnostic format.
 
 use patchlang::drc::{self, Severity as DrcSeverity};
-use patchlang::error::{line_col, ParseError, ParseResult};
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range};
+use patchlang::error::{ParseError, ParseResult};
+use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Range};
+
+use crate::span_utils::offsets_to_range;
 
 /// Source identifier for parse-error diagnostics.
 const SOURCE_PARSER: &str = "patchlang";
 /// Source identifier for DRC diagnostics.
 const SOURCE_DRC: &str = "patchlang-drc";
-
-/// Convert a byte-offset span to an LSP Range using the source text.
-/// `line_col` returns 1-based values; LSP positions are 0-based.
-fn span_to_range(source: &str, start: usize, end: usize) -> Range {
-    let (start_line, start_col) = line_col(source, start);
-    let (end_line, end_col) = line_col(source, end);
-    Range {
-        start: Position {
-            line: start_line.saturating_sub(1) as u32,
-            character: start_col.saturating_sub(1) as u32,
-        },
-        end: Position {
-            line: end_line.saturating_sub(1) as u32,
-            character: end_col.saturating_sub(1) as u32,
-        },
-    }
-}
 
 /// Map DRC severity to LSP DiagnosticSeverity.
 fn map_severity(severity: &DrcSeverity) -> DiagnosticSeverity {
@@ -37,7 +22,7 @@ fn map_severity(severity: &DrcSeverity) -> DiagnosticSeverity {
 
 /// Convert a single parse error to an LSP Diagnostic.
 fn parse_error_to_diagnostic(source: &str, error: &ParseError) -> Diagnostic {
-    let range = span_to_range(source, error.span.start, error.span.end);
+    let range = offsets_to_range(source, error.span.start, error.span.end);
     let message = match &error.hint {
         Some(hint) => format!("{} (hint: {})", error.message, hint),
         None => error.message.clone(),
@@ -54,7 +39,7 @@ fn parse_error_to_diagnostic(source: &str, error: &ParseError) -> Diagnostic {
 /// Convert a single DRC diagnostic to an LSP Diagnostic.
 fn drc_to_diagnostic(source: &str, diag: &drc::Diagnostic) -> Diagnostic {
     let range = match &diag.span {
-        Some(span) => span_to_range(source, span.start, span.end),
+        Some(span) => offsets_to_range(source, span.start, span.end),
         None => Range::default(),
     };
     let mut message = format!("[{:?}] {}", diag.layer, diag.message);
@@ -100,7 +85,7 @@ mod tests {
     fn span_to_range_first_line() {
         let source = "template Foo {\n}";
         // byte 9 = 'F' in "Foo", line 1 col 10 -> LSP (0, 9)
-        let range = span_to_range(source, 9, 12);
+        let range = offsets_to_range(source, 9, 12);
         assert_eq!(range.start.line, 0);
         assert_eq!(range.start.character, 9);
         assert_eq!(range.end.line, 0);
@@ -111,7 +96,7 @@ mod tests {
     fn span_to_range_second_line() {
         let source = "line one\nline two";
         // "two" starts at byte 14, line 2 col 6 -> LSP (1, 5)
-        let range = span_to_range(source, 14, 17);
+        let range = offsets_to_range(source, 14, 17);
         assert_eq!(range.start.line, 1);
         assert_eq!(range.start.character, 5);
     }
@@ -231,5 +216,32 @@ mod tests {
         assert!(result.errors.is_empty());
         // DRC may or may not produce diagnostics for this simple template,
         // but no parse errors should appear
+    }
+
+    #[test]
+    fn build_diagnostics_invalid_source_has_error() {
+        let source = "template { ports { X: sideways } }";
+        let (_result, diags) = build_diagnostics(source);
+        assert!(!diags.is_empty(), "invalid source should produce diagnostics");
+        assert_eq!(diags[0].severity, Some(DiagnosticSeverity::ERROR));
+        assert!(
+            !diags[0].message.is_empty(),
+            "diagnostic message should be meaningful: {}",
+            diags[0].message
+        );
+    }
+
+    #[test]
+    fn build_diagnostics_drc_error_has_warning_severity() {
+        let source = "template D { ports { Out: out } }\n\
+                       instance A is D\n\
+                       instance B is D\n\
+                       connect A.Out -> B.Out";
+        let (_result, diags) = build_diagnostics(source);
+        assert!(
+            diags.iter().any(|d| d.severity == Some(DiagnosticSeverity::ERROR)),
+            "direction violation should produce an error diagnostic, got: {:?}",
+            diags.iter().map(|d| (&d.message, &d.severity)).collect::<Vec<_>>()
+        );
     }
 }

@@ -5,6 +5,9 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::io::Read;
 use std::process;
 
+const EXIT_VALIDATION_ERROR: i32 = 1;
+const EXIT_IO_ERROR: i32 = 2;
+
 /// PatchLang compiler and validation tools.
 #[derive(Parser)]
 #[command(name = "patchlang", version, about)]
@@ -76,7 +79,7 @@ fn read_source(file: Option<String>) -> String {
             let mut buf = String::new();
             std::io::stdin().read_to_string(&mut buf).unwrap_or_else(|e| {
                 eprintln!("error: cannot read stdin: {e}");
-                process::exit(2);
+                process::exit(EXIT_IO_ERROR);
             });
             buf
         }
@@ -87,7 +90,7 @@ fn read_source(file: Option<String>) -> String {
 fn read_file(path: &str) -> String {
     std::fs::read_to_string(path).unwrap_or_else(|e| {
         eprintln!("error: cannot read '{path}': {e}");
-        process::exit(2);
+        process::exit(EXIT_IO_ERROR);
     })
 }
 
@@ -95,7 +98,7 @@ fn read_file(path: &str) -> String {
 fn to_json(value: &impl serde::Serialize) -> String {
     serde_json::to_string_pretty(value).unwrap_or_else(|e| {
         eprintln!("error: serialization failed: {e}");
-        process::exit(2);
+        process::exit(EXIT_IO_ERROR);
     })
 }
 
@@ -112,7 +115,7 @@ fn cmd_parse(file: Option<String>) {
     println!("{}", to_json(&result.program));
 
     if !result.is_valid() {
-        process::exit(1);
+        process::exit(EXIT_VALIDATION_ERROR);
     }
 }
 
@@ -140,7 +143,7 @@ fn cmd_check(file: Option<String>) {
             .iter()
             .any(|d| d.severity == patchlang::drc::Severity::Error);
     if has_errors {
-        process::exit(1);
+        process::exit(EXIT_VALIDATION_ERROR);
     }
 }
 
@@ -152,7 +155,7 @@ fn cmd_compile(manifest_path: String) {
         for err in &manifest_result.errors {
             eprintln!("error: {err}");
         }
-        process::exit(1);
+        process::exit(EXIT_VALIDATION_ERROR);
     }
 
     let manifest = manifest_result.manifest.unwrap();
@@ -179,7 +182,7 @@ fn cmd_compile(manifest_path: String) {
             .iter()
             .any(|d| d.severity == patchlang::drc::Severity::Error);
     if has_errors {
-        process::exit(1);
+        process::exit(EXIT_VALIDATION_ERROR);
     }
 }
 
@@ -190,7 +193,7 @@ fn cmd_validate_layout(file: String) {
 
     if let Ok(v) = serde_json::from_str::<serde_json::Value>(&result) {
         if v["valid"] == false {
-            process::exit(1);
+            process::exit(EXIT_VALIDATION_ERROR);
         }
     }
 }
@@ -203,7 +206,7 @@ fn cmd_validate_consistency(patch_path: String, layout_path: String) {
 
     if let Ok(v) = serde_json::from_str::<serde_json::Value>(&result) {
         if v["valid"] == false {
-            process::exit(1);
+            process::exit(EXIT_VALIDATION_ERROR);
         }
     }
 }
@@ -215,7 +218,7 @@ fn cmd_fmt(file: String, write: bool) {
             if write {
                 std::fs::write(&file, &formatted).unwrap_or_else(|e| {
                     eprintln!("error: cannot write '{file}': {e}");
-                    process::exit(2);
+                    process::exit(EXIT_IO_ERROR);
                 });
                 eprintln!("formatted: {file}");
             } else {
@@ -224,7 +227,7 @@ fn cmd_fmt(file: String, write: bool) {
         }
         Err(e) => {
             eprintln!("error: cannot format '{file}': {e}");
-            process::exit(1);
+            process::exit(EXIT_VALIDATION_ERROR);
         }
     }
 }

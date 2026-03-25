@@ -1,14 +1,5 @@
 use super::*;
-
-// ── Helpers ─────────────────────────────────────────────────
-
-/// Extract the string value from a KvValue::Str.
-fn kv_str(kv: &KeyValue) -> &str {
-    match &kv.value {
-        KvValue::Str { value } => value,
-        other => panic!("expected KvValue::Str, got {other:?}"),
-    }
-}
+use super::test_helpers::kv_str;
 
 // ── Basic statements ────────────────────────────────────────
 

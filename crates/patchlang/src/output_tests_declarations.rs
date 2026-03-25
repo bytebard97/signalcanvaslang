@@ -8,46 +8,8 @@
 mod tests {
     use crate::check;
     use crate::multi_file::compile_project;
+    use crate::output_test_helpers::{all_stmts_of as all_stmts_of_type, first_stmt_of as first_stmt_of_type, get_json};
     use std::collections::HashMap;
-
-    // ── Helper ───────────────────────────────────────────────────────
-
-    /// Parse + DRC, assert no parse errors, return serialized JSON.
-    fn get_json(source: &str) -> serde_json::Value {
-        let result = check(source);
-        assert!(
-            result.errors.is_empty(),
-            "unexpected parse errors: {:?}",
-            result.errors
-        );
-        serde_json::to_value(&result).unwrap()
-    }
-
-    /// Return the first statement matching `type_tag` from the program statements.
-    fn first_stmt_of_type<'v>(
-        json: &'v serde_json::Value,
-        type_tag: &str,
-    ) -> &'v serde_json::Value {
-        json["program"]["statements"]
-            .as_array()
-            .unwrap_or_else(|| panic!("no statements array"))
-            .iter()
-            .find(|s| s["type"] == type_tag)
-            .unwrap_or_else(|| panic!("no statement of type '{type_tag}'"))
-    }
-
-    /// Return all statements matching `type_tag`.
-    fn all_stmts_of_type<'v>(
-        json: &'v serde_json::Value,
-        type_tag: &str,
-    ) -> Vec<&'v serde_json::Value> {
-        json["program"]["statements"]
-            .as_array()
-            .unwrap_or_else(|| panic!("no statements array"))
-            .iter()
-            .filter(|s| s["type"] == type_tag)
-            .collect()
-    }
 
     // ── Test 1: Signal declaration ───────────────────────────────────
 
