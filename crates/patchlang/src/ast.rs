@@ -151,7 +151,7 @@ pub struct PortDef {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub enum PortDirection {
     In,
     Out,
@@ -181,6 +181,31 @@ pub struct IndexSpec {
 pub enum IndexElement {
     Single { value: u32 },
     Range { start: u32, end: u32 },
+    Auto,
+}
+
+/// Which side of a connection an auto-resolution applies to.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub enum PortSide {
+    Source,
+    Target,
+}
+
+/// A single resolved `[auto]` — maps a connection + side to concrete indices.
+#[derive(Debug, Clone)]
+pub struct AutoResolution {
+    /// The connection span this resolution applies to
+    pub span: Span,
+    /// Which side of the connection
+    pub side: PortSide,
+    /// The resolved concrete indices
+    pub resolved: IndexSpec,
+}
+
+/// Collection of all auto-resolutions from a compilation.
+#[derive(Debug, Clone, Default)]
+pub struct AutoResolutions {
+    pub resolutions: Vec<AutoResolution>,
 }
 
 /// Value in a key-value pair: string, number, or port reference.

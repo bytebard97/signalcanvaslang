@@ -74,6 +74,10 @@ pub fn expand_index_spec(spec: &IndexSpec) -> Vec<u32> {
                     result.push(i);
                 }
             }
+            IndexElement::Auto => {
+                // Auto is resolved via side table, not in-place.
+                // DRC callers seeing Auto here should skip the check gracefully.
+            }
         }
     }
     result

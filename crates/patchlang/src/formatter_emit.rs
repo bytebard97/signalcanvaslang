@@ -472,6 +472,9 @@ fn emit_index_spec(out: &mut String, spec: &IndexSpec) {
             IndexElement::Range { start, end } => {
                 out.push_str(&format!("{start}..{end}"));
             }
+            IndexElement::Auto => {
+                out.push_str("auto");
+            }
         }
     }
     out.push(']');
