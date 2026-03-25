@@ -66,11 +66,31 @@ pub use parser::parse;
 pub fn check(source: &str) -> CheckResult {
     let parse_result = parse(source);
     let ts_result = to_ts_result(&parse_result);
-    let diagnostics = if parse_result.errors.is_empty() {
-        drc::run_all(&parse_result.program)
-    } else {
-        Vec::new()
-    };
+    if !parse_result.errors.is_empty() {
+        return CheckResult {
+            program: ts_result.program,
+            errors: ts_result.errors,
+            diagnostics: Vec::new(),
+        };
+    }
+
+    let (_resolutions, auto_errors) = resolve_auto::resolve_auto_indices(&parse_result.program);
+
+    let mut diagnostics: Vec<Diagnostic> = auto_errors
+        .into_iter()
+        .map(|e| Diagnostic {
+            severity: drc::Severity::Error,
+            layer: drc::DRCLayer::Structural,
+            message: format!("{}: {}", e.code, e.message),
+            span: Some(e.span),
+            source: None,
+            target: None,
+            fix: None,
+        })
+        .collect();
+
+    diagnostics.extend(drc::run_all(&parse_result.program));
+
     CheckResult {
         program: ts_result.program,
         errors: ts_result.errors,
