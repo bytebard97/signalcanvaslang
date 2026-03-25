@@ -158,6 +158,92 @@ mod structural {
                 && d.message.contains("Duplicate signal")
         }));
     }
+
+    #[test]
+    fn s14_vector_port_without_index_warns() {
+        let diags = check(
+            "template T { ports { Out[1..4]: out In[1..4]: in } }\ninstance A is T\ninstance B is T\nconnect A.Out -> B.In[1..2]",
+        );
+        assert!(diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Warning
+                && d.message.contains("vector port")
+                && d.message.contains("Out")
+        }));
+    }
+
+    #[test]
+    fn s14_vector_port_with_index_no_warning() {
+        let diags = check(
+            "template T { ports { Out[1..4]: out In[1..4]: in } }\ninstance A is T\ninstance B is T\nconnect A.Out[1..2] -> B.In[1..2]",
+        );
+        assert!(!diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Warning
+                && d.message.contains("vector port")
+        }));
+    }
+
+    #[test]
+    fn s14_scalar_port_without_index_no_warning() {
+        let diags = check(
+            "template T { ports { Out: out In: in } }\ninstance A is T\ninstance B is T\nconnect A.Out -> B.In",
+        );
+        assert!(!diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Warning
+                && d.message.contains("vector port")
+        }));
+    }
+
+    #[test]
+    fn s14_auto_index_no_warning() {
+        let diags = check(
+            "template T { ports { Out[1..4]: out In[1..4]: in } }\ninstance A is T\ninstance B is T\nconnect A.Out[auto] -> B.In[1..2]",
+        );
+        assert!(!diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Warning
+                && d.message.contains("vector port")
+        }));
+    }
+
+    #[test]
+    fn s14_both_sides_warned_independently() {
+        let diags = check(
+            "template T { ports { Out[1..4]: out In[1..4]: in } }\ninstance A is T\ninstance B is T\nconnect A.Out -> B.In",
+        );
+        let s14_warnings: Vec<_> = diags.iter().filter(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Warning
+                && d.message.contains("vector port")
+        }).collect();
+        assert_eq!(s14_warnings.len(), 2, "should warn on both source and target");
+    }
+
+    #[test]
+    fn s14_suppress_structural_silences() {
+        let diags = check(
+            "template T { ports { Out[1..4]: out In[1..4]: in } }\ninstance A is T\ninstance B is T\nconnect A.Out -> B.In { @suppress(structural) }",
+        );
+        assert!(!diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Warning
+                && d.message.contains("vector port")
+        }));
+    }
+
+    #[test]
+    fn s14_link_group_connection_warned() {
+        let diags = check(
+            "template T { ports { Out[1..4]: out In[1..4]: in } }\ninstance A is T\ninstance B is T\nlink_group G { connect A.Out -> B.In[1..2] }",
+        );
+        assert!(diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Warning
+                && d.message.contains("vector port")
+        }));
+    }
 }
 
 #[cfg(test)]

@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use crate::ast::{
     ConnectDecl, PatchProgram, PortRef, Statement,
 };
-use crate::drc::helpers::{collect_all_connects, resolve_port_on_template, DRCContext, port_ref_label};
+use crate::drc::helpers::{collect_all_connects, is_suppressed, resolve_port_on_template, DRCContext, port_ref_label};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Structural;
@@ -118,6 +118,9 @@ fn check_connect_port_refs(
 ) {
     let connects = collect_all_connects(program);
     for conn in &connects {
+        if is_suppressed(&conn.suppressions, "structural") {
+            continue;
+        }
         check_port_ref_exists(&conn.source, ctx, conn, diags);
         check_port_ref_exists(&conn.target, ctx, conn, diags);
     }
@@ -166,6 +169,9 @@ fn check_port_ref_exists(
             });
         }
         Some(pd) => {
+            // S14 — vector port without index
+            check_vector_port_indexed(port_ref, pd, instance_name, &conn.span, diags);
+
             // S06 — check channel index bounds
             if let Some(index_spec) = &port_ref.index {
                 let channels = crate::drc::helpers::expand_index_spec(index_spec);
@@ -193,6 +199,35 @@ fn check_port_ref_exists(
                     }
                 }
             }
+        }
+    }
+}
+
+/// S14 — Vector port referenced without channel index.
+fn check_vector_port_indexed(
+    port_ref: &PortRef,
+    port_def: &crate::ast::PortDef,
+    instance_name: &str,
+    span: &crate::error::Span,
+    diags: &mut Vec<Diagnostic>,
+) {
+    if port_ref.index.is_none() {
+        if let Some(range) = &port_def.range {
+            diags.push(Diagnostic {
+                severity: Severity::Warning,
+                layer: LAYER.clone(),
+                message: format!(
+                    "Port '{}' on '{}' is a vector port [{}..{}] — no channel index specified",
+                    port_ref.port, instance_name, range.start, range.end
+                ),
+                span: Some(span.clone()),
+                source: None,
+                target: None,
+                fix: Some(format!(
+                    "Specify channels, e.g. {}.{}[1..2], or use [auto] for auto-assignment",
+                    instance_name, port_ref.port
+                )),
+            });
         }
     }
 }
