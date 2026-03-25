@@ -11,4 +11,6 @@ path = "src/main.rs"
 
 [dependencies]
 patchlang = { path = "../patchlang" }
+clap = { version = "4", features = ["derive"] }
+serde = "1"
 serde_json = "1"
