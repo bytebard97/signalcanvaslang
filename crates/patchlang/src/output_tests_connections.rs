@@ -448,3 +448,53 @@ fn connect_no_properties_is_empty_object() {
     assert!(conn.get("suppressions").is_none() || conn["suppressions"].is_null());
     assert!(conn.get("mapping").is_none() || conn["mapping"].is_null());
 }
+
+// ── Test: [auto] index parsing ───────────────────────────────────────
+
+#[test]
+fn connect_with_auto_index() {
+    let src = r#"
+        template T { ports { Out[1..8]: out  In[1..4]: in } }
+        instance A is T
+        instance B is T
+        connect A.Out[auto] -> B.In[1..2]
+    "#;
+    let result = crate::parser::parse(src);
+    assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
+    let stmts = &result.program.statements;
+    let conn = stmts.iter().find_map(|s| match s {
+        crate::ast::Statement::Connect(c) => Some(c),
+        _ => None,
+    }).expect("expected a connect");
+    let src_idx = conn.source.index.as_ref().expect("source should have index");
+    assert_eq!(src_idx.elements.len(), 1);
+    assert!(matches!(src_idx.elements[0], crate::ast::IndexElement::Auto));
+}
+
+#[test]
+fn auto_mixed_with_number_is_parse_error() {
+    let src = r#"
+        template T { ports { Out[1..8]: out  In[1..4]: in } }
+        instance A is T
+        instance B is T
+        connect A.Out[auto, 5] -> B.In[1..2]
+    "#;
+    let result = crate::parser::parse(src);
+    assert!(!result.errors.is_empty(), "should have parse errors for [auto, 5]");
+}
+
+#[test]
+fn auto_as_instance_name_is_valid() {
+    let src = r#"
+        template T { ports { Out: out } }
+        instance auto is T
+    "#;
+    let result = crate::parser::parse(src);
+    assert!(result.errors.is_empty(), "auto as identifier should parse: {:?}", result.errors);
+    let stmts = &result.program.statements;
+    let inst = stmts.iter().find_map(|s| match s {
+        crate::ast::Statement::Instance(i) => Some(i),
+        _ => None,
+    }).expect("expected instance");
+    assert_eq!(inst.name, "auto");
+}
