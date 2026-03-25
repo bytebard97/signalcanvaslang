@@ -42,6 +42,14 @@ enum Commands {
         /// Path to .layout.json file
         layout: String,
     },
+    /// Format a .patch file to canonical style
+    Fmt {
+        /// Path to .patch file
+        file: String,
+        /// Write formatted output back to the file instead of stdout
+        #[arg(short, long)]
+        write: bool,
+    },
 }
 
 fn main() {
@@ -54,6 +62,7 @@ fn main() {
         Commands::ValidateConsistency { patch, layout } => {
             cmd_validate_consistency(patch, layout)
         }
+        Commands::Fmt { file, write } => cmd_fmt(file, write),
     }
 }
 
@@ -194,6 +203,27 @@ fn cmd_validate_consistency(patch_path: String, layout_path: String) {
 
     if let Ok(v) = serde_json::from_str::<serde_json::Value>(&result) {
         if v["valid"] == false {
+            process::exit(1);
+        }
+    }
+}
+
+fn cmd_fmt(file: String, write: bool) {
+    let source = read_file(&file);
+    match patchlang::format_source(&source) {
+        Ok(formatted) => {
+            if write {
+                std::fs::write(&file, &formatted).unwrap_or_else(|e| {
+                    eprintln!("error: cannot write '{file}': {e}");
+                    process::exit(2);
+                });
+                eprintln!("formatted: {file}");
+            } else {
+                print!("{formatted}");
+            }
+        }
+        Err(e) => {
+            eprintln!("error: cannot format '{file}': {e}");
             process::exit(1);
         }
     }

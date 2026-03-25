@@ -56,6 +56,16 @@ pub fn generate_slot_id(
     patchlang::generate_slot_id(template_name, slot_name)
 }
 
+/// Format PatchLang source into canonical style.
+/// Returns the formatted source, or a JSON error object if parsing fails.
+#[wasm_bindgen]
+pub fn format_source(source: &str) -> String {
+    match patchlang::format_source(source) {
+        Ok(formatted) => formatted,
+        Err(e) => format!(r#"{{"error":"{e}"}}"#),
+    }
+}
+
 /// Parse PatchLang source and run DRC checks.
 /// Returns JSON with { program, errors, diagnostics } in TypeScript-compatible shape.
 #[wasm_bindgen]

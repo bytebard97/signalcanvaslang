@@ -49,6 +49,14 @@ fn generate_slot_id(
     patchlang::generate_slot_id(template_name, slot_name)
 }
 
+/// Format PatchLang source into canonical style.
+/// Returns the formatted source string, or raises ValueError on parse errors.
+#[pyfunction]
+fn format_source(source: &str) -> PyResult<String> {
+    patchlang::format_source(source)
+        .map_err(|e| PyValueError::new_err(e))
+}
+
 /// Parse PatchLang source and run DRC checks.
 /// Returns JSON string with { program, errors, diagnostics }.
 #[pyfunction]
@@ -104,6 +112,7 @@ fn validate_project_consistency(patch: &str, layout: &str) -> String {
 fn patchlang_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parse, m)?)?;
     m.add_function(wrap_pyfunction!(validate, m)?)?;
+    m.add_function(wrap_pyfunction!(format_source, m)?)?;
     m.add_function(wrap_pyfunction!(check, m)?)?;
     m.add_function(wrap_pyfunction!(resolve_uses, m)?)?;
     m.add_function(wrap_pyfunction!(compile_project, m)?)?;
