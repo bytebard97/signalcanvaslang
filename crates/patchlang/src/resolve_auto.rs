@@ -186,6 +186,7 @@ fn resolve_connection(
 }
 
 /// Resolve [auto] on one side of a connection.
+#[allow(clippy::too_many_arguments)]
 fn resolve_side(
     port_ref: &PortRef,
     side: PortSide,
