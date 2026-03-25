@@ -12,6 +12,7 @@ pub mod manifest;
 pub mod multi_file;
 pub mod parser;
 pub(crate) mod body_parser;
+pub mod resolve_auto;
 pub(crate) mod template_parser;
 
 #[cfg(test)]
@@ -42,6 +43,8 @@ mod output_tests_errors;
 mod output_tests_drc;
 #[cfg(test)]
 mod output_tests_ids;
+#[cfg(test)]
+mod resolve_auto_tests;
 
 pub use ast::PatchProgram;
 pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result};
