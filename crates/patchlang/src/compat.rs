@@ -307,6 +307,10 @@ fn convert_index_spec(idx: &Option<ast::IndexSpec>) -> Option<Vec<TsIndexElement
                     start: *start,
                     end: *end,
                 },
+                ast::IndexElement::Auto => {
+                    // Placeholder — Task 6 replaces this with side-table lookup.
+                    TsIndexElement::Single { value: 0 }
+                }
             })
             .collect()
     })
@@ -365,6 +369,9 @@ fn stringify_port_ref(pr: &ast::PortRef) -> String {
                 }
                 ast::IndexElement::Range { start, end } => {
                     result.push_str(&format!("{start}..{end}"));
+                }
+                ast::IndexElement::Auto => {
+                    result.push_str("auto");
                 }
             }
         }
