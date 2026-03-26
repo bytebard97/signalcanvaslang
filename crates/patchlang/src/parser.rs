@@ -530,7 +530,6 @@ impl<'a> Parser<'a> {
         self.advance(); // consume '['
 
         let mut elements = Vec::new();
-        let mut has_auto = false;
 
         loop {
             if self.peek() == Some(&Token::RBracket) || self.at_end() {
@@ -550,7 +549,6 @@ impl<'a> Parser<'a> {
                         });
                         break;
                     }
-                    has_auto = true;
                     elements.push(IndexElement::Auto);
                     if self.peek() == Some(&Token::Comma) {
                         let span = self.current_span();
@@ -562,10 +560,6 @@ impl<'a> Parser<'a> {
                     }
                     break;
                 }
-            }
-            // Reject numeric after auto (shouldn't reach here, but defensive)
-            if has_auto {
-                break;
             }
             if let Some(Token::Number(n)) = self.peek().cloned() {
                 self.advance();
