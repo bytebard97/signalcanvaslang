@@ -12,3 +12,4 @@ dist/
 *.dll
 .claude/
 vscode/node_modules/
+.DS_Store
