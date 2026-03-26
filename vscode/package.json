@@ -26,6 +26,7 @@
         "extensions": [
           ".patch"
         ],
+        "firstLine": "^\\s*(#|template\\b|instance\\b|use\\b)",
         "configuration": "./language-configuration.json"
       }
     ],
