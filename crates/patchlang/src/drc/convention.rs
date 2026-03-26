@@ -15,7 +15,7 @@ use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 const LAYER: DRCLayer = DRCLayer::Convention;
 
 /// Run all convention checks.
-pub fn check(program: &PatchProgram, ctx: &DRCContext<'_>) -> Vec<Diagnostic> {
+pub fn check(program: &PatchProgram, _ctx: &DRCContext<'_>) -> Vec<Diagnostic> {
     let mut diags = Vec::new();
     check_orphaned_instances(program, &mut diags);
     check_duplicate_connections(program, &mut diags);
