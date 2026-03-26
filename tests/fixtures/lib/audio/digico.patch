@@ -32,8 +32,10 @@ template SD7 {
     MADI_D_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
     MADI_D_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
     MADI_D_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
-    Optocore_A: io(OpticalCon) [Optocore]
-    Optocore_B: io(OpticalCon) [Optocore]
+    Optocore_A_In: in(OpticalCon) [Optocore]
+    Optocore_A_Out: out(OpticalCon) [Optocore]
+    Optocore_B_In: in(OpticalCon) [Optocore]
+    Optocore_B_Out: out(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
@@ -77,8 +79,10 @@ template SD5 {
     MADI_A_Out[1..64]: out(BNC_75) [MADI]
     MADI_B_In[1..64]: in(BNC_75) [MADI]
     MADI_B_Out[1..64]: out(BNC_75) [MADI]
-    Optocore_A: io(OpticalCon) [Optocore]
-    Optocore_B: io(OpticalCon) [Optocore]
+    Optocore_A_In: in(OpticalCon) [Optocore]
+    Optocore_A_Out: out(OpticalCon) [Optocore]
+    Optocore_B_In: in(OpticalCon) [Optocore]
+    Optocore_B_Out: out(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
@@ -115,8 +119,10 @@ template Quantum7 {
     MADI_D_Pri_Out[1..64]: out(BNC_75) [MADI, primary]
     MADI_D_Sec_In[1..64]: in(BNC_75) [MADI, redundant]
     MADI_D_Sec_Out[1..64]: out(BNC_75) [MADI, redundant]
-    Optocore_A: io(OpticalCon) [Optocore]
-    Optocore_B: io(OpticalCon) [Optocore]
+    Optocore_A_In: in(OpticalCon) [Optocore]
+    Optocore_A_Out: out(OpticalCon) [Optocore]
+    Optocore_B_In: in(OpticalCon) [Optocore]
+    Optocore_B_Out: out(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
@@ -139,8 +145,10 @@ template Quantum338 {
     MADI_A_Out[1..64]: out(BNC_75) [MADI]
     MADI_B_In[1..64]: in(BNC_75) [MADI]
     MADI_B_Out[1..64]: out(BNC_75) [MADI]
-    Optocore_A: io(OpticalCon) [Optocore]
-    Optocore_B: io(OpticalCon) [Optocore]
+    Optocore_A_In: in(OpticalCon) [Optocore]
+    Optocore_A_Out: out(OpticalCon) [Optocore]
+    Optocore_B_In: in(OpticalCon) [Optocore]
+    Optocore_B_Out: out(OpticalCon) [Optocore]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
   }
@@ -157,8 +165,10 @@ template SD_Rack {
     category: "Stagebox"
   }
   ports {
-    Optocore_A: io(OpticalCon) [Optocore]
-    Optocore_B: io(OpticalCon) [Optocore]
+    Optocore_A_In: in(OpticalCon) [Optocore]
+    Optocore_A_Out: out(OpticalCon) [Optocore]
+    Optocore_B_In: in(OpticalCon) [Optocore]
+    Optocore_B_Out: out(OpticalCon) [Optocore]
     MADI_A_In[1..64]: in(BNC_75) [MADI]
     MADI_A_Out[1..64]: out(BNC_75) [MADI]
     MADI_B_In[1..64]: in(BNC_75) [MADI]
@@ -167,5 +177,5 @@ template SD_Rack {
     WordClock_Out: out(BNC_75) [WordClock]
   }
   slot IO_Slot[1..14]: SD_IO_Card
-  bridge Optocore_A -> MADI_A_Out
+  bridge Optocore_A_In -> MADI_A_Out
 }

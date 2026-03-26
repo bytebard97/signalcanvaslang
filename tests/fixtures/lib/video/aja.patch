@@ -15,9 +15,11 @@ template FS4 {
   ports {
     SDI_In[1..4]: in(BNC_75) [SDI, HD]
     SDI_Out[1..4]: out(BNC_75) [SDI, HD]
-    SFP_IO[1..2]: io(SFP) [SDI]
+    SFP_In[1..2]: in(SFP) [SDI]
+    SFP_Out[1..2]: out(SFP) [SDI]
     Mon_Out: out(BNC_75) [SDI, HD]
-    AES_IO: io(DB25) [AES3]
+    AES_In: in(DB25) [AES3]
+    AES_Out: out(DB25) [AES3]
     MADI_In: in(BNC_75) [MADI]
     MADI_Out: out(BNC_75) [MADI]
     Ref_In: in(BNC_75) [BlackBurst, TriLevel]
@@ -25,7 +27,7 @@ template FS4 {
     LAN: io(RJ45)
   }
   bridge SDI_In -> SDI_Out
-  bridge SDI_In -> SFP_IO
+  bridge SDI_In -> SFP_Out
 }
 
 # --- Corvid Ultra: PCIe I/O Card for Playout -----------------

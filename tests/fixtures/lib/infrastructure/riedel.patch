@@ -43,8 +43,10 @@ template RSP_1232HL {
     protocols: "ST 2110-30, AES67, Dante"
   }
   ports {
-    LAN_Pri: io(RJ45) [AES67, Dante, primary]
-    LAN_Sec: io(RJ45) [AES67, Dante, secondary]
+    LAN_Pri_In: in(RJ45) [AES67, Dante, primary]
+    LAN_Pri_Out: out(RJ45) [AES67, Dante, primary]
+    LAN_Sec_In: in(RJ45) [AES67, Dante, secondary]
+    LAN_Sec_Out: out(RJ45) [AES67, Dante, secondary]
     Headset[1..2]: io(XLR_5)
   }
 }
@@ -69,9 +71,12 @@ template MediorNet_MicroN {
     protocols: "3G-SDI, MediorNet 10G, ST 2110"
   }
   ports {
-    SDI[1..12]: io(BNC_75) [SDI]
-    MediorNet_Link[1..8]: io(SFP_Plus)
-    Sync[1..2]: io(BNC_75) [BlackBurst, TriLevel]
+    SDI_In[1..12]: in(BNC_75) [SDI]
+    SDI_Out[1..12]: out(BNC_75) [SDI]
+    MediorNet_Link_In[1..8]: in(SFP_Plus)
+    MediorNet_Link_Out[1..8]: out(SFP_Plus)
+    Sync_In[1..2]: in(BNC_75) [BlackBurst, TriLevel]
+    Sync_Out[1..2]: out(BNC_75) [BlackBurst, TriLevel]
     LAN[1..2]: io(RJ45)
   }
 }
@@ -84,7 +89,8 @@ template MediorNet_FusioN {
     protocols: "ST 2110, ST 2022-6, HDMI"
   }
   ports {
-    Media[1..2]: io(SFP_Plus) [SMPTE_2110]
+    Media_In[1..2]: in(SFP_Plus) [SMPTE_2110]
+    Media_Out[1..2]: out(SFP_Plus) [SMPTE_2110]
     Control: io(RJ45)
   }
 }

@@ -58,9 +58,9 @@ template HDCU_3500 {
   ports {
     Camera_Fiber: io(LEMO)
     UHD_SDI_Out[1..2]: out(BNC_75) [SDI, UHD]
-    UHD_SDI_IO[1..2]: io(BNC_75) [SDI, UHD]
+    UHD_SDI_In[1..2]: in(BNC_75) [SDI, UHD]
     SDI_Out[1..4]: out(BNC_75) [SDI, HD]
-    SDI_IO[1..4]: io(BNC_75) [SDI, HD]
+    SDI_In[1..4]: in(BNC_75) [SDI, HD]
     SDI_Ret[1..4]: in(BNC_75) [SDI, HD]
     Audio_Out[1..2]: out(XLR) [analog, line_level]
     AES_Out: out(BNC_75) [AES3]
@@ -87,7 +87,8 @@ template HDCU_5500 {
     SDI_12G_Out[1..4]: out(BNC_75) [SDI, UHD]
     SDI_3G_Out[1..4]: out(BNC_75) [SDI, HD]
     SDI_Ret[1..4]: in(BNC_75) [SDI, HD]
-    SFP_IO[1..2]: io(SFP_Plus) [SMPTE_2110]
+    SFP_In[1..2]: in(SFP_Plus) [SMPTE_2110]
+    SFP_Out[1..2]: out(SFP_Plus) [SMPTE_2110]
     Audio_Out[1..2]: out(XLR) [analog, line_level]
     Ref_In: in(BNC_75) [BlackBurst, TriLevel]
     Ref_Out: out(BNC_75) [BlackBurst, TriLevel]

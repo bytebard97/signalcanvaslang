@@ -531,8 +531,13 @@ fn hillsong_mtg_template_details() {
         .collect();
 
     assert!(
-        port_names.contains(&"AES"),
-        "expected AES port, found: {:?}",
+        port_names.contains(&"AES_In"),
+        "expected AES_In port, found: {:?}",
+        port_names
+    );
+    assert!(
+        port_names.contains(&"AES_Out"),
+        "expected AES_Out port, found: {:?}",
         port_names
     );
     assert!(
@@ -551,14 +556,23 @@ fn hillsong_mtg_template_details() {
         port_names
     );
 
-    // Verify AES port direction and range
-    let aes_port = ports
+    // Verify AES_In port direction and range
+    let aes_in_port = ports
         .iter()
-        .find(|p| p["name"] == "AES")
-        .expect("AES port not found");
-    assert_eq!(aes_port["direction"].as_str().unwrap(), "io");
-    assert_eq!(aes_port["rangeStart"].as_u64().unwrap(), 1);
-    assert_eq!(aes_port["rangeEnd"].as_u64().unwrap(), 2);
+        .find(|p| p["name"] == "AES_In")
+        .expect("AES_In port not found");
+    assert_eq!(aes_in_port["direction"].as_str().unwrap(), "in");
+    assert_eq!(aes_in_port["rangeStart"].as_u64().unwrap(), 1);
+    assert_eq!(aes_in_port["rangeEnd"].as_u64().unwrap(), 2);
+
+    // Verify AES_Out port direction and range
+    let aes_out_port = ports
+        .iter()
+        .find(|p| p["name"] == "AES_Out")
+        .expect("AES_Out port not found");
+    assert_eq!(aes_out_port["direction"].as_str().unwrap(), "out");
+    assert_eq!(aes_out_port["rangeStart"].as_u64().unwrap(), 1);
+    assert_eq!(aes_out_port["rangeEnd"].as_u64().unwrap(), 2);
 
     // Verify Talkback port is an input
     let talkback_port = ports

@@ -23,7 +23,8 @@ template DM7_Compact {
     DANTE_In[1..64]: in(RJ45_etherCON) [Dante]
     DANTE_Out[1..64]: out(RJ45_etherCON) [Dante]
     Omni_Out[1..12]: out(XLR) [Analogue]
-    AES[1..4]: io(XLR) [AES3]
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
   }
 }
 

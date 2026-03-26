@@ -46,7 +46,7 @@ SignalCanvasLang/
 
 ## Current Keywords (lexer.rs)
 
-`template`, `instance`, `connect`, `bridge`, `bridge_group`, `link_group`, `signal`, `flag`, `stream`, `config`, `ports`, `meta`, `in`, `out`, `io`, `for`, `over`, `generate`, `use`, `slot`, `route`, `bus`, `label`, `suppress`
+`template`, `instance`, `connect`, `bridge`, `bridge_group`, `link_group`, `signal`, `flag`, `stream`, `config`, `ports`, `meta`, `in`, `out`, `io`, `for`, `over`, `generate`, `use`, `slot`, `route`, `bus`, `label`, `suppress`, `ring`, `member`
 
 ## Build & Test Commands
 
@@ -73,9 +73,9 @@ Read full reasoning in `../SignalCanvasFrontend/docs/REID-TODO-PATCHLANG-MIGRATI
 
 1. **No `card` keyword.** Cards are just templates with `meta { device_type: "card" }`. No new grammar needed.
 
-2. **`ring` keyword with hybrid member syntax.** `member Console` (implicit port resolution) and `member Console.OptoCore` (explicit port) both accepted. Needs new grammar: `Ring` and `Member` tokens, `RingDecl` AST node, `parse_ring()` function.
+2. **`ring` keyword with hybrid member syntax (implemented).** `member Console` (implicit port resolution) and `member Console.OptoCore` (explicit port) both accepted. Grammar: `Ring` and `Member` tokens in the lexer, `RingDecl`/`RingMember` AST nodes, `parse_ring()` and `parse_ring_member()` in the parser. DRC rules R01-R04 validate ring declarations. 39 tests passing.
 
-3. **Reserve `card`, `ring`, and `member` now.** Add `Card` token to lexer immediately (prevents use as identifier). `Ring` gets added when the ring feature is implemented.
+3. **`card`, `ring`, and `member` are reserved keywords.** All three are tokens in the lexer and cannot be used as identifiers.
 
 4. **`io` direction convention only.** Parser accepts `io` with any protocol — no enforcement. The frontend emitter handles the convention (Dante/MADI → `in`/`out`, OptoCore/TWINLANe → `io`). Update example fixtures to follow convention.
 

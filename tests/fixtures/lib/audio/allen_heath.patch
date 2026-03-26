@@ -12,8 +12,10 @@ template dLive_S7000 {
     category: "Console"
   }
   ports {
-    GigaACE_Pri: io(etherCON) [GigaACE, primary]
-    GigaACE_Sec: io(etherCON) [GigaACE, redundant]
+    GigaACE_Pri_In: in(etherCON) [GigaACE, primary]
+    GigaACE_Pri_Out: out(etherCON) [GigaACE, primary]
+    GigaACE_Sec_In: in(etherCON) [GigaACE, redundant]
+    GigaACE_Sec_Out: out(etherCON) [GigaACE, redundant]
     Mic_In[1..8]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..8]: out(XLR) [analog, line_level]
     AES_In[1..4]: in(XLR) [AES3, SRC]
@@ -24,7 +26,7 @@ template dLive_S7000 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot IO_Port[1..2]: AH_IO_Card
-  bridge Mic_In -> GigaACE_Pri
+  bridge Mic_In -> GigaACE_Pri_Out
 }
 
 template dLive_C3500 {
@@ -34,8 +36,10 @@ template dLive_C3500 {
     category: "Console"
   }
   ports {
-    GigaACE_Pri: io(etherCON) [GigaACE, primary]
-    GigaACE_Sec: io(etherCON) [GigaACE, redundant]
+    GigaACE_Pri_In: in(etherCON) [GigaACE, primary]
+    GigaACE_Pri_Out: out(etherCON) [GigaACE, primary]
+    GigaACE_Sec_In: in(etherCON) [GigaACE, redundant]
+    GigaACE_Sec_Out: out(etherCON) [GigaACE, redundant]
     Mic_In[1..8]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..8]: out(XLR) [analog, line_level]
     AES_In[1..4]: in(XLR) [AES3, SRC]
@@ -46,7 +50,7 @@ template dLive_C3500 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot IO_Port[1..2]: AH_IO_Card
-  bridge Mic_In -> GigaACE_Pri
+  bridge Mic_In -> GigaACE_Pri_Out
 }
 
 # --- GLD Series -----------------------------------------------
@@ -58,7 +62,8 @@ template GLD_112 {
     category: "Console"
   }
   ports {
-    DX_Link: io(etherCON) [DX]
+    DX_Link_In: in(etherCON) [DX]
+    DX_Link_Out: out(etherCON) [DX]
     Mic_In[1..28]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..16]: out(XLR) [analog, line_level]
     AES_In[1..2]: in(XLR) [AES3]
@@ -67,7 +72,7 @@ template GLD_112 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot IO_Port: AH_IO_Card
-  bridge Mic_In -> DX_Link
+  bridge Mic_In -> DX_Link_Out
 }
 
 # --- SQ Series ------------------------------------------------
@@ -79,7 +84,8 @@ template SQ_7 {
     category: "Console"
   }
   ports {
-    SLink_Port: io(etherCON) [SLink]
+    SLink_In: in(etherCON) [SLink]
+    SLink_Out: out(etherCON) [SLink]
     Mic_In[1..32]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..16]: out(XLR) [analog, line_level]
     Monitor_Out[1..2]: out(TRS) [analog, line_level]
@@ -88,7 +94,7 @@ template SQ_7 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot IO_Port: AH_IO_Card
-  bridge Mic_In -> SLink_Port
+  bridge Mic_In -> SLink_Out
 }
 
 template SQ_6 {
@@ -98,7 +104,8 @@ template SQ_6 {
     category: "Console"
   }
   ports {
-    SLink_Port: io(etherCON) [SLink]
+    SLink_In: in(etherCON) [SLink]
+    SLink_Out: out(etherCON) [SLink]
     Mic_In[1..24]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..12]: out(XLR) [analog, line_level]
     Monitor_Out[1..2]: out(TRS) [analog, line_level]
@@ -107,7 +114,7 @@ template SQ_6 {
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot IO_Port: AH_IO_Card
-  bridge Mic_In -> SLink_Port
+  bridge Mic_In -> SLink_Out
 }
 
 # --- DX Expanders ---------------------------------------------
@@ -119,13 +126,15 @@ template DX168 {
     category: "Stagebox"
   }
   ports {
-    DX_Pri: io(etherCON) [DX, primary]
-    DX_Sec: io(etherCON) [DX, redundant]
+    DX_Pri_In: in(etherCON) [DX, primary]
+    DX_Pri_Out: out(etherCON) [DX, primary]
+    DX_Sec_In: in(etherCON) [DX, redundant]
+    DX_Sec_Out: out(etherCON) [DX, redundant]
     Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..8]: out(XLR) [analog, line_level]
   }
-  bridge Mic_In -> DX_Pri
-  bridge DX_Pri -> Line_Out
+  bridge Mic_In -> DX_Pri_Out
+  bridge DX_Pri_In -> Line_Out
 }
 
 # --- DM MixRack ----------------------------------------------
@@ -137,8 +146,10 @@ template DM64 {
     category: "Stagebox"
   }
   ports {
-    GigaACE_Pri: io(etherCON) [GigaACE, primary]
-    GigaACE_Sec: io(etherCON) [GigaACE, redundant]
+    GigaACE_Pri_In: in(etherCON) [GigaACE, primary]
+    GigaACE_Pri_Out: out(etherCON) [GigaACE, primary]
+    GigaACE_Sec_In: in(etherCON) [GigaACE, redundant]
+    GigaACE_Sec_Out: out(etherCON) [GigaACE, redundant]
     Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..16]: out(XLR) [analog, line_level]
     AES_In[1..4]: in(XLR) [AES3, SRC]
@@ -147,6 +158,6 @@ template DM64 {
     WordClock_Out: out(BNC_75) [WordClock]
   }
   slot IO_Port[1..3]: AH_IO_Card
-  bridge Mic_In -> GigaACE_Pri
-  bridge GigaACE_Pri -> Line_Out
+  bridge Mic_In -> GigaACE_Pri_Out
+  bridge GigaACE_Pri_In -> Line_Out
 }

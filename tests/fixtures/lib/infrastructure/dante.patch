@@ -38,13 +38,15 @@ template Focusrite_RedNet_D16R {
     Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
     Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
     Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
-    AES3_IO[1..2]: io(DB25) [AES3]
+    AES3_In[1..2]: in(DB25) [AES3]
+    AES3_Out[1..2]: out(DB25) [AES3]
     AES_Alt_In: in(XLR) [AES3]
     AES_Alt_Out: out(XLR) [AES3]
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }
-  bridge AES3_IO -> Dante_Pri_Out
+  bridge AES3_In -> Dante_Pri_Out
+  bridge Dante_Pri_In -> AES3_Out
 }
 
 template Audinate_AVIO_Analog {

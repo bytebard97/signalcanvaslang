@@ -27,7 +27,7 @@ template PTZ_Camera {
   ports {
     SDI_Out: out(BNC_75) [SDI, UHD]
     HDMI_Out: out(HDMI) [UHD]
-    NDI_Out: io(etherCON) [NDI]
+    NDI_Out: out(etherCON) [NDI]
     Genlock_In: in(BNC_75) [TriLevel]
   }
 }
@@ -57,6 +57,6 @@ template Disguise_GX2C {
     SDI_Out[1..4]: out(BNC_75) [SDI, UHD]
     DisplayPort_Out[1..4]: out(DP) [UHD]
     Dante_Out: out(etherCON) [Dante]
-    NDI_Out: io(etherCON) [NDI]
+    NDI_Out: out(etherCON) [NDI]
   }
 }

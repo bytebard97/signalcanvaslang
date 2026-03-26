@@ -158,7 +158,7 @@ impl<'a> Parser<'a> {
                     self.errors.push(ParseError {
                         message: "unexpected token, expected a statement".to_string(),
                         span: span.clone(),
-                        hint: Some("statements start with: template, instance, connect, bridge, signal, flag, stream, config, use".to_string()),
+                        hint: Some("statements start with: template, instance, connect, bridge, signal, flag, stream, config, use, ring".to_string()),
                     });
                     statements.push(Statement::Error(span));
                 }

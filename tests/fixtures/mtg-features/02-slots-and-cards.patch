@@ -19,7 +19,8 @@ template MADI_Card {
   ports {
     MADI_In[1..48]: in(BNC_75) [MADI]
     MADI_Out[1..48]: out(BNC_75) [MADI]
-    Word_Clock: io(BNC_75) [WordClock]
+    Word_Clock_In: in(BNC_75) [WordClock]
+    Word_Clock_Out: out(BNC_75) [WordClock]
   }
 }
 
@@ -29,7 +30,8 @@ template Venue_FOH_Rack {
     model: "Venue FOH Rack"
   }
   ports {
-    AES[1..2]: io(XLR) [AES3]
+    AES_In[1..2]: in(XLR) [AES3]
+    AES_Out[1..2]: out(XLR) [AES3]
     LINE[1..8]: io(TRS_14)
     Talkback: in(XLR) [Analogue]
     Monitor[1..2]: out(TRS_14) [Analogue]
