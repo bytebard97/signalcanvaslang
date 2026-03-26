@@ -11,7 +11,8 @@ template RTS_ADAM {
     category: "Intercom"
   }
   ports {
-    Trunk[1..8]: io(etherCON) [OMNEO]
+    Trunk_In[1..8]: in(etherCON) [OMNEO]
+    Trunk_Out[1..8]: out(etherCON) [OMNEO]
     AES_In[1..4]: in(XLR) [AES3]
     AES_Out[1..4]: out(XLR) [AES3]
     GPIO[1..8]: io(DB25)
@@ -25,7 +26,8 @@ template RTS_KP {
     category: "Intercom Panel"
   }
   ports {
-    Trunk: io(etherCON) [OMNEO]
+    Trunk_In: in(etherCON) [OMNEO]
+    Trunk_Out: out(etherCON) [OMNEO]
     Headset: io(XLR5)
   }
 }

@@ -148,6 +148,7 @@ The parser produces a `PatchProgram` with a flat list of `statements`. Each stat
 | `Stream` | Dante/AES67 virtual channel group |
 | `Config` | Per-instance channel labels and metadata |
 | `Use` | Library import |
+| `Ring` | Network ring topology (e.g., OptoCore, MADI ring) |
 
 ## Next Steps
 

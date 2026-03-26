@@ -12,7 +12,8 @@ template DirectOut_ANDIAMO_2XT {
   }
   ports {
     Analog_IO[1..8]: io(DB25) [analog, line_level]
-    AES3_IO[1..4]: io(DB25) [AES3]
+    AES3_In[1..4]: in(DB25) [AES3]
+    AES3_Out[1..4]: out(DB25) [AES3]
     MADI_1_In[1..64]: in(SFP) [MADI, ch64]
     MADI_1_Out[1..64]: out(SFP) [MADI, ch64]
     MADI_2_In[1..64]: in(BNC_75) [MADI, ch64]
@@ -21,7 +22,8 @@ template DirectOut_ANDIAMO_2XT {
     WC_Out: out(BNC_75) [WordClock]
   }
   bridge Analog_IO -> MADI_1_Out
-  bridge AES3_IO -> MADI_1_Out
+  bridge AES3_In -> MADI_1_Out
+  bridge MADI_1_In -> AES3_Out
 }
 
 template RME_MADI_Router {
@@ -54,7 +56,8 @@ template Ferrofish_A32 {
     Analog_IO[1..8]: io(DB25) [analog, line_level]
     MADI_SFP_In[1..2]: in(SFP) [MADI, ch64]
     MADI_SFP_Out[1..2]: out(SFP) [MADI, ch64]
-    ADAT_IO[1..8]: io(OpticalCon) [ADAT]
+    ADAT_In[1..8]: in(OpticalCon) [ADAT]
+    ADAT_Out[1..8]: out(OpticalCon) [ADAT]
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }

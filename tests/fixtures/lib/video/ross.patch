@@ -56,12 +56,13 @@ template Ultrix_FR12 {
   ports {
     SDI_In[1..16]: in(BNC_75) [SDI, UHD]
     SDI_Out[1..16]: out(BNC_75) [SDI, UHD]
-    SFP_IO[1..16]: io(SFP_Plus) [SMPTE_2110]
+    SFP_In[1..16]: in(SFP_Plus) [SMPTE_2110]
+    SFP_Out[1..16]: out(SFP_Plus) [SMPTE_2110]
     AUX_SFP[1..32]: io(SFP_Plus)
     Ref_In[1..2]: in(BNC_75) [BlackBurst, TriLevel]
     LAN[1..2]: io(RJ45)
   }
   bridge SDI_In -> SDI_Out
-  bridge SDI_In -> SFP_IO
-  bridge SFP_IO -> SDI_Out
+  bridge SDI_In -> SFP_Out
+  bridge SFP_In -> SDI_Out
 }

@@ -11,8 +11,10 @@ template DiGiCo_SD7 {
     category: "Console"
   }
   ports {
-    Optocore_A: io(OpticalCon) [Optocore, primary]
-    Optocore_B: io(OpticalCon) [Optocore, secondary]
+    Optocore_A_In: in(OpticalCon) [Optocore, primary]
+    Optocore_A_Out: out(OpticalCon) [Optocore, primary]
+    Optocore_B_In: in(OpticalCon) [Optocore, secondary]
+    Optocore_B_Out: out(OpticalCon) [Optocore, secondary]
     Local_In[1..12]: in(XLR)
     Local_Out[1..12]: out(XLR)
     AES_Out[1..8]: out(BNC_75) [AES3]
@@ -30,12 +32,14 @@ template SD_Rack {
     category: "Stagebox"
   }
   ports {
-    Optocore_A: io(OpticalCon) [Optocore, primary]
-    Optocore_B: io(OpticalCon) [Optocore, secondary]
+    Optocore_A_In: in(OpticalCon) [Optocore, primary]
+    Optocore_A_Out: out(OpticalCon) [Optocore, primary]
+    Optocore_B_In: in(OpticalCon) [Optocore, secondary]
+    Optocore_B_Out: out(OpticalCon) [Optocore, secondary]
     Mic_In[1..56]: in(XLR)
     Line_Out[1..16]: out(XLR)
   }
-  bridge Mic_In -> Optocore_A
+  bridge Mic_In -> Optocore_A_Out
 }
 
 template Lab_gruppen_PLM {
@@ -75,8 +79,8 @@ template OptoSplitter {
     category: "Network"
   }
   ports {
-    Loop_In: io(OpticalCon) [Optocore]
-    Loop_Out: io(OpticalCon) [Optocore]
+    Loop_In: in(OpticalCon) [Optocore]
+    Loop_Out: out(OpticalCon) [Optocore]
     MADI_Out: out(BNC_75) [MADI, ch64]
   }
 }

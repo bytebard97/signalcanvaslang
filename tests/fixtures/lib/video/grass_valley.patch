@@ -12,7 +12,8 @@ template LDX_100 {
     category: "Camera"
   }
   ports {
-    IP_Link: io(SFP_Plus) [SMPTE_2110, UHD]
+    IP_Link_In: in(SFP_Plus) [SMPTE_2110, UHD]
+    IP_Link_Out: out(SFP_Plus) [SMPTE_2110, UHD]
     SDI_Out[1..2]: out(BNC_75) [SDI, UHD]
     Mic_In[1..2]: in(XLR) [analog, mic_level]
     Intercom: io(XLR_5) [analog]

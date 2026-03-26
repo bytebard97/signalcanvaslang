@@ -7,7 +7,8 @@ template Venue_FOH_Rack {
     model: "Venue FOH Rack"
   }
   ports {
-    AES[1..2]: io(XLR) [AES3]
+    AES_In[1..2]: in(XLR) [AES3]
+    AES_Out[1..2]: out(XLR) [AES3]
     LINE[1..8]: io(TRS_14)
     MADI_In[1..48]: in(BNC_75) [MADI]
     MADI_Out[1..48]: out(BNC_75) [MADI]

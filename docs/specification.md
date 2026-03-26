@@ -56,6 +56,7 @@ The following identifiers are reserved keywords:
 template  instance  is  connect  bridge  bridge_group  link_group
 signal  flag  stream  config  ports  meta  in  out  io
 for  over  generate  use  slot  routing  route  bus  label
+ring  member
 ```
 
 Keywords can be used as property keys (see §3.10) but not as names for templates, instances, or ports.
@@ -92,7 +93,7 @@ A PatchLang file is a sequence of top-level statements.
 program   = { statement } ;
 statement = template-decl | instance-decl | connect-decl | bridge-decl
           | bridge-group-decl | link-group-decl | signal-decl | flag-decl
-          | stream-decl | config-decl | use-decl ;
+          | stream-decl | config-decl | use-decl | ring-decl ;
 ```
 
 ---
@@ -374,7 +375,42 @@ use video.blackmagic.*
 use infrastructure.dante
 ```
 
-### 3.12 Slot Definition (inside templates)
+### 3.12 Ring Declaration
+
+Declares a network ring topology — a loop of devices connected by a shared transport protocol (e.g., OptoCore, TWINLANe, MADI ring). Members are listed in ring order.
+
+```ebnf
+ring-decl   = "ring" identifier "{" { ring-entry } "}" ;
+ring-entry  = ring-member | key-value-pair ;
+ring-member = "member" identifier [ "." identifier ] ;
+```
+
+Members have two forms:
+- **Implicit port:** `member InstanceName` — the compiler resolves the ring port automatically based on the protocol.
+- **Explicit port:** `member InstanceName.PortName` — specifies which port participates in the ring.
+
+```
+# Primary ring — implicit port resolution
+ring OptoCore_Primary {
+  protocol: "OptoCore"
+  member Console
+  member StageRack_1
+  member StageRack_2
+  member MonitorRack
+}
+
+# Redundant ring — explicit port references for dual-homed devices
+ring OptoCore_Redundant {
+  protocol: "OptoCore"
+  label: "Redundant ring via B ports"
+  member Console.OptoCore_B
+  member StageRack_1.OptoCore_B
+  member StageRack_2.OptoCore_B
+  member MonitorRack.OptoCore_B
+}
+```
+
+### 3.13 Slot Definition (inside templates)
 
 ```ebnf
 slot-def = "slot" identifier [ range-spec ] ":" identifier ;
@@ -385,20 +421,20 @@ slot MY_Slot[1..3]: MY_Card
 slot Expansion[1..8]: Expansion
 ```
 
-### 3.13 Route Entry (inside instance body)
+### 3.14 Route Entry (inside instance body)
 
 ```ebnf
 route-entry = "route" port-ref-or-local "->" port-ref-or-local ;
 ```
 
-### 3.14 Bus Entry (inside instance body)
+### 3.15 Bus Entry (inside instance body)
 
 ```ebnf
 bus-entry      = "bus" identifier "{" { bus-port-entry } "}" ;
 bus-port-entry = ( "input" | "output" | "in" | "out" ) ":" port-ref-or-local ;
 ```
 
-### 3.15 Slot Assignment (inside instance body)
+### 3.16 Slot Assignment (inside instance body)
 
 ```ebnf
 slot-assignment = "slot" identifier [ "[" number "]" ] ":" string-literal ;

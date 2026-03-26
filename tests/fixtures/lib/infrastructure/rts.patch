@@ -12,7 +12,8 @@ template ADAM_M {
     ports_capacity: "256"
   }
   ports {
-    Controller[1..2]: io(RJ45) [AES67, Dante]
+    Controller_In[1..2]: in(RJ45) [AES67, Dante]
+    Controller_Out[1..2]: out(RJ45) [AES67, Dante]
     Serial: io(virtual)
     GPIO: io(DB25)
   }
@@ -28,8 +29,10 @@ template KP_5032 {
   }
   ports {
     Headset: io(XLR)
-    LAN_Pri: io(RJ45) [Dante, AES67, primary]
-    LAN_Sec: io(RJ45) [Dante, AES67, secondary]
+    LAN_Pri_In: in(RJ45) [Dante, AES67, primary]
+    LAN_Pri_Out: out(RJ45) [Dante, AES67, primary]
+    LAN_Sec_In: in(RJ45) [Dante, AES67, secondary]
+    LAN_Sec_Out: out(RJ45) [Dante, AES67, secondary]
     Mic_In: in(XLR)
   }
 }

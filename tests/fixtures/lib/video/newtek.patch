@@ -16,12 +16,13 @@ template TriCaster_2_Elite {
     SDI_Out[1..8]: out(BNC_75) [SDI, UHD]
     HDMI_In[1..2]: in(HDMI) [UHD]
     HDMI_Out[1..2]: out(HDMI) [UHD]
-    NDI_IO[1..16]: io(virtual) [NDI]
+    NDI_In[1..16]: in(virtual) [NDI]
+    NDI_Out[1..16]: out(virtual) [NDI]
     Ref_In: in(BNC_75) [BlackBurst, TriLevel]
     LAN[1..2]: io(RJ45)
     Audio_In[1..4]: in(XLR) [analog, line_level]
     Audio_Out[1..4]: out(XLR) [analog, line_level]
   }
   bridge SDI_In -> SDI_Out
-  bridge NDI_IO -> SDI_Out
+  bridge NDI_In -> SDI_Out
 }
