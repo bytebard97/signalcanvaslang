@@ -41,7 +41,7 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
 </script>
 
 <template>
-  <div :class="['dn', selected ? 'dn--selected' : '']">
+  <div :class="['dn', selected ? 'dn--selected' : '', data.drillable ? 'dn--drillable' : '']">
     <!-- Header -->
     <div class="dn__header">
       <div class="dn__header-left">
@@ -245,4 +245,7 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
 }
 .dn__meta-key { color: #9ca3af; }
 .dn__meta-val { color: white; font-family: monospace; }
+
+.dn--drillable { cursor: zoom-in; }
+.dn--drillable .dn__header { border-bottom-color: rgba(87, 241, 219, 0.25); }
 </style>

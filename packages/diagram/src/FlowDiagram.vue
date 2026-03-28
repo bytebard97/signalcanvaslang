@@ -64,6 +64,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   nodeClick: [node: Node]
   paneClick: []
+  drill: [payload: { instanceName: string; templateName: string }]
 }>()
 
 // ── Vue Flow setup ───────────────────────────────────────────────────────────
@@ -414,6 +415,11 @@ watch(
 // ── Event handlers ────────────────────────────────────────────────────────────
 
 function onNodeClick(event: NodeMouseEvent): void {
+  const data = event.node.data as DeviceNodeData
+  if (data.drillable) {
+    emit('drill', { instanceName: data.instanceName, templateName: data.templateName })
+    return
+  }
   emit('nodeClick', event.node)
 }
 
