@@ -24,6 +24,7 @@ export interface DeviceNodeData {
   connectedPortIds?: Set<string>
   mode?: 'wires' | 'netnames'
   portTags?: Record<string, Array<{ label: string; edgeId: string }>>
+  drillable?: boolean
 }
 
 export interface FlowGraph {
