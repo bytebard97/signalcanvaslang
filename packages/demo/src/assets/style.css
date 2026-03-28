@@ -1,0 +1,26 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0B0E13;
+  --surface: #1E2228;
+  --surface-2: #181C22;
+  --border: rgba(45, 61, 74, 0.3);
+  --teal: #57f1db;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --text-faint: #4b5563;
+  color-scheme: dark;
+}
+
+html, body, #app {
+  height: 100%;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(87, 241, 219, 0.2); border-radius: 3px; }
