@@ -24,17 +24,18 @@ export function useProjectCompiler() {
 
   function compileSingle(source: string): CompileResult {
     if (!checkFn) return notLoaded()
+    isCompiling.value = true
     return parseRaw(checkFn(source))
   }
 
   function compileMulti(files: Record<string, string>, entry: string): CompileResult {
     if (!compileProjectFn) return notLoaded()
+    isCompiling.value = true
     const filesJson = JSON.stringify(files)
     return parseRaw(compileProjectFn(filesJson, entry))
   }
 
   function parseRaw(json: string): CompileResult {
-    isCompiling.value = true
     try {
       const raw = JSON.parse(json)
       const errors = raw.errors ?? []
