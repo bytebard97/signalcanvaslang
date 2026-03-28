@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "lib": ["ES2022", "DOM"],
+    "skipLibCheck": true,
+    "paths": {
+      "@signalcanvas/diagram": ["../diagram/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}
