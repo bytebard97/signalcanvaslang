@@ -139,7 +139,7 @@ watch(hasIssues, v => { if (v) showDiagnostics.value = true })
         {{ compiler.isReady.value ? 'Compile' : 'Loading WASM…' }}
       </button>
       <span v-if="hasIssues" class="app__error-badge">
-        {{ (compileResult?.errors.length ?? 0) }} error(s)
+        {{ (compileResult?.errors.length ?? 0) + (compileResult?.diagnostics.filter(d => d.severity === 'error').length ?? 0) }} error(s)
       </span>
     </header>
 
@@ -196,9 +196,11 @@ watch(hasIssues, v => { if (v) showDiagnostics.value = true })
   gap: 10px;
   padding: 0 16px;
   height: 46px;
+  min-height: 46px;
   background: #181C22;
   border-bottom: 1px solid rgba(45,61,74,0.4);
   flex-shrink: 0;
+  overflow: hidden;
 }
 .app__brand {
   font-family: monospace;
@@ -216,6 +218,8 @@ watch(hasIssues, v => { if (v) showDiagnostics.value = true })
   padding: 4px 8px;
   border-radius: 6px;
   outline: none;
+  min-width: 0;
+  flex-shrink: 1;
 }
 .app__btn {
   padding: 5px 12px;
@@ -226,6 +230,8 @@ watch(hasIssues, v => { if (v) showDiagnostics.value = true })
   border-radius: 6px;
   cursor: pointer;
   transition: color 0.1s, border-color 0.1s;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .app__btn:hover { color: #e5e7eb; border-color: rgba(87,241,219,0.3); }
 .app__btn:disabled { opacity: 0.5; cursor: not-allowed; }

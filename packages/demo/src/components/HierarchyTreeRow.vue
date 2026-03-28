@@ -52,7 +52,6 @@ function handleClick(): void {
           <template v-else>●</template>
         </span>
         <span class="htr__name">{{ node.instanceName }}</span>
-        <span class="htr__type-name">{{ node.templateName }}</span>
       </div>
       <template v-if="!hideTypes">
         <span class="htr__meta">{{ node.manufacturer || '—' }}</span>
@@ -82,7 +81,7 @@ function handleClick(): void {
 <style scoped>
 .htr {
   display: grid;
-  grid-template-columns: 1fr 80px 80px 80px;
+  grid-template-columns: 1fr 100px 68px 76px;
   align-items: center;
   padding-top: 5px;
   padding-right: 10px;
