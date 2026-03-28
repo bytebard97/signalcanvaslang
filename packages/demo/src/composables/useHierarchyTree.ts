@@ -26,12 +26,15 @@ type AnyStmt = Record<string, unknown> & { type: string }
 function buildNodes(
   instances: InstanceStmt[],
   templateMap: Map<string, TemplateStmt>,
+  visiting: Set<string> = new Set(),
 ): TreeNode[] {
   return instances.map(inst => {
     const tmpl = templateMap.get(inst.templateName)
     const meta = tmpl?.meta ?? {}
     const subInstances = (tmpl?.instances ?? []) as InstanceStmt[]
-    const children = buildNodes(subInstances, templateMap)
+    const children = tmpl?.name && !visiting.has(tmpl.name)
+      ? buildNodes(subInstances, templateMap, new Set([...visiting, tmpl.name]))
+      : []
     return {
       instanceName: inst.name,
       templateName: inst.templateName,
@@ -57,8 +60,11 @@ export function buildHierarchyTree(statements: unknown[]): TreeNode[] {
     if (t.name) templateMap.set(t.name, t)
   }
 
-  const rootInstances = (statements as AnyStmt[])
-    .filter(s => s.type === 'Instance') as unknown as InstanceStmt[]
+  function isInstanceStmt(s: AnyStmt): s is InstanceStmt {
+    return s.type === 'Instance' && typeof (s as any).name === 'string' && typeof (s as any).templateName === 'string'
+  }
+
+  const rootInstances = (statements as AnyStmt[]).filter(isInstanceStmt)
 
   return buildNodes(rootInstances, templateMap)
 }
