@@ -8,6 +8,7 @@ pkg-web/
 *.egg-info/
 __pycache__/
 dist/
+!packages/diagram/dist/
 *.so
 *.dylib
 *.dll
