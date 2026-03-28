@@ -77,7 +77,7 @@ function toggleExpand(key: string): void {
 .ht__header-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; font-weight: 600; }
 .ht__toggle { font-size: 10px; background: rgba(87,241,219,0.08); border: 1px solid rgba(87,241,219,0.15); color: #57f1db; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
 .ht__toggle--active { background: rgba(87,241,219,0.15); }
-.ht__cols { display: grid; grid-template-columns: 1fr 80px 80px 80px; padding: 4px 10px; border-bottom: 1px solid rgba(45,61,74,0.3); flex-shrink: 0; }
+.ht__cols { display: grid; grid-template-columns: 1fr 100px 68px 76px; padding: 4px 10px; border-bottom: 1px solid rgba(45,61,74,0.3); flex-shrink: 0; }
 .ht__cols--compact { grid-template-columns: 1fr; }
 .ht__col-h { font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.08em; }
 .ht__col-h--name { color: #6b7280; }
