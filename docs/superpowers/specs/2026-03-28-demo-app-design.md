@@ -47,22 +47,23 @@ Three-panel layout:
 
 ## 3. Hierarchy Tree
 
-The Hierarchy tab shows a VS Code-style expandable tree of all template instances, with 4 columns:
+The Hierarchy tab shows a VS Code-style expandable tree rooted at the entry template. Each row represents an **instance** (by its instance name), with columns sourced from the `meta` block of the instance's template declaration.
 
 | Instance name | Manufacturer | Model | Category |
 |---|---|---|---|
 | ▾ Root | — | — | — |
 | &nbsp;&nbsp;▾ AudioFOH | — | — | Subsystem |
 | &nbsp;&nbsp;&nbsp;&nbsp;● Console | Yamaha | CL5 | Console |
-| &nbsp;&nbsp;&nbsp;&nbsp;▾ Amplification | — | — | Subsystem |
+| &nbsp;&nbsp;&nbsp;&nbsp;▾ Amps | — | — | Subsystem |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;● Main_L | Lab.grp. | PLM+ | Amplifier |
 
-- Composite templates (containing sub-instances) show a chevron `▾ / ▸` and are expandable.
+- Composite instances (those whose template body contains sub-instances) show a chevron `▾ / ▸` and are expandable.
 - Leaf instances show a bullet `●`.
-- The currently viewed template level is highlighted in teal.
-- Clicking any row navigates the canvas to that template's interior.
+- Subsystem templates (composite bodies) typically have no `meta` block; their manufacturer/model/category cells show "—". This is expected, not a lookup failure.
+- The currently viewed level is highlighted in teal. The highlighted row corresponds to the **template** being rendered — all instances of the same template are highlighted simultaneously.
+- Clicking any row navigates the canvas to that instance's template interior (i.e. opens the template body of its type). If two instances share a template (e.g. two `Lab_gruppen_PLM` amps), both drill to the same view.
+- The drill stack stores the **instance path** (e.g. `["AudioFOH", "Amps"]`), so breadcrumbs read using instance names ("Root > AudioFOH > Amps"), not template names. The stack entry is `{ instanceName, templateName }`.
 - A **"Hide types"** toggle in the tab header hides columns 2–4 when the user needs more space for long instance names.
-- Manufacturer/model/category come from the `meta` block of the matching template declaration.
 
 ---
 
@@ -73,39 +74,52 @@ Source files (editor or directory picker)
     │
     ▼
 useProjectCompiler
-  • single file  → wasm.check(source)
-  • multi-file   → wasm.compile_project(files_json, entry)
+  • single file  → wasm.check(source)        → JSON.parse → CheckResult
+  • multi-file   → wasm.compile_project(…)   → JSON.parse → ProjectResult
+  Both shapes have { program, errors, diagnostics }
+  Composable synthesizes: success = errors.length === 0
+  Produces CompileResult { program, errors, diagnostics, success }
     │
-    ▼  CompileResult { program, errors, diagnostics }
+    ▼
+    ├──► useHierarchyTree
+    │      filters program.statements for { type: 'Template' } entries
+    │      builds tree of instance paths
     │
-    ├──► useHierarchyTree   → TsTemplateDecl[] → tree node list
-    │
-    └──► useNavigation      → tracks current template name (drill stack)
+    └──► useNavigation      → tracks drill stack: Array<{ instanceName, templateName }>
               │
               ▼
-         extractLevelFlow(templateDecl, allTemplates)
-              │  selects instances/connects/bridges for one level
+         extractLevelFlow(templateName, program.statements)
+              │  filters statements for the named template's instances/connects/bridges
+              │  constructs a synthetic CompileResult containing only those statements
               ▼
-         transformAstToFlow(compileResult, { rootTemplate })
+         transformAstToFlow(syntheticCompileResult)   ← existing signature unchanged
               │
               ▼
          FlowDiagram renders that level
 ```
+
+**Key clarifications:**
+
+- `program.statements` is a flat array of tagged-union objects (`{ type: 'Template' | 'Instance' | 'Connect' | 'Bridge' | … }`). There is no `program.templates` field.
+- Template declarations are extracted by `stmts.filter(s => s.type === 'Template')`.
+- `transformAstToFlow` signature is unchanged: `(compileResult: CompileResult) => FlowGraph`. `extractLevelFlow` builds a synthetic `CompileResult` (same shape) containing only the target template's inner statements, so `transformAstToFlow` can be called without modification.
+- `success` is never present in WASM output — `useProjectCompiler` must compute `success: result.errors.length === 0`.
+- `check()` returns `CheckResult`; `compile_project()` returns `ProjectResult` (which also has `files`, `template_files`, `use_graph`). The composable normalises both to the `CompileResult` shape used downstream.
 
 ### Project Loading
 
 Two modes:
 
 1. **Built-in examples** — bundled as TypeScript string constants in `src/lib/examples.ts`. Selector in the toolbar.
-2. **Directory picker** — button triggers `showDirectoryPicker()` (File System Access API). Walks all `.patch` files, constructs `{ filename → source }` map, passes to `compile_project(files_json, entry)`. Entry point defaults to `main.patch` or the first `.patch` file found.
+2. **Directory picker** — button triggers `showDirectoryPicker()` (File System Access API, Chromium only — hidden on other browsers). Walks all `.patch` files, constructs `{ filename → source }` map. Entry point: use `main.patch` if present, otherwise the alphabetically first `.patch` file. Alternatively, if a `project.json` manifest is present, parse it via `wasm.parse_manifest()` to determine the entry.
 
 ### Drill-Down Navigation
 
 - Composite instances (those whose template name exists in `allTemplates`) receive `drillable: true` on `DeviceNodeData`.
-- `FlowDiagram` emits `drill(templateName)` when a drillable node is clicked.
-- `useNavigation` pushes `templateName` onto the drill stack.
-- `BreadcrumbBar` renders the stack; clicking any crumb pops back to that level.
-- `extractLevelFlow` is called with the template at the top of the stack to produce the node/edge data for that level.
+- `FlowDiagram` emits `drill({ instanceName, templateName })` when a drillable node is clicked.
+- `useNavigation` pushes `{ instanceName, templateName }` onto the drill stack.
+- `BreadcrumbBar` renders instance names from the stack; clicking any crumb **truncates the stack to that index** (not just pops one).
+- `extractLevelFlow` is called with `templateName` at the top of the stack.
 
 ---
 
@@ -155,8 +169,6 @@ Minimal additions only:
 {
   "dependencies": {
     "@signalcanvas/diagram": "workspace:*",
-    "@vue-flow/core": "^1.x",
-    "elkjs": "^0.9.x",
     "lucide-vue-next": "^0.x",
     "vue": "^3.x"
   },
