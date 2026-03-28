@@ -31,8 +31,13 @@ export function useProjectCompiler() {
   function compileMulti(files: Record<string, string>, entry: string): CompileResult {
     if (!compileProjectFn) return notLoaded()
     isCompiling.value = true
-    const filesJson = JSON.stringify(files)
-    return parseRaw(compileProjectFn(filesJson, entry))
+    try {
+      const filesJson = JSON.stringify(files)
+      return parseRaw(compileProjectFn(filesJson, entry))
+    } catch (e: unknown) {
+      isCompiling.value = false
+      throw e
+    }
   }
 
   function parseRaw(json: string): CompileResult {
