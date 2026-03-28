@@ -58,7 +58,7 @@ export function buildHierarchyTree(statements: unknown[]): TreeNode[] {
   }
 
   const rootInstances = (statements as AnyStmt[])
-    .filter(s => s.type === 'Instance') as InstanceStmt[]
+    .filter(s => s.type === 'Instance') as unknown as InstanceStmt[]
 
   return buildNodes(rootInstances, templateMap)
 }
