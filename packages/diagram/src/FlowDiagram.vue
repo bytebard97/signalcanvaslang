@@ -68,8 +68,10 @@ const emit = defineEmits<{
 
 // ── Vue Flow setup ───────────────────────────────────────────────────────────
 
-const nodeTypes = { device: markRaw(DeviceNode) }
-const edgeTypes = { orthogonal: markRaw(OrthogonalEdge) }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const nodeTypes = { device: markRaw(DeviceNode) } as any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const edgeTypes = { orthogonal: markRaw(OrthogonalEdge) } as any
 
 const defaultEdgeOptions: DefaultEdgeOptions = {
   type: 'default',
@@ -276,6 +278,8 @@ async function computeLayout(nodes: Node[], edges: Edge[]): Promise<LayoutResult
     edges: edges.map(e => ({
       id: e.id,
       source: e.source, target: e.target,
+      sources: [e.sourceHandle ?? e.source],
+      targets: [e.targetHandle ?? e.target],
       sourcePort: e.sourceHandle ?? e.source,
       targetPort: e.targetHandle ?? e.target,
     })),
@@ -308,7 +312,7 @@ async function computeLayout(nodes: Node[], edges: Edge[]): Promise<LayoutResult
   }
 
   const positionedNodes = nodes.map(node => {
-    const elkNode = layout.children?.find(c => c.id === node.id)
+    const elkNode = layout.children?.find((c: { id?: string }) => c.id === node.id)
     return { ...node, position: { x: elkNode?.x ?? 0, y: elkNode?.y ?? 0 } }
   })
 
