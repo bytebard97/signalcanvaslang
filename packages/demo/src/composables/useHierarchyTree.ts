@@ -60,11 +60,16 @@ export function buildHierarchyTree(statements: unknown[]): TreeNode[] {
     if (t.name) templateMap.set(t.name, t)
   }
 
-  function isInstanceStmt(s: AnyStmt): s is InstanceStmt {
-    return s.type === 'Instance' && typeof (s as any).name === 'string' && typeof (s as any).templateName === 'string'
+  function isInstanceStmt(s: unknown): s is InstanceStmt {
+    return (
+      typeof s === 'object' && s !== null &&
+      (s as any).type === 'Instance' &&
+      typeof (s as any).name === 'string' &&
+      typeof (s as any).templateName === 'string'
+    )
   }
 
-  const rootInstances = (statements as AnyStmt[]).filter(isInstanceStmt)
+  const rootInstances = statements.filter(isInstanceStmt)
 
   return buildNodes(rootInstances, templateMap)
 }
