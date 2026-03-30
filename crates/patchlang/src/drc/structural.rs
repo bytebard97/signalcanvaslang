@@ -1,7 +1,8 @@
-//! Structural DRC checks — rules S01, S03–S11.
+//! Structural DRC checks — rules S01, S03–S15.
 //!
 //! These catch undefined references, duplicate names, and port reference issues.
-//! Structural errors are hard errors that cannot be suppressed.
+//! Structural errors are hard errors that cannot be suppressed (except S14/S15 via
+//! @suppress(structural)).
 //!
 //! Slot checks (S02, S12, S13) are in `slots.rs`.
 //! Meta info hints (M-I01, M-I03, M-I04) are in `meta.rs`.
@@ -9,9 +10,9 @@
 use std::collections::HashMap;
 
 use crate::ast::{
-    ConnectDecl, PatchProgram, PortRef, Statement,
+    ConnectDecl, IndexElement, PatchProgram, PortRef, Statement,
 };
-use crate::drc::helpers::{collect_all_connects, is_suppressed, resolve_port_on_template, DRCContext, port_ref_label};
+use crate::drc::helpers::{collect_all_connects, expand_index_spec, is_suppressed, resolve_port_on_template, DRCContext, port_ref_label};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Structural;
@@ -23,6 +24,7 @@ pub fn check(program: &PatchProgram, ctx: &DRCContext<'_>) -> Vec<Diagnostic> {
     check_duplicate_signal_names(program, &mut diags);
     check_instance_template_refs(program, ctx, &mut diags);
     check_connect_port_refs(program, ctx, &mut diags);
+    check_connect_range_sizes(program, &mut diags);
     check_route_port_refs(program, ctx, &mut diags);
     check_bus_port_refs(program, ctx, &mut diags);
     check_config_instance_refs(program, ctx, &mut diags);
@@ -228,6 +230,70 @@ fn check_vector_port_indexed(
                     "Specify channels, e.g. {}.{}[1..2], or use [auto] for auto-assignment",
                     instance_name, port_ref.port
                 )),
+            });
+        }
+    }
+}
+
+/// S15 — Range size mismatch: left and right sides of a connect have different channel counts.
+///
+/// Skipped if either side uses `[auto]` (auto-assignment resolves the count).
+/// Can be suppressed with `@suppress(structural)` for intentional partial connects.
+fn check_connect_range_sizes(program: &PatchProgram, diags: &mut Vec<Diagnostic>) {
+    let connects = collect_all_connects(program);
+    for conn in &connects {
+        if is_suppressed(&conn.suppressions, "structural") {
+            continue;
+        }
+
+        let src_index = match &conn.source.index {
+            Some(i) => i,
+            None => continue, // no index spec — S14 handles unindexed vector ports
+        };
+        let tgt_index = match &conn.target.index {
+            Some(i) => i,
+            None => continue,
+        };
+
+        // Skip if either side uses [auto] — the compiler resolves the count
+        let src_has_auto = src_index.elements.iter().any(|e| matches!(e, IndexElement::Auto));
+        let tgt_has_auto = tgt_index.elements.iter().any(|e| matches!(e, IndexElement::Auto));
+        if src_has_auto || tgt_has_auto {
+            continue;
+        }
+
+        let src_channels = expand_index_spec(src_index);
+        let tgt_channels = expand_index_spec(tgt_index);
+
+        if src_channels.len() != tgt_channels.len() {
+            let src_label = port_ref_label(
+                conn.source.instance.as_deref().unwrap_or(""),
+                &conn.source.port,
+                None,
+            );
+            let tgt_label = port_ref_label(
+                conn.target.instance.as_deref().unwrap_or(""),
+                &conn.target.port,
+                None,
+            );
+            diags.push(Diagnostic {
+                severity: Severity::Error,
+                layer: LAYER.clone(),
+                message: format!(
+                    "Range size mismatch: '{}' maps {} channel(s) but '{}' has {} channel(s)",
+                    src_label,
+                    src_channels.len(),
+                    tgt_label,
+                    tgt_channels.len(),
+                ),
+                span: Some(conn.span.clone()),
+                source: Some(src_label),
+                target: Some(tgt_label),
+                fix: Some(
+                    "Make both ranges the same size, or add @suppress(structural) \
+                     if this partial connect is intentional"
+                        .to_string(),
+                ),
             });
         }
     }

@@ -5,7 +5,7 @@ title: Language Specification
 
 # PatchLang Language Specification
 
-**Version:** 0.1.0
+**Version:** 0.2.5
 **Status:** Draft
 
 PatchLang is a domain-specific language for describing signal flow in broadcast and live production environments. It defines device templates, physical instances, cable connections, logical signal mappings, and channel configuration. PatchLang files (`.patch`) are the source of truth — they are human-readable, git-diffable, and designed for LLM generation.
@@ -125,12 +125,14 @@ template Rio3224(mic_count: 32) @version("2.0") {
     category: "Stagebox"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
-    Mic_In[1..32]: in(XLR)
-    Line_Out[1..16]: out(XLR)
+    Dante_Pri_In[1..32]:  in(etherCON)  [Dante, primary]
+    Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..32]:  in(etherCON)  [Dante, secondary]
+    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
+    Mic_In[1..32]:        in(XLR)
+    Line_Out[1..16]:      out(XLR)
   }
-  bridge Mic_In -> Dante_Pri
+  bridge Mic_In -> Dante_Pri_Out   # hardwired mic preamp path
   slot MY_Slot[1..3]: MY_Card
 }
 ```
@@ -162,13 +164,37 @@ attribute-list = "[" attribute { "," attribute } "]" ;
 attribute      = identifier [ ":" identifier ] ;
 ```
 
+#### Port direction rules
+
+Channel-based protocols carry discrete numbered audio or video channels and **must** use split `in` + `out` lines — never `io`:
+
 ```
-Mic_In[1..32]: in(XLR)                     # 32 XLR inputs
-Dante_Pri: io(etherCON) [Dante, primary]   # bidirectional with attributes
-Mix_Bus[1..24]: out                         # outputs, no connector specified
-SDI[1..72]: io(SDI_BNC) [SDI]              # with protocol attribute
-MADI[1..64]: io(SC_Fiber) [MADI, redundant] # with named attribute
+Dante_Pri_In[1..32]:  in(etherCON)  [Dante, primary]
+Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
+Mic_In[1..32]:        in(XLR)
+MADI_In[1..64]:       in(SC_Fiber)  [MADI]
+MADI_Out[1..64]:      out(SC_Fiber) [MADI]
+WordClock_In:         in(BNC_75)    [WordClock]
+WordClock_Out:        out(BNC_75)   [WordClock]
 ```
+
+WordClock uses separate physical 75Ω BNC connectors — never bidirectional. Devices that are always clock masters declare only `WordClock_Out`; always-slaves declare only `WordClock_In`; devices that can be either declare both.
+
+`io` is reserved for ring/bus protocols and management ports:
+
+```
+OptoCore_A:      io(etherCON) [OptoCore]     # ring bus
+AVB_Port:        io(etherCON) [AVB]           # ring/bus
+Ethernet_Mgmt:   io(RJ45)                     # management
+```
+
+**Protocol → direction mapping:**
+
+| Direction | Protocols |
+|-----------|-----------|
+| `in` + `out` (split) | Dante, AES67, MADI, AES3, SDI, Analogue, SoundGrid, NDI, SMPTE2110, WordClock |
+| `io` (ring/bus) | OptoCore, TWINLANe, AVB, Milan, GigaACE |
+| `io` (management) | Ethernet_Mgmt |
 
 #### Connectors
 
@@ -206,13 +232,13 @@ instance Stage_Left is Rio3224 {
 
 instance FOH_Console is CL5(mic_count: 48) @version(">=4.0") {
   location: "Front of House"
-  route Dante_In[1] -> Fader[1]
-  route Dante_In[2] -> Fader[2]
+  route Dante_Pri_In[1] -> Fader[1]
+  route Dante_Pri_In[2] -> Fader[2]
   bus Main_LR {
     input: Fader[1..8]
     output: Matrix_Out[1..2]
   }
-  slot MY_Slot[1]: "Dante_Card"
+  slot MY_Slot[1]: Dante_Card   # bare identifier — not quoted
 }
 ```
 
@@ -225,7 +251,9 @@ connect-decl = "connect" port-ref "->" port-ref [ connect-body ] ;
 
 connect-body = "{" [ suppress-annotation ] { key-value-pair } "}" ;
 
-suppress-annotation = "@suppress" "(" identifier { "," identifier } ")" ;
+suppress-annotation = "@suppress" "(" layer { "," layer } ")" ;
+layer = "direction" | "mechanical" | "electrical" | "logical"
+      | "temporal" | "structural" | "all" ;
 ```
 
 ```
@@ -240,6 +268,21 @@ connect SL.Analog_Out[1..4] -> FOH.Line_In[1..4] {
 }
 ```
 
+#### Range size constraint
+
+When both sides of a `connect` use explicit channel ranges (not `[auto]`), the channel counts must match. A mismatch is a compile error (S15). Use `@suppress(structural)` for intentional partial connects:
+
+```
+# error — 16 channels into 8
+connect A.Out[1..16] -> B.In[1..8]
+
+# correct — same count on both sides
+connect A.Out[1..8] -> B.In[1..8]
+
+# also correct — intentional partial, explicitly declared
+connect A.Out[1..16] -> B.In[1..16] { @suppress(structural) }
+```
+
 #### Mapping Property
 
 The `mapping` property specifies channel-level routing. Three formats:
@@ -252,28 +295,53 @@ mapping: "1->3, 2->4, 3->1"      # explicit per-channel pairs
 
 ### 3.6 Bridge Declaration
 
-Logical signal mapping between ports (no physical cable).
+`bridge` has two distinct scopes with different semantics.
 
 ```ebnf
 bridge-decl = "bridge" port-ref "->" port-ref ;
 ```
 
-Inside templates, port references can be local (no instance prefix):
+#### Inside a template — manufacturer-hardwired path
+
+A `bridge` inside a template declares a signal path that exists in every unit of that device as manufactured — the path cannot be removed by operator action. The compiler treats it as invariant. SignalCanvasProbe does **not** push template bridges to hardware (they are hardwired and not configurable).
+
+Use `bridge` only when you can say: "every unit that ships from the factory has this path, regardless of software configuration."
+
+```
+template Rio3224 {
+  ports {
+    Mic_In[1..32]:        in(XLR)
+    Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
+  }
+  bridge Mic_In -> Dante_Pri_Out   # mic preamp is hardwired to Dante — correct
+}
+
+template CL5 {
+  # no bridge declarations — all internal routing is operator-configured
+  # operator routing belongs in the instance as `route`
+}
+```
+
+#### Top-level between instances — signal trace assertion
+
+A top-level `bridge` between instances is a system designer's assertion that a signal relationship exists for tracing purposes. It is read-only — Signal Trace traverses it, but Probe does not push it.
 
 ```ebnf
 template-bridge = "bridge" port-ref-or-local "->" port-ref-or-local ;
 ```
 
 ```
-# Top-level (between instances)
-bridge Stage_Left.Mic_In[1..32] -> FOH_Console.Dante_Ch[1..32]
-
-# Inside a template (local port names)
-template Stagebox {
-  ports { Mic_In[1..16]: in(XLR)  Network: io(etherCON) [Dante] }
-  bridge Mic_In -> Network
-}
+# Top-level assertion for signal tracing
+bridge Stage_Left.Mic_In[1..32] -> FOH_Console.Dante_Pri_In[1..32]
 ```
+
+#### `bridge` vs `route`
+
+| Keyword | Scope | Meaning | Probe behavior |
+|---------|-------|---------|----------------|
+| `bridge` | Inside template | Manufacturer-hardwired path | Do not push |
+| `bridge` | Top-level | Signal trace assertion | Read-only |
+| `route` | Inside instance | Operator-configured routing state | Push via Probe v2 |
 
 ### 3.7 Bridge Group Declaration
 
@@ -375,6 +443,10 @@ use video.blackmagic.*
 use infrastructure.dante
 ```
 
+All imported templates share a single flat namespace. If two imports define a template with the same name, the compiler emits an error. Import aliasing (`as`) is not supported.
+
+**Naming convention (required for shared libraries):** Template names must use a manufacturer prefix or model number — not standalone generic names. `CL5`, `Rio3224`, `SD12` are correct. `Patch_Bay` is only acceptable in project-local templates; in a shared library it must be prefixed (e.g., `Neutrik_Patch_Bay`). Model numbers and manufacturer-prefixed names are globally unique by industrial convention and do not collide across vendors.
+
 ### 3.12 Ring Declaration
 
 Declares a network ring topology — a loop of devices connected by a shared transport protocol (e.g., OptoCore, TWINLANe, MADI ring). Members are listed in ring order.
@@ -437,8 +509,10 @@ bus-port-entry = ( "input" | "output" | "in" | "out" ) ":" port-ref-or-local ;
 ### 3.16 Slot Assignment (inside instance body)
 
 ```ebnf
-slot-assignment = "slot" identifier [ "[" number "]" ] ":" string-literal ;
+slot-assignment = "slot" identifier [ "[" number "]" ] ":" identifier ;
 ```
+
+Card names are bare identifiers, not quoted strings. `slot MY_Slot[1]: MY16_AUD` is correct; `slot MY_Slot[1]: "MY16_AUD"` is legacy syntax and will be rejected.
 
 ---
 
@@ -456,17 +530,21 @@ A `port-ref` is always fully qualified: `Instance.Port`. A `port-ref-or-local` i
 ### 4.2 Index Spec
 
 ```ebnf
-index-spec    = "[" index-element { "," index-element } "]" ;
+index-spec    = "[" index-element { "," index-element } "]"
+              | "[" "auto" "]" ;
 index-element = number [ ".." number ] ;
 ```
 
-Supports single indices, ranges, and mixed:
+Supports single indices, ranges, mixed lists, and auto-assignment:
 
 ```
 [1]            # single channel
 [1..32]        # range from 1 to 32
 [1..4,7,9]     # mixed: channels 1,2,3,4,7,9
+[auto]         # compiler fills in next N available contiguous channels
 ```
+
+`[auto]` may only appear on one side of a `connect`. It cannot be used on both sides simultaneously. When `[auto]` is present, range size matching (S15) is skipped — the compiler resolves the count.
 
 ### 4.3 Key-Value Pair
 
@@ -493,12 +571,14 @@ template Rio3224 {
     category: "Stagebox"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
-    Mic_In[1..32]: in(XLR)
-    Line_Out[1..16]: out(XLR)
+    Dante_Pri_In[1..32]:  in(etherCON)  [Dante, primary]
+    Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..32]:  in(etherCON)  [Dante, secondary]
+    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
+    Mic_In[1..32]:        in(XLR)
+    Line_Out[1..16]:      out(XLR)
   }
-  bridge Mic_In -> Dante_Pri
+  bridge Mic_In -> Dante_Pri_Out   # manufacturer-hardwired: mic preamp → Dante
 }
 
 template CL5 {
@@ -508,11 +588,14 @@ template CL5 {
     category: "Console"
   }
   ports {
-    Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
-    Dante_Ch[1..72]: in [Dante]
-    Mix_Bus[1..24]: out
+    Dante_Pri_In[1..72]:  in(etherCON)  [Dante, primary]
+    Dante_Pri_Out[1..72]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..72]:  in(etherCON)  [Dante, secondary]
+    Dante_Sec_Out[1..72]: out(etherCON) [Dante, secondary]
+    Fader[1..72]:         in
+    Mix_Bus[1..24]:       out
   }
+  # no bridge declarations — all internal routing is operator-configured
 }
 
 instance Stage_Left is Rio3224 {
@@ -523,24 +606,28 @@ instance Stage_Left is Rio3224 {
 instance FOH_Console is CL5 {
   location: "Front of House"
   ip: "192.168.1.10"
+  route Dante_Pri_In[1] -> Fader[1]
+  route Dante_Pri_In[2] -> Fader[2]
 }
 
-connect Stage_Left.Dante_Pri -> FOH_Console.Dante_Pri {
+# One connect per direction — bidirectional cables need two statements
+connect Stage_Left.Dante_Pri_Out[1..32] -> FOH_Console.Dante_Pri_In[1..32] {
+  cable: "Cat6a_SL_Pri"
+  length: "30m"
+}
+connect FOH_Console.Dante_Pri_Out[1..32] -> Stage_Left.Dante_Pri_In[1..32] {
   cable: "Cat6a_SL_Pri"
   length: "30m"
 }
 
-bridge Stage_Left.Mic_In[1..32] -> FOH_Console.Dante_Ch[1..32]
-
 signal Lead_Vocal {
   origin: Stage_Left.Mic_In[1]
-  channel: "1"
   description: "Worship leader vocal"
 }
 
 config FOH_Console {
-  label Dante_Ch[1]: "Lead Vocal" { phantom: "true" }
-  label Dante_Ch[2]: "Kick Drum"
+  label Dante_Pri_In[1]: "Lead Vocal" { phantom: "true" }
+  label Dante_Pri_In[2]: "Kick Drum"
 }
 ```
 

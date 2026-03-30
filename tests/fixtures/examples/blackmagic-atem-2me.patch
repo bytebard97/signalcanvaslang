@@ -1,0 +1,50 @@
+# ============================================================
+# Blackmagic Design ATEM 2 M/E Production Studio 4K
+# Live production switcher with 20x 6G-SDI inputs,
+# programme/aux/multiview outputs, and analogue audio I/O.
+# ============================================================
+
+# --- Templates ------------------------------------------------
+
+template ATEM_2ME_4K {
+  meta {
+    manufacturer: "Blackmagic Design"
+    model: "ATEM 2 M/E Production Studio 4K"
+    category: "Switcher"
+  }
+  ports {
+    # SDI video inputs (inputs 1-19 are SDI-only; input 20 shares with HDMI)
+    SDI_In[1..20]:         in(BNC_75)  [SDI]
+    HDMI_In:               in(HDMI)    [HDMI]        # shared with SDI_In[20], only one active
+
+    # Programme outputs
+    SDI_Program_Out[1..3]: out(BNC_75) [SDI]
+    HDMI_Program_Out:      out(HDMI)   [HDMI]
+
+    # Auxiliary outputs
+    SDI_Aux_Out[1..6]:     out(BNC_75) [SDI]
+
+    # Multiview outputs (each carries up to 8 sources)
+    SDI_MV_Out[1..2]:      out(BNC_75) [SDI]
+
+    # Analogue audio
+    Audio_In[1..2]:        in(XLR)     [Analogue]
+    Audio_Out[1..2]:       out(XLR)    [Analogue]
+
+    # Reference / sync input
+    Ref_In:                in(BNC_75)  [sync]
+
+    # Control network (not a media port)
+    Ethernet_Ctrl:         io(RJ45)
+  }
+
+  # Any SDI input can be routed to programme out (the switcher's core function)
+  bridge SDI_In -> SDI_Program_Out
+}
+
+# --- Instances ------------------------------------------------
+
+instance Vision_Mixer is ATEM_2ME_4K {
+  location: "Production Desk"
+  ip: "192.168.2.1"
+}
