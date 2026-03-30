@@ -8,9 +8,11 @@ pkg-web/
 *.egg-info/
 __pycache__/
 dist/
+!packages/diagram/dist/
 *.so
 *.dylib
 *.dll
 .claude/
 vscode/node_modules/
+packages/*/node_modules/
 .DS_Store

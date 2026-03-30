@@ -1,0 +1,19 @@
+template SPG_5601MSC {
+  meta {
+    manufacturer: "Evertz"
+    model: "5601MSC"
+    category: "Sync"
+  }
+  ports {
+    Sync_Out[1..6]:    out(BNC_75)
+    LTC_Out[1..2]:     out(BNC_75)
+    GPS_Ref_In:        in(BNC_75)
+    WordClock_Out:     out(BNC_75) [WordClock]
+    Ethernet_Mgmt:     io(RJ45)
+  }
+}
+
+instance House_SPG is SPG_5601MSC {
+  location: "Master Clock Rack"
+  ip: "192.168.3.100"
+}

@@ -1,0 +1,33 @@
+template ULXD4Q {
+  meta {
+    manufacturer: "Shure"
+    model: "ULXD4Q"
+    category: "Wireless"
+  }
+  ports {
+    # Analogue outputs — one XLR per wireless channel (line/mic switchable)
+    XLR_Out[1..4]:        out(XLR) [Analogue]
+
+    # Dante network — 4 channels in, 4 channels out (bidirectional audio + frequency coordination)
+    Dante_Pri_In[1..4]:   in(RJ45) [Dante, primary]
+    Dante_Pri_Out[1..4]:  out(RJ45) [Dante, primary]
+
+    # RF cascade — distributes antenna RF signal to a linked receiver unit
+    RF_Cascade_Out[1..2]: out(BNC_75) [RF]
+    RF_Cascade_In[1..2]:  in(BNC_75) [RF]
+
+    # Antenna inputs — A and B for active/passive antenna distribution
+    Antenna_A:            in(BNC_75) [RF]
+    Antenna_B:            in(BNC_75) [RF]
+  }
+
+  # Each RF channel produces both an analogue XLR output and a Dante channel
+  bridge Antenna_A -> XLR_Out
+  bridge Antenna_A -> Dante_Pri_Out
+  bridge Antenna_B -> XLR_Out
+  bridge Antenna_B -> Dante_Pri_Out
+}
+
+instance RF_Rack_1 is ULXD4Q {
+  location: "RF Distribution Rack"
+}
