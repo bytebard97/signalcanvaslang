@@ -49,6 +49,8 @@ const TABS: Array<{ id: Tab; label: string }> = [
       <CodeEditor
         v-show="activeTab === 'code'"
         :model-value="modelValue"
+        :errors="compileResult?.errors"
+        :diagnostics="compileResult?.diagnostics"
         @update:model-value="emit('update:modelValue', $event)"
       />
       <AstViewer

@@ -1,6 +1,6 @@
 <!-- packages/demo/src/App.vue -->
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import type { CompileResult } from '@signalcanvas/diagram'
 import { useProjectCompiler } from './composables/useProjectCompiler'
 import { buildHierarchyTree } from './composables/useHierarchyTree'
@@ -40,6 +40,7 @@ function loadExample(index: number): void {
 // ── Compile ───────────────────────────────────────────────────────────────────
 
 function compile(): void {
+  if (!compiler.isReady.value) return
   const ex = EXAMPLES[selectedExampleIndex.value]
   let result: CompileResult
   if (ex.kind === 'multi') {
@@ -48,9 +49,33 @@ function compile(): void {
     result = compiler.compileSingle(source.value)
   }
   compileResult.value = result
-  navigation.reset()
   showDiagnostics.value = result.errors.length > 0 || result.diagnostics.some(d => d.severity === 'error')
 }
+
+// ── Auto-compile ──────────────────────────────────────────────────────────────
+
+const DEBOUNCE_MS = 400
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
+function scheduleCompile(): void {
+  if (debounceTimer !== null) clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    debounceTimer = null
+    compile()
+  }, DEBOUNCE_MS)
+}
+
+// Compile immediately when the compiler becomes ready
+watch(() => compiler.isReady.value, (ready) => { if (ready) compile() })
+
+// Debounce on source edits; compile immediately on example switch
+watch(source, scheduleCompile)
+watch(selectedExampleIndex, () => {
+  if (debounceTimer !== null) { clearTimeout(debounceTimer); debounceTimer = null }
+  compile()
+})
+
+onUnmounted(() => { if (debounceTimer !== null) clearTimeout(debounceTimer) })
 
 // ── Directory picker ──────────────────────────────────────────────────────────
 
@@ -89,6 +114,7 @@ const hierarchyNodes = computed(() => buildHierarchyTree(allStatements.value))
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 const navigation = useNavigation()
+const diagramMode = ref<'wires' | 'netnames'>('wires')
 
 function onDrill(payload: { instanceName: string; templateName: string }): void {
   navigation.drillInto(payload)
@@ -131,13 +157,7 @@ watch(hasIssues, v => { if (v) showDiagnostics.value = true })
       >
         Open Directory
       </button>
-      <button
-        class="app__btn app__btn--primary"
-        :disabled="!compiler.isReady.value"
-        @click="compile"
-      >
-        {{ compiler.isReady.value ? 'Compile' : 'Loading WASM…' }}
-      </button>
+      <span v-if="!compiler.isReady.value" class="app__loading">Loading WASM…</span>
       <span v-if="hasIssues" class="app__error-badge">
         {{ (compileResult?.errors.length ?? 0) + (compileResult?.diagnostics.filter(d => d.severity === 'error').length ?? 0) }} error(s)
       </span>
@@ -160,12 +180,15 @@ watch(hasIssues, v => { if (v) showDiagnostics.value = true })
       <div class="app__canvas-col">
         <BreadcrumbBar
           :breadcrumbs="navigation.breadcrumbs.value"
+          :mode="diagramMode"
           @navigate="onNavigate"
+          @update:mode="diagramMode = $event"
         />
         <div class="app__canvas">
           <DiagramCanvas
             :compile-result="compileResult"
             :current-template-name="navigation.currentTemplateName.value"
+            :mode="diagramMode"
             @drill="onDrill"
           />
         </div>
@@ -234,9 +257,12 @@ watch(hasIssues, v => { if (v) showDiagnostics.value = true })
   white-space: nowrap;
 }
 .app__btn:hover { color: #e5e7eb; border-color: rgba(87,241,219,0.3); }
-.app__btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.app__btn--primary { color: #57f1db; border-color: rgba(87,241,219,0.3); }
-.app__btn--primary:hover { background: rgba(87,241,219,0.1); }
+.app__loading {
+  font-size: 11px;
+  color: #6b7280;
+  font-family: monospace;
+  flex-shrink: 0;
+}
 .app__error-badge {
   font-size: 11px;
   color: #f87171;

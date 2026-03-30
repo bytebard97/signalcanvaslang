@@ -203,19 +203,22 @@ Mix_Bus[1..24]: out                         # outputs, no connector specified
 
 Channel-based protocols (Dante, MADI, AES67, SDI, Analogue, AES3, SoundGrid, NDI, SMPTE2110) get **two explicit port lines** — one `in`, one `out`. This allows asymmetric channel counts (e.g., CL5 receives 72 Dante channels, sends 24).
 
-`io` is reserved for ring/bus protocols (OptoCore, TWINLANe, AVB/Milan, GigaACE) and management ports (Ethernet_Mgmt, WordClock).
+`io` is reserved for ring/bus protocols (OptoCore, TWINLANe, AVB/Milan, GigaACE) and management ports (Ethernet_Mgmt).
+
+WordClock uses **split `in`/`out`** despite being a management signal. Every WordClock-capable device has separate physical 75Ω BNC connectors for input and output — `io` was incorrect. See D008.
 
 | Direction | When to use |
 |-----------|-------------|
-| `in()`  | Signal enters the device — mic preamps, Dante receive, SDI input |
-| `out()` | Signal leaves the device — headphone out, Dante send, SDI output |
-| `io()`  | Genuinely bidirectional — ring protocols, management ports |
+| `in()`  | Signal enters the device — mic preamps, Dante receive, SDI input, WordClock receive |
+| `out()` | Signal leaves the device — headphone out, Dante send, SDI output, WordClock master |
+| `io()`  | Genuinely bidirectional — ring/bus protocols (OptoCore, AVB), management (Ethernet_Mgmt) |
 
 | Direction | Protocols |
 |-----------|-----------|
 | **Two lines** (`in` + `out`) | Dante, AES67, MADI, Analogue, AES3, SDI, SoundGrid, NDI, SMPTE2110 |
+| **Two lines** (`in` + `out`) | WordClock — always directional, separate physical BNC connectors |
 | **`io`** (ring/bus) | OptoCore, TWINLANe, AVB/Milan, GigaACE |
-| **`io`** (management) | Ethernet_Mgmt, WordClock |
+| **`io`** (management) | Ethernet_Mgmt |
 
 **Backward compatibility:** The parser accepts `io` for any protocol (legacy files). The emitter must produce split `in`/`out` for channel protocols.
 
@@ -324,7 +327,13 @@ mapping: "1->3, 2->4, 3->1"      # explicit per-channel pairs
 
 ### Bridge Declaration
 
-Logical signal mapping between ports (no physical cable).
+`bridge` has two scopes with distinct semantics:
+
+**Inside a template** — a signal path guaranteed by the device's design. This path exists in every physical unit of this template regardless of software configuration or operator action. The compiler treats it as invariant. Probe does not push it. Use `bridge` for paths the manufacturer hardwired: mic preamps feeding Dante outputs, ADC outputs feeding DSP inputs, protocol converters passing signal through.
+
+**Top-level between instances** — a system designer's DRC assertion. Declares that signal flows from one instance's port to another for tracing purposes. Used to connect signal chains across devices (e.g., telling the tracer that mic inputs on a stagebox ultimately reach console inputs via the Dante network). Not pushed by Probe.
+
+**`bridge` is not for operator-configured routing.** Internal routing that an operator can change (console DSP assignments, matrix crosspoints, DSP patching) belongs in the instance body as `route`.
 
 ```ebnf
 bridge-decl = "bridge" port-ref "->" port-ref ;
@@ -337,16 +346,26 @@ template-bridge = "bridge" port-ref-or-local "->" port-ref-or-local ;
 ```
 
 ```
-# Top-level (between instances)
+# Top-level (between instances) — DRC signal tracing assertion
 bridge Stage_Left.Mic_In[1..32] -> FOH_Console.Dante_Pri_In[1..32]
 
-# Inside a template (local port names, signal direction)
-template Stagebox {
+# Inside a template — manufacturer-hardwired path (correct use)
+template Rio1608 {
   ports {
     Mic_In[1..16]: in(XLR)
     Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
   }
-  bridge Mic_In -> Dante_Pri_Out
+  bridge Mic_In -> Dante_Pri_Out   # hardwired by Yamaha — correct
+}
+
+# Inside a template — software-defined console (no bridge — correct)
+template CL5 {
+  ports {
+    Dante_Pri_In[1..72]:  in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..24]: out(etherCON) [Dante, primary]
+  }
+  # No bridge declarations — all internal routing is operator-configured
+  # Document routing state as `route` in the instance body
 }
 ```
 
@@ -455,6 +474,10 @@ use infrastructure.dante                  # bare namespace — import the module
 
 **Selective imports** are preferred for clarity. Wildcard imports pull in everything, which can cause name collisions in large projects.
 
+**Naming convention (required for shared libraries):** Template names must use a manufacturer prefix or model number — not generic names. `CL5`, `Rio3224`, `SD12`, `5601MSC` are correct. `Patch_Bay` or `Power_Amp` standing alone are not acceptable in any library intended for reuse; they must be prefixed (`Neutrik_Patch_Bay`, `Yamaha_Power_Amp`). Generic names are only acceptable in project-local templates that are never published. This convention eliminates namespace collisions structurally — model numbers and manufacturer-prefixed names do not collide across vendors.
+
+**Import aliasing (`as`):** Not supported. If two libraries define the same template name, the fix is to correct the naming in the library (use a manufacturer prefix), not to alias at the import site. If this ever proves insufficient, the future escape hatch is qualified references (`yamaha::CL5`) — not `as` aliasing. See design decision D007.
+
 ### Ring Declaration
 
 Declares a shared transport bus topology (OptoCore, TWINLANe, AVB).
@@ -537,6 +560,10 @@ instance Console is CL5 {
 Slot assignments use **bare identifiers** (the template name of the card). The grammar also accepts `string-literal` for backward compatibility — new code must use bare identifiers.
 
 ### Route Entry (inside instance body)
+
+`route` declares the current operator-configured internal routing state of a specific device instance. It maps an input channel to an output channel within one device. This is the complement to `bridge`: where `bridge` in a template captures what the manufacturer hardwired, `route` in an instance captures what the operator configured.
+
+`route` is what Probe generates from Ember+ matrix crosspoints, Q-SYS mixer routing, Yamaha SCP patching, and other device control protocols. In Probe v2, `route` declarations are the target of configuration push — the compiler's route table is applied to live hardware.
 
 ```ebnf
 route-entry = "route" port-ref-or-local "->" port-ref-or-local ;
@@ -646,6 +673,7 @@ The compiler runs DRC checks after parsing and auto-resolution. Diagnostics have
 | S12 | Structural | Warning | Card `fits` value does not match slot format |
 | S13 | Structural | Warning | Card `fits` but no slot in scope uses that format |
 | S14 | Structural | Warning | Vector port referenced without channel index |
+| S15 | Structural | Error | Range size mismatch — left and right sides of `connect` have different channel counts |
 | M01 | Mechanical | Error | Connector type mismatch (e.g., XLR to BNC) |
 | E01 | Electrical | Error | Level mismatch large enough to damage equipment |
 | E02 | Electrical | Warning | Level mismatch that may need a pad |

@@ -79,6 +79,7 @@ template VideoRouter {
   ports {
     SDI_In[1..72]: in(BNC_75) [SDI]
     SDI_Out[1..72]: out(BNC_75) [SDI]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
   }
   bridge SDI_In -> SDI_Out
 }
@@ -262,7 +263,7 @@ connect SyncGen.Ref_Out[3] -> Cam3.Genlock_In {
   cable: "GL_C3"
 }
 
-connect SyncGen.Ref_Out[4] -> Router.SDI_In[71] {
+connect SyncGen.Ref_Out[4] -> Router.Ref_In {
   cable: "GL_Router"
 }
 
