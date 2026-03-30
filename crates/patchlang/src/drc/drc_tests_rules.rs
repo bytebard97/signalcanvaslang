@@ -244,6 +244,69 @@ mod structural {
                 && d.message.contains("vector port")
         }));
     }
+
+    // S15 — Range size mismatch in connect
+
+    #[test]
+    fn s15_range_mismatch_is_error() {
+        let src = "
+            template T { ports { Out[1..16]: out(XLR) [Analogue] In[1..8]: in(XLR) [Analogue] } }
+            instance A is T
+            instance B is T
+            connect A.Out[1..16] -> B.In[1..8]
+        ";
+        let diags = check(src);
+        assert!(diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Error
+                && d.message.contains("16")
+                && d.message.contains("8")
+        }));
+    }
+
+    #[test]
+    fn s15_matching_ranges_no_error() {
+        let src = "
+            template T { ports { Out[1..8]: out(XLR) [Analogue] In[1..8]: in(XLR) [Analogue] } }
+            instance A is T
+            instance B is T
+            connect A.Out[1..8] -> B.In[1..8]
+        ";
+        let diags = check(src);
+        assert!(!diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural
+                && d.severity == Severity::Error
+                && d.message.contains("mismatch")
+        }));
+    }
+
+    #[test]
+    fn s15_suppressed_range_mismatch_no_error() {
+        let src = "
+            template T { ports { Out[1..32]: out(etherCON) [Dante] In[1..64]: in(etherCON) [Dante] } }
+            instance A is T
+            instance B is T
+            connect A.Out[1..32] -> B.In[1..32] { @suppress(structural) }
+        ";
+        let diags = check(src);
+        assert!(!diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural && d.message.contains("mismatch")
+        }));
+    }
+
+    #[test]
+    fn s15_auto_on_one_side_no_error() {
+        let src = "
+            template T { ports { Out[1..16]: out(etherCON) [Dante] In[1..32]: in(etherCON) [Dante] } }
+            instance A is T
+            instance B is T
+            connect A.Out[auto] -> B.In[1..16]
+        ";
+        let diags = check(src);
+        assert!(!diags.iter().any(|d| {
+            d.layer == DRCLayer::Structural && d.message.contains("mismatch")
+        }));
+    }
 }
 
 #[cfg(test)]

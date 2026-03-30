@@ -20,6 +20,7 @@ import '@vue-flow/minimap/dist/style.css'
 import ELK from 'elkjs/lib/elk.bundled'
 import type { ElkExtendedEdge } from 'elkjs'
 import DeviceNode from './DeviceNode.vue'
+import NetTagNode from './NetTagNode.vue'
 import OrthogonalEdge from './OrthogonalEdge.vue'
 import type { DeviceNodeData } from './types'
 
@@ -46,6 +47,9 @@ const EDGE_COUNT_THRESHOLD    = 4
 const MARGIN_PER_EXTRA_EDGE   = 15
 const MARGIN_PER_EXTRA_PORT   = 10
 const MAX_NODE_MARGIN         = 80
+const NET_TAG_INPUT_GAP       = HANDLE_OUTSET + 4  // gap: handle extends 21px left + 4px breathing room
+const NET_TAG_OUTPUT_GAP      = HANDLE_OUTSET + 4  // gap: handle extends 21px right + 4px breathing room
+const NET_TAG_VERTICAL_ADJUST = 3     // align tag center to port pill center
 
 const EDGE_COLORS = [
   '#4a9eff', '#ff6b6b', '#51cf66', '#ffd43b', '#cc5de8', '#ff922b',
@@ -70,7 +74,7 @@ const emit = defineEmits<{
 // ── Vue Flow setup ───────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const nodeTypes = { device: markRaw(DeviceNode) } as any
+const nodeTypes = { device: markRaw(DeviceNode), nettag: markRaw(NetTagNode) } as any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const edgeTypes = { orthogonal: markRaw(OrthogonalEdge) } as any
 
@@ -149,14 +153,65 @@ function computePortTags(
 
     // Tag on source (output) port
     if (!tags[edge.sourceHandle]) tags[edge.sourceHandle] = []
-    tags[edge.sourceHandle].push({ label: `${tgtInstanceName}${tgtSlice} >>`, edgeId: edge.id })
+    tags[edge.sourceHandle].push({ label: `${tgtInstanceName} >>`, edgeId: edge.id })
 
     // Tag on target (input) port
     if (!tags[edge.targetHandle]) tags[edge.targetHandle] = []
-    tags[edge.targetHandle].push({ label: `>> ${srcInstanceName}${srcSlice}`, edgeId: edge.id })
+    tags[edge.targetHandle].push({ label: `>> ${srcInstanceName}`, edgeId: edge.id })
   }
 
   return tags
+}
+
+// ── Net tag node construction ────────────────────────────────────────────────
+
+/**
+ * Build one NetTagNode per port that has tags, positioned outside the owning
+ * device node on the canvas. Input-side tags sit to the left of the node;
+ * output-side tags sit to the right.
+ */
+function buildNetTagNodes(
+  nodes: Node[],
+  portTags: Record<string, Array<{ label: string; edgeId: string }>>,
+): Node[] {
+  const tagNodes: Node[] = []
+
+  for (const [portId, tags] of Object.entries(portTags)) {
+    if (tags.length === 0) continue
+
+    for (const node of nodes) {
+      if (node.type === 'nettag') continue
+      const data = node.data as DeviceNodeData
+      const inputIdx  = data.inputPorts?.findIndex(p => p.id === portId)  ?? -1
+      const outputIdx = inputIdx === -1 ? (data.outputPorts?.findIndex(p => p.id === portId) ?? -1) : -1
+
+      if (inputIdx === -1 && outputIdx === -1) continue
+
+      const isInput  = inputIdx !== -1
+      const portIndex = isInput ? inputIdx : outputIdx
+      const portBaseY = HEADER_HEIGHT + BODY_TOP_PAD + portIndex * PORT_STRIDE
+      const tagY = node.position.y + portBaseY + NET_TAG_VERTICAL_ADJUST
+      const tagX = isInput
+        ? node.position.x - NET_TAG_INPUT_GAP
+        : node.position.x + NODE_WIDTH + NET_TAG_OUTPUT_GAP
+
+      const label = tags.map(t => t.label).join(', ')
+
+      tagNodes.push({
+        id: `nettag__${portId}`,
+        type: 'nettag',
+        position: { x: tagX, y: tagY },
+        data: { label, side: isInput ? 'in' : 'out' },
+        draggable: false,
+        selectable: false,
+        connectable: false,
+      })
+
+      break
+    }
+  }
+
+  return tagNodes
 }
 
 // ── Mode application ─────────────────────────────────────────────────────────
@@ -171,13 +226,19 @@ function applyMode(
   mode: 'wires' | 'netnames',
   portTags: Record<string, Array<{ label: string; edgeId: string }>>,
 ): { nodes: Node[]; edges: Edge[] } {
-  const modeNodes = nodes.map(n => ({
+  const deviceNodes = nodes.filter(n => n.type !== 'nettag')
+  const modeNodes = deviceNodes.map(n => ({
     ...n,
     data: { ...n.data, mode, portTags },
   }))
-  const modeEdges = mode === 'netnames'
-    ? edges.map(e => ({ ...e, style: { ...e.style, opacity: 0 } }))
-    : edges
+  const modeEdges = edges.map(e => ({
+    ...e,
+    data: { ...e.data, hidden: mode === 'netnames' },
+  }))
+  if (mode === 'netnames') {
+    const tagNodes = buildNetTagNodes(modeNodes, portTags)
+    return { nodes: [...modeNodes, ...tagNodes], edges: modeEdges }
+  }
   return { nodes: modeNodes, edges: modeEdges }
 }
 
@@ -415,6 +476,7 @@ watch(
 // ── Event handlers ────────────────────────────────────────────────────────────
 
 function onNodeClick(event: NodeMouseEvent): void {
+  if (event.node.type === 'nettag') return
   const data = event.node.data as DeviceNodeData
   if (data.drillable) {
     emit('drill', { instanceName: data.instanceName, templateName: data.templateName })

@@ -1,5 +1,17 @@
 ## Revision History
 
+### v0.2.5 — 2026-03-29 (design decisions update)
+
+- **D005 decided: `bridge` vs `route` semantics.** Fixed/configurable axis. `bridge` = manufacturer-hardwired path (Probe does not push). `route` = operator-configured routing (Probe v2 pushes). Updated `language-reference.md`, `compiler.md`, both `SKILL.md` copies.
+- **D006 decided: Range size mismatch in `connect` is a hard error (S15).** Implemented in `structural.rs` with 4 tests. `@suppress(structural)` for intentional partial connects. Added to DRC tables in `language-reference.md` and both `SKILL.md` copies.
+- **D007 decided: Import aliasing deferred.** Template naming convention elevated from advisory to required in `language-reference.md` and `specification.md`. Qualified references (`yamaha::CL5`) identified as future escape hatch if needed.
+- **D008 decided: WordClock ports are `in`/`out`, not `io`.** BNC connectors are never bidirectional. Fixed `compiler.md`, `language-reference.md`, both `SKILL.md` copies. (Fixture files were already correct.)
+- **D009 decided: PTPv2 needs no new port type.** PTP runs over Ethernet; grandmaster role is instance metadata. `decisions.md` updated.
+- **`specification.md` updated to v0.2.5.** Rewrote §3.3 ports (split in/out table + WordClock), §3.5 connect (S15 note, suppress layer EBNF), §3.6 bridge (fixed/configurable semantics + bridge vs route table), §3.11 use (naming convention required, no aliasing), §3.16 slot (bare identifier), §4.2 index spec ([auto]), §5 complete example (split Dante ports, correct bridge, two connects per cable).
+- **`decisions.md` created.** Running log of all design decisions D001–D009 with rationale and rejected alternatives.
+- **`debate-context.md` created.** Product context brief for AI debate agents.
+- **Test count: 479** (442 unit + 34 integration + 3 doc).
+
 ### v0.2.5 — 2026-03-26
 
 - **Ring keyword fully implemented.** Lexer, parser, AST, and DRC rules R01-R04 all complete. Ring added to language specification (EBNF, keywords, examples). Compatibility layer bridges old and new ring formats. Parser error hints updated to include `ring`.

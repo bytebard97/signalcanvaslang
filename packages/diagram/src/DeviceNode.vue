@@ -4,7 +4,6 @@ import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 import { Router, SlidersHorizontal, Box } from 'lucide-vue-next'
 import type { DeviceNodeData } from './types'
-import PinTag from './PinTag.vue'
 
 const CATEGORY_ICON_SIZE = 16
 
@@ -29,15 +28,13 @@ function isPortConnected(portId: string): boolean {
   return props.data.connectedPortIds?.has(portId) ?? false
 }
 
+function isRemainderPort(portId: string): boolean {
+  return portId.includes('__rem')
+}
+
 const hasMeta = computed(() =>
   props.data.manufacturer.length > 0 || props.data.model.length > 0,
 )
-
-const isNetnames = computed(() => props.data.mode === 'netnames')
-
-function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
-  return props.data.portTags?.[portId] ?? []
-}
 </script>
 
 <template>
@@ -58,7 +55,7 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
         <div
           v-for="port in data.inputPorts"
           :key="port.id"
-          class="dn__port-row"
+          :class="{ 'dn__port-row': true, 'dn__port-row--remainder': isRemainderPort(port.id) }"
         >
           <Handle
             :id="port.id"
@@ -77,12 +74,6 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
           <div class="dn__pill">
             <span class="dn__port-label">{{ portLabel(port) }}</span>
           </div>
-          <PinTag
-            v-if="isNetnames && getPortTags(port.id).length > 0"
-            :tags="getPortTags(port.id)"
-            side="in"
-            border-color="#57f1db"
-          />
         </div>
       </div>
 
@@ -91,7 +82,7 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
         <div
           v-for="port in data.outputPorts"
           :key="port.id"
-          class="dn__port-row dn__port-row--output"
+          :class="{ 'dn__port-row': true, 'dn__port-row--output': true, 'dn__port-row--remainder': isRemainderPort(port.id) }"
         >
           <Handle
             :id="port.id"
@@ -109,12 +100,6 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
           <div
             class="dn__dot dn__dot--right"
             :class="isPortConnected(port.id) ? 'dn__dot--connected dn__dot--connected-glow' : ''"
-          />
-          <PinTag
-            v-if="isNetnames && getPortTags(port.id).length > 0"
-            :tags="getPortTags(port.id)"
-            side="out"
-            border-color="#57f1db"
           />
         </div>
       </div>
@@ -144,12 +129,10 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
   width: 260px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   border-radius: 12px;
   background: #1E2228;
   border: 1px solid rgba(45, 61, 74, 0.3);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  transform: scale(1);
   transition: transform 0.15s;
   position: relative;
   cursor: pointer;
@@ -167,6 +150,7 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #2D3D4A;
+  border-radius: 12px 12px 0 0;
 }
 .dn__header-left { display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; }
 .dn__icon { flex-shrink: 0; color: #57f1db; }
@@ -185,12 +169,14 @@ function getPortTags(portId: string): Array<{ label: string; edgeId: string }> {
   justify-content: space-between;
   gap: 8px;
   position: relative;
+  border-radius: 0 0 12px 12px;
 }
 .dn__col { display: flex; flex-direction: column; gap: 8px; }
 .dn__col--right { align-items: flex-end; }
 
 .dn__port-row { position: relative; display: flex; align-items: center; }
 .dn__port-row--output { flex-direction: row-reverse; }
+.dn__port-row--remainder { opacity: 0.35; }
 
 .dn__dot {
   position: absolute;

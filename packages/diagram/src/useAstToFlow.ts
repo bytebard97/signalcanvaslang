@@ -603,18 +603,35 @@ function addRemainderPorts(
         if (!usedChannels.has(ch)) allChannels.push(ch)
       }
 
+      // Determine which port list this belongs to and the handle suffix
+      const { isInput, isOutput } = classifyDirection(portDef.direction)
+      const suffix = isInput ? HANDLE_SUFFIX_TARGET : HANDLE_SUFFIX_SOURCE
+      const portList = isInput ? data.inputPorts : data.outputPorts
+
+      // Relabel the original port handle to show only the consumed channels.
+      // fanOutSharedPorts already handles multi-connection cases (it clears .range);
+      // here we handle the single-connection case where .range is still set.
+      const originalHandleId = `${instanceName}-${portName}-${suffix}`
+      const originalPort = portList.find(p => p.id === originalHandleId && p.range !== undefined)
+      if (originalPort) {
+        const consumedSorted = [...usedChannels].sort((a, b) => a - b)
+        const consumedRanges = toContiguousRanges(consumedSorted)
+        // Only relabel when consumed channels form a single contiguous range;
+        // multiple disjoint consumed ranges are handled by fanOutSharedPorts instead.
+        if (consumedRanges.length === 1) {
+          originalPort.name = formatRangeLabel(portName, consumedRanges[0][0], consumedRanges[0][1])
+          originalPort.range = undefined
+        }
+      }
+
       if (allChannels.length === 0) continue // fully consumed
 
       // Convert to contiguous ranges
       const ranges = toContiguousRanges(allChannels)
 
-      // Determine which port list this belongs to and the handle suffix
-      const { isInput, isOutput } = classifyDirection(portDef.direction)
-
       // Add remainder port rows
       for (const [start, end] of ranges) {
         const label = formatRangeLabel(portName, start, end)
-        const suffix = isInput ? HANDLE_SUFFIX_TARGET : HANDLE_SUFFIX_SOURCE
         const remainderId = `${instanceName}-${portName}-${suffix}__rem${start}`
 
         const remainderPort: PortHandle = {

@@ -87,6 +87,8 @@ const arrowPoints = computed<string>(() => {
   return `${p1x},${p1y} ${tipX},${tipY} ${p2x},${p2y}`
 })
 
+const isHidden = computed<boolean>(() => props.data?.hidden === true)
+
 const strokeStyle = computed(() => ({
   stroke: edgeColor.value,
   strokeWidth: DEFAULT_STROKE_WIDTH,
@@ -96,7 +98,7 @@ const strokeStyle = computed(() => ({
 </script>
 
 <template>
-  <g>
+  <g v-if="!isHidden">
     <!-- Edge path -->
     <path
       :d="pathD"

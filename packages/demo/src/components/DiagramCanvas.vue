@@ -13,6 +13,7 @@ import type { NavEntry } from '../composables/useNavigation'
 const props = defineProps<{
   compileResult: CompileResult | null
   currentTemplateName: string | null
+  mode?: 'wires' | 'netnames'
 }>()
 
 const emit = defineEmits<{
@@ -65,7 +66,7 @@ function onDrill(payload: { instanceName: string; templateName: string }): void 
       v-else
       :nodes="flowGraph.nodes"
       :edges="flowGraph.edges"
-      mode="wires"
+      :mode="mode ?? 'wires'"
       @drill="onDrill"
     />
   </div>

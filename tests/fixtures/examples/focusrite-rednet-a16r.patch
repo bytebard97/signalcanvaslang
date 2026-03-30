@@ -1,0 +1,47 @@
+template RedNetA16R {
+  meta {
+    manufacturer: "Focusrite"
+    model: "RedNet A16R MkII"
+    category: "Interface"
+  }
+  ports {
+    # Analogue inputs — 16ch via 4x DB25 (AES59, 4ch per connector)
+    Analogue_In[1..4]:   in(DB25) [Analogue]
+    Analogue_In[5..8]:   in(DB25) [Analogue]
+    Analogue_In[9..12]:  in(DB25) [Analogue]
+    Analogue_In[13..16]: in(DB25) [Analogue]
+
+    # Analogue outputs — 16ch via 4x DB25 (AES59, 4ch per connector)
+    Analogue_Out[1..4]:   out(DB25) [Analogue]
+    Analogue_Out[5..8]:   out(DB25) [Analogue]
+    Analogue_Out[9..12]:  out(DB25) [Analogue]
+    Analogue_Out[13..16]: out(DB25) [Analogue]
+
+    # AES3 digital I/O — 2ch per XLR connector
+    AES3_In[1..2]:  in(XLR) [AES3]
+    AES3_Out[1..2]: out(XLR) [AES3]
+
+    # Dante Primary — 64ch in/out over etherCON
+    Dante_Pri_In[1..64]:  in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..64]: out(etherCON) [Dante, primary]
+
+    # Dante Secondary — 64ch in/out over etherCON (redundant)
+    Dante_Sec_In[1..64]:  in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..64]: out(etherCON) [Dante, secondary]
+
+    # Word Clock sync
+    WordClock_In:  in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+
+  # Analogue inputs bridge to Dante Primary output
+  bridge Analogue_In -> Dante_Pri_Out
+
+  # Dante Primary input bridges to analogue outputs
+  bridge Dante_Pri_In -> Analogue_Out
+}
+
+instance Studio_Interface is RedNetA16R {
+  location: "Control Room Rack"
+  ip: "192.168.1.50"
+}
