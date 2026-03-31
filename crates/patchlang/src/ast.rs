@@ -250,6 +250,9 @@ pub struct RouteEntry {
 #[derive(Debug, Clone, Serialize)]
 pub struct BusEntry {
     pub name: String,
+    /// Human-readable display name. May contain characters invalid in identifiers
+    /// (e.g. `"SPOTIFY>FOH"`). The `name` field remains the stable cross-reference key.
+    pub label: Option<String>,
     pub inputs: Vec<PortRef>,
     pub outputs: Vec<PortRef>,
     pub span: Span,

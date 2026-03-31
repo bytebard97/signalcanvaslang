@@ -572,9 +572,25 @@ route-entry = "route" port-ref-or-local "->" port-ref-or-local ;
 ### Bus Entry (inside instance body)
 
 ```ebnf
-bus-entry      = "bus" identifier "{" { bus-port-entry } "}" ;
+bus-entry      = "bus" identifier "{" [ bus-label ] { bus-port-entry } "}" ;
+bus-label      = "label" ":" string-literal ;
 bus-port-entry = ( "input" | "output" | "in" | "out" ) ":" port-ref-or-local ;
 ```
+
+The optional `label` property stores a human-readable display name that may contain characters
+invalid in PatchLang identifiers (e.g. `>`, `-`). The identifier is the stable cross-reference
+key; `label` is display-only and does not affect routing, DRC, or signal tracing.
+
+```
+bus Main_LR {
+  label: "SPOTIFY>FOH"
+  input: Fader[1..8]
+  output: Matrix_Out[1..2]
+}
+```
+
+This is the same identifier-vs-display-name separation used by `config` port labels.
+The JSON output omits `label` when it is not set (backward-compatible).
 
 ---
 

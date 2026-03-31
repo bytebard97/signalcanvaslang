@@ -418,6 +418,80 @@ fn statement_type_tags_correct() {
     assert_eq!(json["type"], "Use");
 }
 
+// ── Bus label ──────────────────────────────────────────────────────
+
+#[test]
+fn bus_label_roundtrips_through_parser() {
+    let src = r#"
+        instance FOH is CL5 {
+          bus Main_LR {
+            label: "SPOTIFY>FOH"
+            in: Fader[1]
+            out: Matrix_Out[1]
+          }
+        }
+    "#;
+    let result = crate::parse(src);
+    let instance = match &result.program.statements[0] {
+        crate::ast::Statement::Instance(i) => i,
+        _ => panic!("expected instance"),
+    };
+    assert_eq!(instance.buses[0].label.as_deref(), Some("SPOTIFY>FOH"));
+}
+
+#[test]
+fn bus_label_serialises_to_json() {
+    let src = r#"
+        instance FOH is CL5 {
+          bus Main_LR {
+            label: "SPOTIFY>FOH"
+            in: Fader[1]
+            out: Matrix_Out[1]
+          }
+        }
+    "#;
+    let result = crate::parse(src);
+    let json = serde_json::to_value(crate::to_ts_result(&result)).unwrap();
+    let bus = &json["program"]["statements"][0]["buses"][0];
+    assert_eq!(bus["label"], "SPOTIFY>FOH");
+}
+
+#[test]
+fn bus_without_label_omits_label_field_from_json() {
+    let src = r#"
+        instance FOH is CL5 {
+          bus Main_LR {
+            in: Fader[1]
+            out: Matrix_Out[1]
+          }
+        }
+    "#;
+    let result = crate::parse(src);
+    let json = serde_json::to_value(crate::to_ts_result(&result)).unwrap();
+    let bus = &json["program"]["statements"][0]["buses"][0];
+    assert!(bus.get("label").is_none(), "label should be absent when not set");
+}
+
+#[test]
+fn bus_label_preserves_special_characters() {
+    let src = r#"
+        instance FOH is CL5 {
+          bus Ch_Strip {
+            label: "IEM>WORSHIP-LEAD"
+            in: Fader[2]
+            out: IEM_Out[1]
+          }
+        }
+    "#;
+    let result = crate::parse(src);
+    assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
+    let instance = match &result.program.statements[0] {
+        crate::ast::Statement::Instance(i) => i,
+        _ => panic!("expected instance"),
+    };
+    assert_eq!(instance.buses[0].label.as_deref(), Some("IEM>WORSHIP-LEAD"));
+}
+
 // ── Span stripping ─────────────────────────────────────────────────
 
 #[test]
