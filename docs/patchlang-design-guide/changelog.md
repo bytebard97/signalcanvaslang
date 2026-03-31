@@ -1,5 +1,12 @@
 ## Revision History
 
+### v0.2.5 — 2026-03-31 (bus label)
+
+- **D010 decided: Bus display names via `label:` in bus body.** Broadcast console naming conventions use `>` and `-` (e.g. `SPOTIFY>FOH`, `PQ>MM`) that are invalid PatchLang identifiers. The bus identifier remains the stable cross-reference key; `label:` carries the human-readable display name. Pattern is consistent with `config` port labels. Decided via Socratic debate — sidecar rejected as wrong semantic layer for named signal-flow entities.
+- **Compiler change:** `BusEntry` gains `label: Option<String>`. `TsBusDecl` serializes `label` with `skip_serializing_if` (fully backward-compatible). Parser reads `label: "..."` in bus body using existing `Token::Label`. 4 new TDD tests.
+- **Fixtures updated:** `04-internal-buses.patch` and `hillsong-mtg.patch` use `label:` where original display names contained `>` or spaces.
+- **Test count: 524**
+
 ### v0.2.5 — 2026-03-29 (design decisions update)
 
 - **D005 decided: `bridge` vs `route` semantics.** Fixed/configurable axis. `bridge` = manufacturer-hardwired path (Probe does not push). `route` = operator-configured routing (Probe v2 pushes). Updated `language-reference.md`, `compiler.md`, both `SKILL.md` copies.

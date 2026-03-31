@@ -70,7 +70,7 @@ A `.patch` file describes:
 | `signal` | Names a logical signal for multi-hop tracing |
 | `flag` | Named status indicator (e.g., `Genlock_OK`) |
 | `stream` | Dante virtual channel group |
-| `bus` | Named mix bus inside a device |
+| `bus` | Named mix bus inside a device. Optional `label:` property carries the human-readable display name (may contain `>`, `-`, spaces). |
 | `slot` | Expansion card bay declaration |
 
 ---
