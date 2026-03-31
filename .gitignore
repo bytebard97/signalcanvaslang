@@ -15,6 +15,7 @@ dist/
 .claude/
 vscode/node_modules/
 packages/*/node_modules/
-.DS_Store
+**/.DS_Store
 /.playwright-mcp
-docs/patchlang-v024-spec.pdf
+docs/*.pdf
+
