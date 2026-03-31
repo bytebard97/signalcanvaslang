@@ -256,6 +256,8 @@ pub struct TsRouteDecl {
 #[serde(rename_all = "camelCase")]
 pub struct TsBusDecl {
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
     pub inputs: Vec<TsPortRef>,
     pub outputs: Vec<TsPortRef>,
 }

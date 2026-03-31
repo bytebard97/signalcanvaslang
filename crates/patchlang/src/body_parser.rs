@@ -112,16 +112,26 @@ impl<'a> Parser<'a> {
         RouteEntry { source, target, span }
     }
 
-    /// Parse `bus Name { in/input: Port  out/output: Port }`.
+    /// Parse `bus Name { [label: "..."] in/input: Port  out/output: Port }`.
     pub(crate) fn parse_bus_entry(&mut self) -> BusEntry {
         let start = self.current_span().start;
         self.advance(); // consume 'bus'
         let name = self.expect_identifier().unwrap_or_default();
         self.expect(&Token::LBrace);
+        let mut label: Option<String> = None;
         let mut inputs = Vec::new();
         let mut outputs = Vec::new();
         while self.peek() != Some(&Token::RBrace) && !self.at_end() {
             let direction = match self.peek().cloned() {
+                Some(Token::Label) => {
+                    self.advance(); // consume 'label'
+                    self.expect(&Token::Colon);
+                    if let Some(Token::StringLiteral(s)) = self.peek().cloned() {
+                        self.advance();
+                        label = Some(s);
+                    }
+                    continue;
+                }
                 Some(Token::In) => { self.advance(); "input" }
                 Some(Token::Out) => { self.advance(); "output" }
                 Some(Token::Identifier(ref id)) if id == "input" => {
@@ -149,7 +159,7 @@ impl<'a> Parser<'a> {
         for output in &outputs {
             reject_auto_in_index(&output.index, &span, &mut self.errors, "bus");
         }
-        BusEntry { name, inputs, outputs, span }
+        BusEntry { name, label, inputs, outputs, span }
     }
 
     /// Parse `slot Name[index]: "CardType"` inside instance body.

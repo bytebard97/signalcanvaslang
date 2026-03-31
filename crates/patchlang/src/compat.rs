@@ -324,6 +324,7 @@ fn convert_route_entry(r: &ast::RouteEntry) -> TsRouteDecl {
 fn convert_bus_entry(b: &ast::BusEntry) -> TsBusDecl {
     TsBusDecl {
         name: b.name.clone(),
+        label: b.label.clone(),
         inputs: b.inputs.iter().map(convert_port_ref).collect(),
         outputs: b.outputs.iter().map(convert_port_ref).collect(),
     }
