@@ -1,5 +1,7 @@
 # MTG Feature Test: Internal mix buses with output destinations
 # Source: MTG.json — FOH Engine mix buses routed to MADI snake outputs
+# Demonstrates bus label: field for display names containing broadcast
+# naming conventions (e.g. abbreviations that expand to readable names).
 
 template Venue_FOH_Rack {
   meta {
@@ -15,37 +17,47 @@ template Venue_FOH_Rack {
 
 instance FOH_Engine is Venue_FOH_Rack {
   bus PA_Matrix {
+    label: "PA Matrix"
     output: MADI_Out[9]
     output: MADI_Out[10]
   }
   bus Front_Fill_Matrix {
+    label: "Front Fill Matrix"
     output: MADI_Out[11]
   }
   bus Floor_Sub_Matrix {
+    label: "Floor Sub Matrix"
     output: MADI_Out[12]
   }
   bus PQ_MM {
+    label: "PQ>MM"
     output: MADI_Out[1]
     output: MADI_Out[2]
   }
   bus PQ_Band {
+    label: "PQ>Band"
     output: MADI_Out[3]
     output: MADI_Out[4]
   }
   bus PQ_Vox {
+    label: "PQ>Vox"
     output: MADI_Out[5]
   }
   bus PQ_MC {
+    label: "PQ>MC"
     output: MADI_Out[6]
   }
   bus PQ_PGM {
+    label: "PQ>PGM"
     output: MADI_Out[7]
     output: MADI_Out[8]
   }
   bus VoxVerb_LP {
+    label: "Vox Verb LP"
     output: MADI_Out[13]
   }
   bus DrumVerb_LP {
+    label: "Drum Verb LP"
     output: MADI_Out[14]
   }
 }

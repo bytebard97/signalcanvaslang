@@ -649,26 +649,33 @@ instance _86b83d5a_0a22_45d0_bcba_fa4cbbabe096 is QSYS_Core_250i {
   slot _85e272f3_57bc_4dd9_8127_fa5773125ba2__8: "8209cd68-870a-4ee5-83cf-cbb13e47dc23"
   route QLAN_In[1] -> _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[41]
   bus Shouts__MD_Conf {
+    label: "Shouts > MD Conf"
     output: QLAN_Out[1]
   }
   bus Shouts__Show_Conf {
+    label: "Shouts > Show Conf"
     input: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[1]
     output: QLAN_Out[2]
   }
   bus Shouts__Audio_Conf {
+    label: "Shouts > Audio Conf"
     output: QLAN_Out[3]
   }
   bus PGM__Comms_ {
+    label: "PGM > Comms"
     output: QLAN_Out[4]
   }
   bus Vid_Solo__Comms {
+    label: "Vid Solo > Comms"
     output: QLAN_Out[6]
   }
   bus MONS_IEM {
+    label: "MONS > IEM"
     input: QLAN_In[2], QLAN[3]
     output: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[42]
   }
   bus SpotifyFOH {
+    label: "SPOTIFY>FOH"
     input: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[1], _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[2]
     output: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[25]
     output: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[26]

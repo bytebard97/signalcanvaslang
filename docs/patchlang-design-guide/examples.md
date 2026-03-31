@@ -131,6 +131,33 @@ The hierarchy is not a special feature. It is just templates importing other tem
 
 ---
 
+## Bus Display Names (`label:`)
+
+Broadcast console software uses `>` as a routing convention in bus names — `SPOTIFY>FOH`, `PQ>MM`, `Shouts > MD Conf`. These characters are invalid in PatchLang identifiers. The `label:` property on a bus body carries the human-readable display name while the identifier remains the stable cross-reference key.
+
+```
+instance FOH_Engine is CL5 {
+  bus PQ_MM {
+    label: "PQ>MM"
+    output: Mix_Out[1]
+    output: Mix_Out[2]
+  }
+  bus SpotifyFOH {
+    label: "SPOTIFY>FOH"
+    input: Dante_Pri_In[41]
+    input: Dante_Pri_In[42]
+    output: Mix_Out[25]
+    output: Mix_Out[26]
+  }
+}
+```
+
+The identifier (`SpotifyFOH`) is used everywhere buses are cross-referenced. The `label` is display-only — it does not affect routing, DRC, or signal tracing. The JSON output omits `label` when not set, so existing files are unaffected.
+
+This is the same identifier-vs-display-name pattern used by `config` port labels (`label Dante_Pri_In[1]: "Lead Vocal"`).
+
+---
+
 ## Ring Network (OptoCore)
 
 A DiGiCo system with primary and redundant OptoCore rings. The `ring` keyword declares a fiber loop where member order reflects the physical ring topology.
