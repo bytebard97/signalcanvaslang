@@ -71,7 +71,7 @@ node -e "const w = require('./pkg-node/patchlang_wasm.js'); console.log(JSON.par
 
 Read full reasoning in `../SignalCanvasFrontend/docs/REID-TODO-PATCHLANG-MIGRATION.md` (bottom section "Answers to Reid's v0.2.0 Spec Questions").
 
-1. **No `card` keyword.** Cards are just templates with `meta { device_type: "card" }`. No new grammar needed.
+1. **No `card` keyword.** Cards are just templates with `meta { kind: "card" }`. No new grammar needed.
 
 2. **`ring` keyword with hybrid member syntax (implemented).** `member Console` (implicit port resolution) and `member Console.OptoCore` (explicit port) both accepted. Grammar: `Ring` and `Member` tokens in the lexer, `RingDecl`/`RingMember` AST nodes, `parse_ring()` and `parse_ring_member()` in the parser. DRC rules R01-R04 validate ring declarations. 39 tests passing.
 

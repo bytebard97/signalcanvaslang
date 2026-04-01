@@ -30,7 +30,7 @@ fn template_with_meta_block_output() {
     manufacturer: "Yamaha"
     model: "CL5"
     category: "Console"
-    device_type: "device"
+    kind: "device"
   }
   ports { X: out }
 }"#,
@@ -43,7 +43,7 @@ fn template_with_meta_block_output() {
     assert_eq!(meta["manufacturer"], "Yamaha");
     assert_eq!(meta["model"], "CL5");
     assert_eq!(meta["category"], "Console");
-    assert_eq!(meta["device_type"], "device");
+    assert_eq!(meta["kind"], "device");
 }
 
 // ── Test 2: Template with full port definitions ──────────────────────────────

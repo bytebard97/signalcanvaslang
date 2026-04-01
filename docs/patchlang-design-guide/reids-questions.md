@@ -4,7 +4,7 @@ These are the 5 questions from the bottom of `docs/plans/2026-03-23-patchlang-v2
 
 **Q1: Does the `card` keyword approach work, or cards defined inside templates?**
 
-No `card` keyword. Cards are regular templates with `meta { device_type: "card", fits: "MY_Format" }`. Cards and templates are structurally identical — both have `ports` and `meta`. If we later need a `card` keyword, we can add it as syntactic sugar that desugars to a template (non-breaking). Removing a keyword would be breaking. See Compiler section → "Cards Are Templates."
+No `card` keyword. Cards are regular templates with `meta { kind: "card", fits: "MY_Format" }`. Cards and templates are structurally identical — both have `ports` and `meta`. If we later need a `card` keyword, we can add it as syntactic sugar that desugars to a template (non-breaking). Removing a keyword would be breaking. See Compiler section → "Cards Are Templates."
 
 **Q2: Should `ring` member accept just instance name or require port reference?**
 

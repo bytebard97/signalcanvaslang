@@ -14,7 +14,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INPUT="${1:-$SCRIPT_DIR/patchlang-design-guide}"
-OUTPUT="${2:-$SCRIPT_DIR/patchlang-v024-spec.pdf}"
+OUTPUT="${2:-$SCRIPT_DIR/patchlang-v026-spec.pdf}"
 TMPDIR="$(mktemp -d)"
 
 trap 'rm -rf "$TMPDIR"' EXIT

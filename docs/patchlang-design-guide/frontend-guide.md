@@ -93,7 +93,7 @@ Any level can be saved as a reusable block. This is a frontend/backend workflow:
 | **Connects** | Two connects per bidirectional cable, each with its own cable metadata. |
 | **Bridges** | Targets use directional port names (signal direction determines `_In` vs `_Out`). |
 | **Config labels** | Reference split port names (e.g., `Dante_Pri_In[1]`). |
-| **Cards** | `device_type: "card"` and `fits: "SlotFormat"` in meta. |
+| **Cards** | `kind: "card"` and `fits: "SlotFormat"` in meta. |
 | **Slots** | Assignments use bare identifiers (not quoted strings). |
 | **Rings** | The parser fully supports `ring`. Collect ring-member connections, group them by ring, and emit `ring` declarations for roundtrip fidelity. Do not emit ring-member connections as `connect` statements. |
 | **IDs** | `pl::template::port` format. Route: `rule::template::src::dst`. Slot: `slot::template::slot`. |

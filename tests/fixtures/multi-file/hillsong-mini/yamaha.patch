@@ -19,7 +19,7 @@ template Rio3224 {
     manufacturer: "Yamaha"
     model: "Rio3224"
     category: "Stagebox"
-    device_type: "fixed-converter"
+    kind: "fixed-converter"
   }
   ports {
     Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]

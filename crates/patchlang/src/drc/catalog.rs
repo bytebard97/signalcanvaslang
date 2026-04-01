@@ -168,11 +168,12 @@ pub fn are_connectors_compatible(a: &str, b: &str) -> bool {
     false
 }
 
-/// Known device_type values for meta validation hints.
+/// Known kind values for meta validation hints.
 /// Source of truth: patchlang-v022-spec.md §8.5
-pub const KNOWN_DEVICE_TYPES: &[&str] = &[
+pub const KNOWN_KINDS: &[&str] = &[
     "device", "card", "fixed-converter", "stage-core",
     "mic-di", "mic-splitter", "rf-system",
+    "system", "venue",
 ];
 
 /// Known rf_subtype values for meta validation hints.

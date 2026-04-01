@@ -4,7 +4,7 @@ The decisions in this spec were reached through structured Socratic debates with
 
 ## Cards: Template with Meta vs Keyword
 
-**Decision: No `card` keyword. Cards are templates with `device_type: "card"` meta. Confidence: 88%.**
+**Decision: No `card` keyword. Cards are templates with `kind: "card"` meta. Confidence: 88%.**
 
 Cards and templates are structurally identical — both have `ports` and `meta`. Adding a keyword is irreversible. If we later discover we need one, we can add `card` as syntactic sugar that desugars to a template (non-breaking). Removing a keyword is breaking.
 

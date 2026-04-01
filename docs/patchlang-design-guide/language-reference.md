@@ -53,7 +53,7 @@ Keywords can be used as property keys but not as names for templates, instances,
 
 `for`, `over`, and `generate` are reserved for future use (parametric template generation). No grammar production exists for them yet.
 
-`card` is **not** a keyword — it is available as an identifier. Card templates use `meta { device_type: "card" }` instead.
+`card` is **not** a keyword — it is available as an identifier. Card templates use `meta { kind: "card" }` instead.
 
 ### Annotations
 
@@ -172,7 +172,25 @@ Key-value metadata inside a template.
 meta-block = "meta" "{" { key-value-pair } "}" ;
 ```
 
-Standard keys: `manufacturer`, `model`, `category`. Custom keys are allowed.
+Standard keys: `kind`, `manufacturer`, `model`, `category`. Custom keys are allowed.
+
+The `kind` key classifies the template's role in the hierarchy. Known values:
+
+| Kind | Meaning |
+|------|---------|
+| `device` | Physical hardware (default when `kind` is absent) |
+| `card` | Expansion card — requires `fits` |
+| `fixed-converter` | Deterministic routing device (stagebox, bridge) |
+| `stage-core` | Passive XLR loom/snake |
+| `mic-di` | Single microphone or DI box |
+| `mic-splitter` | Multi-way analogue signal splitter |
+| `rf-system` | Wireless mic receiver, IEM transmitter |
+| `system` | Logical grouping of devices (room, rack, subsystem) |
+| `venue` | Top-level facility or building |
+
+Unknown values trigger an info-level warning. See D011 for rationale.
+
+**Deprecated:** `device_type` is accepted as an alias for `kind` during migration.
 
 ### Ports Block
 
@@ -703,8 +721,8 @@ The compiler runs DRC checks after parsing and auto-resolution. Diagnostics have
 | C02 | Convention | Warning | Duplicate connection (same source-target pair) |
 | C03 | Convention | Info | Template declared with zero ports |
 | C04 | Convention | Info | Bus declared with zero outputs |
-| M-I01 | Meta | Info | Unknown `device_type` value |
+| M-I01 | Meta | Info | Unknown `kind` value |
 | M-I03 | Meta | Info | Unknown `rf_subtype` value |
-| M-I04 | Meta | Info | `rf_band` set but `device_type` is not `rf-system` |
+| M-I04 | Meta | Info | `rf_band` set but `kind` is not `rf-system` |
 | M-I05 | Meta | Warning | `rf_min_channels` must be positive |
 | M-I06 | Meta | Warning | `rf_max_channels` less than `rf_min_channels` |
