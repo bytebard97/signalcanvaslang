@@ -77,7 +77,7 @@ The bridge target is where the signal is *going*, not where it comes from.
 `FOH_Console` is valid. `FOH-Console` is a parse error.
 
 **5. `card` is not a keyword.**
-Cards are regular templates with `meta { device_type: "card", fits: "SlotFormat" }`.
+Cards are regular templates with `meta { kind: "card", fits: "SlotFormat" }`.
 There is no `card` declaration syntax.
 
 **6. Slot assignments use bare identifiers, not quoted strings.**
@@ -382,7 +382,7 @@ Full error code table:
 | A03 | Auto | Error | Scalar port or cannot infer count | Add explicit range |
 | A04 | Auto | Error | Auto-assignment overflowed port range | Reduce channels or expand port range |
 | A05 | Auto | Error | No contiguous block available (fragmented) | Reorder explicit assignments |
-| M-I01 | Meta | Info | Unknown `device_type` value | Check meta spec |
+| M-I01 | Meta | Info | Unknown `kind` value | Check meta spec |
 | M-I05 | Meta | Warning | `rf_min_channels` must be positive | Fix RF channel count |
 | M-I06 | Meta | Warning | `rf_max_channels` < `rf_min_channels` | Fix RF channel range |
 
@@ -409,7 +409,7 @@ When given a hardware spec sheet, follow this order:
 1. **Name the template** after the model number only — `CL5`, not `Yamaha_CL5`.
 
 2. **Fill `meta`** — manufacturer, model, category. For expansion cards add
-   `device_type: "card"` and `fits: "SlotFormat"`.
+   `kind: "card"` and `fits: "SlotFormat"`.
 
 3. **Map physical ports** — for each physical connector on the device:
    - Identify connector type (`XLR`, `BNC_75`, `etherCON`, etc.)

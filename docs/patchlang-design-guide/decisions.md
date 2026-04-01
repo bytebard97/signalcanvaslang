@@ -244,3 +244,62 @@ NMOS IS-04/IS-09 (the industry standard for IP broadcast device registration) mo
 - `LAN: io(RJ45)` (all devices) → leave as `io()`, excluded from signal graph
 
 **See also:** D004 (AVB/Milan — same class of question, still pending)
+
+---
+
+### D011 — Template Classification (`kind` Meta Field)
+**2026-04-01** | **Decided**
+
+**Question:** How should PatchLang distinguish different types of templates (devices, rooms, buildings, venues)? Should the language add new keywords (`device`, `system`, `venue`), or use metadata?
+
+**Decision:** No new keywords. Keep `template` as the sole declaration keyword. Rename the existing `device_type` meta field to `kind` and expand it with hierarchy values:
+
+**Device kinds** (physical hardware):
+- `device` (default when absent), `card`, `fixed-converter`, `stage-core`, `mic-di`, `mic-splitter`, `rf-system`
+
+**Composition kinds** (organizational groupings):
+- `system` — logical grouping of devices (FOH rack, stage system, monitor world)
+- `venue` — top-level facility or building
+
+```patch
+# A device
+template CL5 {
+  meta { kind: "device", manufacturer: "Yamaha", model: "CL5" }
+  ports { ... }
+}
+
+# A system (room-level composition)
+template FOH_System {
+  meta { kind: "system" }
+  instance Console is CL5 { location: "FOH Mix Position" }
+  instance Playback is RME_Digiface { location: "FOH Rack" }
+  connect Playback.Dante_Out[1..8] -> Console.Dante_Pri_In[33..40]
+}
+
+# A venue (top-level)
+template MTG_Campus {
+  meta { kind: "venue" }
+  instance FOH is FOH_System { location: "Front of House" }
+  instance Stage is Stage_System { location: "Main Stage" }
+  connect Stage.Dante_Tie -> FOH.Stage_Tie
+}
+```
+
+**DRC rules keyed on `kind`:**
+- `kind: "device"` in stock libraries requires `manufacturer` and `model`
+- `kind: "venue"` must not declare physical ports
+- `kind: "system"` and `kind: "venue"` must contain at least one `instance`
+
+**Backward compatibility:** `device_type` is accepted as an alias for `kind` during migration. The compiler emits an info-level deprecation warning (M-I02) when `device_type` is encountered.
+
+**Rejected alternatives:**
+
+1. *Typed keywords (`device`, `system`, `venue`):* Would require 2–3 new AST nodes, parser branches, and DRC paths. Contradicts the D005 card precedent (metadata over keywords). Creates classification ambiguity at edge cases (is a rack-mounted stagebox with internal DSP a `device` or a `system`?). Breaks compositional neutrality — templates can no longer nest freely.
+
+2. *Two separate fields (`kind` + `device_type`):* Introduces cross-validation burden (what if `kind: "venue", device_type: "card"`?). The DRC code in `meta.rs` treats `device_type` as a single flat discriminator — splitting it into two axes adds complexity for no current consumer. YAGNI.
+
+3. *Keep `device_type` unchanged:* `device_type: "venue"` is semantically wrong — a venue is not a device type. The field name misleads both human readers and LLMs.
+
+**Rationale:** The D005 card decision established the precedent: metadata over keywords for template classification. This decision extends that pattern up the hierarchy. A validated `kind` field captures 80–90% of the benefit of typed keywords (DRC scoping, Probe clarity, readability) at roughly 10% of the cost (no grammar changes, no migration of existing syntax, no compositional restrictions). The rename from `device_type` to `kind` reflects the broadened scope — `kind` covers both device subcategories and hierarchy levels in a single flat enum. The name `kind` was chosen over `role` (fails at `role: "device"` — circular), `type` (reserved word in Rust/TypeScript/Python), and `category` (already used for freeform grouping).
+
+**Affects:** `compiler.md` Meta Schema and Device Types sections, `language-reference.md` Meta Block, `debate-context.md` Decisions Already Made, `catalog.rs` KNOWN_DEVICE_TYPES → KNOWN_KINDS, `meta.rs` validation logic, SKILL.md, all fixture `.patch` files containing `device_type`.

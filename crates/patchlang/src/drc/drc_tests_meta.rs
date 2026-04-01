@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod slots_fits {
-    use crate::drc::{self, DRCLayer, Severity};
+    use crate::drc;
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
@@ -11,7 +11,7 @@ mod slots_fits {
     #[test]
     fn single_fits_value_matches_slot() {
         let diags = check(r#"
-            template Card { meta { device_type: "card", fits: "MY_Format" } ports { X: out } }
+            template Card { meta { kind: "card", fits: "MY_Format" } ports { X: out } }
             template Console { ports { Y: out } slot Bay: MY_Format }
             instance C is Console { slot Bay: Card }
         "#);
@@ -23,7 +23,7 @@ mod slots_fits {
     #[test]
     fn comma_separated_fits_matches_slot() {
         let diags = check(r#"
-            template Card { meta { device_type: "card", fits: "MY_Format, HDX_Format" } ports { X: out } }
+            template Card { meta { kind: "card", fits: "MY_Format, HDX_Format" } ports { X: out } }
             template Console { ports { Y: out } slot Bay: MY_Format }
             instance C is Console { slot Bay: Card }
         "#);
@@ -35,7 +35,7 @@ mod slots_fits {
     #[test]
     fn comma_separated_fits_second_value_matches() {
         let diags = check(r#"
-            template Card { meta { device_type: "card", fits: "HDX_Format, MY_Format" } ports { X: out } }
+            template Card { meta { kind: "card", fits: "HDX_Format, MY_Format" } ports { X: out } }
             template Console { ports { Y: out } slot Bay: MY_Format }
             instance C is Console { slot Bay: Card }
         "#);
@@ -46,7 +46,7 @@ mod slots_fits {
     #[test]
     fn fits_value_does_not_match_slot() {
         let diags = check(r#"
-            template Card { meta { device_type: "card", fits: "HDX_Format" } ports { X: out } }
+            template Card { meta { kind: "card", fits: "HDX_Format" } ports { X: out } }
             template Console { ports { Y: out } slot Bay: MY_Format }
             instance C is Console { slot Bay: Card }
         "#);
@@ -70,7 +70,7 @@ mod meta_rf {
     fn rf_min_channels_zero_warns() {
         let diags = check(r#"template T {
             meta {
-                device_type: "rf-system"
+                kind: "rf-system"
                 rf_subtype: "radio-mic"
                 rf_min_channels: 0
                 rf_max_channels: 4
@@ -88,7 +88,7 @@ mod meta_rf {
     fn rf_max_less_than_min_warns() {
         let diags = check(r#"template T {
             meta {
-                device_type: "rf-system"
+                kind: "rf-system"
                 rf_subtype: "radio-mic"
                 rf_min_channels: 8
                 rf_max_channels: 4
@@ -106,7 +106,7 @@ mod meta_rf {
     fn valid_rf_channels_no_warning() {
         let diags = check(r#"template T {
             meta {
-                device_type: "rf-system"
+                kind: "rf-system"
                 rf_subtype: "radio-mic"
                 rf_min_channels: 4
                 rf_max_channels: 4

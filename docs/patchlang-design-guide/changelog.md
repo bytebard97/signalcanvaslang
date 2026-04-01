@@ -1,5 +1,15 @@
 ## Revision History
 
+### v0.2.6 — 2026-04-01 (template kinds)
+
+- **D011 decided: Template classification via `kind` meta field.** Replaces `device_type` with a broader `kind` field that classifies templates as devices, systems, or venues. No new keywords — `template` remains the sole declaration keyword. Decided via Socratic debate: typed keywords (`device`, `system`, `venue`) rejected in favor of validated metadata, consistent with D005 card precedent.
+- **New `kind` values:** `system` (logical grouping of devices — rooms, racks, subsystems) and `venue` (top-level facility or building) join existing device kinds (`device`, `card`, `fixed-converter`, `stage-core`, `mic-di`, `mic-splitter`, `rf-system`).
+- **DRC rules keyed on `kind`:** `device` in stock libraries requires `manufacturer`/`model`. `venue` must not declare physical ports. `system` and `venue` must contain at least one `instance`.
+- **Backward compatibility:** `device_type` accepted as deprecated alias for `kind`. Compiler emits info-level M-I02 deprecation warning. No breaking changes.
+- **Naming rationale:** `kind` chosen over `role` (circular at `role: "device"`), `type` (reserved word in Rust/TS/Python), and `category` (already used for freeform grouping).
+- **Migration script:** `scripts/migrate-device-type-to-kind.py` renames `device_type` → `kind` across `.patch`, `.rs`, `.ts`, `.vue`, `.md`, and `.py` files.
+- **Compiler change:** `KNOWN_DEVICE_TYPES` renamed to `KNOWN_KINDS` in `catalog.rs`. `meta.rs` checks both `kind` and `device_type` keys with deprecation warning for the latter.
+
 ### v0.2.5 — 2026-03-31 (bus label)
 
 - **D010 decided: Bus display names via `label:` in bus body.** Broadcast console naming conventions use `>` and `-` (e.g. `SPOTIFY>FOH`, `PQ>MM`) that are invalid PatchLang identifiers. The bus identifier remains the stable cross-reference key; `label:` carries the human-readable display name. Pattern is consistent with `config` port labels. Decided via Socratic debate — sidecar rejected as wrong semantic layer for named signal-flow entities.
@@ -45,7 +55,7 @@
 
 ### v0.2.2 — 2026-03-23
 
-- **Cards and slots.** Templates with `device_type: "card"` and `fits` meta for slot compatibility. Slot assignments use bare identifiers (not quoted strings).
+- **Cards and slots.** Templates with `kind: "card"` and `fits` meta for slot compatibility. Slot assignments use bare identifiers (not quoted strings).
 - **Config labels.** Use directional port names: `label Dante_Pri_In[1]: "Lead Vocal"`.
 - **Bidirectional cables.** Two `connect` statements per cable (forward + return path).
 - **Template naming.** Model only (`CL5` not `Yamaha_CL5`).

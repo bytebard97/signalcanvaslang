@@ -42,14 +42,14 @@ WordClock uses **split `in`/`out`** — not `io`. Every WordClock-capable device
 
 ### Cards Are Templates
 
-No `card` keyword. Cards are templates with `meta { device_type: "card" }`.
+No `card` keyword. Cards are templates with `meta { kind: "card" }`.
 
 ```
 template MY16_AUD {
   meta {
     manufacturer: "Yamaha"
     model: "MY16-AUD"
-    device_type: "card"
+    kind: "card"
     fits: "MY_Format"
   }
   ports {
@@ -96,7 +96,7 @@ The `::` separator cannot appear in PatchLang identifiers, making parsing unambi
 
 | Key | Type | Used by | Validated |
 |-----|------|---------|-----------|
-| `device_type` | string | UI filtering, DRC | Known values list |
+| `kind` | string | UI filtering, DRC, hierarchy | Known values list (see below) |
 | `fits` | string (comma-sep) | Slot compatibility | Matches slot formats in scope |
 | `rf_subtype` | string | RF system config | Known values list |
 | `rf_min_channels` | number | RF channel range | Must be positive |
@@ -106,14 +106,18 @@ The `::` separator cannot appear in PatchLang identifiers, making parsing unambi
 | `model` | string | Library browsing | No validation |
 | `category` | string | Library browsing | No validation |
 
-### Device Types
+**Deprecated:** `device_type` is accepted as an alias for `kind` during the transition period. The compiler emits an info-level deprecation warning when `device_type` is encountered and maps it to `kind` internally. New files must use `kind`.
 
-The `device_type` meta key tells the UI and DRC how to treat a template. Unknown values trigger an info-level warning (not an error), so custom types are allowed.
+### Template Kinds
+
+The `kind` meta key classifies what a template represents in the project hierarchy. It replaces the former `device_type` field (see D011). Unknown values trigger an info-level warning (not an error), so custom kinds are allowed.
+
+**Device kinds** — templates representing physical hardware:
 
 | Value | Meaning | DRC / UI behavior |
 |-------|---------|-------------------|
 | *(absent)* | Generic device | Default. No special handling. |
-| `device` | Generic (console, amp, camera, router) | Default when absent. |
+| `device` | Generic (console, amp, camera, router) | Default when absent. Requires `manufacturer` and `model` in stock libraries. |
 | `card` | Expansion card (MY16-AUD, HDX) | Uses `fits` for slot compatibility |
 | `fixed-converter` | Deterministic routing (stagebox, protocol bridge) | DRC: deterministic routing assumed |
 | `stage-core` | Passive XLR loom/snake | — |
@@ -121,16 +125,23 @@ The `device_type` meta key tells the UI and DRC how to treat a template. Unknown
 | `mic-splitter` | Multi-way analogue signal splitter | See "Splitter Modeling" below |
 | `rf-system` | Wireless mic receiver, IEM transmitter | Enables RF meta keys. See "RF Systems" below |
 
+**Composition kinds** — templates representing organizational groupings of devices:
+
+| Value | Meaning | DRC / UI behavior |
+|-------|---------|-------------------|
+| `system` | Logical grouping of devices (FOH rack, stage system, monitor world) | Must contain at least one `instance`. |
+| `venue` | Top-level facility or building | Must not declare physical ports. Must contain at least one `instance`. |
+
 ### RF Systems
 
-RF devices use `device_type: "rf-system"` and additional meta keys for frequency management:
+RF devices use `kind: "rf-system"` and additional meta keys for frequency management:
 
 ```
 template AD4Q {
   meta {
     manufacturer: "Shure"
     model: "AD4Q"
-    device_type: "rf-system"
+    kind: "rf-system"
     rf_subtype: "radio-mic"
     rf_min_channels: 4
     rf_max_channels: 4
@@ -189,13 +200,13 @@ ring OptoCore_Redundant {
 
 ### Splitter Modeling
 
-Splitters use `device_type: "splitter"` and model multiple outputs as separate port arrays:
+Splitters use `kind: "mic-splitter"` and model multiple outputs as separate port arrays:
 
 ```
 template Splitter_80ch {
   meta {
     model: "80-ch 3-way Splitter"
-    device_type: "mic-splitter"
+    kind: "mic-splitter"
   }
   ports {
     Inputs[1..80]: in(XLR)
@@ -499,9 +510,10 @@ These run as part of the structural layer but use distinct codes:
 
 | Code | Severity | Rule |
 |------|----------|------|
-| M-I01 | Info | Unknown `device_type` value |
+| M-I01 | Info | Unknown `kind` value |
+| M-I02 | Info | Deprecated `device_type` used — migrate to `kind` |
 | M-I03 | Info | Unknown `rf_subtype` value |
-| M-I04 | Info | `rf_band` present but `device_type` is not `rf-system` |
+| M-I04 | Info | `rf_band` present but `kind` is not `rf-system` |
 | M-I05 | Warning | `rf_min_channels` is zero (must be positive) |
 | M-I06 | Warning | `rf_max_channels` is less than `rf_min_channels` |
 

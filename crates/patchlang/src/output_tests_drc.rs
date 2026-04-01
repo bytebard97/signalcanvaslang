@@ -161,13 +161,13 @@ fn l01_protocol_mismatch_produces_logical_diagnostic() {
     );
 }
 
-// ── Test 8: M-I01 — Unknown device_type (info, not error) ────────────────────
+// ── Test 8: M-I01 — Unknown kind (info, not error) ────────────────────
 
 #[test]
-fn mi01_unknown_device_type_produces_info_diagnostic() {
+fn mi01_unknown_kind_produces_info_diagnostic() {
     let source = r#"
         template Dev {
-            meta { device_type: "flux-capacitor" }
+            meta { kind: "flux-capacitor" }
             ports { X: out }
         }
     "#;
@@ -191,7 +191,7 @@ fn mi05_rf_min_channels_zero_produces_warning() {
     let source = r#"
         template Dev {
             meta {
-                device_type: "rf-system"
+                kind: "rf-system"
                 rf_subtype: "radio-mic"
                 rf_min_channels: 0
                 rf_max_channels: 4

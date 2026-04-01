@@ -168,7 +168,9 @@ These are final. Do not re-litigate them.
 
 **IO direction model (decided):** Channel-based protocols (Dante, AES67, MADI, Analogue, AES3, SDI, SoundGrid, NDI, SMPTE2110) and WordClock → explicit `in` + `out` lines. Ring/bus (OptoCore, TWINLANe, AVB/Milan, GigaACE) + management (Ethernet_Mgmt) → `io`.
 
-**No `card` keyword.** Cards are templates with `meta { device_type: "card", fits: "FormatName" }`.
+**No `card` keyword.** Cards are templates with `meta { kind: "card", fits: "FormatName" }`.
+
+**D011 — Template classification uses `kind` meta field, not new keywords.** `device_type` is renamed to `kind`. Values: `device`, `card`, `fixed-converter`, `stage-core`, `mic-di`, `mic-splitter`, `rf-system`, `system`, `venue`. `device_type` accepted as deprecated alias during migration.
 
 **Ring members use explicit port references in emitted code.** `member Console.OptoCore_A` not `member Console`.
 
