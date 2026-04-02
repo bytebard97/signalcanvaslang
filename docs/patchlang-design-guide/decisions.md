@@ -303,3 +303,68 @@ template MTG_Campus {
 **Rationale:** The D005 card decision established the precedent: metadata over keywords for template classification. This decision extends that pattern up the hierarchy. A validated `kind` field captures 80–90% of the benefit of typed keywords (DRC scoping, Probe clarity, readability) at roughly 10% of the cost (no grammar changes, no migration of existing syntax, no compositional restrictions). The rename from `device_type` to `kind` reflects the broadened scope — `kind` covers both device subcategories and hierarchy levels in a single flat enum. The name `kind` was chosen over `role` (fails at `role: "device"` — circular), `type` (reserved word in Rust/TypeScript/Python), and `category` (already used for freeform grouping).
 
 **Affects:** `compiler.md` Meta Schema and Device Types sections, `language-reference.md` Meta Block, `debate-context.md` Decisions Already Made, `catalog.rs` KNOWN_DEVICE_TYPES → KNOWN_KINDS, `meta.rs` validation logic, SKILL.md, all fixture `.patch` files containing `device_type`.
+
+---
+
+### D012 — Backbone Connection Syntax
+**2026-04-02** | **Decided** (Socratic debate)
+
+**Question:** How should PatchLang express transparent backbone connections — the surface-to-engine link that fuses two devices into one logical system (A&H dLive S7000 ↔ DM64 via GigaACE, Yamaha RIVAGE Surface ↔ DSP Engine, DiGiCo SD-Rack ↔ Console via OptoCore)?
+
+**Decision:** Use `backbone: true` as a boolean key-value property on existing `connect` statements. No new keyword, no parser changes.
+
+```patch
+connect S7000.GigaACE_Pri_Out -> DM64.GigaACE_Pri_In {
+  backbone: true
+  cable: "GigaACE_Pri"
+}
+connect DM64.GigaACE_Pri_Out -> S7000.GigaACE_Pri_In {
+  backbone: true
+  cable: "GigaACE_Pri"
+}
+```
+
+Dual redundant GigaACE = 4 connect statements (2 directions × 2 cables), each with `backbone: true`. Consistent with the existing bidirectional cable convention.
+
+**Backbone semantics:**
+- Signal Trace traverses backbone connections transparently (no visible hop displayed to user)
+- DRC exempts backbone connections from direction/protocol validation — the two devices operate as one routing grid
+- DRC warns if a backbone connect is missing its return direction
+- DRC may offer advisory warnings for unusual device kind pairings (e.g., two stageboxes), never hard errors
+- Backbone connections are not user-patchable — they represent infrastructure
+
+**Frontend rendering (agreed with Reid):**
+- Two separate canvas nodes, each showing their own physical IO
+- Backbone wire renders subtle/invisible (distinct from normal patchable connections)
+- Internal routing opens a combined view showing IO from both devices
+- Signal trace flows transparently across backbone
+
+**Manufacturers covered by this pattern:**
+- A&H dLive (GigaACE over Cat5e, 700+ channels, dual redundancy)
+- Yamaha RIVAGE PM (proprietary Ethernet, Surface ↔ DSP Engine)
+- DiGiCo SD-Range (OptoCore backbone, SD-Rack ↔ Console)
+- Lawo mc² (RAVENNA backbone to A__UHD Core / Nova73)
+- Calrec Summa/Impulse (Hydra2/BlueFin2 backbone to Modular I/O)
+- SSL System T (Dante backbone with proprietary control layer to Network I/O)
+- Studer Vista (A-Link backbone to D21m I/O)
+- Exceptions: integrated consoles (A&H Avantis/SQ, Yamaha CSD-R7/PM7) — engine built into surface, no backbone needed
+
+**Rejected alternatives:**
+
+1. *`mode: "backbone"` (Reid's original proposal):* The `mode` field already carries video transport semantics (`mode: "quad_link_4K"` for SDI). Using it for connection classification (backbone vs normal) overloads a single field with two unrelated semantic axes — "how a signal is transported" vs "what role this connection plays." A dedicated boolean avoids future collision.
+
+2. *Implicit detection via `Console Link` protocol:* When both interfaces use `Console Link` protocol, auto-detect as backbone without explicit annotation. Rejected because it violates PatchLang's no-ambiguity principle (design principle 4) — identical syntax would produce different semantic behavior depending on protocol metadata in template files. An engineer reading the `.patch` file cannot tell whether a connection is backbone without cross-referencing templates. If auto-detection is wanted later, it should be a DRC *suggestion* ("this looks like a backbone — did you mean `backbone: true`?"), not silent reclassification.
+
+3. *`bridge` for backbone connections:* `bridge` means "logical signal mapping, no physical medium implied." GigaACE is a physical Cat5e cable — using `bridge` for it would misrepresent the physical reality. Additionally, Probe would need to emit `bridge` for a physical cable, which is semantically wrong.
+
+4. *New `backbone` keyword:* Would require a new lexer token, AST node, and parser rule. The D011 card precedent is dispositive: if cards did not get a keyword, backbones should not either. Key-value metadata on existing constructs is the established pattern.
+
+5. *`link_group` for redundant pairs:* GigaACE primary + secondary could be bundled in a `link_group`. While `link_group` was designed for multi-cable logical units (quad-link SDI), backbone redundancy is a different concept — the cables are independent infrastructure paths, not parts of one signal. The frontend can group backbone connects visually without needing emission changes.
+
+**Rationale:** The Socratic debate surfaced a genuine semantic tension: `connect` means "physical cable between two ports" while backbone is described as "not patchable, not visible in signal trace." The devil's advocate argued this is a contradiction — `backbone: true` negates `connect`'s own definition. The resolution: GigaACE IS a physical cable you can touch, so `connect` is the correct physical primitive. The `backbone: true` flag changes how downstream consumers (DRC, Signal Trace, renderer) interpret the connection, not what the connection physically is. This follows the same pattern as `@suppress(structural)` — metadata that modifies how validation interprets a statement without changing the statement's physical meaning.
+
+The key design constraint is that no parser changes are needed. The compiler already accepts arbitrary key-value pairs in connect bodies. `backbone: true` is purely a semantic annotation consumed by the DRC and frontend.
+
+**Affects:** `debate-context.md` Decisions Already Made, `language-reference.md` Connect section (add backbone property documentation), `SKILL.md` (add backbone examples), example fixtures (add dLive/RIVAGE backbone examples). Frontend: rendering logic for backbone connections (Reid's domain).
+
+**Related issues:** ByteBard97/SignalCanvas#68, ByteBard97/SignalCanvas#38

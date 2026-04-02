@@ -180,6 +180,8 @@ These are final. Do not re-litigate them.
 
 **Bidirectional cables = two `connect` statements.** One per direction. Same `cable:` metadata on both.
 
+**D012 — Backbone connections use `backbone: true` on `connect`.** Surface-to-engine links (GigaACE, RIVAGE, etc.) are expressed as `connect` with `backbone: true`. No new keyword, no implicit protocol detection. Signal Trace traverses transparently; DRC exempts from direction/protocol checks. Dual redundant = 4 connect statements (2 directions × 2 cables).
+
 ---
 
 ## Key Vocabulary
