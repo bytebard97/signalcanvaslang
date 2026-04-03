@@ -368,3 +368,63 @@ The key design constraint is that no parser changes are needed. The compiler alr
 **Affects:** `debate-context.md` Decisions Already Made, `language-reference.md` Connect section (add backbone property documentation), `SKILL.md` (add backbone examples), example fixtures (add dLive/RIVAGE backbone examples). Frontend: rendering logic for backbone connections (Reid's domain).
 
 **Related issues:** ByteBard97/SignalCanvas#68, ByteBard97/SignalCanvas#38
+
+---
+
+### D013 — AES67 Interop Modeling
+**2026-04-03** | **Decided**
+
+**Question:** How should PatchLang model Dante devices operating in AES67 compatibility mode — TX stream declarations, flow slot constraints, multicast prefix matching, and redundancy limitations?
+
+**Decision:** No new syntax. Use existing constructs plus metadata:
+
+1. **AES67 TX streams** use the existing `stream` keyword with `protocol: "AES67"`.
+2. **Chipset awareness** via `dante_chipset` meta field on templates (values: `Ultimo`, `Broadway`, `Brooklyn_II`, `Brooklyn_3`, `HC`).
+3. **AES67 mode** via `aes67_mode: true` instance property.
+4. **Multicast prefix** via `multicast_prefix: 71` instance property.
+5. **DRC rules** (new `Flow` layer):
+   - F01: Flow slot exhaustion — count streams per device vs chipset limit
+   - F02: AES67 stream max 8 channels — warn if exceeded (hardware auto-splits)
+   - F03: Multicast prefix mismatch — error when TX/RX prefixes differ (silent audio failure)
+   - C05: Redundancy terminates at AES67 boundary — advisory warning
+6. **PTP clocking** already handled by D009 (instance metadata, not ports).
+
+```patch
+template Shure_MXA910 {
+  meta {
+    manufacturer: "Shure"
+    model: "MXA910"
+    kind: "device"
+    dante_chipset: "Brooklyn_II"
+  }
+  ports {
+    Dante_Pri_In[1..10]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..10]: out(etherCON) [Dante, primary]
+  }
+}
+
+instance Ceiling_Mic is Shure_MXA910 {
+  aes67_mode: true
+  multicast_prefix: 71
+}
+
+stream Ceiling_AES67 {
+  source: Ceiling_Mic.Dante_Pri
+  channels: 8
+  protocol: "AES67"
+}
+```
+
+**Rejected alternatives:**
+
+1. *New `aes67_stream` keyword:* Violates the D011/D012 precedent — metadata over keywords. The existing `stream` with `protocol: "AES67"` is sufficient.
+
+2. *Dedicated AES67 port types:* AES67 streams use the same physical Ethernet port as native Dante. No separate connector exists.
+
+3. *Full constraint modeling (firmware versions, DDM requirements, SMPTE domain locking):* YAGNI. The chipset-level constraints (flow slots, prefix matching, redundancy) catch the most common real-world failures. Firmware-level constraints can be added later if needed.
+
+**Rationale:** The research (see `docs/research/Dante AES67 Compatibility Technical Report.md`) shows that AES67 interop failures in the field are dominated by three causes: flow slot exhaustion, multicast prefix mismatch, and unexpected redundancy loss at protocol boundaries. All three are detectable with static analysis using only chipset type and instance configuration — no runtime state needed. The existing `stream` keyword naturally models AES67 TX flows. No parser changes required.
+
+**Affects:** `drc/catalog.rs` (chipset lookup table), `drc/meta.rs` (dante_chipset validation), new `drc/flow.rs` module, `drc/convention.rs` (C05 redundancy warning), `TODO.md` section 1.9.
+
+**Related issues:** ByteBard97/SignalCanvas#42
