@@ -1,0 +1,271 @@
+# ============================================================
+# Soundcraft D21m + Si Option Expansion Cards
+#
+# Slot formats:
+#   D21m_Card — Vi Series Local Racks and stageboxes (Studer heritage)
+#   Si_Option_Card — Si Expression / Performer / Impact option slots
+#
+# Used in: Soundcraft Vi, Si series consoles
+# ============================================================
+
+# --- Vi Series D21m Cards -------------------------------------
+
+template D21m_Line_In {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2425SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Line_In[1..8]: in(Dsub_25) [analog, line_level]
+  }
+}
+
+template D21m_Line_Out {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2424SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Line_Out[1..8]: out(Dsub_25) [analog, line_level]
+  }
+}
+
+template D21m_Mic_In {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2423SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Mic_In[1..4]: in(Dsub_25) [analog, mic_level, phantom_48V]
+  }
+}
+
+template D21m_AES {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2422SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    AES_In[1..16]: in(Dsub_25) [AES3, SRC]
+    AES_Out[1..16]: out(Dsub_25) [AES3]
+  }
+}
+
+template D21m_3G_SDI {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "3G SDI Card"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    SDI_In[1..16]: in(BNC_75) [SDI_3G]
+    SDI_Out[1..16]: out(BNC_75) [SDI_3G]
+  }
+}
+
+template D21m_Dolby_E {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2553SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Dolby_Decode[1..2]: in [Dolby_E]
+  }
+}
+
+template D21m_ADAT {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2360SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    ADAT_In[1..16]: in(TOSLINK) [ADAT]
+    ADAT_Out[1..16]: out(TOSLINK) [ADAT]
+  }
+}
+
+template D21m_TDIF {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2564SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    TDIF_In[1..16]: in(Dsub_25) [TDIF]
+    TDIF_Out[1..16]: out(Dsub_25) [TDIF]
+  }
+}
+
+template D21m_Dante {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "DANTE CARD"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+    Ref_In: in(BNC_75) [WordClock]
+  }
+}
+
+template D21m_MADI_Optical {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "MADI Optical"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(SC_Optical) [MADI]
+    MADI_Out[1..64]: out(SC_Optical) [MADI]
+  }
+}
+
+template D21m_MADI_Cat5 {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "MADI Cat5"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(etherCON) [MADI]
+    MADI_Out[1..64]: out(etherCON) [MADI]
+  }
+}
+
+template D21m_BLU_link {
+  meta {
+    manufacturer: "BSS"
+    model: "BLU link CARD"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    BLU_In[1..32]: in(RJ45) [BLU_link]
+    BLU_Out[1..32]: out(RJ45) [BLU_link]
+  }
+}
+
+# --- Si Series Option Cards ----------------------------------
+
+template Si_MADI_USB {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "MADI-USB Combo"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    USB_IO[1..32]: io(USB) [USB_Audio]
+    MADI_IO[1..32]: io(RJ45) [MADI]
+  }
+}
+
+template Si_Multi_Digital {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "Multi Digital"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    USB_IO[1..32]: io(USB) [USB_Audio]
+    FireWire_IO[1..32]: io(FireWire) [FireWire_Audio]
+    ADAT_In[1..8]: in(TOSLINK) [ADAT]
+    ADAT_Out[1..8]: out(TOSLINK) [ADAT]
+  }
+}
+
+template Si_Dante {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "Dante Card"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template Si_AVIOM {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "AVIOM A-NET 16"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    ANet_Out[1..16]: out(RJ45) [ANet]
+  }
+}
+
+template Si_CobraNet {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "CobraNet"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    CobraNet_In[1..32]: in(RJ45) [CobraNet]
+    CobraNet_Out[1..32]: out(RJ45) [CobraNet]
+  }
+}
+
+template Si_AES_XLR {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "AES/EBU (XLR)"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+  }
+}
+
+template Si_AES_Dsub {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "AES/EBU (D-Type)"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    AES_In[1..8]: in(Dsub_25) [AES3]
+    AES_Out[1..8]: out(Dsub_25) [AES3]
+  }
+}
+
+template Si_BLU_link {
+  meta {
+    manufacturer: "BSS"
+    model: "BLU link"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    BLU_In[1..32]: in(RJ45) [BLU_link]
+    BLU_Out[1..32]: out(RJ45) [BLU_link]
+  }
+}

@@ -1,0 +1,439 @@
+# ============================================================
+# Yamaha Mini-YGDAI (MY) Expansion Cards
+#
+# Slot format: MY_Card (Mini-YGDAI)
+# Used in: Yamaha CL, QL, PM, RIVAGE consoles
+# Each card fits a single MY slot and provides analog, digital,
+# or network I/O to the host console.
+# ============================================================
+
+# --- Proprietary Analog Cards --------------------------------
+
+template MY8_AD96 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AD96"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(Dsub_25) [analog, line_level]
+  }
+}
+
+template MY8_DA96 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-DA96"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_Out[1..8]: out(Dsub_25) [analog, line_level]
+  }
+}
+
+template MY8_AD24 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AD24"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(TRS_14) [analog, line_level]
+  }
+}
+
+template MY8_ADDA96 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-ADDA96"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(Euroblock) [analog, line_level]
+    Analog_Out[1..8]: out(Euroblock) [analog, line_level]
+  }
+}
+
+template MY4_AD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY4-AD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Mic_In[1..4]: in(XLR) [analog, mic_level]
+  }
+}
+
+template MY4_DA {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY4-DA"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Line_Out[1..4]: out(XLR) [analog, line_level]
+  }
+}
+
+template MY8_AD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(Dsub_25) [analog, line_level]
+  }
+}
+
+# --- Proprietary Digital Cards --------------------------------
+
+template MY8_AT {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AT"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    ADAT_In[1..8]: in(TOSLINK) [ADAT]
+    ADAT_Out[1..8]: out(TOSLINK) [ADAT]
+  }
+}
+
+template MY16_AT {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-AT"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    ADAT_In[1..16]: in(TOSLINK) [ADAT]
+    ADAT_Out[1..16]: out(TOSLINK) [ADAT]
+  }
+}
+
+template MY8_AE {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AE"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(Dsub_25) [AES3]
+    AES_Out[1..8]: out(Dsub_25) [AES3]
+  }
+}
+
+template MY8_AE96 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AE96"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(Dsub_25) [AES3]
+    AES_Out[1..8]: out(Dsub_25) [AES3]
+  }
+}
+
+template MY8_AE96S {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AE96S"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(Dsub_25) [AES3, SRC]
+    AES_Out[1..8]: out(Dsub_25) [AES3]
+  }
+}
+
+template MY16_AE {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-AE"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..16]: in(Dsub_25) [AES3]
+    AES_Out[1..16]: out(Dsub_25) [AES3]
+  }
+}
+
+template MY8_AEB {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AEB"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(BNC_75) [AES3id]
+    AES_Out[1..8]: out(BNC_75) [AES3id]
+    Ref_In: in(BNC_75) [WordClock]
+  }
+}
+
+template MY8_TD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-TD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    TDIF_In[1..8]: in(Dsub_25) [TDIF]
+    TDIF_Out[1..8]: out(Dsub_25) [TDIF]
+  }
+}
+
+template MY16_TD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-TD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    TDIF_In[1..16]: in(Dsub_25) [TDIF]
+    TDIF_Out[1..16]: out(Dsub_25) [TDIF]
+  }
+}
+
+# --- Networking Cards -----------------------------------------
+
+template MY16_MD64 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-MD64"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    MADI_In[1..16]: in(BNC_75) [MADI]
+    MADI_Out[1..16]: out(BNC_75) [MADI]
+    MADI_Opt_In[1..16]: in(optical) [MADI]
+    MADI_Opt_Out[1..16]: out(optical) [MADI]
+  }
+}
+
+template MY16_EX {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-EX"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Expansion_In[1..16]: in(RJ45) [MADI]
+    Expansion_Out[1..16]: out(RJ45) [MADI]
+  }
+}
+
+template DANTE_MY16_AUD2 {
+  meta {
+    manufacturer: "Audinate"
+    model: "DANTE-MY16-AUD2"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Dante_In[1..16]: in(RJ45) [Dante]
+    Dante_Out[1..16]: out(RJ45) [Dante]
+  }
+}
+
+template MY16_CII {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-CII"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    CobraNet_In[1..16]: in(RJ45) [CobraNet]
+    CobraNet_Out[1..16]: out(RJ45) [CobraNet]
+  }
+}
+
+template MY16_ES64 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-ES64"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    EtherSound_In[1..16]: in(etherCON) [EtherSound]
+    EtherSound_Out[1..16]: out(etherCON) [EtherSound]
+  }
+}
+
+template MY8_mLAN {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-mLAN"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    mLAN_In[1..8]: in(FireWire) [mLAN]
+    mLAN_Out[1..8]: out(FireWire) [mLAN]
+  }
+}
+
+template MY8_SDI_ED {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-SDI-ED"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    SDI_In[1..8]: in(BNC_75) [SDI]
+    SDI_Out[1..8]: out(BNC_75) [SDI]
+  }
+}
+
+template MY8_Lake {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-Lake"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Process_In[1..8]: in [Lake]
+    Process_Out[1..8]: out [Lake]
+  }
+}
+
+# --- Third-Party Cards ----------------------------------------
+
+template AVIOM16_o_Y1 {
+  meta {
+    manufacturer: "Aviom"
+    model: "AVIOM16/o-Y1"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    ANet_Out[1..16]: out(etherCON) [ANet]
+  }
+}
+
+template YG2 {
+  meta {
+    manufacturer: "Optocore"
+    model: "YG2"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Optocore_In[1..16]: in(LC_Fiber) [OptoCore]
+    Optocore_Out[1..16]: out(LC_Fiber) [OptoCore]
+  }
+}
+
+template YS2 {
+  meta {
+    manufacturer: "Optocore"
+    model: "YS2"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Optocore_In[1..16]: in(LC_Fiber) [OptoCore]
+    Optocore_Out[1..16]: out(LC_Fiber) [OptoCore]
+  }
+}
+
+template RN341_MY {
+  meta {
+    manufacturer: "Riedel"
+    model: "RN.341.MY"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    RockNet_In[1..16]: in(RJ45) [RockNet]
+    RockNet_Out[1..16]: out(RJ45) [RockNet]
+  }
+}
+
+template WSG_Y16 {
+  meta {
+    manufacturer: "Waves"
+    model: "WSG-Y16"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    SoundGrid_In[1..16]: in(RJ45) [SoundGrid]
+    SoundGrid_Out[1..16]: out(RJ45) [SoundGrid]
+  }
+}
+
+template e16io_MY16 {
+  meta {
+    manufacturer: "Pivitec"
+    model: "e16i/o-MY16"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AVB_In[1..16]: in(etherCON) [AVB]
+    AVB_Out[1..16]: out(etherCON) [AVB]
+  }
+}
+
+template VIM_MY32M {
+  meta {
+    manufacturer: "LightViper"
+    model: "VIM-MY32M"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Fiber_In[1..16]: in(LC_Fiber) [FiberOptic]
+    Fiber_Out[1..8]: out(LC_Fiber) [FiberOptic]
+  }
+}
+
+template AP8AD {
+  meta {
+    manufacturer: "Apogee"
+    model: "AP8AD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(Dsub_25) [analog, line_level]
+  }
+}
+
+template AP8DA {
+  meta {
+    manufacturer: "Apogee"
+    model: "AP8DA"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_Out[1..8]: out(Dsub_25) [analog, line_level]
+  }
+}

@@ -1,0 +1,195 @@
+# ============================================================
+# Allen & Heath I/O Port + SQ Option Expansion Cards
+#
+# Slot formats:
+#   IO_Port_Card — dLive MixRack / Avantis I/O Ports
+#   SQ_Option_Card — SQ / AHM option slots
+#
+# Used in: dLive, Avantis, SQ, AHM series
+# ============================================================
+
+# --- dLive / Avantis I/O Port Cards --------------------------
+
+template M_DL_DANTE128_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-DANTE128-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    Dante_In[1..128]: in(etherCON) [Dante]
+    Dante_Out[1..128]: out(etherCON) [Dante]
+  }
+}
+
+template M_DL_DANTE64_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-DANTE64-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(etherCON) [Dante]
+    Dante_Out[1..64]: out(etherCON) [Dante]
+  }
+}
+
+template M_DL_SMADI_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-SMADI-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    MADI_BNC_In[1..128]: in(BNC_75) [MADI]
+    MADI_BNC_Out[1..128]: out(BNC_75) [MADI]
+    MADI_SFP_In[1..128]: in(SFP) [MADI]
+    MADI_SFP_Out[1..128]: out(SFP) [MADI]
+  }
+}
+
+template M_DL_GACE_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-GACE-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    gigaACE_In[1..128]: in(etherCON) [gigaACE]
+    gigaACE_Out[1..128]: out(etherCON) [gigaACE]
+  }
+}
+
+template M_DL_GOPT_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-GOPT-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    fibreACE_In[1..128]: in(LC_Fiber) [fibreACE]
+    fibreACE_Out[1..128]: out(LC_Fiber) [fibreACE]
+  }
+}
+
+template M_DL_DXLINK_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-DXLINK-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    DXLink_In[1..128]: in(etherCON) [DXLink]
+    DXLink_Out[1..128]: out(etherCON) [DXLink]
+  }
+}
+
+template M_DL_WAVES3_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-WAVES3-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    SoundGrid_In[1..128]: in(etherCON) [SoundGrid]
+    SoundGrid_Out[1..128]: out(etherCON) [SoundGrid]
+  }
+}
+
+template M_DL_AES {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-AES"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    AES_Out[1..10]: out(XLR) [AES3]
+  }
+}
+
+template M_DL_ADAPT {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-DL-ADAPT"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    Legacy_IO[1..8]: io [iLive_Legacy]
+  }
+}
+
+# --- SQ / AHM Option Cards -----------------------------------
+
+template M_SQ_DANT64_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-SQ-DANT64-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template M_SQ_DANT32_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-SQ-DANT32-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    Dante_In[1..32]: in(RJ45) [Dante]
+    Dante_Out[1..32]: out(RJ45) [Dante]
+  }
+}
+
+template M_SQ_WAVES3_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-SQ-WAVES3-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    SoundGrid_In[1..64]: in(RJ45) [SoundGrid]
+    SoundGrid_Out[1..64]: out(RJ45) [SoundGrid]
+  }
+}
+
+template M_SQ_MADI_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-SQ-MADI-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template M_SQ_SLINK_A {
+  meta {
+    manufacturer: "Allen & Heath"
+    model: "M-SQ-SLINK-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    SLink_In[1..128]: in(etherCON) [SLink]
+    SLink_Out[1..128]: out(etherCON) [SLink]
+  }
+}
