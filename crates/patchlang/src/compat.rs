@@ -390,7 +390,9 @@ fn kv_to_string_record(kvs: &[ast::KeyValue]) -> BTreeMap<String, String> {
                 ast::KvValue::Num { value } => value.to_string(),
                 ast::KvValue::PortRef(pr) => stringify_port_ref(pr),
             };
-            (kv.key.clone(), val)
+            // Normalize deprecated device_type → kind (D011)
+            let key = if kv.key == "device_type" { "kind".to_string() } else { kv.key.clone() };
+            (key, val)
         })
         .collect()
 }
@@ -405,7 +407,9 @@ fn kv_to_arg_record(kvs: &[ast::KeyValue]) -> BTreeMap<String, TsArgValue> {
                 ast::KvValue::Num { value } => TsArgValue::Num(*value),
                 ast::KvValue::PortRef(pr) => TsArgValue::Str(stringify_port_ref(pr)),
             };
-            (kv.key.clone(), val)
+            // Normalize deprecated device_type → kind (D011)
+            let key = if kv.key == "device_type" { "kind".to_string() } else { kv.key.clone() };
+            (key, val)
         })
         .collect()
 }

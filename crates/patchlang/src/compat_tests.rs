@@ -80,6 +80,37 @@ fn kv_to_arg_record_preserves_numbers() {
     }
 }
 
+// ── D011: device_type → kind normalization ────────────────────────
+
+#[test]
+fn kv_to_string_record_normalizes_device_type_to_kind() {
+    let kvs = vec![KeyValue {
+        key: "device_type".into(),
+        value: KvValue::Str {
+            value: "card".into(),
+        },
+    }];
+    let record = kv_to_string_record(&kvs);
+    assert!(record.get("device_type").is_none(), "device_type should be normalized away");
+    assert_eq!(record.get("kind").unwrap(), "card");
+}
+
+#[test]
+fn kv_to_arg_record_normalizes_device_type_to_kind() {
+    let kvs = vec![KeyValue {
+        key: "device_type".into(),
+        value: KvValue::Str {
+            value: "device".into(),
+        },
+    }];
+    let record = kv_to_arg_record(&kvs);
+    assert!(record.get("device_type").is_none(), "device_type should be normalized away");
+    match record.get("kind").unwrap() {
+        TsArgValue::Str(s) => assert_eq!(s, "device"),
+        other => panic!("expected Str, got {other:?}"),
+    }
+}
+
 // ── PortRef conversion ─────────────────────────────────────────────
 
 #[test]
