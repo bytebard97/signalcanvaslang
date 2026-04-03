@@ -22,3 +22,28 @@ template XT_VIA {
   }
   bridge SDI_In -> SDI_Out
 }
+
+# --- XT3: HD/SD Replay Server --------------------------------
+
+template XT3 {
+  meta {
+    kind: "device"
+    manufacturer: "EVS"
+    model: "XT3"
+    category: "Replay Server"
+  }
+  ports {
+    # Up to 8 HD/SD-SDI channels (3G for 1080p)
+    SDI_In[1..8]: in(BNC_75) [SDI, HD]
+    SDI_Out[1..8]: out(BNC_75) [SDI, HD]
+    SDI_Mon[1..8]: out(BNC_75) [SDI, HD]
+    # Analog audio
+    Audio_In[1..8]: in(XLR) [analog, line_level]
+    Audio_Out[1..8]: out(XLR) [analog, line_level]
+    Audio_Mon[1..4]: out(XLR) [analog, line_level]
+    # Network and sync
+    LAN: io(RJ45) [Ethernet]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+  }
+  bridge SDI_In -> SDI_Out
+}
