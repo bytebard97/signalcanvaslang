@@ -18,7 +18,7 @@ template DiGiCo_SD7 {
     Optocore_B_Out: out(OpticalCon) [Optocore, secondary]
     Local_In[1..12]: in(XLR)
     Local_Out[1..12]: out(XLR)
-    AES_Out[1..8]: out(BNC_75) [AES3]
+    AES_Out[1..8]: out(XLR) [AES3]
     MADI_A_In[1..64]: in(BNC_75) [MADI, ch64]
     MADI_A_Out[1..64]: out(BNC_75) [MADI, ch64]
     MADI_B_In[1..64]: in(BNC_75) [MADI, ch64]

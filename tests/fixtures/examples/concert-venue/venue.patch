@@ -1,10 +1,155 @@
 # ============================================================
-# Concert Venue — Connections & Signals
-# Physical cabling, logical bridges, and named signals
-# tying the entire venue together.
+# Concert Venue — 5,000-Seat Concert Hall
+# Main PA, monitor world, IMAG video, LED walls, full comms.
 # ============================================================
 
-use 04-venue-instances
+use audio_devices { DiGiCo_SD7, SD_Rack, Lab_gruppen_PLM, Shure_Axient, OptoSplitter }
+use video_devices { Barco_E2, PTZ_Camera, ATEM_Constellation, Disguise_GX2C }
+use comms_network { RTS_ADAM, RTS_KP, Luminex_GigaCore, Sync_Generator }
+
+# --- Audio: FOH (Front of House) ----------------------------
+
+instance FOH_Console is DiGiCo_SD7 {
+  location: "FOH Mix Position"
+  ip: "10.10.1.10"
+}
+
+instance FOH_Rack is SD_Rack {
+  location: "FOH Rack Room"
+  ip: "10.10.1.11"
+}
+
+# --- Audio: Monitor World -----------------------------------
+
+instance MON_Console is DiGiCo_SD7 {
+  location: "Stage Left — Monitor World"
+  ip: "10.10.1.20"
+}
+
+instance Stage_Rack_A is SD_Rack {
+  location: "Stage Left Pit"
+  ip: "10.10.1.21"
+}
+
+instance Stage_Rack_B is SD_Rack {
+  location: "Stage Right Pit"
+  ip: "10.10.1.22"
+}
+
+# --- Audio: Wireless Receivers ------------------------------
+
+instance Wireless_Rack_1 is Shure_Axient {
+  location: "Stage Left — RF Rack"
+  ip: "10.10.2.10"
+}
+
+instance Wireless_Rack_2 is Shure_Axient {
+  location: "Stage Right — RF Rack"
+  ip: "10.10.2.11"
+}
+
+# --- Audio: Amplifiers --------------------------------------
+
+instance Amp_Main_L is Lab_gruppen_PLM {
+  location: "Main PA Left Amp Room"
+}
+
+instance Amp_Main_R is Lab_gruppen_PLM {
+  location: "Main PA Right Amp Room"
+}
+
+instance Amp_Subs is Lab_gruppen_PLM {
+  location: "Sub Array Amp Room"
+}
+
+instance Amp_Front_Fill is Lab_gruppen_PLM {
+  location: "Front Fill Amp Room"
+}
+
+# --- Audio: Network -----------------------------------------
+
+instance Audio_SW_FOH is Luminex_GigaCore {
+  location: "FOH Rack Room"
+  ip: "10.10.3.1"
+}
+
+instance Audio_SW_Stage is Luminex_GigaCore {
+  location: "Stage Left — Network Rack"
+  ip: "10.10.3.2"
+}
+
+instance Opto_Split is OptoSplitter {
+  location: "Stage Left — Optocore Ring"
+  ip: "10.10.3.10"
+}
+
+# --- Video: IMAG Cameras ------------------------------------
+
+instance IMAG_Cam_1 is PTZ_Camera {
+  location: "FOH Truss — Center"
+  ip: "10.10.4.11"
+}
+
+instance IMAG_Cam_2 is PTZ_Camera {
+  location: "Stage Left Wing"
+  ip: "10.10.4.12"
+}
+
+instance IMAG_Cam_3 is PTZ_Camera {
+  location: "Stage Right Wing"
+  ip: "10.10.4.13"
+}
+
+# --- Video: Switching & Processing --------------------------
+
+instance Video_Switcher is ATEM_Constellation {
+  location: "Video Control Room"
+  ip: "10.10.4.100"
+}
+
+instance LED_Processor is Barco_E2 {
+  location: "Video Control Room"
+  ip: "10.10.4.101"
+}
+
+instance Media_Server is Disguise_GX2C {
+  location: "Video Control Room"
+  ip: "10.10.4.110"
+}
+
+# --- Comms --------------------------------------------------
+
+instance Intercom_Frame is RTS_ADAM {
+  location: "Production Office"
+  ip: "10.10.5.1"
+}
+
+instance KP_Stage_Manager is RTS_KP {
+  location: "Stage Manager Desk"
+}
+
+instance KP_Lighting is RTS_KP {
+  location: "Lighting Control"
+}
+
+instance KP_FOH_Audio is RTS_KP {
+  location: "FOH Mix Position"
+}
+
+instance KP_Video is RTS_KP {
+  location: "Video Control Room"
+}
+
+# --- Sync ---------------------------------------------------
+
+instance House_Sync is Sync_Generator {
+  location: "Master Control Closet"
+  ip: "10.10.6.1"
+}
+
+# ============================================================
+# Connections
+# ============================================================
 
 # --- Optocore Ring (Audio Fiber) -----------------------------
 
@@ -47,29 +192,29 @@ connect Audio_SW_FOH.SFP[1] -> Audio_SW_Stage.SFP[1] {
   length: "60m"
 }
 
-connect Wireless_Rack_1.Dante_Pri_Out -> Audio_SW_Stage.Port[1] {
+connect Wireless_Rack_1.Dante_Pri_Out[1] -> Audio_SW_Stage.Port[1] {
   cable: "Cat6a_WR1_Pri"
   length: "8m"
 }
-connect Audio_SW_Stage.Port[1] -> Wireless_Rack_1.Dante_Pri_In
+connect Audio_SW_Stage.Port[1] -> Wireless_Rack_1.Dante_Pri_In[1]
 
-connect Wireless_Rack_1.Dante_Sec_Out -> Audio_SW_Stage.Port[2] {
+connect Wireless_Rack_1.Dante_Sec_Out[1] -> Audio_SW_Stage.Port[2] {
   cable: "Cat6a_WR1_Sec"
   length: "8m"
 }
-connect Audio_SW_Stage.Port[2] -> Wireless_Rack_1.Dante_Sec_In
+connect Audio_SW_Stage.Port[2] -> Wireless_Rack_1.Dante_Sec_In[1]
 
-connect Wireless_Rack_2.Dante_Pri_Out -> Audio_SW_Stage.Port[3] {
+connect Wireless_Rack_2.Dante_Pri_Out[1] -> Audio_SW_Stage.Port[3] {
   cable: "Cat6a_WR2_Pri"
   length: "12m"
 }
-connect Audio_SW_Stage.Port[3] -> Wireless_Rack_2.Dante_Pri_In
+connect Audio_SW_Stage.Port[3] -> Wireless_Rack_2.Dante_Pri_In[1]
 
-connect Wireless_Rack_2.Dante_Sec_Out -> Audio_SW_Stage.Port[4] {
+connect Wireless_Rack_2.Dante_Sec_Out[1] -> Audio_SW_Stage.Port[4] {
   cable: "Cat6a_WR2_Sec"
   length: "12m"
 }
-connect Audio_SW_Stage.Port[4] -> Wireless_Rack_2.Dante_Sec_In
+connect Audio_SW_Stage.Port[4] -> Wireless_Rack_2.Dante_Sec_In[1]
 
 # --- Amplifier Feeds (AES from FOH Console) ------------------
 
