@@ -215,13 +215,22 @@ template Web_Presenter_HD {
     category: "Streaming Encoder"
   }
   ports {
+    # 12G-SDI video
     SDI_In: in(BNC_75) [SDI, UHD]
     SDI_Loop: out(BNC_75) [SDI, UHD]
     SDI_Monitor: out(BNC_75) [SDI, HD]
-    HDMI_Monitor: out(HDMI) [HD]
+
+    # HDMI video
+    HDMI_In: in(HDMI) [UHD]
+    HDMI_Loop: out(HDMI) [UHD]
+
+    # Analog audio
     Mic_In: in(XLR) [analog, mic_level]
-    USB_Webcam: out(USB_C) [USB_Video]
-    LAN: io(RJ45)
+    HiFi_In[1..2]: in(RCA) [analog, line_level]
+
+    # USB
+    USB_Webcam: out(USB_B) [USB_Video]
   }
   bridge SDI_In -> SDI_Loop
+  bridge HDMI_In -> HDMI_Loop
 }

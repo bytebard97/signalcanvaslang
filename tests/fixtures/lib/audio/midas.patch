@@ -18,6 +18,8 @@ template Midas_M32 {
     Line_Out[1..16]: out(XLR) [analog, line_level]
     Aux_In[1..6]: in(TRS_14) [analog, line_level]
     Aux_Out[1..6]: out(TRS_14) [analog, line_level]
+    RCA_In[1..2]: in(RCA) [analog, line_level]
+    RCA_Out[1..2]: out(RCA) [analog, line_level]
     # AES50 digital audio network
     AES50_A_In: in(etherCON) [AES50]
     AES50_A_Out: out(etherCON) [AES50]
