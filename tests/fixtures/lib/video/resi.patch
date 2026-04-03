@@ -1,0 +1,19 @@
+# ============================================================
+# Resi — Streaming Encoders
+# Standard library templates for Resi streaming devices.
+# ============================================================
+
+# --- RAY: SDI Streaming Encoder ------------------------------
+
+template Resi_RAY {
+  meta {
+    kind: "device"
+    manufacturer: "Resi"
+    model: "RAY"
+    category: "Streaming Encoder"
+  }
+  ports {
+    SDI_In: in(BNC_75) [SDI, HD]
+    LAN: io(RJ45) [Ethernet]
+  }
+}

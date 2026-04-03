@@ -1,0 +1,26 @@
+# ============================================================
+# PTZOptics — NDI PTZ Cameras
+# Standard library templates for PTZOptics broadcast devices.
+# ============================================================
+
+# --- Move 4K: NDI PTZ Camera with USB and Serial Control ----
+
+template PTZOptics_Move_4K {
+  meta {
+    kind: "device"
+    manufacturer: "PTZOptics"
+    model: "Move 4K"
+    category: "PTZ Camera"
+  }
+  ports {
+    SDI_Out: out(BNC_75) [SDI, HD]
+    HDMI_Out: out(HDMI) [UHD]
+    NDI: io(RJ45) [NDI, PoE]
+    USB_Out: out(USB) [USB_Video]
+    Audio_In: in(TRS_35) [analog, line_level]
+    RS232_In: io(MiniDIN_8) [RS232, VISCA]
+    RS232_Out: io(MiniDIN_8) [RS232, VISCA]
+  }
+  bridge NDI -> SDI_Out
+  bridge NDI -> HDMI_Out
+}

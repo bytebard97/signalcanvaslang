@@ -24,3 +24,22 @@ template DM_NVX_360 {
     RS232: io(RJ45) [RS232]
   }
 }
+
+# --- CP4-N: Control Processor --------------------------------
+
+template CP4_N {
+  meta {
+    kind: "device"
+    manufacturer: "Crestron"
+    model: "CP4-N"
+    category: "Control Processor"
+  }
+  ports {
+    LAN: io(RJ45) [Ethernet]
+    Control_Subnet: io(RJ45) [Ethernet]
+    COM[1..3]: io(Euroblock) [RS232]
+    IR_Out[1..8]: out(Euroblock) [IR]
+    Relay[1..8]: out(Euroblock) [Relay]
+    Versiport[1..8]: io(Euroblock) [GPIO]
+  }
+}

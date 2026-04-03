@@ -66,3 +66,26 @@ template Tektronix_SPG8000A {
     Network: io(RJ45)
   }
 }
+
+# --- WFM8300: Advanced Waveform Monitor ----------------------
+
+template Tektronix_WFM8300 {
+  meta {
+    kind: "device"
+    manufacturer: "Tektronix"
+    model: "WFM8300"
+    category: "Waveform Monitor"
+  }
+  ports {
+    SDI_In[1..4]: in(BNC_75) [SDI, HD]
+    SDI_Loop[1..4]: out(BNC_75) [SDI, HD]
+    AES_In[1..4]: in(BNC_75) [AES3id]
+    AES_Out[1..4]: out(BNC_75) [AES3id]
+    Analog_Audio_In[1..2]: in(XLR) [analog, line_level]
+    Analog_Audio_Out[1..2]: out(XLR) [analog, line_level]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45) [Ethernet]
+    Headphone: out(TRS_14) [analog]
+  }
+  bridge SDI_In -> SDI_Loop
+}
