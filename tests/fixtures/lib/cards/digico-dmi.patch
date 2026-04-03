@@ -1,0 +1,198 @@
+# ============================================================
+# DiGiCo DMI (Multichannel Interface) Expansion Cards
+#
+# Slot format: DMI_Card
+# Used in: DiGiCo S-Series, SD12, Quantum consoles, Orange Box
+# High-bandwidth cards optimized for 64+ channels at 96 kHz.
+# ============================================================
+
+template DMI_DANTE64 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-DANTE64@96"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(etherCON) [Dante]
+    Dante_Out[1..64]: out(etherCON) [Dante]
+  }
+}
+
+template DMI_WAVES {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-WAVES"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    SoundGrid_In[1..64]: in(etherCON) [SoundGrid]
+    SoundGrid_Out[1..64]: out(etherCON) [SoundGrid]
+  }
+}
+
+template DMI_MADI_B {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-MADI-B"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template DMI_MADI_C {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-MADI-C"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(RJ45) [MADI]
+    MADI_Out[1..64]: out(RJ45) [MADI]
+  }
+}
+
+template DMI_AES {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-AES"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    AES_In[1..16]: in(Dsub_25) [AES3, SRC]
+    AES_Out[1..16]: out(Dsub_25) [AES3]
+  }
+}
+
+template DMI_ADC {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-ADC"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Analog_In[1..16]: in(Dsub_25) [analog, line_level]
+  }
+}
+
+template DMI_DAC {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-DAC"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Analog_Out[1..16]: out(Dsub_25) [analog, line_level]
+  }
+}
+
+template DMI_MIC {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-MIC"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Mic_In[1..8]: in(Dsub_25) [analog, mic_level, phantom_48V]
+  }
+}
+
+template DMI_KLANG {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-KLANG"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Process_In[1..64]: in(etherCON) [KLANG]
+    Process_Out[1..32]: out(etherCON) [KLANG]
+    Control: io(RJ45) [Ethernet]
+  }
+}
+
+template DMI_AMM {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-AMM"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    AutoMix[1..64]: io [AutoMix]
+  }
+}
+
+template DMI_ME {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-ME"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    ME_Out[1..40]: out(RJ45) [ME_Personal_Mixing]
+  }
+}
+
+template DMI_A3232 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-A3232"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    StageRack_In[1..64]: in(etherCON) [DiGiCo_proprietary]
+    StageRack_Out[1..64]: out(etherCON) [DiGiCo_proprietary]
+  }
+}
+
+template DMI_OPTO {
+  meta {
+    manufacturer: "Optocore"
+    model: "DMI-OPTO"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Optocore_In[1..128]: in(OpticalCON) [OptoCore]
+    Optocore_Out[1..128]: out(OpticalCON) [OptoCore]
+  }
+}
+
+template DMI_AVB {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-AVB"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    AVB_In[1..64]: in(etherCON) [AVB, MILAN]
+    AVB_Out[1..64]: out(etherCON) [AVB, MILAN]
+  }
+}
+
+template DMI_HYDRA2 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-HYDRA 2"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Hydra_In[1..56]: in(optical) [Hydra2]
+    Hydra_Out[1..56]: out(optical) [Hydra2]
+  }
+}
