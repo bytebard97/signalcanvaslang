@@ -6,6 +6,7 @@
 
 template Barco_E2 {
   meta {
+    kind: "device"
     manufacturer: "Barco"
     model: "E2"
     category: "Video Processor"
@@ -20,6 +21,7 @@ template Barco_E2 {
 
 template PTZ_Camera {
   meta {
+    kind: "device"
     manufacturer: "Panasonic"
     model: "AW_UE150"
     category: "Camera"
@@ -34,6 +36,7 @@ template PTZ_Camera {
 
 template ATEM_Constellation {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic"
     model: "ATEM_Constellation_8K"
     category: "Switcher"
@@ -42,12 +45,14 @@ template ATEM_Constellation {
     SDI_In[1..20]: in(BNC_75) [SDI, G3]
     SDI_Out[1..12]: out(BNC_75) [SDI, G3]
     SDI_Aux[1..6]: out(BNC_75) [SDI, G3]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
   }
   bridge SDI_In -> SDI_Out
 }
 
 template Disguise_GX2C {
   meta {
+    kind: "device"
     manufacturer: "Disguise"
     model: "gx_2c"
     category: "Media Server"

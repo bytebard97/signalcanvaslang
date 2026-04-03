@@ -3,6 +3,7 @@
 
 template Venue_FOH_Rack {
   meta {
+    kind: "device"
     manufacturer: "AVID"
     model: "Venue FOH Rack"
   }

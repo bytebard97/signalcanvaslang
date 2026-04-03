@@ -1,10 +1,16 @@
 # DRC fixture: signal level mismatch
 
 template Mic {
+  meta {
+    kind: "device"
+  }
   ports { Out: out(XLR) [mic_level] }
 }
 
 template LineDevice {
+  meta {
+    kind: "device"
+  }
   ports {
     Out: out(XLR) [line_level]
     In: in(XLR) [line_level]
@@ -12,6 +18,9 @@ template LineDevice {
 }
 
 template Amp {
+  meta {
+    kind: "device"
+  }
   ports {
     Out: out(SpeakON) [speaker_level]
     In: in(SpeakON) [speaker_level]

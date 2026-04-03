@@ -8,6 +8,7 @@
 
 template ATEM_Constellation_8K {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "ATEM Constellation 8K"
     category: "Video Switcher"
@@ -33,6 +34,7 @@ template ATEM_Constellation_8K {
 
 template ATEM_4ME_HD {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "ATEM 4 M/E Constellation HD"
     category: "Video Switcher"
@@ -55,6 +57,7 @@ template ATEM_4ME_HD {
 
 template Smart_Videohub_40x40 {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "Smart Videohub 40x40"
     category: "Video Router"
@@ -72,6 +75,7 @@ template Smart_Videohub_40x40 {
 
 template HyperDeck_Studio_4K_Pro {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "HyperDeck Studio 4K Pro"
     category: "Recorder"
@@ -96,6 +100,7 @@ template HyperDeck_Studio_4K_Pro {
 
 template MultiView_16 {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "MultiView 16"
     category: "Multiviewer"
@@ -118,6 +123,7 @@ template MultiView_16 {
 
 template Sync_Generator {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "Sync Generator"
     category: "Sync"
@@ -131,6 +137,7 @@ template Sync_Generator {
 
 template Mini_Converter_SDI_to_Fiber {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "Mini Converter SDI to Fiber"
     category: "Converter"

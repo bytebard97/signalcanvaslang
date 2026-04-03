@@ -5,6 +5,7 @@
 
 template Arista_7010T_48 {
   meta {
+    kind: "device"
     manufacturer: "Arista"
     model: "7010T-48"
     category: "Network Switch"

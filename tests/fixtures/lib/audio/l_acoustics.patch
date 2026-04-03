@@ -5,6 +5,7 @@
 
 template LA4X {
   meta {
+    kind: "device"
     manufacturer: "L-Acoustics"
     model: "LA4X"
     category: "Amplifier"
@@ -26,6 +27,7 @@ template LA4X {
 
 template LA12X {
   meta {
+    kind: "device"
     manufacturer: "L-Acoustics"
     model: "LA12X"
     category: "Amplifier"

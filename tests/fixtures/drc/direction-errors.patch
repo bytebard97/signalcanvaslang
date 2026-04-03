@@ -1,6 +1,9 @@
 # DRC fixture: direction errors
 
 template Mixer {
+  meta {
+    kind: "device"
+  }
   ports {
     Audio_In[1..8]: in(XLR) [analog]
     Audio_Out[1..4]: out(XLR) [analog]

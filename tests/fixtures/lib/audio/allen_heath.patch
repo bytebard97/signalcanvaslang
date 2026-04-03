@@ -7,6 +7,7 @@
 
 template dLive_S7000 {
   meta {
+    kind: "device"
     manufacturer: "Allen and Heath"
     model: "dLive S7000"
     category: "Console"
@@ -31,6 +32,7 @@ template dLive_S7000 {
 
 template dLive_C3500 {
   meta {
+    kind: "device"
     manufacturer: "Allen and Heath"
     model: "dLive C3500"
     category: "Console"
@@ -57,6 +59,7 @@ template dLive_C3500 {
 
 template GLD_112 {
   meta {
+    kind: "device"
     manufacturer: "Allen and Heath"
     model: "GLD-112"
     category: "Console"
@@ -79,6 +82,7 @@ template GLD_112 {
 
 template SQ_7 {
   meta {
+    kind: "device"
     manufacturer: "Allen and Heath"
     model: "SQ-7"
     category: "Console"
@@ -99,6 +103,7 @@ template SQ_7 {
 
 template SQ_6 {
   meta {
+    kind: "device"
     manufacturer: "Allen and Heath"
     model: "SQ-6"
     category: "Console"
@@ -121,6 +126,7 @@ template SQ_6 {
 
 template DX168 {
   meta {
+    kind: "device"
     manufacturer: "Allen and Heath"
     model: "DX168"
     category: "Stagebox"
@@ -141,6 +147,7 @@ template DX168 {
 
 template DM64 {
   meta {
+    kind: "device"
     manufacturer: "Allen and Heath"
     model: "DM64"
     category: "Stagebox"

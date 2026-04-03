@@ -7,6 +7,7 @@
 
 template LDX_100 {
   meta {
+    kind: "device"
     manufacturer: "Grass Valley"
     model: "LDX 100"
     category: "Camera"
@@ -26,6 +27,7 @@ template LDX_100 {
 
 template LDK_4482 {
   meta {
+    kind: "device"
     manufacturer: "Grass Valley"
     model: "LDK 4482"
     category: "Camera"

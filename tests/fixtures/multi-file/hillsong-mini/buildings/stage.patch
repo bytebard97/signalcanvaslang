@@ -3,7 +3,7 @@
 use yamaha { Rio3224 }
 
 template Stage_System {
-  meta { category: "Building" }
+  meta { kind: "system", category: "Building" }
   ports {
     Dante_Out: out(etherCON) [Dante]
     Dante_In: in(etherCON) [Dante]
@@ -12,3 +12,8 @@ template Stage_System {
 
 instance SL_Box is Rio3224 { location: "Stage Left Wing" }
 instance SR_Box is Rio3224 { location: "Stage Right Wing" }
+
+connect SL_Box.Dante_Pri_Out[1..32] -> SR_Box.Dante_Pri_In[1..32] {
+  cable: "Cat6a_SL_SR"
+  length: "15m"
+}

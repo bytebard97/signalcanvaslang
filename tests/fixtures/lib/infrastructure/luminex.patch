@@ -5,6 +5,7 @@
 
 template GigaCore_30i {
   meta {
+    kind: "device"
     manufacturer: "Luminex"
     model: "GigaCore 30i"
     category: "Network Switch"
@@ -18,6 +19,7 @@ template GigaCore_30i {
 
 template GigaCore_16Xt {
   meta {
+    kind: "device"
     manufacturer: "Luminex"
     model: "GigaCore 16Xt"
     category: "Network Switch"

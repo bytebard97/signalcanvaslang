@@ -3,6 +3,7 @@
 
 template OptoCore_Console {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "SD12"
   }
@@ -14,6 +15,7 @@ template OptoCore_Console {
 
 template OptoCore_Rack {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "SD-Rack"
   }
@@ -42,10 +44,10 @@ instance MonitorRack is OptoCore_Rack {
 # Primary ring — implicit port resolution for all members
 ring OptoCore_Primary {
   protocol: "OptoCore"
-  member Console
-  member StageRack_1
-  member StageRack_2
-  member MonitorRack
+  member Console.OptoCore_A
+  member StageRack_1.OptoCore_A
+  member StageRack_2.OptoCore_A
+  member MonitorRack.OptoCore_A
 }
 
 # Secondary ring — explicit port references for dual-homed console

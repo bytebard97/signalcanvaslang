@@ -2,6 +2,9 @@
 # Replace this with your own devices and connections.
 
 template MyDevice {
+  meta {
+    kind: "device"
+  }
   ports {
     Input[1..2]: in(XLR)
     Output[1..2]: out(XLR)

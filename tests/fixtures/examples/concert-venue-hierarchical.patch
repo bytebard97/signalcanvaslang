@@ -18,6 +18,7 @@
 
 template DiGiCo_SD7 {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "SD7"
     category: "Console"
@@ -34,6 +35,7 @@ template DiGiCo_SD7 {
 
 template SD_Rack {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "SD-Rack"
     category: "Stagebox"
@@ -49,6 +51,7 @@ template SD_Rack {
 
 template Lab_gruppen_PLM {
   meta {
+    kind: "device"
     manufacturer: "Lab.gruppen"
     model: "PLM_20K44"
     category: "Amplifier"
@@ -62,6 +65,7 @@ template Lab_gruppen_PLM {
 
 template Shure_Axient {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "Axient_Digital_AD4Q"
     category: "Wireless"
@@ -77,6 +81,7 @@ template Shure_Axient {
 
 template OptoSplitter {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "Optocore_DD32R"
     category: "Network"
@@ -90,6 +95,7 @@ template OptoSplitter {
 
 template Barco_E2 {
   meta {
+    kind: "device"
     manufacturer: "Barco"
     model: "E2"
     category: "Video Processor"
@@ -104,6 +110,7 @@ template Barco_E2 {
 
 template PTZ_Camera {
   meta {
+    kind: "device"
     manufacturer: "Panasonic"
     model: "AW_UE150"
     category: "Camera"
@@ -118,6 +125,7 @@ template PTZ_Camera {
 
 template ATEM_Constellation {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic"
     model: "ATEM_Constellation_8K"
     category: "Switcher"
@@ -132,6 +140,7 @@ template ATEM_Constellation {
 
 template Disguise_GX2C {
   meta {
+    kind: "device"
     manufacturer: "Disguise"
     model: "gx_2c"
     category: "Media Server"
@@ -147,6 +156,7 @@ template Disguise_GX2C {
 
 template RTS_ADAM {
   meta {
+    kind: "device"
     manufacturer: "RTS"
     model: "ADAM_M"
     category: "Intercom"
@@ -162,6 +172,7 @@ template RTS_ADAM {
 
 template RTS_KP {
   meta {
+    kind: "device"
     manufacturer: "RTS"
     model: "KP_5032"
     category: "Intercom Panel"
@@ -174,6 +185,7 @@ template RTS_KP {
 
 template Luminex_GigaCore {
   meta {
+    kind: "device"
     manufacturer: "Luminex"
     model: "GigaCore_26i"
     category: "Network Switch"
@@ -188,6 +200,7 @@ template Luminex_GigaCore {
 
 template Sync_Generator {
   meta {
+    kind: "device"
     manufacturer: "Evertz"
     model: "5601MSC"
     category: "Sync"
@@ -208,6 +221,9 @@ template Sync_Generator {
 # Groups all 4 amp racks — drills down from AudioFOH
 
 template Amplification {
+  meta {
+    kind: "system"
+  }
   ports {
     AES_In[1..8]: in(XLR) [AES3]
     Speaker_Main_L[1..4]: out(SpeakON)
@@ -250,6 +266,9 @@ template Amplification {
 # FOH console, recording rack, and amplification
 
 template AudioFOH {
+  meta {
+    kind: "system"
+  }
   ports {
     Optocore_In: in(OpticalCon) [Optocore]
     Optocore_Out: out(OpticalCon) [Optocore]
@@ -302,6 +321,9 @@ template AudioFOH {
 # Monitor console, stageboxes, wireless, optocore splitter
 
 template AudioStage {
+  meta {
+    kind: "system"
+  }
   ports {
     Optocore_In: in(OpticalCon) [Optocore]
     Optocore_Out: out(OpticalCon) [Optocore]
@@ -378,6 +400,9 @@ template AudioStage {
 # Dante network switches connecting FOH and stage
 
 template AudioNetwork {
+  meta {
+    kind: "system"
+  }
   ports {
     Dante_In[1..4]: in(etherCON) [Dante]
     FOH_SFP_In: in(SFP) [Ethernet, G10]
@@ -414,6 +439,9 @@ template AudioNetwork {
 # Cameras, switcher, LED processor, and media server
 
 template VideoSystem {
+  meta {
+    kind: "system"
+  }
   ports {
     Genlock_In[1..3]: in(BNC_75) [TriLevel]
     BB_In: in(BNC_75) [BlackBurst]
@@ -499,6 +527,9 @@ template VideoSystem {
 # Intercom matrix and all keypanels
 
 template CommsSystem {
+  meta {
+    kind: "system"
+  }
   ports {
     AES_In[1..4]: in(BNC_75) [AES3]
     AES_Out[1..4]: out(BNC_75) [AES3]

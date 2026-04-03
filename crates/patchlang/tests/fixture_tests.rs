@@ -186,7 +186,7 @@ fn broadcast_truck_statement_counts() {
     assert_eq!(counts.templates, 5, "expected 5 templates");
     assert_eq!(counts.instances, 7, "expected 7 instances");
     assert_eq!(counts.connects, 21, "expected 21 connects");
-    assert_eq!(counts.bridges, 4, "expected 4 bridges");
+    assert_eq!(counts.bridges, 0, "expected 0 bridges");
     assert_eq!(counts.signals, 4, "expected 4 signals");
     assert_eq!(counts.flags, 1, "expected 1 flag");
     assert_eq!(counts.errors, 0, "expected 0 error nodes");
@@ -371,7 +371,8 @@ fn ring_network_primary_members() {
     let primary = rings.iter().find(|r| r.name == "OptoCore_Primary").unwrap();
     assert_eq!(primary.members.len(), 4);
     for m in &primary.members {
-        assert!(m.port_name.is_none(), "primary ring members should have implicit ports");
+        assert_eq!(m.port_name.as_deref(), Some("OptoCore_A"),
+            "primary ring members should have explicit OptoCore_A port");
     }
 }
 

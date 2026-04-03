@@ -2,6 +2,7 @@
 
 template CL5 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "CL5"
     category: "Console"

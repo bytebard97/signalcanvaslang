@@ -8,6 +8,7 @@
 
 template Rio3224 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "Rio3224"
     category: "Stagebox"
@@ -25,6 +26,7 @@ template Rio3224 {
 
 template CL5 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "CL5"
     category: "Console"
@@ -40,6 +42,7 @@ template CL5 {
 
 template GigabitSwitch {
   meta {
+    kind: "device"
     manufacturer: "Cisco"
     model: "SG350"
     category: "Network"

@@ -3,6 +3,7 @@
 
 template StageBox_12x4 {
   meta {
+    kind: "device"
     model: "12x4 XLR"
   }
   ports {

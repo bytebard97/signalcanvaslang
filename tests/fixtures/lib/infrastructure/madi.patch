@@ -5,6 +5,7 @@
 
 template DirectOut_ANDIAMO_2XT {
   meta {
+    kind: "device"
     manufacturer: "DirectOut"
     model: "ANDIAMO 2 XT"
     category: "MADI Interface"
@@ -28,6 +29,7 @@ template DirectOut_ANDIAMO_2XT {
 
 template RME_MADI_Router {
   meta {
+    kind: "device"
     manufacturer: "RME"
     model: "MADI Router"
     category: "MADI Router"
@@ -47,6 +49,7 @@ template RME_MADI_Router {
 
 template Ferrofish_A32 {
   meta {
+    kind: "device"
     manufacturer: "Ferrofish"
     model: "A32"
     category: "Audio Interface"

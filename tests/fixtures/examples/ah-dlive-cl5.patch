@@ -5,6 +5,7 @@
 
 template DM64 {
   meta {
+    kind: "device"
     manufacturer: "Allen & Heath"
     model: "dLive DM64"
     category: "Stagebox"
@@ -38,6 +39,7 @@ template DM64 {
 
 template CL5 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "CL5"
     category: "Console"

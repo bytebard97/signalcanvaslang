@@ -7,6 +7,7 @@
 
 template CL5 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "CL5"
     category: "Console"
@@ -30,6 +31,7 @@ template CL5 {
 
 template CL3 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "CL3"
     category: "Console"
@@ -53,6 +55,7 @@ template CL3 {
 
 template CL1 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "CL1"
     category: "Console"
@@ -78,6 +81,7 @@ template CL1 {
 
 template QL5 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "QL5"
     category: "Console"
@@ -100,6 +104,7 @@ template QL5 {
 
 template QL1 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "QL1"
     category: "Console"
@@ -124,6 +129,7 @@ template QL1 {
 
 template Rio3224_D2 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "Rio3224-D2"
     category: "Stagebox"
@@ -143,6 +149,7 @@ template Rio3224_D2 {
 
 template Rio1608_D2 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "Rio1608-D2"
     category: "Stagebox"
@@ -163,6 +170,7 @@ template Rio1608_D2 {
 
 template RIVAGE_PM10 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "RIVAGE PM10"
     category: "Console"
@@ -184,6 +192,7 @@ template RIVAGE_PM10 {
 
 template RIVAGE_PM7 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "RIVAGE PM7"
     category: "Console"
@@ -205,6 +214,7 @@ template RIVAGE_PM7 {
 
 template RIVAGE_PM5 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "RIVAGE PM5"
     category: "Console"
@@ -226,6 +236,7 @@ template RIVAGE_PM5 {
 
 template RIVAGE_PM3 {
   meta {
+    kind: "device"
     manufacturer: "Yamaha"
     model: "RIVAGE PM3"
     category: "Console"

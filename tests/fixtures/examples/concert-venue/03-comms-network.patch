@@ -6,6 +6,7 @@
 
 template RTS_ADAM {
   meta {
+    kind: "device"
     manufacturer: "RTS"
     model: "ADAM_M"
     category: "Intercom"
@@ -21,6 +22,7 @@ template RTS_ADAM {
 
 template RTS_KP {
   meta {
+    kind: "device"
     manufacturer: "RTS"
     model: "KP_5032"
     category: "Intercom Panel"
@@ -34,6 +36,7 @@ template RTS_KP {
 
 template Luminex_GigaCore {
   meta {
+    kind: "device"
     manufacturer: "Luminex"
     model: "GigaCore_26i"
     category: "Network Switch"
@@ -46,6 +49,7 @@ template Luminex_GigaCore {
 
 template Sync_Generator {
   meta {
+    kind: "device"
     manufacturer: "Evertz"
     model: "5601MSC"
     category: "Sync"

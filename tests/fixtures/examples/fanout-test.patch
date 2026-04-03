@@ -3,12 +3,18 @@
 # Tests destination-sorted departure spread.
 
 template Camera {
+  meta {
+    kind: "device"
+  }
   ports {
     SDI_Out: out(BNC_75) [SDI]
   }
 }
 
 template VideoRouter {
+  meta {
+    kind: "device"
+  }
   ports {
     SDI_In[1..4]: in(BNC_75) [SDI]
     SDI_Out[1..8]: out(BNC_75) [SDI]
@@ -16,18 +22,27 @@ template VideoRouter {
 }
 
 template Monitor {
+  meta {
+    kind: "device"
+  }
   ports {
     SDI_In: in(BNC_75) [SDI]
   }
 }
 
 template Recorder {
+  meta {
+    kind: "device"
+  }
   ports {
     SDI_In: in(BNC_75) [SDI]
   }
 }
 
 template Multiviewer {
+  meta {
+    kind: "device"
+  }
   ports {
     SDI_In: in(BNC_75) [SDI]
   }

@@ -1,6 +1,9 @@
 # DRC fixture: clock domain mismatch
 
 template SRC_48 {
+  meta {
+    kind: "device"
+  }
   ports {
     Audio_In: in(etherCON) [Dante, clk_48kHz]
     Audio_Out: out(etherCON) [Dante, clk_48kHz]
@@ -8,6 +11,9 @@ template SRC_48 {
 }
 
 template SRC_96 {
+  meta {
+    kind: "device"
+  }
   ports {
     Audio_In: in(etherCON) [Dante, clk_96kHz]
     Audio_Out: out(etherCON) [Dante, clk_96kHz]

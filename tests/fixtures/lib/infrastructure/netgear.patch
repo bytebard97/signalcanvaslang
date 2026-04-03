@@ -5,6 +5,7 @@
 
 template M4300_28G {
   meta {
+    kind: "device"
     manufacturer: "Netgear"
     model: "M4300-28G (GSM4328PB)"
     category: "Network Switch"

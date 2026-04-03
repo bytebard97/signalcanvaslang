@@ -1,6 +1,9 @@
 # DRC fixture: connector mismatch warnings
 
 template XLR_Device {
+  meta {
+    kind: "device"
+  }
   ports {
     Audio_In: in(XLR)
     Audio_Out: out(XLR)
@@ -8,6 +11,9 @@ template XLR_Device {
 }
 
 template BNC_Device {
+  meta {
+    kind: "device"
+  }
   ports {
     Video_In: in(BNC_75)
     Video_Out: out(BNC_75)
@@ -15,6 +21,9 @@ template BNC_Device {
 }
 
 template Virtual_Device {
+  meta {
+    kind: "device"
+  }
   ports {
     Net_In: in(virtual)
     Net_Out: out(virtual)

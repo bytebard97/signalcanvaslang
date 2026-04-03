@@ -3,6 +3,9 @@
 #        duplicate signal name, unknown config ref, unknown signal origin
 
 template ValidDevice {
+  meta {
+    kind: "device"
+  }
   ports {
     Audio_In[1..4]: in(XLR)
     Audio_Out[1..2]: out(XLR)

@@ -5,6 +5,7 @@
 
 template Antelope_OCX_HD {
   meta {
+    kind: "device"
     manufacturer: "Antelope Audio"
     model: "OCX HD"
     category: "Master Clock"
@@ -22,6 +23,7 @@ template Antelope_OCX_HD {
 
 template Brainstorm_DCD_8 {
   meta {
+    kind: "device"
     manufacturer: "Brainstorm Electronics"
     model: "DCD-8"
     category: "Master Clock"
@@ -37,6 +39,7 @@ template Brainstorm_DCD_8 {
 
 template Mutec_MC3_Plus {
   meta {
+    kind: "device"
     manufacturer: "Mutec"
     model: "MC-3+"
     category: "Audio Clock"
