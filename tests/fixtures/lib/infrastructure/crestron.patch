@@ -21,7 +21,8 @@ template DM_NVX_360 {
     Network_SFP: io(SFP) [DM_NVX]
     Audio_IO: io(Euroblock) [Analogue]
     USB_Host: io(USB) [USB_2]
-    RS232: io(RJ45) [RS232]
+    RS232: io(Euroblock) [RS232]
+    IR[1..2]: out(Euroblock) [IR]
   }
 }
 

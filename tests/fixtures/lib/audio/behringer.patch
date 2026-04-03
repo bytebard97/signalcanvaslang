@@ -18,6 +18,8 @@ template X32 {
     Line_Out[1..16]: out(XLR) [analog, line_level]
     Aux_In[1..6]: in(TRS_14) [analog, line_level]
     Aux_Out[1..6]: out(TRS_14) [analog, line_level]
+    RCA_In[1..2]: in(RCA) [analog, line_level]
+    RCA_Out[1..2]: out(RCA) [analog, line_level]
 
     # AES50 digital snakes
     AES50_A_In[1..48]: in(etherCON) [AES50]
@@ -26,7 +28,7 @@ template X32 {
     AES50_B_Out[1..48]: out(etherCON) [AES50]
 
     # Digital audio
-    AES_Out[1..2]: out(XLR) [AES3]
+    AES_Out: out(XLR) [AES3]
     ULTRANET_Out[1..16]: out(RJ45) [ULTRANET]
     USB_IO[1..32]: io(USB) [USB_Audio]
 
