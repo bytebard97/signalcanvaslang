@@ -17,3 +17,20 @@ template Resi_RAY {
     LAN: io(RJ45) [Ethernet]
   }
 }
+
+# --- Mini: Compact Streaming Encoder -------------------------
+
+template Resi_Mini {
+  meta {
+    kind: "device"
+    manufacturer: "Resi"
+    model: "Mini"
+    category: "Streaming Encoder"
+  }
+  ports {
+    SDI_In: in(BNC_75) [SDI, HD]
+    SDI_Loop: out(BNC_75) [SDI, HD]
+    LAN: io(RJ45) [Ethernet]
+  }
+  bridge SDI_In -> SDI_Loop
+}

@@ -107,6 +107,27 @@ template Avantis {
 
 # --- SQ Series ------------------------------------------------
 
+template SQ_5 {
+  meta {
+    kind: "device"
+    manufacturer: "Allen and Heath"
+    model: "SQ-5"
+    category: "Console"
+  }
+  ports {
+    SLink_In: in(etherCON) [SLink]
+    SLink_Out: out(etherCON) [SLink]
+    Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..12]: out(XLR) [analog, line_level]
+    Monitor_Out[1..2]: out(TRS) [analog, line_level]
+    AES_Out[1..2]: out(XLR) [AES3]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot IO_Port: AH_IO_Card
+  bridge Mic_In -> SLink_Out
+}
+
 template SQ_7 {
   meta {
     kind: "device"
