@@ -252,3 +252,24 @@ template RIVAGE_PM3 {
   slot HY_Slot[1..4]: HY_Card
   slot MY_Slot[1..2]: MY_Card
 }
+
+# --- RPio622 I/O Rack (RIVAGE System) ------------------------
+
+template RPio622 {
+  meta {
+    kind: "device"
+    manufacturer: "Yamaha"
+    model: "RPio622"
+    category: "Stagebox"
+  }
+  ports {
+    # RY card slots provide analog/digital I/O (up to 96ch total)
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    Network: io(RJ45) [Ethernet]
+  }
+  slot RY_Slot[1..6]: RY_Card
+  slot HY_Slot_1: HY_Card
+  slot HY_Slot_2: HY_Card
+  slot MY_Slot[1..2]: MY_Card
+}
