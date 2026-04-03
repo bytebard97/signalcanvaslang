@@ -1,0 +1,57 @@
+# ============================================================
+# Solid State Logic (SSL) — Standard Library Templates
+# SSL Live Series Consoles
+# ============================================================
+
+# --- SSL Live L550 Plus ---------------------------------------
+
+template Live_L550_Plus {
+  meta {
+    kind: "device"
+    manufacturer: "SSL"
+    model: "Live L550 Plus"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..32]: in(XLR) [analog, mic_level]
+    Line_Out[1..32]: out(XLR) [analog, line_level]
+    AES_In[1..16]: in(XLR) [AES3]
+    AES_Out[1..16]: out(XLR) [AES3]
+    MADI_BNC_In[1..12]: in(BNC_75) [MADI]
+    MADI_BNC_Out[1..12]: out(BNC_75) [MADI]
+    MADI_Optical_In[1..4]: in(SC_Optical) [MADI]
+    MADI_Optical_Out[1..4]: out(SC_Optical) [MADI]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    Network: io(RJ45) [Ethernet]
+  }
+  bridge Mic_In -> MADI_BNC_Out
+}
+
+# --- SSL Live L650 --------------------------------------------
+
+template Live_L650 {
+  meta {
+    kind: "device"
+    manufacturer: "SSL"
+    model: "Live L650"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..16]: in(XLR) [analog, mic_level]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    AES_In[1..8]: in(XLR) [AES3]
+    AES_Out[1..8]: out(XLR) [AES3]
+    MADI_BNC_In[1..6]: in(BNC_75) [MADI]
+    MADI_BNC_Out[1..6]: out(BNC_75) [MADI]
+    MADI_Optical_In[1..2]: in(SC_Optical) [MADI]
+    MADI_Optical_Out[1..2]: out(SC_Optical) [MADI]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    Network: io(RJ45) [Ethernet]
+  }
+}

@@ -1,0 +1,91 @@
+# ============================================================
+# Midas Professional Audio — Standard Library Templates
+# M32 Console, DL16 Stagebox, DL32 Stagebox
+# ============================================================
+
+# --- M32 Console ----------------------------------------------
+
+template Midas_M32 {
+  meta {
+    kind: "device"
+    manufacturer: "Midas"
+    model: "M32"
+    category: "Console"
+  }
+  ports {
+    # Local analog I/O — Midas PRO preamps
+    Mic_In[1..32]: in(XLR) [analog, mic_level]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    Aux_In[1..6]: in(TRS_14) [analog, line_level]
+    Aux_Out[1..6]: out(TRS_14) [analog, line_level]
+    # AES50 digital audio network
+    AES50_A_In: in(etherCON) [AES50]
+    AES50_A_Out: out(etherCON) [AES50]
+    AES50_B_In: in(etherCON) [AES50]
+    AES50_B_Out: out(etherCON) [AES50]
+    # Digital outputs
+    AES_Out[1..2]: out(XLR) [AES3]
+    ULTRANET_Out: out(RJ45) [ULTRANET]
+    # USB audio interface (32 channels)
+    USB_IO[1..32]: io(USB) [USB_Audio]
+    # Control and sync
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+    Ethernet: io(RJ45) [Ethernet]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  slot Expansion_Slot: M32_Card
+  bridge Mic_In -> AES50_A_Out
+}
+
+# --- DL16 Stagebox --------------------------------------------
+
+template Midas_DL16 {
+  meta {
+    kind: "device"
+    manufacturer: "Midas"
+    model: "DL16"
+    category: "Stagebox"
+  }
+  ports {
+    # Local analog I/O — Midas PRO preamps
+    Mic_In[1..16]: in(XLR) [analog, mic_level]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    # AES50 digital audio network
+    AES50_A_In: in(etherCON) [AES50]
+    AES50_A_Out: out(etherCON) [AES50]
+    AES50_B_In: in(etherCON) [AES50]
+    AES50_B_Out: out(etherCON) [AES50]
+    # Digital outputs
+    ADAT_Out[1..2]: out(TOSLINK) [ADAT]
+    ULTRANET_Out: out(RJ45) [ULTRANET]
+  }
+  bridge Mic_In -> AES50_A_Out
+  bridge AES50_A_In -> Line_Out
+}
+
+# --- DL32 Stagebox --------------------------------------------
+
+template Midas_DL32 {
+  meta {
+    kind: "device"
+    manufacturer: "Midas"
+    model: "DL32"
+    category: "Stagebox"
+  }
+  ports {
+    # Local analog I/O
+    Mic_In[1..32]: in(XLR) [analog, mic_level]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    # AES50 digital audio network
+    AES50_A_In: in(etherCON) [AES50]
+    AES50_A_Out: out(etherCON) [AES50]
+    AES50_B_In: in(etherCON) [AES50]
+    AES50_B_Out: out(etherCON) [AES50]
+    # Digital outputs
+    AES_Out[1..2]: out(XLR) [AES3]
+    ADAT_Out[1..2]: out(TOSLINK) [ADAT]
+  }
+  bridge Mic_In -> AES50_A_Out
+  bridge AES50_A_In -> Line_Out
+}

@@ -1,0 +1,39 @@
+# ============================================================
+# Biamp Professional Audio — Standard Library Templates
+# TesiraFORTE X 400 DSP, Parle TCM-X Ceiling Microphone
+# ============================================================
+
+# --- TesiraFORTE X 400 ----------------------------------------
+
+template Biamp_TesiraFORTE_X_400 {
+  meta {
+    kind: "device"
+    manufacturer: "Biamp"
+    model: "TesiraFORTE X 400"
+    category: "DSP"
+  }
+  ports {
+    Mic_Line_In[1..2]: in(Euroblock) [analog, mic_level]
+    Line_Out[1..2]: out(Euroblock) [analog, line_level]
+    Ethernet_PoE[1..4]: io(RJ45) [AVB, PoE_Plus]
+    Ethernet: io(RJ45) [Ethernet]
+    USB_Audio: io(USB) [USB_Audio]
+  }
+  bridge Mic_Line_In -> Line_Out
+  bridge Mic_Line_In -> Ethernet_PoE
+}
+
+# --- Parle TCM-X Ceiling Microphone ---------------------------
+
+template Biamp_Parle_TCM_X {
+  meta {
+    kind: "device"
+    manufacturer: "Biamp"
+    model: "Parle TCM-X"
+    category: "Microphone"
+  }
+  ports {
+    Network: io(RJ45) [AVB, PoE]
+    Expansion: io(RJ45) [AVB]
+  }
+}

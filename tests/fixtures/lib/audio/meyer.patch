@@ -1,0 +1,22 @@
+# ============================================================
+# Meyer Sound Professional Audio — Standard Library Templates
+# GALAXY 816 Loudspeaker Processor
+# ============================================================
+
+template Meyer_GALAXY_816 {
+  meta {
+    kind: "device"
+    manufacturer: "Meyer Sound"
+    model: "GALAXY 816"
+    category: "Loudspeaker Processor"
+  }
+  ports {
+    Analog_In[1..8]: in(XLR) [analog, line_level]
+    AES_In[1..8]: in(XLR) [AES3]
+    Analog_Out[1..16]: out(XLR) [analog, line_level]
+    AVB_Pri: io(etherCON) [AVB, Milan, primary]
+    AVB_Sec: io(etherCON) [AVB, Milan, secondary]
+    Power: in(PowerCON) [power]
+  }
+  bridge AVB_Pri -> Analog_Out
+}

@@ -1,0 +1,75 @@
+# ============================================================
+# Avid Professional Audio — Standard Library Templates
+# VENUE S6L System: Control Surface, DSP Engine, Stage Box
+# ============================================================
+
+# --- S6L Control Surface --------------------------------------
+
+template S6L_32D {
+  meta {
+    kind: "device"
+    manufacturer: "Avid"
+    model: "S6L-32D"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..8]: in(XLR) [analog, mic_level]
+    Line_Out[1..8]: out(XLR) [analog, line_level]
+    AES_In[1..8]: in(XLR) [AES3]
+    AES_Out[1..8]: out(XLR) [AES3]
+    AVB_Pri_In: in(etherCON) [AVB, primary]
+    AVB_Pri_Out: out(etherCON) [AVB, primary]
+    AVB_Sec_In: in(etherCON) [AVB, secondary]
+    AVB_Sec_Out: out(etherCON) [AVB, secondary]
+    Network: io(RJ45) [Ethernet]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  bridge Mic_In -> AVB_Pri_Out
+}
+
+# --- E6L DSP Engine -------------------------------------------
+
+template E6L_192 {
+  meta {
+    kind: "device"
+    manufacturer: "Avid"
+    model: "E6L-192"
+    category: "DSP Engine"
+  }
+  ports {
+    AVB_Pri_In: in(etherCON) [AVB, primary]
+    AVB_Pri_Out: out(etherCON) [AVB, primary]
+    AVB_Sec_In: in(etherCON) [AVB, secondary]
+    AVB_Sec_Out: out(etherCON) [AVB, secondary]
+    Dante_Pri_In: in(etherCON) [Dante, primary]
+    Dante_Pri_Out: out(etherCON) [Dante, primary]
+    Dante_Sec_In: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out: out(etherCON) [Dante, secondary]
+    Network: io(RJ45) [Ethernet]
+  }
+  slot Option_Slot[1..8]: VENUE_Option_Card
+}
+
+# --- Stage 64 Stagebox ----------------------------------------
+
+template Stage_64 {
+  meta {
+    kind: "device"
+    manufacturer: "Avid"
+    model: "Stage 64"
+    category: "Stagebox"
+  }
+  ports {
+    Mic_In[1..64]: in(XLR) [analog, mic_level]
+    Line_Out[1..32]: out(XLR) [analog, line_level]
+    AVB_Pri_In: in(etherCON) [AVB, primary]
+    AVB_Pri_Out: out(etherCON) [AVB, primary]
+    AVB_Sec_In: in(etherCON) [AVB, secondary]
+    AVB_Sec_Out: out(etherCON) [AVB, secondary]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  bridge Mic_In -> AVB_Pri_Out
+  bridge AVB_Pri_In -> Line_Out
+}
