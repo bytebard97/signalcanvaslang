@@ -2,6 +2,7 @@ pub mod catalog;
 pub mod convention;
 pub mod direction;
 pub mod electrical;
+pub mod flow;
 pub mod helpers;
 pub mod logical;
 pub mod mechanical;
@@ -35,6 +36,7 @@ pub fn run_all(program: &PatchProgram) -> Vec<Diagnostic> {
     diags.extend(logical::check(program, &ctx));
     diags.extend(temporal::check(program, &ctx));
     diags.extend(ring::check(program, &ctx));
+    diags.extend(flow::check(program, &ctx));
     diags.extend(convention::check(program, &ctx));
     diags
 }

@@ -172,7 +172,7 @@ Key-value metadata inside a template.
 meta-block = "meta" "{" { key-value-pair } "}" ;
 ```
 
-Standard keys: `kind`, `manufacturer`, `model`, `category`. Custom keys are allowed.
+Standard keys: `kind`, `manufacturer`, `model`, `category`, `dante_chipset`. Custom keys are allowed.
 
 The `kind` key classifies the template's role in the hierarchy. Known values:
 
@@ -189,6 +189,8 @@ The `kind` key classifies the template's role in the hierarchy. Known values:
 | `venue` | Top-level facility or building |
 
 Unknown values trigger an info-level warning. See D011 for rationale.
+
+The `dante_chipset` key identifies the Dante silicon in a device. Known values: `Ultimo`, `Broadway`, `Brooklyn_II`, `Brooklyn_3`, `HC`. Used by the Flow DRC layer to check flow slot limits and AES67 compatibility. Unknown values trigger an info-level warning (M-I07). See D013 for rationale.
 
 **Deprecated:** `device_type` is accepted as an alias for `kind` during migration.
 
@@ -717,12 +719,18 @@ The compiler runs DRC checks after parsing and auto-resolution. Diagnostics have
 | R02 | Ring | Error | Ring member references unknown port (explicit form) |
 | R03 | Ring | Warning | Ring member port does not have ring protocol attribute |
 | R04 | Ring | Error | Implicit member ambiguous (zero or multiple matching ports) |
+| F01 | Flow | Warning | Flow slot exhaustion — stream count exceeds Dante chipset limit |
+| F02 | Flow | Info | AES67 stream exceeds 8 channels — hardware auto-splits into multiple flows |
+| F03 | Flow | Error | Multicast prefix mismatch between AES67 devices — silent audio failure |
 | C01 | Convention | Info | Orphaned device (no connections, bridges, rings, or config) |
 | C02 | Convention | Warning | Duplicate connection (same source-target pair) |
 | C03 | Convention | Info | Template declared with zero ports |
 | C04 | Convention | Info | Bus declared with zero outputs |
+| C05 | Convention | Info | Redundancy terminates at AES67 boundary — Primary port only |
 | M-I01 | Meta | Info | Unknown `kind` value |
 | M-I03 | Meta | Info | Unknown `rf_subtype` value |
 | M-I04 | Meta | Info | `rf_band` set but `kind` is not `rf-system` |
 | M-I05 | Meta | Warning | `rf_min_channels` must be positive |
 | M-I06 | Meta | Warning | `rf_max_channels` less than `rf_min_channels` |
+| M-I07 | Meta | Info | Unknown `dante_chipset` value |
+| M-I08 | Meta | Warning | Ultimo chipset does not support AES67 RTP flows |
