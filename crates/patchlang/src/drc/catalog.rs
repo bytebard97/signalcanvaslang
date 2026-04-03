@@ -28,7 +28,8 @@ pub fn tag_category(tag: &str) -> TagCategory {
         | "CobraNet" | "Ravenna" | "SMPTE_ST_2110"
         | "NDI" | "SRT" | "ADAT" | "S/PDIF" | "TDIF"
         | "WordClock" | "BlackBurst" | "TriLevel"
-        | "Thunderbolt" | "USB" => TagCategory::Protocol,
+        | "Thunderbolt" | "USB"
+        | "GigaACE" | "DX" | "GX" | "SLink" | "Console_Link" => TagCategory::Protocol,
 
         // Signal levels
         "mic_level" | "instrument_level" | "line_level"
