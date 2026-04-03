@@ -53,6 +53,60 @@ template ATEM_4ME_HD {
   bridge SDI_In -> MV_Out
 }
 
+# --- ATEM 4 M/E Constellation 4K: UHD Production Switcher ----
+
+template ATEM_4ME_4K {
+  meta {
+    kind: "device"
+    manufacturer: "Blackmagic Design"
+    model: "ATEM 4 M/E Constellation 4K"
+    category: "Video Switcher"
+  }
+  ports {
+    SDI_In[1..40]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..24]: out(BNC_75) [SDI, UHD]
+    SDI_Aux_Out[1..4]: out(BNC_75) [SDI, UHD]
+    MV_Out[1..4]: out(BNC_75) [SDI, UHD]
+    MADI_In: in(BNC_75) [MADI]
+    MADI_Out[1..2]: out(BNC_75) [MADI]
+    Analog_In[1..2]: in(TRS) [analog, line_level]
+    Analog_Out[1..2]: out(TRS) [analog, line_level]
+    Talkback: io(XLR_5) [analog]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge SDI_In -> MV_Out
+}
+
+# --- ATEM 4 M/E Constellation 4K Plus: Maximum I/O Switcher --
+
+template ATEM_4ME_4K_Plus {
+  meta {
+    kind: "device"
+    manufacturer: "Blackmagic Design"
+    model: "ATEM 4 M/E Constellation 4K Plus"
+    category: "Video Switcher"
+  }
+  ports {
+    SDI_In[1..80]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..48]: out(BNC_75) [SDI, UHD]
+    SDI_Aux_Out[1..4]: out(BNC_75) [SDI, UHD]
+    MV_Out[1..4]: out(BNC_75) [SDI, UHD]
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+    Analog_In[1..2]: in(TRS) [analog, line_level]
+    Analog_Out[1..2]: out(TRS) [analog, line_level]
+    Talkback: io(XLR_5) [analog]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+  bridge SDI_In -> MV_Out
+}
+
 # --- Smart Videohub 40x40: Affordable SDI Router -------------
 
 template Smart_Videohub_40x40 {

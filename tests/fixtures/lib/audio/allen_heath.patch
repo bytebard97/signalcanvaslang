@@ -78,6 +78,33 @@ template GLD_112 {
   bridge Mic_In -> DX_Link_Out
 }
 
+# --- Avantis --------------------------------------------------
+
+template Avantis {
+  meta {
+    kind: "device"
+    manufacturer: "Allen and Heath"
+    model: "Avantis"
+    category: "Console"
+  }
+  ports {
+    # Local analog I/O
+    Mic_In[1..12]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..12]: out(XLR) [analog, line_level]
+    # Local digital I/O
+    AES_In[1..2]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+    # SLink for DX/GX/dSnake expanders
+    SLink_In: in(etherCON) [SLink]
+    SLink_Out: out(etherCON) [SLink]
+    # Control
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+  }
+  slot IO_Port[1..2]: IO_Port_Card
+  bridge Mic_In -> SLink_Out
+}
+
 # --- SQ Series ------------------------------------------------
 
 template SQ_7 {

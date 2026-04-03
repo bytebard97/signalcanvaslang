@@ -69,6 +69,23 @@ template Audinate_AVIO_Analog {
   bridge Dante_Net_In -> Analog_Out
 }
 
+template Audinate_AVIO_AES3 {
+  meta {
+    kind: "device"
+    manufacturer: "Audinate"
+    model: "AVIO AES3"
+    category: "Audio Interface"
+    protocols: "Dante"
+  }
+  ports {
+    Dante_Net: io(RJ45) [Dante, PoE]
+    AES_In: in(XLR) [AES3, SRC]
+    AES_Out: out(XLR) [AES3]
+  }
+  bridge AES_In -> Dante_Net
+  bridge Dante_Net -> AES_Out
+}
+
 template DirectOut_PRODIGY_MC {
   meta {
     kind: "device"
