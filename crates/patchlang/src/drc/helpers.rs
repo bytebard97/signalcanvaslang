@@ -45,6 +45,35 @@ pub fn port_ref_label(instance: &str, port: &str, index: Option<u32>) -> String 
     }
 }
 
+/// Format a PortRef with its full IndexSpec for deduplication keys.
+pub fn port_ref_full_label(pr: &crate::ast::PortRef) -> String {
+    let mut s = String::new();
+    if let Some(inst) = &pr.instance {
+        s.push_str(inst);
+        s.push('.');
+    }
+    s.push_str(&pr.port);
+    if let Some(idx) = &pr.index {
+        s.push('[');
+        for (i, elem) in idx.elements.iter().enumerate() {
+            if i > 0 {
+                s.push(',');
+            }
+            match elem {
+                crate::ast::IndexElement::Single { value } => {
+                    s.push_str(&value.to_string());
+                }
+                crate::ast::IndexElement::Range { start, end } => {
+                    s.push_str(&format!("{start}..{end}"));
+                }
+                crate::ast::IndexElement::Auto => s.push_str("auto"),
+            }
+        }
+        s.push(']');
+    }
+    s
+}
+
 /// Resolve a PortRef to its PortDef via instance -> template lookup.
 /// Returns `None` if the instance, template, or port is not found.
 pub fn resolve_port<'a>(port_ref: &PortRef, ctx: &'a DRCContext<'_>) -> Option<&'a PortDef> {
