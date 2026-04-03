@@ -5,6 +5,7 @@
 
 template AJA_GEN10 {
   meta {
+    kind: "device"
     manufacturer: "AJA"
     model: "GEN10"
     category: "Sync Generator"
@@ -19,6 +20,7 @@ template AJA_GEN10 {
 
 template Evertz_5601MSC {
   meta {
+    kind: "device"
     manufacturer: "Evertz"
     model: "5601MSC"
     category: "Master Clock"
@@ -37,6 +39,7 @@ template Evertz_5601MSC {
 
 template BM_Sync_Generator {
   meta {
+    kind: "device"
     manufacturer: "Blackmagic Design"
     model: "Sync Generator"
     category: "Sync Generator"
@@ -49,6 +52,7 @@ template BM_Sync_Generator {
 
 template Tektronix_SPG8000A {
   meta {
+    kind: "device"
     manufacturer: "Tektronix"
     model: "SPG8000A"
     category: "Sync Generator"

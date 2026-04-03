@@ -4,36 +4,38 @@
 # tying the entire venue together.
 # ============================================================
 
+use 04-venue-instances
+
 # --- Optocore Ring (Audio Fiber) -----------------------------
 
-connect FOH_Console.Optocore_A -> Opto_Split.Loop_In {
+connect FOH_Console.Optocore_A_Out -> Opto_Split.Loop_In {
   cable: "SM_Fiber_FOH_A"
   length: "60m"
 }
 
-connect Opto_Split.Loop_Out -> MON_Console.Optocore_A {
+connect Opto_Split.Loop_Out -> MON_Console.Optocore_A_In {
   cable: "SM_Fiber_MON_A"
   length: "5m"
 }
 
-connect MON_Console.Optocore_B -> Stage_Rack_A.Optocore_A {
+connect MON_Console.Optocore_B_Out -> Stage_Rack_A.Optocore_A_In {
   cable: "SM_Fiber_SRA"
   length: "10m"
 }
 
-connect Stage_Rack_A.Optocore_B -> Stage_Rack_B.Optocore_A {
+connect Stage_Rack_A.Optocore_B_Out -> Stage_Rack_B.Optocore_A_In {
   cable: "SM_Fiber_Cross"
   length: "25m"
 }
 
-connect Stage_Rack_B.Optocore_B -> FOH_Console.Optocore_B {
+connect Stage_Rack_B.Optocore_B_Out -> FOH_Console.Optocore_B_In {
   cable: "SM_Fiber_Return"
   length: "65m"
 }
 
 # --- MADI: FOH to Recording ---------------------------------
 
-connect FOH_Console.MADI_A_Out -> FOH_Rack.Optocore_A {
+connect FOH_Console.MADI_A_Out[1..64] -> FOH_Rack.MADI_In[1..64] {
   cable: "MADI_FOH_Rec"
   length: "3m"
 }
@@ -159,29 +161,29 @@ connect Video_Switcher.SDI_Aux[1] -> LED_Processor.SDI_In[3] {
 
 # --- Comms: Intercom Panels ---------------------------------
 
-connect Intercom_Frame.Trunk[1] -> KP_Stage_Manager.Trunk {
+connect Intercom_Frame.Trunk_Out[1] -> KP_Stage_Manager.Trunk_In {
   cable: "Cat6a_KP_SM"
   length: "15m"
 }
 
-connect Intercom_Frame.Trunk[2] -> KP_Lighting.Trunk {
+connect Intercom_Frame.Trunk_Out[2] -> KP_Lighting.Trunk_In {
   cable: "Cat6a_KP_LX"
   length: "20m"
 }
 
-connect Intercom_Frame.Trunk[3] -> KP_FOH_Audio.Trunk {
+connect Intercom_Frame.Trunk_Out[3] -> KP_FOH_Audio.Trunk_In {
   cable: "Cat6a_KP_FOH"
   length: "60m"
 }
 
-connect Intercom_Frame.Trunk[4] -> KP_Video.Trunk {
+connect Intercom_Frame.Trunk_Out[4] -> KP_Video.Trunk_In {
   cable: "Cat6a_KP_VID"
   length: "10m"
 }
 
 # --- Sync Distribution --------------------------------------
 
-connect House_Sync.BB_Out[1] -> Video_Switcher.SDI_In[20] {
+connect House_Sync.BB_Out[1] -> Video_Switcher.Ref_In {
   cable: "BB_Switcher"
   length: "5m"
 }
@@ -201,7 +203,7 @@ connect House_Sync.TriLevel_Out[3] -> IMAG_Cam_3.Genlock_In {
   length: "40m"
 }
 
-connect House_Sync.WordClock_Out[1] -> FOH_Console.Local_In[12] {
+connect House_Sync.WordClock_Out[1] -> FOH_Console.WordClock_In {
   cable: "WC_FOH"
   length: "5m"
 }

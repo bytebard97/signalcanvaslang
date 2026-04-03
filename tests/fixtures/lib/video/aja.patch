@@ -8,6 +8,7 @@
 
 template FS4 {
   meta {
+    kind: "device"
     manufacturer: "AJA"
     model: "FS4"
     category: "Frame Synchronizer"
@@ -34,6 +35,7 @@ template FS4 {
 
 template Corvid_Ultra {
   meta {
+    kind: "device"
     manufacturer: "AJA"
     model: "Corvid Ultra"
     category: "I/O Card"
@@ -53,6 +55,7 @@ template Corvid_Ultra {
 
 template GEN10 {
   meta {
+    kind: "device"
     manufacturer: "AJA"
     model: "GEN10"
     category: "Sync"
@@ -66,6 +69,7 @@ template GEN10 {
 
 template FiDO_4R_12G {
   meta {
+    kind: "device"
     manufacturer: "AJA"
     model: "FiDO-4R-12G"
     category: "Converter"

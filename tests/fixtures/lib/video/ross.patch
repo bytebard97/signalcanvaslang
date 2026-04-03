@@ -7,6 +7,7 @@
 
 template Carbonite_Ultra {
   meta {
+    kind: "device"
     manufacturer: "Ross Video"
     model: "Carbonite Ultra"
     category: "Video Switcher"
@@ -28,6 +29,7 @@ template Carbonite_Ultra {
 
 template Carbonite_Black_Solo {
   meta {
+    kind: "device"
     manufacturer: "Ross Video"
     model: "Carbonite Black Solo"
     category: "Video Switcher"
@@ -49,6 +51,7 @@ template Carbonite_Black_Solo {
 
 template Ultrix_FR12 {
   meta {
+    kind: "device"
     manufacturer: "Ross Video"
     model: "Ultrix FR-12"
     category: "Video Router"

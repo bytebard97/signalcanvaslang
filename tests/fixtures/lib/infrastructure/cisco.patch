@@ -5,6 +5,7 @@
 
 template SG350_28 {
   meta {
+    kind: "device"
     manufacturer: "Cisco"
     model: "SG350-28"
     category: "Network Switch"
@@ -21,6 +22,7 @@ template SG350_28 {
 
 template SG550X_48 {
   meta {
+    kind: "device"
     manufacturer: "Cisco"
     model: "SG550X-48"
     category: "Network Switch"

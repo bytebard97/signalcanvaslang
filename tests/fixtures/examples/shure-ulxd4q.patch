@@ -1,5 +1,6 @@
 template ULXD4Q {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "ULXD4Q"
     category: "Wireless"

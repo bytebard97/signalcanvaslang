@@ -1,5 +1,6 @@
 template RedNetA16R {
   meta {
+    kind: "device"
     manufacturer: "Focusrite"
     model: "RedNet A16R MkII"
     category: "Interface"

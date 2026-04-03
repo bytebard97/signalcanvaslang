@@ -3,6 +3,7 @@
 
 template TIO_1608_D {
   meta {
+    kind: "device"
     manufacturer: "YAMAHA"
     model: "TIO 1608-D"
   }
@@ -16,6 +17,7 @@ template TIO_1608_D {
 
 template DM7_Compact {
   meta {
+    kind: "device"
     manufacturer: "YAMAHA"
     model: "DM7 Compact"
   }
@@ -30,6 +32,7 @@ template DM7_Compact {
 
 template RMIO64_D {
   meta {
+    kind: "device"
     manufacturer: "YAMAHA"
     model: "RMIO64-D"
   }
@@ -49,9 +52,9 @@ instance RMIO is RMIO64_D
 connect Aud_TIO.DANTE_Out[1..8] -> MON_Console.DANTE_In[1..8]
 
 # MADI to Dante bridge via RMIO (internal: MADI receive -> Dante transmit)
-connect RMIO.MADI_In[1..48] -> RMIO.DANTE_Out[1..48]
+bridge RMIO.MADI_In[1..48] -> RMIO.DANTE_Out[1..48]
 
 # Analogue output from console
-connect MON_Console.Omni_Out[1..8] -> Aud_TIO.Line_Output[1..8] {
+connect MON_Console.Omni_Out[1..8] -> Aud_TIO.Mic_Line_Input[1..8] {
   mapping: "1->1, 2->2, 3->3, 4->4, 5->5, 6->6, 7->7, 8->8"
 }

@@ -10,6 +10,7 @@
 
 template Wirecast_Pro {
   meta {
+    kind: "device"
     manufacturer: "Telestream"
     model: "Wirecast Pro"
     category: "Software Encoder"

@@ -5,6 +5,7 @@
 
 template Q_SYS_Core_110f {
   meta {
+    kind: "device"
     manufacturer: "QSC"
     model: "Q-SYS Core 110f"
     category: "DSP Processor"

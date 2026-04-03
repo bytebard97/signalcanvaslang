@@ -7,6 +7,7 @@
 
 template AD4Q {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "AD4Q"
     category: "Wireless Receiver"
@@ -31,6 +32,7 @@ template AD4Q {
 
 template AD4D {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "AD4D"
     category: "Wireless Receiver"
@@ -53,6 +55,7 @@ template AD4D {
 
 template ULXD4Q {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "ULXD4Q"
     category: "Wireless Receiver"
@@ -73,6 +76,7 @@ template ULXD4Q {
 
 template ULXD4D {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "ULXD4D"
     category: "Wireless Receiver"
@@ -94,6 +98,7 @@ template ULXD4D {
 
 template PSM1000_P10T {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "PSM1000 P10T"
     category: "IEM Transmitter"
@@ -110,6 +115,7 @@ template PSM1000_P10T {
 
 template PSM900_P9T {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "PSM900 P9T"
     category: "IEM Transmitter"

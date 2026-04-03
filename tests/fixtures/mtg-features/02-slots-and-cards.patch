@@ -3,6 +3,7 @@
 
 template HDX_Card {
   meta {
+    kind: "device"
     manufacturer: "AVID"
     model: "HDX Card"
   }
@@ -13,6 +14,7 @@ template HDX_Card {
 
 template MADI_Card {
   meta {
+    kind: "device"
     manufacturer: "AVID"
     model: "MADI"
   }
@@ -26,6 +28,7 @@ template MADI_Card {
 
 template Venue_FOH_Rack {
   meta {
+    kind: "device"
     manufacturer: "AVID"
     model: "Venue FOH Rack"
   }

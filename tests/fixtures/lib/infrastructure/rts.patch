@@ -5,6 +5,7 @@
 
 template ADAM_M {
   meta {
+    kind: "device"
     manufacturer: "RTS"
     model: "ADAM-M"
     category: "Intercom Matrix"
@@ -22,6 +23,7 @@ template ADAM_M {
 
 template KP_5032 {
   meta {
+    kind: "device"
     manufacturer: "RTS"
     model: "KP-5032"
     category: "Intercom Panel"

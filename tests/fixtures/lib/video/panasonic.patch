@@ -7,6 +7,7 @@
 
 template AK_UC4000 {
   meta {
+    kind: "device"
     manufacturer: "Panasonic"
     model: "AK-UC4000"
     category: "Camera"
@@ -29,6 +30,7 @@ template AK_UC4000 {
 
 template AW_UE150 {
   meta {
+    kind: "device"
     manufacturer: "Panasonic"
     model: "AW-UE150"
     category: "PTZ Camera"

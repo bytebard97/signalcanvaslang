@@ -5,6 +5,7 @@
 
 template MCXD {
   meta {
+    kind: "device"
     manufacturer: "Green-GO"
     model: "MCXD"
     category: "Intercom Panel"
@@ -20,6 +21,7 @@ template MCXD {
 
 template WBPX {
   meta {
+    kind: "device"
     manufacturer: "Green-GO"
     model: "WBPX"
     category: "Intercom Beltpack"

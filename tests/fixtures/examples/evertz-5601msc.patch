@@ -1,5 +1,6 @@
 template SPG_5601MSC {
   meta {
+    kind: "device"
     manufacturer: "Evertz"
     model: "5601MSC"
     category: "Sync"

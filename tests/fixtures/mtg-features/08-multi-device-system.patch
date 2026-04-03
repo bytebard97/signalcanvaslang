@@ -4,6 +4,7 @@
 
 template StageBox_16x0 {
   meta {
+    kind: "device"
     model: "16x0 XLR"
   }
   ports {
@@ -14,6 +15,7 @@ template StageBox_16x0 {
 
 template Splitter_80ch {
   meta {
+    kind: "device"
     model: "80-ch 3-way Splitter"
   }
   ports {
@@ -26,18 +28,24 @@ template Splitter_80ch {
 
 template Venue_Stage_Rack {
   meta {
+    kind: "device"
     manufacturer: "AVID"
     model: "Venue Stage Rack"
   }
   ports {
+    Analog_In[1..48]: in(XLR) [Analogue]
     MADI_In[1..48]: in(BNC_75) [MADI]
     MADI_Out[1..48]: out(BNC_75) [MADI]
   }
   slot Venue_Input_Slot[1..6]: VSR_Input_Card
   slot Venue_Output_Slot[1..6]: VSR_Output_Card
+  bridge Analog_In -> MADI_Out
 }
 
 template VSR_Input_Card {
+  meta {
+    kind: "device"
+  }
   ports {
     Input[1..8]: in(XLR) [Analogue]
   }
@@ -45,6 +53,7 @@ template VSR_Input_Card {
 
 template Console {
   meta {
+    kind: "device"
     model: "Mixing Console"
   }
   ports {
@@ -84,7 +93,7 @@ instance FOH_Console is Console {
 
 # Signal chain: Drums -> Splitter -> Stage Rack -> Console
 connect Drums.Inputs_to_Patch[1..16] -> Mic_Splits.Inputs[1..16]
-connect Mic_Splits.Output_A[1..16] -> FOH_Stage_Rack.MADI_In[1..16]
+connect Mic_Splits.Output_A[1..16] -> FOH_Stage_Rack.Analog_In[1..16]
 connect FOH_Stage_Rack.MADI_Out[1..48] -> FOH_Console.MADI_In[1..48]
 
 # Channel labels

@@ -4,6 +4,10 @@
 # IMAG video, LED walls, and full comms.
 # ============================================================
 
+use 01-audio-devices { DiGiCo_SD7, SD_Rack, Lab_gruppen_PLM, Shure_Axient, OptoSplitter }
+use 02-video-devices { Barco_E2, PTZ_Camera, ATEM_Constellation, Disguise_GX2C }
+use 03-comms-network { RTS_ADAM, RTS_KP, Luminex_GigaCore, Sync_Generator }
+
 # --- Audio: FOH (Front of House) ----------------------------
 
 instance FOH_Console is DiGiCo_SD7 {

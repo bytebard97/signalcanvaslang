@@ -5,6 +5,7 @@
 
 template Focusrite_RedNet_A16R {
   meta {
+    kind: "device"
     manufacturer: "Focusrite"
     model: "RedNet A16R MkII"
     category: "Audio Interface"
@@ -28,6 +29,7 @@ template Focusrite_RedNet_A16R {
 
 template Focusrite_RedNet_D16R {
   meta {
+    kind: "device"
     manufacturer: "Focusrite"
     model: "RedNet D16R MkII"
     category: "Audio Interface"
@@ -51,6 +53,7 @@ template Focusrite_RedNet_D16R {
 
 template Audinate_AVIO_Analog {
   meta {
+    kind: "device"
     manufacturer: "Audinate"
     model: "AVIO Analog"
     category: "Audio Interface"
@@ -68,6 +71,7 @@ template Audinate_AVIO_Analog {
 
 template DirectOut_PRODIGY_MC {
   meta {
+    kind: "device"
     manufacturer: "DirectOut"
     model: "PRODIGY.MC"
     category: "Audio Converter"

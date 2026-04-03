@@ -1,6 +1,9 @@
 # DRC fixture: protocol mismatch
 
 template DanteDevice {
+  meta {
+    kind: "device"
+  }
   ports {
     Net_In: in(etherCON) [Dante]
     Net_Out: out(etherCON) [Dante]
@@ -8,6 +11,9 @@ template DanteDevice {
 }
 
 template MADIDevice {
+  meta {
+    kind: "device"
+  }
   ports {
     MADI_In: in(BNC_75) [MADI]
     MADI_Out: out(BNC_75) [MADI]
@@ -15,6 +21,9 @@ template MADIDevice {
 }
 
 template AES67Device {
+  meta {
+    kind: "device"
+  }
   ports {
     Net_In: in(etherCON) [AES67]
     Net_Out: out(etherCON) [AES67]

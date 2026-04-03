@@ -7,6 +7,7 @@
 
 template EW_D_EM {
   meta {
+    kind: "device"
     manufacturer: "Sennheiser"
     model: "EW-DX EM 4 Dante"
     category: "Wireless Receiver"
@@ -33,6 +34,7 @@ template EW_D_EM {
 
 template Digital_6000_EM6000 {
   meta {
+    kind: "device"
     manufacturer: "Sennheiser"
     model: "Digital 6000 EM 6000"
     category: "Wireless Receiver"

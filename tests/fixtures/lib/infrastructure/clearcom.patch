@@ -5,6 +5,7 @@
 
 template Eclipse_HX_Omega {
   meta {
+    kind: "device"
     manufacturer: "Clear-Com"
     model: "Eclipse HX-Omega"
     category: "Intercom Matrix"
@@ -23,6 +24,7 @@ template Eclipse_HX_Omega {
 
 template Eclipse_HX_Delta {
   meta {
+    kind: "device"
     manufacturer: "Clear-Com"
     model: "Eclipse HX-Delta"
     category: "Intercom Matrix"
@@ -40,6 +42,7 @@ template Eclipse_HX_Delta {
 
 template V_Series_V12 {
   meta {
+    kind: "device"
     manufacturer: "Clear-Com"
     model: "V-Series V12"
     category: "Intercom Panel"
@@ -54,6 +57,7 @@ template V_Series_V12 {
 
 template RS_702 {
   meta {
+    kind: "device"
     manufacturer: "Clear-Com"
     model: "RS-702"
     category: "Intercom Beltpack"

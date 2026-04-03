@@ -3,6 +3,7 @@
 
 template StageBox_16x0 {
   meta {
+    kind: "device"
     model: "16x0 XLR"
   }
   ports {
@@ -13,6 +14,7 @@ template StageBox_16x0 {
 
 template Splitter_80ch {
   meta {
+    kind: "device"
     model: "80-ch 3-way Splitter"
   }
   ports {

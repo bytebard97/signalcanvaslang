@@ -8,6 +8,7 @@
 
 template Camera {
   meta {
+    kind: "device"
     manufacturer: "Sony"
     model: "HDC_3500"
     category: "Camera"
@@ -21,6 +22,7 @@ template Camera {
 
 template VideoRouter {
   meta {
+    kind: "device"
     manufacturer: "Ross"
     model: "Ultrix"
     category: "Router"
@@ -28,12 +30,14 @@ template VideoRouter {
   ports {
     SDI_In[1..72]: in(BNC_75) [SDI]
     SDI_Out[1..72]: out(BNC_75) [SDI]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
   }
   bridge SDI_In -> SDI_Out
 }
 
 template Encoder {
   meta {
+    kind: "device"
     manufacturer: "Harmonic"
     model: "VOS360"
     category: "Encoder"
@@ -47,6 +51,7 @@ template Encoder {
 
 template SyncGenerator {
   meta {
+    kind: "device"
     manufacturer: "Evertz"
     model: "5601MSC"
     category: "Sync"
@@ -59,6 +64,7 @@ template SyncGenerator {
 
 template Multiviewer {
   meta {
+    kind: "device"
     manufacturer: "Evertz"
     model: "EQX_MV"
     category: "Monitoring"
@@ -211,16 +217,9 @@ connect SyncGen.Ref_Out[3] -> Cam3.Genlock_In {
   cable: "GL_C3"
 }
 
-connect SyncGen.Ref_Out[4] -> Router.SDI_In[71] {
+connect SyncGen.Ref_Out[4] -> Router.Ref_In {
   cable: "GL_Router"
 }
-
-# --- Bridges (logical signal paths) --------------------------
-
-bridge Cam1.SDI_Out[1] -> Router.SDI_In[1]
-bridge Cam2.SDI_Out[1] -> Router.SDI_In[3]
-bridge Cam3.SDI_Out[1] -> Router.SDI_In[5]
-bridge Router.SDI_Out[1] -> Enc1.SDI_In[1]
 
 # --- Signals --------------------------------------------------
 

@@ -3,12 +3,18 @@
 # to exercise the pilot wire + parallel expansion geometry.
 
 template Stagebox {
+  meta {
+    kind: "device"
+  }
   ports {
     Dante_Out[1..8]: out(etherCON) [Dante]
   }
 }
 
 template MixerRack {
+  meta {
+    kind: "device"
+  }
   ports {
     Filler_In[1..12]: in
     Dante_In[1..8]: in(etherCON) [Dante]

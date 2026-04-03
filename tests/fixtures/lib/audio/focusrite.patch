@@ -5,6 +5,7 @@
 
 template RedNet_A16R_MkII {
   meta {
+    kind: "device"
     manufacturer: "Focusrite"
     model: "RedNet A16R MkII"
     category: "Dante Interface"
@@ -27,6 +28,7 @@ template RedNet_A16R_MkII {
 
 template RedNet_D16R_MkII {
   meta {
+    kind: "device"
     manufacturer: "Focusrite"
     model: "RedNet D16R MkII"
     category: "Dante Interface"

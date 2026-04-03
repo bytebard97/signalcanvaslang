@@ -7,6 +7,7 @@
 
 template HDC_3500 {
   meta {
+    kind: "device"
     manufacturer: "Sony"
     model: "HDC-3500"
     category: "Camera"
@@ -29,6 +30,7 @@ template HDC_3500 {
 
 template HDC_5500 {
   meta {
+    kind: "device"
     manufacturer: "Sony"
     model: "HDC-5500"
     category: "Camera"
@@ -51,6 +53,7 @@ template HDC_5500 {
 
 template HDCU_3500 {
   meta {
+    kind: "device"
     manufacturer: "Sony"
     model: "HDCU-3500"
     category: "Camera Control Unit"
@@ -78,6 +81,7 @@ template HDCU_3500 {
 
 template HDCU_5500 {
   meta {
+    kind: "device"
     manufacturer: "Sony"
     model: "HDCU-5500"
     category: "Camera Control Unit"
@@ -103,6 +107,7 @@ template HDCU_5500 {
 
 template FR7 {
   meta {
+    kind: "device"
     manufacturer: "Sony"
     model: "FR7"
     category: "PTZ Camera"
@@ -123,6 +128,7 @@ template FR7 {
 
 template BRC_X1000 {
   meta {
+    kind: "device"
     manufacturer: "Sony"
     model: "BRC-X1000"
     category: "PTZ Camera"

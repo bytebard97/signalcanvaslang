@@ -6,6 +6,7 @@
 
 template DiGiCo_SD7 {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "SD7"
     category: "Console"
@@ -22,11 +23,14 @@ template DiGiCo_SD7 {
     MADI_A_Out[1..64]: out(BNC_75) [MADI, ch64]
     MADI_B_In[1..64]: in(BNC_75) [MADI, ch64]
     MADI_B_Out[1..64]: out(BNC_75) [MADI, ch64]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
   }
 }
 
 template SD_Rack {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "SD-Rack"
     category: "Stagebox"
@@ -38,12 +42,15 @@ template SD_Rack {
     Optocore_B_Out: out(OpticalCon) [Optocore, secondary]
     Mic_In[1..56]: in(XLR)
     Line_Out[1..16]: out(XLR)
+    MADI_In[1..64]: in(BNC_75) [MADI, ch64]
+    MADI_Out[1..64]: out(BNC_75) [MADI, ch64]
   }
   bridge Mic_In -> Optocore_A_Out
 }
 
 template Lab_gruppen_PLM {
   meta {
+    kind: "device"
     manufacturer: "Lab.gruppen"
     model: "PLM_20K44"
     category: "Amplifier"
@@ -57,6 +64,7 @@ template Lab_gruppen_PLM {
 
 template Shure_Axient {
   meta {
+    kind: "device"
     manufacturer: "Shure"
     model: "Axient_Digital_AD4Q"
     category: "Wireless"
@@ -74,6 +82,7 @@ template Shure_Axient {
 
 template OptoSplitter {
   meta {
+    kind: "device"
     manufacturer: "DiGiCo"
     model: "Optocore_DD32R"
     category: "Network"
