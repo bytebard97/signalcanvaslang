@@ -1,0 +1,34 @@
+# ============================================================
+# Soundcraft Professional Audio — Standard Library Templates
+# Vi Series Consoles
+#
+# Note: D21m and Si option cards are in lib/cards/soundcraft-d21m.patch
+# ============================================================
+
+# --- Soundcraft Vi3000 ----------------------------------------
+
+template Vi3000 {
+  meta {
+    kind: "device"
+    manufacturer: "Soundcraft"
+    model: "Vi3000"
+    category: "Console"
+  }
+  ports {
+    Mic_In[1..48]: in(XLR) [analog, mic_level]
+    Line_Out[1..16]: out(XLR) [analog, line_level]
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+    Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..64]: out(etherCON) [Dante, primary]
+    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
+    Dante_Sec_Out[1..64]: out(etherCON) [Dante, secondary]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
+    Network: io(RJ45) [Ethernet]
+  }
+  slot D21m_Slot[1..2]: D21m_Card
+  bridge Mic_In -> Dante_Pri_Out
+}

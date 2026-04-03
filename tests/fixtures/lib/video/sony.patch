@@ -140,3 +140,19 @@ template BRC_X1000 {
     LAN: io(RJ45)
   }
 }
+
+# --- XVS-9000: Video Switcher (Modular) ----------------------
+
+template XVS_9000 {
+  meta {
+    kind: "device"
+    manufacturer: "Sony"
+    model: "XVS-9000"
+    category: "Video Switcher"
+  }
+  ports {
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45) [Ethernet]
+  }
+  slot IO_Slot[1..10]: XVS_IO_Card
+}

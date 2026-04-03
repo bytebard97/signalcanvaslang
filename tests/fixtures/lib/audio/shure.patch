@@ -127,3 +127,33 @@ template PSM900_P9T {
   }
   bridge Audio_In -> Antenna
 }
+
+# --- MXA910: Ceiling Array Microphone -------------------------
+
+template MXA910 {
+  meta {
+    kind: "device"
+    manufacturer: "Shure"
+    model: "MXA910"
+    category: "Microphone"
+  }
+  ports {
+    Dante_Net_In[1..10]: in(RJ45) [Dante, AES67, PoE]
+    Dante_Net_Out[1..10]: out(RJ45) [Dante, AES67, PoE]
+  }
+}
+
+# --- MXA920: Ceiling Array Microphone -------------------------
+
+template MXA920 {
+  meta {
+    kind: "device"
+    manufacturer: "Shure"
+    model: "MXA920"
+    category: "Microphone"
+  }
+  ports {
+    Dante_Net_In[1..10]: in(RJ45) [Dante, AES67, PoE]
+    Dante_Net_Out[1..10]: out(RJ45) [Dante, AES67, PoE]
+  }
+}

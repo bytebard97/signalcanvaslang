@@ -1,0 +1,24 @@
+# ============================================================
+# EVS — Replay Servers and Production Systems
+# Standard library templates for EVS broadcast devices.
+# ============================================================
+
+# --- XT-VIA: Premium Replay Server --------------------------
+
+template XT_VIA {
+  meta {
+    kind: "device"
+    manufacturer: "EVS"
+    model: "XT-VIA"
+    category: "Replay Server"
+  }
+  ports {
+    SDI_In[1..12]: in(BNC_75) [SDI, UHD]
+    SDI_Out[1..12]: out(BNC_75) [SDI, UHD]
+    Network_10G[1..2]: io(SFP) [Ethernet, GbE_10]
+    Network_100G: io(SFP) [Ethernet, GbE_100]
+    Ref_In: in(BNC_75) [BlackBurst, TriLevel]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Out
+}

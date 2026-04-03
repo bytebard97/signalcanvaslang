@@ -204,3 +204,24 @@ template Mini_Converter_SDI_to_Fiber {
   bridge SDI_In -> Fiber_Out
   bridge SDI_In -> SDI_Loop
 }
+
+# --- Web Presenter HD: Streaming Encoder ---------------------
+
+template Web_Presenter_HD {
+  meta {
+    kind: "device"
+    manufacturer: "Blackmagic Design"
+    model: "Web Presenter HD"
+    category: "Streaming Encoder"
+  }
+  ports {
+    SDI_In: in(BNC_75) [SDI, UHD]
+    SDI_Loop: out(BNC_75) [SDI, UHD]
+    SDI_Monitor: out(BNC_75) [SDI, HD]
+    HDMI_Monitor: out(HDMI) [HD]
+    Mic_In: in(XLR) [analog, mic_level]
+    USB_Webcam: out(USB_C) [USB_Video]
+    LAN: io(RJ45)
+  }
+  bridge SDI_In -> SDI_Loop
+}

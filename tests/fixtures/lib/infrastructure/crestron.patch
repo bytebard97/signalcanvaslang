@@ -1,0 +1,26 @@
+# ============================================================
+# Crestron — AV-over-IP Endpoints
+# Standard library templates for Crestron DM NVX devices.
+# ============================================================
+
+# --- DM-NVX-360: AV-over-IP Endpoint (Encoder/Decoder) ------
+
+template DM_NVX_360 {
+  meta {
+    kind: "device"
+    manufacturer: "Crestron"
+    model: "DM-NVX-360"
+    category: "AV Bridge"
+  }
+  ports {
+    HDMI_In: in(HDMI) [UHD]
+    HDMI_Out: out(HDMI) [UHD]
+    Network_1: io(RJ45) [DM_NVX, PoE]
+    Network_2: io(RJ45) [Ethernet]
+    Network_3: io(RJ45) [Ethernet]
+    Network_SFP: io(SFP) [DM_NVX]
+    Audio_IO: io(Euroblock) [Analogue]
+    USB_Host: io(USB) [USB_2]
+    RS232: io(RJ45) [RS232]
+  }
+}

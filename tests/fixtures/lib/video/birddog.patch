@@ -1,0 +1,25 @@
+# ============================================================
+# BirdDog — NDI PTZ Cameras and Converters
+# Standard library templates for BirdDog broadcast devices.
+# ============================================================
+
+# --- Eyes P200: Full NDI PTZ Camera --------------------------
+
+template Eyes_P200 {
+  meta {
+    kind: "device"
+    manufacturer: "BirdDog"
+    model: "Eyes P200"
+    category: "PTZ Camera"
+  }
+  ports {
+    NDI: io(RJ45) [NDI, PoE]
+    SDI_Out: out(BNC_75) [SDI, HD]
+    HDMI_Out: out(HDMI) [HD]
+    Audio_In: in(TRS_35) [analog]
+    Audio_Out: out(TRS_35) [analog]
+    RS422: io(RJ45) [RS422]
+  }
+  bridge NDI -> SDI_Out
+  bridge NDI -> HDMI_Out
+}

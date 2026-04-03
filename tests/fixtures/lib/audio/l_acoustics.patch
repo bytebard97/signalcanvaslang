@@ -46,3 +46,25 @@ template LA12X {
   bridge Analog_In -> Speaker_Out
   bridge Dante_Pri_In -> Speaker_Out
 }
+
+# --- P1: Processor and Measurement Platform -------------------
+
+template P1 {
+  meta {
+    kind: "device"
+    manufacturer: "L-Acoustics"
+    model: "P1"
+    category: "Loudspeaker Processor"
+  }
+  ports {
+    Mic_In[1..4]: in(XLR) [Analogue, mic_level]
+    Analog_In[1..4]: in(XLR) [Analogue, line_level]
+    Analog_Out[1..4]: out(XLR) [Analogue, line_level]
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+    AVB_Pri: io(etherCON) [AVB, Milan, primary]
+    AVB_Sec: io(etherCON) [AVB, Milan, secondary]
+  }
+  bridge Mic_In -> AVB_Pri
+  bridge Analog_In -> AVB_Pri
+}

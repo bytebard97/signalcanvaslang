@@ -1,0 +1,20 @@
+# ============================================================
+# Haivision — Video Encoders and Streaming
+# Standard library templates for Haivision broadcast devices.
+# ============================================================
+
+# --- Makito X4: Quad-Channel Video Encoder -------------------
+
+template Makito_X4 {
+  meta {
+    kind: "device"
+    manufacturer: "Haivision"
+    model: "Makito X4"
+    category: "Video Encoder"
+  }
+  ports {
+    SDI_In[1..4]: in(BNC_75) [SDI, UHD]
+    Network[1..2]: io(RJ45) [SRT, HEVC]
+    LAN: io(RJ45) [Ethernet]
+  }
+}
