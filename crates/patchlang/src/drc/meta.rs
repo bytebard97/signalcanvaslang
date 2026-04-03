@@ -4,7 +4,7 @@
 //! rf_band without matching kind.
 
 use crate::ast::{KvValue, PatchProgram, Statement};
-use crate::drc::catalog::{KNOWN_KINDS, KNOWN_RF_SUBTYPES};
+use crate::drc::catalog::{self, KNOWN_DANTE_CHIPSETS, KNOWN_KINDS, KNOWN_RF_SUBTYPES};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Structural;
@@ -66,6 +66,29 @@ pub fn check_meta_info_hints(program: &PatchProgram, diags: &mut Vec<Diagnostic>
                                     "Unknown rf_subtype '{}' — expected one of: {}",
                                     value,
                                     KNOWN_RF_SUBTYPES.join(", ")
+                                ),
+                                span: Some(t.span.clone()),
+                                source: None,
+                                target: None,
+                                fix: None,
+                            });
+                        }
+                    }
+                }
+            }
+
+            // M-I07 — unknown dante_chipset
+            for kv in &t.meta {
+                if kv.key == "dante_chipset" {
+                    if let KvValue::Str { value } = &kv.value {
+                        if !KNOWN_DANTE_CHIPSETS.contains(&value.as_str()) {
+                            diags.push(Diagnostic {
+                                severity: Severity::Info,
+                                layer: LAYER.clone(),
+                                message: format!(
+                                    "Unknown dante_chipset '{}' \u{2014} expected one of: {}",
+                                    value,
+                                    KNOWN_DANTE_CHIPSETS.join(", ")
                                 ),
                                 span: Some(t.span.clone()),
                                 source: None,
@@ -154,6 +177,61 @@ pub fn check_meta_info_hints(program: &PatchProgram, diags: &mut Vec<Diagnostic>
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // M-I08 — Ultimo chipset + aes67_mode: true on instance
+    check_ultimo_aes67(program, diags);
+}
+
+/// M-I08 — Ultimo chipsets do not support AES67 RTP flows.
+fn check_ultimo_aes67(program: &PatchProgram, diags: &mut Vec<Diagnostic>) {
+    // Build template -> chipset map
+    let mut template_chipset: std::collections::HashMap<&str, &str> = std::collections::HashMap::new();
+    for stmt in &program.statements {
+        if let Statement::Template(t) = stmt {
+            for kv in &t.meta {
+                if kv.key == "dante_chipset" {
+                    if let KvValue::Str { value } = &kv.value {
+                        template_chipset.insert(t.name.as_str(), value.as_str());
+                    }
+                }
+            }
+        }
+    }
+
+    for stmt in &program.statements {
+        if let Statement::Instance(inst) = stmt {
+            let has_aes67_mode = inst.properties.iter().any(|kv| {
+                kv.key == "aes67_mode"
+                    && match &kv.value {
+                        KvValue::Str { value } => value == "true",
+                        KvValue::PortRef(pr) => pr.instance.is_none() && pr.port == "true",
+                        _ => false,
+                    }
+            });
+
+            if !has_aes67_mode {
+                continue;
+            }
+
+            if let Some(chipset) = template_chipset.get(inst.template_name.as_str()) {
+                if !catalog::dante_chipset_supports_aes67(chipset) {
+                    diags.push(Diagnostic {
+                        severity: Severity::Warning,
+                        layer: LAYER.clone(),
+                        message: format!(
+                            "Ultimo chipsets do not support AES67 RTP flows. \
+                             Instance '{}' has aes67_mode: true but template '{}' uses Ultimo.",
+                            inst.name, inst.template_name
+                        ),
+                        span: Some(inst.span.clone()),
+                        source: Some(inst.name.clone()),
+                        target: None,
+                        fix: Some("Remove aes67_mode or use a device with Brooklyn_II or newer chipset".to_string()),
+                    });
                 }
             }
         }

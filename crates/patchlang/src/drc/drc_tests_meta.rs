@@ -118,3 +118,58 @@ mod meta_rf {
         }), "unexpected RF channel warning: {:?}", diags);
     }
 }
+
+#[cfg(test)]
+mod meta_dante_chipset {
+    use crate::drc::{self, Severity};
+    use crate::parser::parse;
+
+    fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
+        let result = parse(source);
+        drc::run_all(&result.program)
+    }
+
+    #[test]
+    fn unknown_chipset_emits_info() {
+        let diags = check(r#"
+            template Dev { meta { dante_chipset: "FutureTech" } ports { X: out } }
+        "#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Info
+                && d.message.contains("Unknown dante_chipset")
+                && d.message.contains("FutureTech")
+        }), "expected info for unknown chipset: {:?}", diags);
+    }
+
+    #[test]
+    fn known_chipset_no_warning() {
+        let diags = check(r#"
+            template Dev { meta { dante_chipset: "Brooklyn_II" } ports { X: out } }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("Unknown dante_chipset")),
+            "known chipset should not warn: {:?}", diags);
+    }
+
+    #[test]
+    fn ultimo_aes67_mode_emits_warning() {
+        let diags = check(r#"
+            template Dev { meta { dante_chipset: "Ultimo" } ports { Out: out(etherCON) [Dante] } }
+            instance D is Dev { aes67_mode: true }
+        "#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Warning
+                && d.message.contains("Ultimo")
+                && d.message.contains("AES67")
+        }), "expected warning for Ultimo + aes67_mode: {:?}", diags);
+    }
+
+    #[test]
+    fn brooklyn_aes67_mode_no_warning() {
+        let diags = check(r#"
+            template Dev { meta { dante_chipset: "Brooklyn_II" } ports { Out: out(etherCON) [Dante] } }
+            instance D is Dev { aes67_mode: true }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("Ultimo") && d.message.contains("AES67")),
+            "Brooklyn_II with aes67_mode should not warn: {:?}", diags);
+    }
+}

@@ -8,19 +8,20 @@
 
 use std::collections::HashSet;
 
-use crate::ast::{PatchProgram, Statement};
+use crate::ast::{KvValue, PatchProgram, Statement};
 use crate::drc::helpers::{collect_all_connects, port_ref_full_label, DRCContext};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Convention;
 
 /// Run all convention checks.
-pub fn check(program: &PatchProgram, _ctx: &DRCContext<'_>) -> Vec<Diagnostic> {
+pub fn check(program: &PatchProgram, ctx: &DRCContext<'_>) -> Vec<Diagnostic> {
     let mut diags = Vec::new();
     check_orphaned_instances(program, &mut diags);
     check_duplicate_connections(program, &mut diags);
     check_template_zero_ports(program, &mut diags);
     check_bus_zero_outputs(program, &mut diags);
+    check_aes67_redundancy(program, ctx, &mut diags);
     diags
 }
 
@@ -173,6 +174,62 @@ fn check_bus_zero_outputs(
                     });
                 }
             }
+        }
+    }
+}
+
+/// Check if an instance has a boolean-like property set to true.
+/// Note: the parser treats bare `true` as a PortRef with port name "true".
+fn has_bool_property(properties: &[crate::ast::KeyValue], key: &str) -> bool {
+    properties.iter().any(|kv| {
+        kv.key == key
+            && match &kv.value {
+                KvValue::Str { value } => value == "true",
+                KvValue::PortRef(pr) => pr.instance.is_none() && pr.port == "true",
+                _ => false,
+            }
+    })
+}
+
+/// C05 — Redundancy terminates at AES67 boundary.
+fn check_aes67_redundancy(
+    program: &PatchProgram,
+    ctx: &DRCContext<'_>,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let connects = collect_all_connects(program);
+
+    for conn in &connects {
+        // Only care about connects with redundant_cable property
+        let has_redundant_cable = conn.properties.iter().any(|kv| kv.key == "redundant_cable");
+        if !has_redundant_cable {
+            continue;
+        }
+
+        // Check if either endpoint instance has aes67_mode: true
+        let src_aes67 = conn.source.instance.as_deref().and_then(|name| {
+            ctx.instance_map.get(name)
+        }).map_or(false, |inst| {
+            has_bool_property(&inst.properties, "aes67_mode")
+        });
+
+        let tgt_aes67 = conn.target.instance.as_deref().and_then(|name| {
+            ctx.instance_map.get(name)
+        }).map_or(false, |inst| {
+            has_bool_property(&inst.properties, "aes67_mode")
+        });
+
+        if src_aes67 || tgt_aes67 {
+            diags.push(Diagnostic {
+                severity: Severity::Info,
+                layer: LAYER.clone(),
+                message: "AES67 flows are transmitted on the Primary port only. \
+                         Redundancy terminates at the AES67 boundary.".to_string(),
+                span: Some(conn.span.clone()),
+                source: conn.source.instance.clone(),
+                target: conn.target.instance.clone(),
+                fix: Some("Ensure critical AES67 paths have network-level redundancy instead".to_string()),
+            });
         }
     }
 }

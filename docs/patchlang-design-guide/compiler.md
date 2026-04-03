@@ -408,7 +408,8 @@ The DRC engine runs after parsing and auto-resolution. It operates on the full A
 5. **Logical** — protocol mismatches
 6. **Temporal** — clock domain mismatches
 7. **Ring** — ring topology member validation
-8. **Convention** — style and usage advisories
+8. **Flow** — AES67 interoperability (flow slots, channel limits, multicast prefixes)
+9. **Convention** — style and usage advisories
 
 ### Diagnostic Structure
 
@@ -417,7 +418,7 @@ Each diagnostic serializes as:
 ```json
 {
   "severity": "error" | "warning" | "info",
-  "layer": "structural" | "direction" | "mechanical" | "electrical" | "logical" | "temporal" | "ring" | "convention",
+  "layer": "structural" | "direction" | "mechanical" | "electrical" | "logical" | "temporal" | "ring" | "flow" | "convention",
   "message": "human-readable description",
   "span": { "start": 142, "end": 168, "file": 0 },
   "source": "optional port ref label",
@@ -495,7 +496,15 @@ Connection-level suppression via `@suppress(layer_name)`. Supported layers: `str
 | R03 | Warning | Ring member port does not have the ring's protocol in its attributes |
 | R04 | Error | Implicit ring member — zero or multiple ports match the protocol (ambiguous) |
 
-#### Convention Layer (C01-C04)
+#### Flow Layer (F01-F03)
+
+| Code | Severity | Rule |
+|------|----------|------|
+| F01 | Warning | Flow slot exhaustion — stream count exceeds Dante chipset limit |
+| F02 | Info | AES67 stream exceeds 8 channels — hardware will auto-split into multiple flows |
+| F03 | Error | Multicast prefix mismatch between AES67 devices — audio will silently fail |
+
+#### Convention Layer (C01-C05)
 
 | Code | Severity | Rule |
 |------|----------|------|
@@ -503,8 +512,9 @@ Connection-level suppression via `@suppress(layer_name)`. Supported layers: `str
 | C02 | Warning | Duplicate connection — same source/target port pair connected more than once |
 | C03 | Info | Template declared with zero ports |
 | C04 | Info | Bus declared with zero outputs |
+| C05 | Info | Redundancy terminates at AES67 boundary — AES67 flows use Primary port only |
 
-#### Meta Info Hints (M-I01 through M-I06)
+#### Meta Info Hints (M-I01 through M-I08)
 
 These run as part of the structural layer but use distinct codes:
 
@@ -516,6 +526,8 @@ These run as part of the structural layer but use distinct codes:
 | M-I04 | Info | `rf_band` present but `kind` is not `rf-system` |
 | M-I05 | Warning | `rf_min_channels` is zero (must be positive) |
 | M-I06 | Warning | `rf_max_channels` is less than `rf_min_channels` |
+| M-I07 | Info | Unknown `dante_chipset` value — expected Ultimo, Broadway, Brooklyn_II, Brooklyn_3, or HC |
+| M-I08 | Warning | Ultimo chipset does not support AES67 — instance has `aes67_mode: true` but template uses Ultimo |
 
 ---
 

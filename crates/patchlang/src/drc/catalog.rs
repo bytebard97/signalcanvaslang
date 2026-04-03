@@ -177,6 +177,27 @@ pub const KNOWN_KINDS: &[&str] = &[
     "system", "venue",
 ];
 
+/// Known Dante chipset values for meta validation.
+pub const KNOWN_DANTE_CHIPSETS: &[&str] = &[
+    "Ultimo", "Broadway", "Brooklyn_II", "Brooklyn_3", "HC",
+];
+
+/// Maximum flow slots per Dante chipset.
+pub fn dante_chipset_max_flows(chipset: &str) -> Option<u32> {
+    match chipset {
+        "Ultimo" => Some(2),
+        "Broadway" => Some(16),
+        "Brooklyn_II" | "Brooklyn_3" => Some(32),
+        "HC" => Some(128),
+        _ => None,
+    }
+}
+
+/// Whether a Dante chipset supports AES67 RTP flows.
+pub fn dante_chipset_supports_aes67(chipset: &str) -> bool {
+    !matches!(chipset, "Ultimo")
+}
+
 /// Known rf_subtype values for meta validation hints.
 /// Source of truth: patchlang-v022-spec.md §3 (RF System Configuration)
 pub const KNOWN_RF_SUBTYPES: &[&str] = &[

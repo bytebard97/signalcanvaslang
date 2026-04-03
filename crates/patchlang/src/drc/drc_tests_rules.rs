@@ -651,3 +651,191 @@ mod temporal {
         assert!(!diags.iter().any(|d| d.layer == DRCLayer::Temporal));
     }
 }
+
+#[cfg(test)]
+mod flow {
+    use crate::drc::{self, DRCLayer, Severity};
+    use crate::parser::parse;
+
+    fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
+        let result = parse(source);
+        drc::run_all(&result.program)
+    }
+
+    fn flow_diags(source: &str) -> Vec<crate::drc::Diagnostic> {
+        check(source)
+            .into_iter()
+            .filter(|d| d.layer == DRCLayer::Flow)
+            .collect()
+    }
+
+    // --- F01: Flow slot exhaustion ---
+
+    #[test]
+    fn f01_ultimo_3_streams_exceeds_limit() {
+        let diags = flow_diags(r#"
+            template Dev { meta { dante_chipset: "Ultimo" } ports { Out[1..4]: out(etherCON) [Dante] } }
+            instance D is Dev
+            stream S1 { source: D.Out channels: 2 protocol: "Dante" }
+            stream S2 { source: D.Out channels: 2 protocol: "Dante" }
+            stream S3 { source: D.Out channels: 2 protocol: "Dante" }
+        "#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Warning
+                && d.message.contains("3 streams")
+                && d.message.contains("Ultimo")
+                && d.message.contains("2 flow slots")
+        }), "expected F01 warning for Ultimo with 3 streams: {:?}", diags);
+    }
+
+    #[test]
+    fn f01_brooklyn_3_streams_no_warning() {
+        let diags = flow_diags(r#"
+            template Dev { meta { dante_chipset: "Brooklyn_II" } ports { Out[1..4]: out(etherCON) [Dante] } }
+            instance D is Dev
+            stream S1 { source: D.Out channels: 2 protocol: "Dante" }
+            stream S2 { source: D.Out channels: 2 protocol: "Dante" }
+            stream S3 { source: D.Out channels: 2 protocol: "Dante" }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("flow slots")),
+            "Brooklyn_II with 3 streams should not warn: {:?}", diags);
+    }
+
+    #[test]
+    fn f01_no_chipset_no_warning() {
+        let diags = flow_diags(r#"
+            template Dev { ports { Out[1..4]: out(etherCON) [Dante] } }
+            instance D is Dev
+            stream S1 { source: D.Out channels: 2 protocol: "Dante" }
+            stream S2 { source: D.Out channels: 2 protocol: "Dante" }
+            stream S3 { source: D.Out channels: 2 protocol: "Dante" }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("flow slots")),
+            "no chipset should not warn: {:?}", diags);
+    }
+
+    // --- F02: AES67 stream channel limit ---
+
+    #[test]
+    fn f02_aes67_16_channels_emits_info() {
+        let diags = flow_diags(r#"
+            template Dev { ports { Out[1..16]: out(etherCON) [Dante] } }
+            instance D is Dev
+            stream BigStream { source: D.Out channels: 16 protocol: "AES67" }
+        "#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Info
+                && d.message.contains("8 channels per flow")
+                && d.message.contains("16 channels")
+        }), "expected F02 info for 16-channel AES67: {:?}", diags);
+    }
+
+    #[test]
+    fn f02_aes67_8_channels_no_warning() {
+        let diags = flow_diags(r#"
+            template Dev { ports { Out[1..8]: out(etherCON) [Dante] } }
+            instance D is Dev
+            stream NormalStream { source: D.Out channels: 8 protocol: "AES67" }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("8 channels per flow")),
+            "8-channel AES67 should not warn: {:?}", diags);
+    }
+
+    #[test]
+    fn f02_non_aes67_16_channels_no_warning() {
+        let diags = flow_diags(r#"
+            template Dev { ports { Out[1..16]: out(etherCON) [Dante] } }
+            instance D is Dev
+            stream BigDante { source: D.Out channels: 16 protocol: "Dante" }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("8 channels per flow")),
+            "non-AES67 16-channel should not warn: {:?}", diags);
+    }
+
+    // --- F03: Multicast prefix mismatch ---
+
+    #[test]
+    fn f03_mismatched_prefix_emits_error() {
+        let diags = flow_diags(r#"
+            template T { ports { Out: out(etherCON) [Dante] In: in(etherCON) [Dante] } }
+            instance A is T { aes67_mode: true multicast_prefix: 71 }
+            instance B is T { aes67_mode: true multicast_prefix: 72 }
+            connect A.Out -> B.In
+        "#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Error
+                && d.message.contains("Multicast prefix mismatch")
+                && d.message.contains("71")
+                && d.message.contains("72")
+        }), "expected F03 error for mismatched prefixes: {:?}", diags);
+    }
+
+    #[test]
+    fn f03_matching_prefix_no_error() {
+        let diags = flow_diags(r#"
+            template T { ports { Out: out(etherCON) [Dante] In: in(etherCON) [Dante] } }
+            instance A is T { aes67_mode: true multicast_prefix: 71 }
+            instance B is T { aes67_mode: true multicast_prefix: 71 }
+            connect A.Out -> B.In
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("Multicast prefix mismatch")),
+            "matching prefixes should not error: {:?}", diags);
+    }
+
+    #[test]
+    fn f03_no_aes67_mode_no_check() {
+        let diags = flow_diags(r#"
+            template T { ports { Out: out(etherCON) [Dante] In: in(etherCON) [Dante] } }
+            instance A is T { multicast_prefix: 71 }
+            instance B is T { multicast_prefix: 72 }
+            connect A.Out -> B.In
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("Multicast prefix mismatch")),
+            "without aes67_mode should not check prefixes: {:?}", diags);
+    }
+}
+
+#[cfg(test)]
+mod convention_c05 {
+    use crate::drc::{self, DRCLayer, Severity};
+    use crate::parser::parse;
+
+    fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
+        let result = parse(source);
+        drc::run_all(&result.program)
+    }
+
+    fn convention_diags(source: &str) -> Vec<crate::drc::Diagnostic> {
+        check(source)
+            .into_iter()
+            .filter(|d| d.layer == DRCLayer::Convention)
+            .collect()
+    }
+
+    #[test]
+    fn c05_redundant_cable_to_aes67_device_emits_info() {
+        let diags = convention_diags(r#"
+            template T { ports { Out: out(etherCON) [Dante] In: in(etherCON) [Dante] } }
+            instance A is T { aes67_mode: true }
+            instance B is T
+            connect A.Out -> B.In { redundant_cable: "Cat6a_Sec" }
+        "#);
+        assert!(diags.iter().any(|d| {
+            d.severity == Severity::Info
+                && d.message.contains("AES67")
+                && d.message.contains("Redundancy terminates")
+        }), "expected C05 info for redundant cable to AES67 device: {:?}", diags);
+    }
+
+    #[test]
+    fn c05_redundant_cable_no_aes67_no_warning() {
+        let diags = convention_diags(r#"
+            template T { ports { Out: out(etherCON) [Dante] In: in(etherCON) [Dante] } }
+            instance A is T
+            instance B is T
+            connect A.Out -> B.In { redundant_cable: "Cat6a_Sec" }
+        "#);
+        assert!(!diags.iter().any(|d| d.message.contains("AES67") && d.message.contains("Redundancy")),
+            "non-AES67 redundant cable should not warn: {:?}", diags);
+    }
+}

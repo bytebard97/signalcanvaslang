@@ -182,6 +182,8 @@ These are final. Do not re-litigate them.
 
 **D012 — Backbone connections use `backbone: true` on `connect`.** Surface-to-engine links (GigaACE, RIVAGE, etc.) are expressed as `connect` with `backbone: true`. No new keyword, no implicit protocol detection. Signal Trace traverses transparently; DRC exempts from direction/protocol checks. Dual redundant = 4 connect statements (2 directions × 2 cables).
 
+**D013 — AES67 interop uses existing constructs + metadata.** AES67 TX streams use `stream` with `protocol: "AES67"`. Chipset awareness via `dante_chipset` meta field on templates (Ultimo, Broadway, Brooklyn_II, Brooklyn_3, HC). Instance properties: `aes67_mode: true`, `multicast_prefix: 71`. DRC Flow layer: F01 (flow slot exhaustion), F02 (8-channel limit), F03 (multicast prefix mismatch). C05 (redundancy terminates at AES67 boundary). No parser changes.
+
 ---
 
 ## Key Vocabulary
