@@ -156,3 +156,20 @@ template XVS_9000 {
   }
   slot IO_Slot[1..10]: XVS_IO_Card
 }
+
+# --- XVS-G1: Compact Video Switcher (Modular) ---------------
+
+template XVS_G1 {
+  meta {
+    kind: "device"
+    manufacturer: "Sony"
+    model: "XVS-G1"
+    category: "Video Switcher"
+  }
+  ports {
+    Ref_In[1..2]: in(BNC_75) [BlackBurst, TriLevel]
+    Ref_Out: out(BNC_75) [BlackBurst, TriLevel]
+    LAN[1..2]: io(RJ45) [Ethernet]
+  }
+  slot IO_Slot[1..6]: XVS_IO_Card
+}
