@@ -9,7 +9,7 @@
 use std::collections::HashSet;
 
 use crate::ast::{PatchProgram, Statement};
-use crate::drc::helpers::{collect_all_connects, port_ref_label, DRCContext};
+use crate::drc::helpers::{collect_all_connects, port_ref_full_label, DRCContext};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Convention;
@@ -107,16 +107,8 @@ fn check_duplicate_connections(program: &PatchProgram, diags: &mut Vec<Diagnosti
     let mut seen: HashSet<(String, String)> = HashSet::new();
 
     for conn in &connects {
-        let source_label = port_ref_label(
-            conn.source.instance.as_deref().unwrap_or(""),
-            &conn.source.port,
-            None,
-        );
-        let target_label = port_ref_label(
-            conn.target.instance.as_deref().unwrap_or(""),
-            &conn.target.port,
-            None,
-        );
+        let source_label = port_ref_full_label(&conn.source);
+        let target_label = port_ref_full_label(&conn.target);
         let key = (source_label.clone(), target_label.clone());
 
         if !seen.insert(key) {
