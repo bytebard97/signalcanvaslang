@@ -65,6 +65,10 @@ template S16 {
     # Digital audio
     ADAT_Out[1..16]: out(TOSLINK) [ADAT]
     ULTRANET_Out[1..16]: out(RJ45) [ULTRANET]
+
+    # Control
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
   }
   bridge Mic_In -> AES50_A_Out
   bridge AES50_A_In -> Line_Out

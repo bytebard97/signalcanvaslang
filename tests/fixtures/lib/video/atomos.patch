@@ -14,7 +14,7 @@ template Shogun_7 {
   }
   ports {
     SDI_In[1..4]: in(BNC_75) [SDI, UHD]
-    SDI_Out[1..4]: out(BNC_75) [SDI, UHD]
+    SDI_Out[1..2]: out(BNC_75) [SDI, UHD]
     HDMI_In: in(HDMI) [UHD]
     HDMI_Out: out(HDMI) [UHD]
     TC_In: in(BNC_75) [analog]

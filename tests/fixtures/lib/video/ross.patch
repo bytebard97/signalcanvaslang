@@ -14,8 +14,8 @@ template Carbonite_Ultra {
   }
   ports {
     SDI_In[1..24]: in(BNC_75) [SDI, UHD]
-    SDI_Out[1..12]: out(BNC_75) [SDI, UHD]
-    MV_Out[1..2]: out(BNC_75) [SDI, HD]
+    SDI_Out[1..10]: out(BNC_75) [SDI, UHD]
+    MV_Out[1..4]: out(BNC_75) [SDI, HD]
     AES_Out[1..2]: out(BNC_75) [AES3]
     Ref_In: in(BNC_75) [BlackBurst, TriLevel]
     LTC_In: in(BNC_75) [analog]

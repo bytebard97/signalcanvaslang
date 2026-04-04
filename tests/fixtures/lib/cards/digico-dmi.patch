@@ -116,7 +116,7 @@ template DMI_KLANG {
   }
   ports {
     Process_In[1..64]: in(etherCON) [KLANG]
-    Process_Out[1..32]: out(etherCON) [KLANG]
+    Process_Out[1..16]: out(etherCON) [KLANG]
     Control: io(RJ45) [Ethernet]
   }
 }
@@ -141,7 +141,7 @@ template DMI_ME {
     fits: "DMI_Card"
   }
   ports {
-    ME_Out[1..40]: out(RJ45) [ME_Personal_Mixing]
+    ME_Out[1..40]: out(etherCON) [ME_Personal_Mixing]
   }
 }
 

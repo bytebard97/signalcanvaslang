@@ -65,17 +65,18 @@ template GLD_112 {
     category: "Console"
   }
   ports {
-    DX_Link_In: in(etherCON) [DX]
-    DX_Link_Out: out(etherCON) [DX]
-    Mic_In[1..28]: in(XLR) [analog, mic_level, phantom_48V]
-    Line_Out[1..16]: out(XLR) [analog, line_level]
-    AES_In[1..2]: in(XLR) [AES3]
-    AES_Out[1..6]: out(XLR) [AES3]
+    dSnake_In: in(etherCON) [dSnake]
+    dSnake_Out: out(etherCON) [dSnake]
+    Expander_In: in(etherCON) [dSnake]
+    Expander_Out: out(etherCON) [dSnake]
+    Mic_In[1..4]: in(XLR) [analog, mic_level, phantom_48V]
+    Line_Out[1..4]: out(XLR) [analog, line_level]
+    AES_Out: out(XLR) [AES3]
     MIDI_In: in(XLR_5) [MIDI]
     MIDI_Out: out(XLR_5) [MIDI]
   }
   slot IO_Port: AH_IO_Card
-  bridge Mic_In -> DX_Link_Out
+  bridge Mic_In -> dSnake_Out
 }
 
 # --- Avantis --------------------------------------------------
