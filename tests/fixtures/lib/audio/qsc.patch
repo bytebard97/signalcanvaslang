@@ -11,10 +11,10 @@ template Q_SYS_Core_110f {
     category: "DSP Processor"
   }
   ports {
-    Network_A_In[1..64]: in(RJ45) [Dante, primary]
-    Network_A_Out[1..64]: out(RJ45) [Dante, primary]
-    Network_B_In[1..64]: in(RJ45) [Dante, secondary]
-    Network_B_Out[1..64]: out(RJ45) [Dante, secondary]
+    Network_A_In[1..128]: in(RJ45) [Q_LAN, primary]
+    Network_A_Out[1..128]: out(RJ45) [Q_LAN, primary]
+    Network_B_In[1..128]: in(RJ45) [Q_LAN, secondary]
+    Network_B_Out[1..128]: out(RJ45) [Q_LAN, secondary]
     Mic_In[1..8]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..8]: out(XLR) [analog, line_level]
     Flex_IO[1..8]: io(XLR) [analog, line_level]

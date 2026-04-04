@@ -134,7 +134,7 @@ template BRC_X1000 {
     category: "PTZ Camera"
   }
   ports {
-    SDI_Out[1..2]: out(BNC_75) [SDI, HD]
+    SDI_Out[1..4]: out(BNC_75) [SDI, HD]
     HDMI_Out: out(HDMI) [UHD]
     Sync_In: in(BNC_75) [BlackBurst]
     LAN: io(RJ45)

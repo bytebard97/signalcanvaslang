@@ -26,7 +26,7 @@ template Midas_M32 {
     AES50_B_In: in(etherCON) [AES50]
     AES50_B_Out: out(etherCON) [AES50]
     # Digital outputs
-    AES_Out[1..2]: out(XLR) [AES3]
+    AES_Out: out(XLR) [AES3]
     ULTRANET_Out: out(RJ45) [ULTRANET]
     # USB audio interface (32 channels)
     USB_IO[1..32]: io(USB) [USB_Audio]
@@ -61,6 +61,9 @@ template Midas_DL16 {
     # Digital outputs
     ADAT_Out[1..2]: out(TOSLINK) [ADAT]
     ULTRANET_Out: out(RJ45) [ULTRANET]
+    # Control
+    MIDI_In: in(XLR_5) [MIDI]
+    MIDI_Out: out(XLR_5) [MIDI]
   }
   bridge Mic_In -> AES50_A_Out
   bridge AES50_A_In -> Line_Out

@@ -57,12 +57,15 @@ template Ferrofish_A32 {
   }
   ports {
     Analog_IO[1..8]: io(DB25) [analog, line_level]
-    MADI_SFP_In[1..2]: in(SFP) [MADI, ch64]
-    MADI_SFP_Out[1..2]: out(SFP) [MADI, ch64]
+    MADI_Opt_In: in(SFP) [MADI, ch64]
+    MADI_Opt_Out: out(SFP) [MADI, ch64]
+    MADI_Coax_In: in(BNC_75) [MADI, ch64]
+    MADI_Coax_Out: out(BNC_75) [MADI, ch64]
     ADAT_In[1..8]: in(OpticalCon) [ADAT]
     ADAT_Out[1..8]: out(OpticalCon) [ADAT]
     WC_In: in(BNC_75) [WordClock]
     WC_Out: out(BNC_75) [WordClock]
   }
-  bridge Analog_IO -> MADI_SFP_Out
+  bridge Analog_IO -> MADI_Opt_Out
+  bridge Analog_IO -> MADI_Coax_Out
 }
