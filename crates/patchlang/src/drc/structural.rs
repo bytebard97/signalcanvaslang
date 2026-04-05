@@ -12,7 +12,7 @@ use std::collections::HashMap;
 use crate::ast::{
     ConnectDecl, IndexElement, PatchProgram, PortRef, Statement,
 };
-use crate::drc::helpers::{collect_all_connects, expand_index_spec, is_suppressed, resolve_port_on_template, DRCContext, port_ref_label};
+use crate::drc::helpers::{check_card_port_collisions, collect_all_connects, expand_index_spec, is_suppressed, resolve_effective_port, resolve_port_on_template, DRCContext, port_ref_label};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Structural;
@@ -32,6 +32,7 @@ pub fn check(program: &PatchProgram, ctx: &DRCContext<'_>) -> Vec<Diagnostic> {
     super::slots::check_slot_card_refs(program, ctx, &mut diags);
     super::slots::check_slot_fits_compatibility(program, ctx, &mut diags);
     super::slots::check_fits_format_in_scope(program, ctx, &mut diags);
+    check_card_port_collisions(program, ctx, &mut diags);
     super::meta::check_meta_info_hints(program, &mut diags);
     diags
 }
@@ -143,12 +144,13 @@ fn check_port_ref_exists(
         None => return,
     };
 
-    let template = match ctx.template_map.get(instance.template_name.as_str()) {
-        Some(t) => t,
-        None => return, // template unknown, S01 handles this
-    };
+    // Template lookup for error messages only
+    if !ctx.template_map.contains_key(instance.template_name.as_str()) {
+        return; // template unknown, S01 handles this
+    }
 
-    let port_def = template.ports.iter().find(|p| p.name == port_ref.port);
+    // Use effective port map (template ports + card ports)
+    let port_def = resolve_effective_port(instance_name, &port_ref.port, ctx);
     match port_def {
         None => {
             diags.push(Diagnostic {
@@ -476,13 +478,12 @@ fn check_signal_origin_refs(
                     }
                 };
 
-                // S09 — unknown port on the instance's template
-                let template = match ctx.template_map.get(instance.template_name.as_str()) {
-                    Some(t) => t,
-                    None => continue,
-                };
+                // S09 — unknown port on the instance (template + card ports)
+                if !ctx.template_map.contains_key(instance.template_name.as_str()) {
+                    continue;
+                }
 
-                if template.ports.iter().all(|p| p.name != origin.port) {
+                if resolve_effective_port(instance_name, &origin.port, ctx).is_none() {
                     diags.push(Diagnostic {
                         severity: Severity::Error,
                         layer: LAYER.clone(),

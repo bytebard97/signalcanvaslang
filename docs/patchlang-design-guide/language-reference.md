@@ -579,6 +579,30 @@ instance Console is CL5 {
 
 Slot assignments use **bare identifiers** (the template name of the card). The grammar also accepts `string-literal` for backward compatibility — new code must use bare identifiers.
 
+### Card Port Expansion
+
+When a card template is installed in a slot via a slot assignment, the card's ports are merged into the instance's effective port namespace using a **flat merge**. Card ports are referenced directly without any slot-qualified syntax:
+
+```
+template CL5 {
+  ports { MainOut[1..16]: out }
+  slot Bay: StageBox
+}
+template MY8AD {
+  ports { MicIn[1..8]: in }
+  meta { fits: "StageBox" }
+}
+instance FOH is CL5 {
+  slot Bay: MY8AD
+}
+connect FOH.MicIn[1] -> Amp.Input   // MicIn comes from the card
+```
+
+**Collision rules:**
+- If a card port name duplicates a template port name, the template port takes precedence and an **S16** error is emitted.
+- If two different cards on the same instance declare the same port name, an **S16** error is emitted.
+- Internal routing (`route`, `bus`) only checks the template's own ports — card ports cannot be targets of internal routing.
+
 ### Route Entry (inside instance body)
 
 `route` declares the current operator-configured internal routing state of a specific device instance. It maps an input channel to an output channel within one device. This is the complement to `bridge`: where `bridge` in a template captures what the manufacturer hardwired, `route` in an instance captures what the operator configured.
@@ -710,6 +734,7 @@ The compiler runs DRC checks after parsing and auto-resolution. Diagnostics have
 | S13 | Structural | Warning | Card `fits` but no slot in scope uses that format |
 | S14 | Structural | Warning | Vector port referenced without channel index |
 | S15 | Structural | Error | Range size mismatch — left and right sides of `connect` have different channel counts |
+| S16 | Structural | Error | Card port name collision — card port conflicts with template port or another card's port |
 | M01 | Mechanical | Error | Connector type mismatch (e.g., XLR to BNC) |
 | E01 | Electrical | Error | Level mismatch large enough to damage equipment |
 | E02 | Electrical | Warning | Level mismatch that may need a pad |
