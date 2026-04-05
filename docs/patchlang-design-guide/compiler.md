@@ -435,7 +435,7 @@ Connection-level suppression via `@suppress(layer_name)`. Supported layers: `str
 
 ### Complete Rule Reference
 
-#### Structural Layer (S01-S14)
+#### Structural Layer (S01-S16)
 
 | Code | Severity | Rule |
 |------|----------|------|
@@ -453,6 +453,16 @@ Connection-level suppression via `@suppress(layer_name)`. Supported layers: `str
 | S12 | Warning | Slot card does not declare `fits` matching slot format, or `fits` does not match |
 | S13 | Warning | Card `fits` value does not match any slot format in scope |
 | S14 | Warning | Vector port referenced without channel index (suppressible) |
+| S15 | Error | Range size mismatch — left and right sides of `connect` have different channel counts |
+| S16 | Error | Card port name collision — card port conflicts with template port or another card's port |
+
+#### Card Port Expansion
+
+When a card template is installed in a slot via a slot assignment on an instance, the card's ports are merged into the instance's effective port namespace using a flat merge. This means card ports are referenced directly (e.g., `FOH.MicIn[1]`) without slot-qualified syntax.
+
+- **Template ports win:** If a card port name duplicates a template port name, the template port takes precedence and an S16 error is emitted.
+- **Multi-card collision:** If two different cards installed on the same instance declare the same port name, an S16 error is emitted.
+- **Route/bus checks unchanged:** Internal routing (`route`, `bus`) only checks the template's own ports — card ports are not valid targets for internal routing.
 
 #### Direction Layer (D01-D03)
 

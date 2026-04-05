@@ -19,6 +19,8 @@ mod drc_tests_rules;
 mod drc_tests_meta;
 #[cfg(test)]
 mod drc_tests_integration;
+#[cfg(test)]
+mod drc_tests_cards;
 
 pub use types::{CheckResult, DRCLayer, Diagnostic, Severity};
 
