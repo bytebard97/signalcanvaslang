@@ -12,7 +12,7 @@ use std::collections::HashMap;
 use crate::ast::{
     ConnectDecl, IndexElement, PatchProgram, PortRef, Statement,
 };
-use crate::drc::helpers::{check_card_port_collisions, collect_all_connects, expand_index_spec, is_suppressed, resolve_effective_port, resolve_port_on_template, DRCContext, port_ref_label};
+use crate::drc::helpers::{check_card_port_collisions, collect_all_connects, expand_index_spec, is_suppressed, resolve_effective_port, DRCContext, port_ref_label};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
 const LAYER: DRCLayer = DRCLayer::Structural;
@@ -322,7 +322,7 @@ fn emit_missing_port_diagnostic(
     });
 }
 
-/// S04 — Route references port that doesn't exist on the instance's template.
+/// S04 — Route references port that doesn't exist on the instance (template + card ports).
 fn check_route_port_refs(
     program: &PatchProgram,
     ctx: &DRCContext<'_>,
@@ -330,13 +330,12 @@ fn check_route_port_refs(
 ) {
     for stmt in &program.statements {
         if let Statement::Instance(inst) = stmt {
-            let template = match ctx.template_map.get(inst.template_name.as_str()) {
-                Some(t) => t,
-                None => continue, // S01 handles unknown template
-            };
+            if !ctx.template_map.contains_key(inst.template_name.as_str()) {
+                continue; // S01 handles unknown template
+            }
 
             for route in &inst.routes {
-                match resolve_port_on_template(&route.source.port, template) {
+                match resolve_effective_port(&inst.name, &route.source.port, ctx) {
                     None => emit_missing_port_diagnostic(
                         &route.source.port,
                         &inst.template_name,
@@ -348,7 +347,7 @@ fn check_route_port_refs(
                         &route.source, pd, &inst.name, &route.span, &[], diags,
                     ),
                 }
-                match resolve_port_on_template(&route.target.port, template) {
+                match resolve_effective_port(&inst.name, &route.target.port, ctx) {
                     None => emit_missing_port_diagnostic(
                         &route.target.port,
                         &inst.template_name,
@@ -365,7 +364,7 @@ fn check_route_port_refs(
     }
 }
 
-/// S05 — Bus output references port that doesn't exist on the template.
+/// S05 — Bus output references port that doesn't exist on the instance (template + card ports).
 fn check_bus_port_refs(
     program: &PatchProgram,
     ctx: &DRCContext<'_>,
@@ -373,14 +372,13 @@ fn check_bus_port_refs(
 ) {
     for stmt in &program.statements {
         if let Statement::Instance(inst) = stmt {
-            let template = match ctx.template_map.get(inst.template_name.as_str()) {
-                Some(t) => t,
-                None => continue,
-            };
+            if !ctx.template_map.contains_key(inst.template_name.as_str()) {
+                continue;
+            }
 
             for bus in &inst.buses {
                 for output in &bus.outputs {
-                    match resolve_port_on_template(&output.port, template) {
+                    match resolve_effective_port(&inst.name, &output.port, ctx) {
                         None => emit_missing_port_diagnostic(
                             &output.port,
                             &inst.template_name,
@@ -394,7 +392,7 @@ fn check_bus_port_refs(
                     }
                 }
                 for input in &bus.inputs {
-                    match resolve_port_on_template(&input.port, template) {
+                    match resolve_effective_port(&inst.name, &input.port, ctx) {
                         None => emit_missing_port_diagnostic(
                             &input.port,
                             &inst.template_name,

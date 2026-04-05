@@ -17,9 +17,13 @@ pub struct DRCContext<'a> {
 }
 
 /// A port in an instance's effective port namespace, tracking its origin.
+///
+/// For card ports in indexed slots (e.g., `LMY[1..8]`), multiple cards declaring
+/// the same port name are flattened into a single effective port with an expanded
+/// range. For example, 8× LMY2_MLAB each with `XLR[1..2]` → one `XLR[1..16]`.
 #[derive(Debug, Clone)]
 pub struct EffectivePort<'a> {
-    pub port_def: &'a PortDef,
+    pub port_def: PortDef,
     pub origin: PortOrigin<'a>,
 }
 
@@ -99,70 +103,159 @@ pub fn build_effective_port_map<'a>(
         if let Some(template) = template_map.get(inst.template_name.as_str()) {
             for port_def in &template.ports {
                 ports.push(EffectivePort {
-                    port_def,
+                    port_def: port_def.clone(),
                     origin: PortOrigin::Template,
                 });
             }
         }
 
-        // Add ports from installed cards via slot assignments
-        for slot_assign in &inst.slot_assignments {
-            let card_template = match template_map.get(slot_assign.card_name.as_str()) {
-                Some(t) => t,
-                None => continue, // S02 handles missing card template
-            };
+        // Group slot assignments by slot_name to detect indexed slots.
+        // Cards in the same indexed slot (e.g., LMY[1], LMY[2], ...) that
+        // declare the same port name get flattened into one continuous range.
+        let mut slots_by_name: HashMap<&str, Vec<&crate::ast::SlotAssignment>> = HashMap::new();
+        for sa in &inst.slot_assignments {
+            slots_by_name
+                .entry(sa.slot_name.as_str())
+                .or_default()
+                .push(sa);
+        }
 
-            for card_port in &card_template.ports {
+        // Sort each group by index for deterministic flattening order
+        for group in slots_by_name.values_mut() {
+            group.sort_by_key(|sa| sa.index.unwrap_or(0));
+        }
+
+        for (&slot_base_name, slot_group) in &slots_by_name {
+            let is_indexed_slot = slot_group.len() > 1
+                || slot_group.first().is_some_and(|sa| sa.index.is_some());
+
+            // Collect (card_port, slot_assign) pairs grouped by port name,
+            // in slot-index order, to compute cumulative offsets.
+            let mut port_contributions: HashMap<&str, Vec<(&PortDef, &crate::ast::SlotAssignment)>> =
+                HashMap::new();
+            for &slot_assign in slot_group {
+                let card_template = match template_map.get(slot_assign.card_name.as_str()) {
+                    Some(t) => t,
+                    None => continue,
+                };
+                for card_port in &card_template.ports {
+                    port_contributions
+                        .entry(card_port.name.as_str())
+                        .or_default()
+                        .push((card_port, slot_assign));
+                }
+            }
+
+            for (port_name, contributions) in &port_contributions {
                 // Check collision with template ports
                 let template_collision = ports.iter().any(|ep| {
-                    ep.port_def.name == card_port.name
+                    ep.port_def.name == *port_name
                         && matches!(ep.origin, PortOrigin::Template)
                 });
                 if template_collision {
-                    collisions.push(PortCollision {
-                        instance_name: inst_name,
-                        port_name: card_port.name.as_str(),
-                        slot_name: slot_assign.slot_name.as_str(),
-                        card_name: slot_assign.card_name.as_str(),
-                        collides_with: CollisionTarget::TemplatePort,
-                        span: &slot_assign.span,
-                    });
-                    continue; // template wins — don't add the card port
+                    for (_, slot_assign) in contributions {
+                        collisions.push(PortCollision {
+                            instance_name: inst_name,
+                            port_name,
+                            slot_name: slot_assign.slot_name.as_str(),
+                            card_name: slot_assign.card_name.as_str(),
+                            collides_with: CollisionTarget::TemplatePort,
+                            span: &slot_assign.span,
+                        });
+                    }
+                    continue; // template wins
                 }
 
-                // Check collision with other card ports already added
-                let other_card_collision = ports.iter().find(|ep| {
-                    ep.port_def.name == card_port.name
-                        && matches!(ep.origin, PortOrigin::Card { .. })
+                // Check collision with card ports from a DIFFERENT slot type
+                let other_slot_collision = ports.iter().find(|ep| {
+                    if let PortOrigin::Card {
+                        slot_name: other_slot,
+                        ..
+                    } = &ep.origin
+                    {
+                        ep.port_def.name == *port_name && *other_slot != slot_base_name
+                    } else {
+                        false
+                    }
                 });
-                if let Some(existing) = other_card_collision {
+                if let Some(existing) = other_slot_collision {
                     if let PortOrigin::Card {
                         slot_name: other_slot,
                         card_name: other_card,
                     } = &existing.origin
                     {
-                        collisions.push(PortCollision {
-                            instance_name: inst_name,
-                            port_name: card_port.name.as_str(),
-                            slot_name: slot_assign.slot_name.as_str(),
-                            card_name: slot_assign.card_name.as_str(),
-                            collides_with: CollisionTarget::OtherCard {
-                                slot_name: other_slot,
-                                card_name: other_card,
-                            },
-                            span: &slot_assign.span,
-                        });
+                        for (_, slot_assign) in contributions {
+                            collisions.push(PortCollision {
+                                instance_name: inst_name,
+                                port_name,
+                                slot_name: slot_assign.slot_name.as_str(),
+                                card_name: slot_assign.card_name.as_str(),
+                                collides_with: CollisionTarget::OtherCard {
+                                    slot_name: other_slot,
+                                    card_name: other_card,
+                                },
+                                span: &slot_assign.span,
+                            });
+                        }
                     }
-                    continue; // first card wins — don't add duplicate
+                    continue; // first slot type wins
                 }
 
-                ports.push(EffectivePort {
-                    port_def: card_port,
-                    origin: PortOrigin::Card {
-                        slot_name: slot_assign.slot_name.as_str(),
-                        card_name: slot_assign.card_name.as_str(),
-                    },
-                });
+                // Same slot type, same port name from multiple cards → flatten
+                if is_indexed_slot && contributions.len() > 1 {
+                    // Compute flattened range with cumulative offset
+                    let mut cumulative_start: u32 = 1;
+                    let mut total_end: u32 = 0;
+                    let first_port = contributions[0].0;
+
+                    for (card_port, _) in contributions {
+                        let channel_count = match &card_port.range {
+                            Some(r) => r.end - r.start + 1,
+                            None => 1,
+                        };
+                        total_end = cumulative_start + channel_count - 1;
+                        cumulative_start = total_end + 1;
+                    }
+
+                    // Create a single flattened port covering the full range
+                    let flattened_range = Some(crate::ast::RangeSpec {
+                        start: 1,
+                        end: total_end,
+                    });
+                    let mut merged_port = first_port.clone();
+                    merged_port.range = flattened_range;
+
+                    ports.push(EffectivePort {
+                        port_def: merged_port,
+                        origin: PortOrigin::Card {
+                            slot_name: slot_base_name,
+                            card_name: contributions[0].1.card_name.as_str(),
+                        },
+                    });
+                } else {
+                    // Single card in this slot (or non-indexed slot) — add as-is
+                    let (card_port, slot_assign) = contributions[0];
+
+                    // But first check collision with same-name card port from
+                    // a different slot group (already handled above, but guard)
+                    let already_exists = ports.iter().any(|ep| {
+                        ep.port_def.name == *port_name
+                            && matches!(ep.origin, PortOrigin::Card { .. })
+                    });
+                    if already_exists {
+                        // This shouldn't happen given the other_slot_collision
+                        // check above, but guard against it
+                        continue;
+                    }
+
+                    ports.push(EffectivePort {
+                        port_def: card_port.clone(),
+                        origin: PortOrigin::Card {
+                            slot_name: slot_assign.slot_name.as_str(),
+                            card_name: slot_assign.card_name.as_str(),
+                        },
+                    });
+                }
             }
         }
 
@@ -182,7 +275,7 @@ pub fn resolve_effective_port<'a>(
     effective
         .iter()
         .find(|ep| ep.port_def.name == port_name)
-        .map(|ep| ep.port_def)
+        .map(|ep| &ep.port_def)
 }
 
 /// Check for card port collisions and emit S16 diagnostics.
@@ -276,7 +369,7 @@ pub fn resolve_port<'a>(port_ref: &PortRef, ctx: &'a DRCContext<'_>) -> Option<&
     effective
         .iter()
         .find(|ep| ep.port_def.name == port_ref.port)
-        .map(|ep| ep.port_def)
+        .map(|ep| &ep.port_def)
 }
 
 /// Resolve a PortRef to its PortDef using a known template (for route/bus checks within an instance).

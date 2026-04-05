@@ -428,3 +428,20 @@ stream Ceiling_AES67 {
 **Affects:** `drc/catalog.rs` (chipset lookup table), `drc/meta.rs` (dante_chipset validation), new `drc/flow.rs` module, `drc/convention.rs` (C05 redundancy warning), `TODO.md` section 1.9.
 
 **Related issues:** ByteBard97/SignalCanvas#42
+
+---
+
+### D015 — S04/S05 Route and Bus Checks Must Use Effective Ports
+**2026-04-05** | **Decided**
+
+**Question:** Should route (S04) and bus (S05) DRC checks validate port references against only the template's declared ports, or against the instance's effective port namespace (template ports + card-provided ports)?
+
+**Decision:** Use effective ports. Routes and buses inside an instance body may reference card-provided ports. `route MADI[41] -> LINE[1]` is valid when `MADI` comes from a card installed via a slot assignment.
+
+**Rejected alternative:** "Route/bus checks unchanged — only template ports are valid targets for internal routing." This was the original spec (compiler.md, pre-2026-04-05). It caused 130 false S04/S05 errors on the Hillsong MTG project, where the Venue FOH Rack's buses reference `MADI` ports from an installed MADI card.
+
+**Rationale:** The semantic distinction is between `resolve_port_on_template()` (template only) and `resolve_effective_port()` (template + cards). Connect checks (S03/S16) already use effective ports. Routes and buses are also instance-level constructs — they describe how *this specific instance* with *these specific cards installed* routes signals internally. There is no reason to restrict them to template-only ports when the card ports are physically present on the device.
+
+**Affects:** `crates/patchlang/src/drc/structural.rs` — `check_route_port_refs()`, `check_bus_port_refs()`.
+
+**Related issues:** ByteBard97/SignalCanvasLang#4, ByteBard97/SignalCanvasLang#5

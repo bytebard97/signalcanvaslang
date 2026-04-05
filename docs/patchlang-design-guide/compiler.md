@@ -442,8 +442,8 @@ Connection-level suppression via `@suppress(layer_name)`. Supported layers: `str
 | S01 | Error | Instance references unknown template |
 | S02 | Error | Slot assignment references unknown card template |
 | S03 | Error | Connect references unknown port on instance |
-| S04 | Error | Route references unknown port on template |
-| S05 | Error | Bus input/output references unknown port on template |
+| S04 | Error | Route references unknown port on instance (checks effective ports: template + card) |
+| S05 | Error | Bus input/output references unknown port on instance (checks effective ports: template + card) |
 | S06 | Error | Channel index out of range for port |
 | S07 | Error | Config block references unknown instance |
 | S08 | Error | Signal origin references unknown instance |
@@ -462,7 +462,7 @@ When a card template is installed in a slot via a slot assignment on an instance
 
 - **Template ports win:** If a card port name duplicates a template port name, the template port takes precedence and an S16 error is emitted.
 - **Multi-card collision:** If two different cards installed on the same instance declare the same port name, an S16 error is emitted.
-- **Route/bus checks unchanged:** Internal routing (`route`, `bus`) only checks the template's own ports — card ports are not valid targets for internal routing.
+- **Route/bus checks use effective ports:** Internal routing (`route`) and bus declarations (`bus`) check the instance's effective port namespace — both template-declared ports and card-provided ports are valid targets. This means a route like `route MADI[41] -> LINE[1]` works when `MADI` comes from an installed card.
 
 #### Direction Layer (D01-D03)
 
