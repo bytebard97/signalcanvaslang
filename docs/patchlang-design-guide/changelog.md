@@ -1,5 +1,18 @@
 ## Revision History
 
+### v0.2.8 — 2026-04-06 (builder API)
+
+- **PatchProgram Builder API implemented.** Rust-native AST builder replaces the frontend's TypeScript emitter for programmatic program construction. Mutations are eagerly validated (structural + direction checks at build time). Full spec: `docs/specs/ast-builder-api.md`.
+- **Builder module:** `crates/patchlang/src/builder/` (9 files, ~1600 lines). Core struct `PatchProgramBuilder` with `format()`, `check()`, `to_json()`, canonical statement ordering, and cascade deletes.
+- **Operations:** Template CRUD, instance CRUD with cascade delete, connections with direction validation, slot assignments (card-expanded port resolution), routes/buses, config labels, signals/streams/flags/rings.
+- **Eager validation:** `add_connect()` validates port existence (including card-expanded ports from slot assignments) and direction compatibility using the same `build_effective_port_map` as the DRC. No rule duplication.
+- **WASM exports:** 22 new handle-based `#[wasm_bindgen]` functions. Handle lifecycle via `Vec<Option<PatchProgramBuilder>>`. TypeScript definitions in `pkg-web/patchlang_wasm.d.ts`.
+- **Python exports:** `ProgramBuilder` pyclass with 13 methods via PyO3.
+- **`format_program()` made public.** Formats a `PatchProgram` AST directly without parsing text first.
+- **`Deserialize` added to all AST types.** Enables JSON deserialization for WASM/Python builder inputs.
+- **Formatter fix:** Slot assignment template names containing non-identifier characters (hyphens, UUIDs) are now quoted in formatter output.
+- **Test coverage:** 50 new builder tests across 5 levels (unit, roundtrip, integration, proptest, fixture regression). Total: 571 tests.
+
 ### v0.2.6 — 2026-04-01 (template kinds)
 
 - **D011 decided: Template classification via `kind` meta field.** Replaces `device_type` with a broader `kind` field that classifies templates as devices, systems, or venues. No new keywords — `template` remains the sole declaration keyword. Decided via Socratic debate: typed keywords (`device`, `system`, `venue`) rejected in favor of validated metadata, consistent with D005 card precedent.

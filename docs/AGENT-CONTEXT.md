@@ -91,9 +91,9 @@ Follow `/Users/ceres/Desktop/SignalCanvas/ClaudeCodeRules.md`:
 - No magic numbers, handle errors explicitly
 - Read existing code before writing
 
-## DRC (Design Rule Checking) — To Be Built in Rust
+## DRC (Design Rule Checking) — Implemented in Rust
 
-The frontend has a 346-line TypeScript DRC at `../SignalCanvasFrontend/src/lang/drc.ts` with 5 validation layers. This needs to be ported to Rust so all platforms get the same checks.
+The DRC engine is fully implemented in `crates/patchlang/src/drc/` with 9 validation layers (structural, direction, mechanical, electrical, logical, temporal, ring, flow, convention). All rules from the original TypeScript DRC have been ported plus additional rules. Entry point: `drc::run_all(program) -> Vec<Diagnostic>`.
 
 ### API Design
 
@@ -247,20 +247,20 @@ Both `.patch` and `.layout.json` diffs should be stored in the database for vers
 - `.layout.json` diffs track position changes
 - The backend stores diffs per-save, enabling undo/history/collaboration
 
-## JSON Schema Validation — To Be Built in Rust
+## JSON Schema Validation — Implemented in Rust
 
-The Rust crate should validate not just `.patch` files but also the JSON sidecar and project manifest schemas. This ensures the frontend, backend, and CLI all use identical validation.
+Layout and manifest validation are fully implemented. All functions are exported via WASM and Python.
 
-### Functions to Add
+### Functions (implemented)
 
 ```rust
 // Validate .layout.json schema
 pub fn validate_layout(json: &str) -> String;
 // Returns: { "valid": true/false, "errors": [...] }
 
-// Validate project manifest schema
-pub fn validate_project(json: &str) -> String;
-// Returns: { "valid": true/false, "errors": [...] }
+// Parse and validate project.json manifest
+pub fn parse_manifest(json: &str) -> String;
+// Returns: { "manifest": {...} | null, "errors": [...] }
 
 // Cross-validate: check that layout instance names match .patch instances
 pub fn validate_project_consistency(patch_source: &str, layout_json: &str) -> String;
@@ -295,6 +295,43 @@ All validation functions exported alongside `parse()`:
 - Python: `#[pyfunction]` exports for Django backend
 
 See `/Users/ceres/Desktop/SignalCanvas/docs/PRODUCT_ARCHITECTURE_SPEC.md` for the full JSON schemas these functions validate against.
+
+## PatchProgram Builder API — Implemented
+
+The builder API (`crates/patchlang/src/builder/`) replaces the frontend's TypeScript emitter with Rust-native AST construction. Instead of concatenating PatchLang text, the frontend calls WASM builder methods with eager validation.
+
+### Architecture
+
+Frontend calls WASM → `PatchProgramBuilder` mutates AST in Rust → `format()` emits valid `.patch` text → `check()` runs DRC without re-parsing.
+
+### Key Methods
+
+| Method | Purpose |
+|--------|---------|
+| `new()` / `from_program()` | Create builder (empty or from parsed program) |
+| `format()` | Serialize to canonical PatchLang text |
+| `check()` | Run full DRC, return diagnostics |
+| `to_json()` | Export AST as TypeScript-compatible JSON |
+| `add_template()` / `remove_template()` / `update_template()` | Template CRUD |
+| `add_instance()` / `remove_instance()` | Instance CRUD with cascade delete |
+| `add_connect()` / `remove_connect()` | Connections with direction validation |
+| `set_slot()` / `remove_slot()` | Slot assignments (card-expanded ports) |
+| `add_route()` / `set_routes()` / `clear_routes()` | Internal routing |
+| `add_bus()` / `remove_bus()` | Bus operations |
+| `set_label()` / `remove_label()` | Channel labels |
+| `add_signal()` / `add_stream()` / `add_flag()` / `add_ring()` | Signal flow declarations |
+
+### Eager Validation
+
+`add_connect()` validates: instances exist, ports exist (including card-expanded ports from slot assignments), direction compatibility (out→out and in→in rejected). Uses the same `build_effective_port_map` as the DRC — no rule duplication.
+
+### WASM Exports
+
+22 handle-based functions in `crates/patchlang-wasm/src/lib.rs`. Handle is a `u32` index into `Vec<Option<PatchProgramBuilder>>`. Complex args passed as JSON strings. See `pkg-web/patchlang_wasm.d.ts` for TypeScript definitions.
+
+### Spec
+
+Full specification: `docs/specs/ast-builder-api.md`
 
 ## What NOT to Change
 
