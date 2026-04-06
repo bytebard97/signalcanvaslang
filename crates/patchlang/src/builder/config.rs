@@ -132,6 +132,106 @@ impl PatchProgramBuilder {
         Ok(())
     }
 
+    /// Set RF channel labels on an rf-system instance.
+    /// Finds the appropriate analogue port (XLR out for radio-mic, XLR in for IEM)
+    /// and delegates to set_label for each entry.
+    pub fn set_rf_labels(
+        &mut self,
+        instance: &str,
+        labels: Vec<(u32, String, Vec<KeyValue>)>,
+    ) -> Result<(), BuilderError> {
+        validate::require_instance(&self.program, instance)?;
+
+        // Get the instance's template name
+        let template_name = self
+            .program
+            .statements
+            .iter()
+            .find_map(|s| match s {
+                Statement::Instance(i) if i.name == instance => {
+                    Some(i.template_name.clone())
+                }
+                _ => None,
+            })
+            .ok_or_else(|| BuilderError::NotFound(format!("instance '{instance}'")))?;
+
+        // Get the template
+        let template = self
+            .program
+            .statements
+            .iter()
+            .find_map(|s| match s {
+                Statement::Template(t) if t.name == template_name => Some(t),
+                _ => None,
+            })
+            .ok_or_else(|| {
+                BuilderError::NotFound(format!("template '{template_name}'"))
+            })?;
+
+        // Check for rf_subtype in template meta
+        let rf_subtype = template
+            .meta
+            .iter()
+            .find(|kv| kv.key == "rf_subtype")
+            .and_then(|kv| match &kv.value {
+                KvValue::Str { value } => Some(value.clone()),
+                _ => None,
+            })
+            .ok_or_else(|| {
+                BuilderError::ValidationError(
+                    "instance is not an RF device (no rf_subtype in template meta)"
+                        .to_string(),
+                )
+            })?;
+
+        // Determine expected port direction based on rf_subtype
+        let expected_direction = match rf_subtype.as_str() {
+            "radio-mic" => crate::ast::PortDirection::Out,
+            "iem" => crate::ast::PortDirection::In,
+            other => {
+                return Err(BuilderError::ValidationError(format!(
+                    "unknown rf_subtype '{other}'"
+                )));
+            }
+        };
+
+        // Find the matching port: direction match + connector contains "XLR"
+        let port_name = template
+            .ports
+            .iter()
+            .find(|p| {
+                p.direction == expected_direction
+                    && p.connector
+                        .as_ref()
+                        .is_some_and(|c| c.to_ascii_uppercase().contains("XLR"))
+            })
+            .map(|p| p.name.clone())
+            .ok_or_else(|| {
+                BuilderError::ValidationError(format!(
+                    "no XLR {} port found on template '{template_name}'",
+                    match expected_direction {
+                        crate::ast::PortDirection::Out => "out",
+                        crate::ast::PortDirection::In => "in",
+                        crate::ast::PortDirection::Io => "io",
+                    }
+                ))
+            })?;
+
+        // Delegate to set_label for each entry
+        for (index, label_text, props) in labels {
+            let props_map: HashMap<String, String> = props
+                .into_iter()
+                .filter_map(|kv| match kv.value {
+                    KvValue::Str { value } => Some((kv.key, value)),
+                    _ => None,
+                })
+                .collect();
+            self.set_label(instance, &port_name, index, &label_text, props_map)?;
+        }
+
+        Ok(())
+    }
+
     /// Remove an entire config block for an instance.
     pub fn remove_config(&mut self, instance: &str) -> Result<(), BuilderError> {
         let before = self.program.statements.len();

@@ -761,3 +761,174 @@ fn add_stream_appears_in_format() {
     let source = b.format();
     assert!(source.contains("stream"), "output should contain stream:\n{source}");
 }
+
+// ---------------------------------------------------------------------------
+// add_connect_mapped tests
+// ---------------------------------------------------------------------------
+
+/// Template with a large output range and a small input range.
+fn make_large_port_template(name: &str) -> TemplateDecl {
+    TemplateDecl {
+        name: name.to_string(),
+        params: Vec::new(),
+        version: None,
+        meta: Vec::new(),
+        ports: vec![
+            PortDef {
+                name: "Out".to_string(),
+                range: Some(RangeSpec { start: 1, end: 80 }),
+                direction: PortDirection::Out,
+                connector: None,
+                attributes: Vec::new(),
+                named_attributes: Vec::new(),
+                span: default_span(),
+            },
+            PortDef {
+                name: "In".to_string(),
+                range: Some(RangeSpec { start: 1, end: 80 }),
+                direction: PortDirection::In,
+                connector: None,
+                attributes: Vec::new(),
+                named_attributes: Vec::new(),
+                span: default_span(),
+            },
+        ],
+        bridges: Vec::new(),
+        instances: Vec::new(),
+        connects: Vec::new(),
+        slots: Vec::new(),
+        span: default_span(),
+    }
+}
+
+#[test]
+fn add_connect_mapped_splits_non_contiguous_ranges() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_large_port_template("BigDev")).unwrap();
+    b.add_instance(make_instance("src", "BigDev")).unwrap();
+    b.add_instance(make_instance("dst", "BigDev")).unwrap();
+
+    // Channels 1-3 and 7-9 (gap at 4-6)
+    let mappings = vec![
+        (1, 1, "Ch1".to_string()),
+        (2, 2, "Ch2".to_string()),
+        (3, 3, "Ch3".to_string()),
+        (7, 7, "Ch7".to_string()),
+        (8, 8, "Ch8".to_string()),
+        (9, 9, "Ch9".to_string()),
+    ];
+
+    let ids = b.add_connect_mapped("src", "Out", "dst", "In", mappings, Vec::new()).unwrap();
+    assert_eq!(ids.len(), 2, "should produce 2 connect statements for non-contiguous ranges");
+
+    let source = b.format();
+    assert!(source.contains("Out[1..3]"), "should contain Out[1..3], got:\n{source}");
+    assert!(source.contains("Out[7..9]"), "should contain Out[7..9], got:\n{source}");
+}
+
+#[test]
+fn add_connect_mapped_single_contiguous_range() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_large_port_template("BigDev")).unwrap();
+    b.add_instance(make_instance("src", "BigDev")).unwrap();
+    b.add_instance(make_instance("dst", "BigDev")).unwrap();
+
+    let mappings: Vec<(u32, u32, String)> = (1..=8)
+        .map(|i| (i, i, format!("Ch{i}")))
+        .collect();
+
+    let ids = b.add_connect_mapped("src", "Out", "dst", "In", mappings, Vec::new()).unwrap();
+    assert_eq!(ids.len(), 1, "contiguous range should produce single connect");
+}
+
+#[test]
+fn add_connect_mapped_empty_mappings() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_large_port_template("BigDev")).unwrap();
+    b.add_instance(make_instance("src", "BigDev")).unwrap();
+    b.add_instance(make_instance("dst", "BigDev")).unwrap();
+
+    let ids = b.add_connect_mapped("src", "Out", "dst", "In", Vec::new(), Vec::new()).unwrap();
+    assert_eq!(ids.len(), 1, "empty mappings should produce scalar connect");
+}
+
+// ---------------------------------------------------------------------------
+// set_rf_labels tests
+// ---------------------------------------------------------------------------
+
+fn make_rf_template(name: &str, subtype: &str) -> TemplateDecl {
+    let (port_name, direction) = match subtype {
+        "radio-mic" => ("Analog_Out", PortDirection::Out),
+        "iem" => ("Analog_In", PortDirection::In),
+        _ => ("Analog_Out", PortDirection::Out),
+    };
+    TemplateDecl {
+        name: name.to_string(),
+        params: Vec::new(),
+        version: None,
+        meta: vec![
+            KeyValue {
+                key: "kind".to_string(),
+                value: KvValue::Str { value: "rf-system".to_string() },
+            },
+            KeyValue {
+                key: "rf_subtype".to_string(),
+                value: KvValue::Str { value: subtype.to_string() },
+            },
+        ],
+        ports: vec![
+            PortDef {
+                name: port_name.to_string(),
+                range: Some(RangeSpec { start: 1, end: 4 }),
+                direction,
+                connector: Some("XLR".to_string()),
+                attributes: Vec::new(),
+                named_attributes: Vec::new(),
+                span: default_span(),
+            },
+            PortDef {
+                name: "Dante_Out".to_string(),
+                range: Some(RangeSpec { start: 1, end: 4 }),
+                direction: PortDirection::Out,
+                connector: Some("RJ45".to_string()),
+                attributes: Vec::new(),
+                named_attributes: Vec::new(),
+                span: default_span(),
+            },
+        ],
+        bridges: Vec::new(),
+        instances: Vec::new(),
+        connects: Vec::new(),
+        slots: Vec::new(),
+        span: default_span(),
+    }
+}
+
+#[test]
+fn set_rf_labels_on_radio_mic() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_rf_template("AD4Q", "radio-mic")).unwrap();
+    b.add_instance(make_instance("rf1", "AD4Q")).unwrap();
+
+    let labels = vec![
+        (1, "Vocal 1".to_string(), Vec::new()),
+        (2, "Vocal 2".to_string(), Vec::new()),
+    ];
+    b.set_rf_labels("rf1", labels).unwrap();
+
+    let source = b.format();
+    assert!(source.contains(r#"label Analog_Out[1]: "Vocal 1""#),
+        "should contain label for channel 1, got:\n{source}");
+    assert!(source.contains(r#"label Analog_Out[2]: "Vocal 2""#),
+        "should contain label for channel 2, got:\n{source}");
+}
+
+#[test]
+fn set_rf_labels_rejects_non_rf_device() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio", "Dante_AVIO")).unwrap();
+
+    let err = b.set_rf_labels("rio", vec![(1, "Ch1".to_string(), Vec::new())]).unwrap_err();
+    assert!(matches!(err, BuilderError::ValidationError(_)));
+}
