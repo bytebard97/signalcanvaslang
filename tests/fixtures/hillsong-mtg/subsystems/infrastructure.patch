@@ -1,0 +1,205 @@
+# Infrastructure — Video routing, comms, Q-SYS, Dante/MADI conversion
+# MTG — Hillsong Auditorium
+
+use local.generic.*
+
+template Infrastructure_System {
+  meta { kind: "system" }
+  ports {
+    # Logical signal groups — major signal paths through infrastructure
+    FOH_MADI_Tie: out(SC_Fiber) [MADI]
+    FOH_Analogue_Tie: in(XLR) [Analogue]
+    Video_Playback_Feed: out(DB25) [Analogue]
+    Monitor_Feed: out(DB25) [Analogue]
+    FOH_Dante_Tie: out(RJ45_etherCON) [Dante]
+    AVIO_Dante_Feed: out(RJ45_etherCON) [Dante]
+    Spotify_Input: in(RJ45_etherCON) [Dante]
+  }
+
+  instance Video_ANDIAMO is ANDIAMO_v1 { location: "Analogue/MADI<>VIDEO" }
+
+  instance Ultrix is ULTRIX_FR2 {
+    bus Link_1 {
+      label: "Link 1"
+      output: MADI_1[1], MADI_2[1]
+      output: MADI_1[2], MADI_2[2]
+      output: MADI_1[3], MADI_2[3]
+      output: MADI_1[4], MADI_2[4]
+      output: MADI_1[5], MADI_2[5]
+      output: MADI_1[6], MADI_2[6]
+      output: MADI_1[7], MADI_2[7]
+      output: MADI_1[8], MADI_2[8]
+    }
+    bus Link_2 {
+      label: "Link 2"
+      output: MADI_1[9], MADI_2[9]
+      output: MADI_1[10], MADI_2[10]
+      output: MADI_1[11], MADI_2[11]
+      output: MADI_1[12], MADI_2[12]
+      output: MADI_1[13], MADI_2[13]
+      output: MADI_1[14], MADI_2[14]
+      output: MADI_1[15], MADI_2[15]
+      output: MADI_1[16], MADI_2[16]
+    }
+    bus VID_PB_1 {
+      label: "VID PB 1"
+      output: MADI_1[17], MADI_2[17]
+      output: MADI_1[18], MADI_2[18]
+      output: MADI_1[19], MADI_2[19]
+      output: MADI_1[20], MADI_2[20]
+      output: MADI_1[21], MADI_2[21]
+      output: MADI_1[22], MADI_2[22]
+      output: MADI_1[23], MADI_2[23]
+      output: MADI_1[24], MADI_2[24]
+    }
+    bus VID_PB_2 {
+      label: "VID PB 2"
+      output: MADI_1[25], MADI_2[25]
+      output: MADI_1[26], MADI_2[26]
+      output: MADI_1[27], MADI_2[27]
+      output: MADI_1[28], MADI_2[28]
+      output: MADI_1[29], MADI_2[29]
+      output: MADI_1[30], MADI_2[30]
+      output: MADI_1[31], MADI_2[31]
+      output: MADI_1[32], MADI_2[32]
+    }
+    bus QLAB_ {
+      label: "QLAB "
+      output: MADI_2[49]
+      output: MADI_2[50]
+      output: MADI_2[51]
+      output: MADI_2[52]
+      output: MADI_2[53]
+      output: MADI_2[54]
+      output: MADI_2[55]
+      output: MADI_2[56]
+      output: MADI_2[57]
+      output: MADI_2[58]
+      output: MADI_2[59]
+      output: MADI_2[60]
+      output: MADI_2[61]
+      output: MADI_2[62]
+      output: MADI_2[63]
+      output: MADI_2[64]
+    }
+  }
+
+  instance ExBox is ExBox_MD {
+    route DANTE[1] -> SC_MADI[1]
+    route DANTE[2] -> SC_MADI[2]
+    route DANTE[3] -> SC_MADI[3]
+    route DANTE[4] -> SC_MADI[4]
+    route DANTE[5] -> SC_MADI[5]
+    route DANTE[6] -> SC_MADI[6]
+    route DANTE[7] -> SC_MADI[7]
+    route DANTE[8] -> SC_MADI[8]
+    route DANTE[9] -> SC_MADI[9]
+    route DANTE[10] -> SC_MADI[10]
+    route DANTE[11] -> SC_MADI[11]
+    route DANTE[12] -> SC_MADI[12]
+    route DANTE[13] -> SC_MADI[13]
+    route DANTE[14] -> SC_MADI[14]
+    route DANTE[15] -> SC_MADI[15]
+    route DANTE[16] -> SC_MADI[16]
+    route DANTE[17] -> SC_MADI[17]
+    route DANTE[18] -> SC_MADI[18]
+    route DANTE[19] -> SC_MADI[19]
+    route DANTE[20] -> SC_MADI[20]
+    route DANTE[21] -> SC_MADI[21]
+    route DANTE[22] -> SC_MADI[22]
+    route DANTE[23] -> SC_MADI[23]
+    route DANTE[24] -> SC_MADI[24]
+    route DANTE[25] -> SC_MADI[25]
+    route DANTE[26] -> SC_MADI[26]
+    route DANTE[27] -> SC_MADI[27]
+    route DANTE[28] -> SC_MADI[28]
+    route DANTE[29] -> SC_MADI[29]
+    route DANTE[30] -> SC_MADI[30]
+    route DANTE[31] -> SC_MADI[31]
+    route DANTE[32] -> SC_MADI[32]
+    route SC_MADI[1] -> DANTE[1]
+    route SC_MADI[2] -> DANTE[2]
+    route SC_MADI[3] -> DANTE[3]
+    route SC_MADI[4] -> DANTE[4]
+    route SC_MADI[5] -> DANTE[5]
+    route SC_MADI[6] -> DANTE[6]
+    route SC_MADI[7] -> DANTE[7]
+    route SC_MADI[8] -> DANTE[8]
+    route SC_MADI[9] -> DANTE[9]
+    route SC_MADI[10] -> DANTE[10]
+    route SC_MADI[11] -> DANTE[11]
+    route SC_MADI[12] -> DANTE[12]
+    route SC_MADI[13] -> DANTE[13]
+    route SC_MADI[14] -> DANTE[14]
+    route SC_MADI[15] -> DANTE[15]
+    route SC_MADI[16] -> DANTE[16]
+  }
+
+  instance Comms is Artist_64 {
+    location: "Comms Frame"
+    slot Client[1]: CAT_108_G2
+    slot Client[2]: AES67_108_G2
+    slot Client[3]: COAX_108_G2
+    slot Client[4]: AES67_108_G2
+  }
+
+  instance QSYS_Core is Core_250i {
+    location: "AUD Q-SYS Core"
+    slot Type2[8]: CDN64
+    route QLAN[1] -> DANTE[41]
+    bus Shouts__MD_Conf {
+      label: "Shouts > MD Conf"
+      output: QLAN[1]
+    }
+    bus Shouts__Show_Conf {
+      label: "Shouts > Show Conf"
+      input: DANTE[1]
+      output: QLAN[2]
+    }
+    bus Shouts__Audio_Conf {
+      label: "Shouts > Audio Conf"
+      output: QLAN[3]
+    }
+    bus PGM__Comms_ {
+      label: "PGM > Comms "
+      output: QLAN[4]
+    }
+    bus Vid_Solo__Comms {
+      label: "Vid Solo > Comms"
+      output: QLAN[6]
+    }
+    bus MONS_IEM {
+      label: ">MONS IEM"
+      input: QLAN[2], QLAN[3]
+      output: DANTE[42]
+    }
+    bus SpotifyFOH {
+      label: "Spotify>FOH"
+      input: DANTE[1], DANTE[2]
+      output: DANTE[25]
+      output: DANTE[26]
+    }
+  }
+
+  instance Spotify_PC is DVS_Computer { location: "Auditorium Spotify" }
+
+  # Internal connections
+  connect Ultrix.MADI_2_Out -> Video_ANDIAMO.MADI_In
+  connect Video_ANDIAMO.MADI_Out -> Ultrix.MADI_2_In
+  connect ExBox.SC_MADI_Out -> Ultrix.MADI_1_In
+  connect Ultrix.MADI_1_Out -> ExBox.SC_MADI_In
+
+  connect Comms.AES67_Out -> QSYS_Core.QLAN_In {
+    mapping: "1->1, 2->2, 3->3, 4->4, 5->5, 6->6, 7->7, 8->8"
+  }
+  connect QSYS_Core.QLAN_Out -> Comms.AES67_In
+
+  connect Spotify_PC.DVS_DANTE -> QSYS_Core.DANTE_In {
+    mapping: "1->1, 2->2"
+  }
+
+  connect ExBox.DANTE_Out -> QSYS_Core.DANTE_In {
+    mapping: "47->3, 48->4, 45->5, 46->6, 35->33, 36->34, 37->35, 38->36, 43->37, 44->38, 41->39, 42->40, 17->41, 18->42, 25->43, 26->44, 1->45, 2->46, 9->47, 10->48"
+  }
+  connect QSYS_Core.DANTE_Out -> ExBox.DANTE_In
+}

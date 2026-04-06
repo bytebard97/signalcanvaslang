@@ -1,0 +1,175 @@
+# Front of House — FOH console, stage racks, Live Professor
+# MTG — Hillsong Auditorium
+
+use local.generic.*
+
+template FOH_System {
+  meta { kind: "system" }
+  ports {
+    # Logical signal groups — major signal paths in/out of FOH
+    Split_A_Feed: in(XLR) [Analogue]
+    Infra_Analogue_Send: out(XLR) [Analogue]
+    Infra_Analogue_Return: in(XLR) [Analogue]
+    LP_Send: out(TRS_14) [Analogue]
+    LP_Return: in(TRS_14) [Analogue]
+    Infra_MADI: out(XLR) [Analogue]
+    Dante_Bridge: out(RJ45_etherCON) [Dante]
+  }
+
+  instance FOH_Engine is Venue_FOH_Rack {
+    location: "FOH Engine"
+    slot Expansion[1]: HDX_Card
+    slot Expansion[2]: HDX_Card
+    slot Snake[1]: MADI
+    slot Snake[2]: MADI
+    route MADI[41] -> LINE[1]
+    route MADI[42] -> LINE[2]
+    route MADI[43] -> LINE[3]
+    route MADI[44] -> LINE[4]
+    route MADI[45] -> LINE[5]
+    route MADI[46] -> LINE[6]
+    route MADI[47] -> LINE[7]
+    route MADI[48] -> LINE[8]
+    bus PA_Matrix {
+      label: "PA Matrix"
+      output: MADI[9]
+      output: MADI[10]
+    }
+    bus Front_Fill_Matrix {
+      label: "Front Fill Matrix"
+      output: MADI[11]
+    }
+    bus Floor_Sub_Matrix {
+      label: "Floor Sub Matrix"
+      output: MADI[12]
+    }
+    bus PQ_MM {
+      label: "PQ MM"
+      output: MADI[1]
+      output: MADI[2]
+    }
+    bus PQ_Band {
+      label: "PQ Band"
+      output: MADI[3]
+      output: MADI[4]
+    }
+    bus PQ_Vox {
+      label: "PQ Vox"
+      output: MADI[5]
+    }
+    bus PQ_MC {
+      label: "PQ MC"
+      output: MADI[6]
+    }
+    bus PQ_PGM {
+      label: "PQ PGM"
+      output: MADI[7]
+      output: MADI[8]
+    }
+    bus PQ_Links {
+      label: "PQ Links"
+      output: MADI[9]
+      output: MADI[10]
+    }
+    bus HLVLMON_IEM {
+      label: "HLVL>MON IEM"
+    }
+    bus HLVLMON_Wedges {
+      label: "HLVL>MON Wedges"
+      output: MADI[11]
+    }
+    bus SMAART_Console_REF {
+      label: "SMAART Console REF"
+      output: MADI[12]
+    }
+    bus VoxVerbLP {
+      label: "VoxVerb>LP"
+      output: MADI[13]
+    }
+    bus DrumVerbLP {
+      label: "DrumVerb>LP"
+      output: MADI[14]
+    }
+    bus SnareVerbLP {
+      label: "SnareVerb>LP"
+      output: MADI[15]
+    }
+    bus SpareLP {
+      label: "Spare>LP"
+      output: MADI[16]
+    }
+    bus LINKS_GRP {
+      label: "LINKS GRP"
+      output: MADI[1]
+      output: MADI[2]
+    }
+    bus PB_GRP {
+      label: "PB GRP"
+      output: MADI[3]
+      output: MADI[4]
+    }
+    bus MUSIC {
+      output: MADI[5]
+      output: MADI[6]
+    }
+  }
+
+  instance Stage_Rack_1 is Venue_Stage_Rack {
+    location: "Profile Stage Rack 1"
+    slot Venue_Input_Slot[1]: VSR_AI8
+    slot Venue_Input_Slot[2]: VSR_AI8
+    slot Venue_Input_Slot[3]: VSR_AI8
+    slot Venue_Input_Slot[4]: VSR_AI8
+    slot Venue_Input_Slot[5]: VSR_AI8
+    slot Venue_Input_Slot[6]: VSR_AI8
+    slot Venue_Output_Slot[1]: VSR_A08
+    slot Venue_Output_Slot[2]: VSR_DO8
+  }
+
+  instance Stage_Rack_2 is Venue_Stage_Rack_2 {
+    location: "Profile Stage Rack 2"
+    slot Venue_Input_Slot[1]: VSR_AI8
+    slot Venue_Input_Slot[2]: VSR_AI8
+    slot Venue_Input_Slot[3]: VSR_AI8
+    slot Venue_Input_Slot[4]: VSR_AI8
+    slot Venue_Input_Slot[5]: VSR_AI8
+    slot Venue_Input_Slot[6]: VSR_AI8
+    slot Venue_Output_Slot[1]: VSR_A08
+    slot Venue_Output_Slot[2]: VSR_A08
+  }
+
+  instance LP_ANDIAMO is ANDIAMO_v1 { location: "Analogue/MADI<>LP" }
+  instance RMIO is RMIO64_D
+  instance Live_Prof is Live_Professor_PC_w_PCIE_DANTE_Card {
+    route DANTE[1] -> DANTE[1]
+    route DANTE[2] -> DANTE[2]
+    route DANTE[3] -> DANTE[3]
+    route DANTE[4] -> DANTE[4]
+    route DANTE[5] -> DANTE[5]
+    route DANTE[6] -> DANTE[6]
+    route DANTE[7] -> DANTE[7]
+    route DANTE[8] -> DANTE[8]
+  }
+
+  # Internal MADI connections: Engine <-> Stage Racks
+  connect FOH_Engine.MADI_Out -> Stage_Rack_1.MADI_In
+  connect Stage_Rack_1.MADI_Out -> FOH_Engine.MADI_In
+  connect FOH_Engine.MADI_Out -> Stage_Rack_2.MADI_In
+  connect Stage_Rack_2.MADI_Out -> FOH_Engine.MADI_In
+
+  # RMIO <-> LP ANDIAMO (MADI)
+  connect RMIO.SC_MADI_Out -> LP_ANDIAMO.MADI_In
+  connect LP_ANDIAMO.MADI_Out -> RMIO.SC_MADI_In
+
+  # Live Professor <-> RMIO (Dante)
+  connect Live_Prof.DANTE_Out -> RMIO.DANTE_In
+  connect RMIO.DANTE_Out -> Live_Prof.DANTE_In
+
+  # LP ANDIAMO <-> FOH Engine (Analogue tie lines)
+  connect LP_ANDIAMO.Analogue_Outputs -> FOH_Engine.LINE_In {
+    @suppress(mechanical)
+  }
+  connect FOH_Engine.LINE_Out -> LP_ANDIAMO.Analogue_Inputs {
+    @suppress(mechanical)
+  }
+}

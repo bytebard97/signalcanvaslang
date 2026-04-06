@@ -1,0 +1,31 @@
+# Stage Cores — XLR looms from stage positions to patch
+# MTG — Hillsong Auditorium
+
+use local.generic.*
+
+template Stage_Cores_System {
+  meta { kind: "system" }
+  ports {
+    # Logical signal groups — one port per stage position feed
+    Drums_Feed: out(XLR) [Analogue]
+    Bass_Feed: out(XLR) [Analogue]
+    USC_Feed: out(XLR) [Analogue]
+    Keys1_Feed: out(XLR) [Analogue]
+    Keys2_Feed: out(XLR) [Analogue]
+    Monitor_Return: in(XLR) [Analogue]
+  }
+
+  instance Drums is _160_XLR { location: "Drums" }
+  instance Bass is _124_XLR { location: "Bass" }
+  instance USC is _124_XLR { location: "USC" }
+  instance Keys1 is _124_XLR { location: "Keys 1" }
+  instance Keys2 is _124_XLR { location: "Keys 2" }
+
+  # Bridge internal device outputs to subsystem ports
+  bridge Drums.Inputs_to_Patch -> Drums_Feed
+  bridge Bass.Inputs_to_Patch -> Bass_Feed
+  bridge USC.Inputs_to_Patch -> USC_Feed
+  bridge Keys1.Inputs_to_Patch -> Keys1_Feed
+  bridge Keys2.Inputs_to_Patch -> Keys2_Feed
+  bridge Monitor_Return -> Bass.Returns_from_Patch
+}

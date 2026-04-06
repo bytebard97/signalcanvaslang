@@ -155,7 +155,10 @@ pub(crate) fn build_sub_level(
     expand_sub_instances(inst, tmpl, all_templates, levels, &mut sub_nodes, &new_stack);
 
     // Expand internal connects
-    expand_internal_connects(inst, tmpl, &own_ports, &mut sub_edges);
+    expand_internal_connects(inst, tmpl, all_templates, &own_ports, &mut sub_edges);
+
+    // Scalar port fallback — remap unindexed refs to _1 if the port exists
+    super::apply_scalar_port_fallback(&sub_nodes, &mut sub_edges);
 
     // Mark port connectivity
     super::mark_port_connectivity(&mut sub_nodes, &sub_edges);
@@ -380,7 +383,7 @@ fn expand_sub_instances(
         let sub_node_id = format!("{}/{}", inst.name, sub_inst.name);
 
         let sub_ports = if let Some(st) = sub_tmpl {
-            expand_sub_instance_ports(&inst.name, &sub_inst.name, st)
+            expand_sub_instance_ports(&inst.name, sub_inst, st, all_templates)
         } else {
             Vec::new()
         };
@@ -431,68 +434,136 @@ fn expand_sub_instances(
 }
 
 /// Expand internal connects within a drillable template's sub-level.
+/// Handles explicit mappings, offset mappings, and default sequential mapping.
+/// Uses `resolve_port_range` to expand unindexed references to ranged ports.
 fn expand_internal_connects(
     inst: &InstanceDecl,
     tmpl: &TemplateDecl,
+    all_templates: &BTreeMap<String, TemplateDecl>,
     own_ports: &[PortInfo],
     sub_edges: &mut BTreeMap<String, GraphEdge>,
 ) {
-    let props_empty = BTreeMap::new();
-
     for (c_idx, conn) in tmpl.connects.iter().enumerate() {
-        let src_indices = flatten_opt_pr(&conn.source.index);
-        let tgt_indices = flatten_opt_pr(&conn.target.index);
-
-        if src_indices.len() != tgt_indices.len()
-            && src_indices.len() > 1
-            && tgt_indices.len() > 1
-        {
-            continue; // range mismatch
-        }
-
-        let count = src_indices.len().max(tgt_indices.len());
         let conn_props = kv_to_string_map(&conn.properties);
+        let mapping = conn
+            .mapping
+            .as_ref()
+            .and_then(|raw| crate::compat::parse_mapping_spec(raw));
 
-        for i in 0..count {
-            let src = if src_indices.len() > 1 {
-                src_indices[i]
-            } else {
-                src_indices[0]
-            };
-            let tgt = if tgt_indices.len() > 1 {
-                tgt_indices[i]
-            } else {
-                tgt_indices[0]
-            };
+        match mapping {
+            Some(crate::compat_types::TsMappingSpec::Explicit { ref pairs }) => {
+                // Explicit mapping: generate one edge per pair with indexed port IDs
+                for (i, pair) in pairs.iter().enumerate() {
+                    let src_suffix = format!("_{}", pair.from);
+                    let tgt_suffix = format!("_{}", pair.to);
 
-            let src_suffix = src.map_or(String::new(), |v| format!("_{v}"));
-            let tgt_suffix = tgt.map_or(String::new(), |v| format!("_{v}"));
+                    let (src_node, src_port_id) =
+                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true);
+                    let (tgt_node, tgt_port_id) =
+                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false);
 
-            let (src_node, src_port_id) =
-                resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true);
-            let (tgt_node, tgt_port_id) =
-                resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false);
+                    let edge_id = format!("{}_connect_{c_idx}_{i}", inst.name);
+                    sub_edges.insert(
+                        edge_id.clone(),
+                        GraphEdge {
+                            id: edge_id,
+                            source_node: src_node,
+                            source_port: src_port_id,
+                            target_node: tgt_node,
+                            target_port: tgt_port_id,
+                            edge_type: "connect".to_string(),
+                            properties: conn_props.clone(),
+                            bus_id: None,
+                            bus_index: None,
+                            bus_size: None,
+                        },
+                    );
+                }
+            }
+            Some(crate::compat_types::TsMappingSpec::Offset { offset }) => {
+                // Offset mapping: source index i → target index (i + offset)
+                let src_indices = resolve_port_range(&conn.source, inst, tmpl, all_templates);
+                for (i, src) in src_indices.iter().enumerate() {
+                    let src_suffix = src.map_or(String::new(), |v| format!("_{v}"));
+                    let tgt_idx = src.map(|v| (v as i64 + offset) as u32);
+                    let tgt_suffix = tgt_idx.map_or(String::new(), |v| format!("_{v}"));
 
-            let edge_id = format!("{}_connect_{c_idx}_{i}", inst.name);
-            sub_edges.insert(
-                edge_id.clone(),
-                GraphEdge {
-                    id: edge_id,
-                    source_node: src_node,
-                    source_port: src_port_id,
-                    target_node: tgt_node,
-                    target_port: tgt_port_id,
-                    edge_type: "connect".to_string(),
-                    properties: if conn_props.is_empty() {
-                        props_empty.clone()
+                    let (src_node, src_port_id) =
+                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true);
+                    let (tgt_node, tgt_port_id) =
+                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false);
+
+                    let edge_id = format!("{}_connect_{c_idx}_{i}", inst.name);
+                    sub_edges.insert(
+                        edge_id.clone(),
+                        GraphEdge {
+                            id: edge_id,
+                            source_node: src_node,
+                            source_port: src_port_id,
+                            target_node: tgt_node,
+                            target_port: tgt_port_id,
+                            edge_type: "connect".to_string(),
+                            properties: conn_props.clone(),
+                            bus_id: None,
+                            bus_index: None,
+                            bus_size: None,
+                        },
+                    );
+                }
+            }
+            _ => {
+                // Default/OneToOne: sequential mapping
+                // Use resolve_port_range to expand unindexed refs to ranged ports
+                let src_indices = resolve_port_range(&conn.source, inst, tmpl, all_templates);
+                let tgt_indices = resolve_port_range(&conn.target, inst, tmpl, all_templates);
+
+                if src_indices.len() != tgt_indices.len()
+                    && src_indices.len() > 1
+                    && tgt_indices.len() > 1
+                {
+                    continue; // range mismatch
+                }
+
+                let count = src_indices.len().max(tgt_indices.len());
+
+                for i in 0..count {
+                    let src = if src_indices.len() > 1 {
+                        src_indices[i]
                     } else {
-                        conn_props.clone()
-                    },
-                    bus_id: None,
-                    bus_index: None,
-                    bus_size: None,
-                },
-            );
+                        src_indices[0]
+                    };
+                    let tgt = if tgt_indices.len() > 1 {
+                        tgt_indices[i]
+                    } else {
+                        tgt_indices[0]
+                    };
+
+                    let src_suffix = src.map_or(String::new(), |v| format!("_{v}"));
+                    let tgt_suffix = tgt.map_or(String::new(), |v| format!("_{v}"));
+
+                    let (src_node, src_port_id) =
+                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true);
+                    let (tgt_node, tgt_port_id) =
+                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false);
+
+                    let edge_id = format!("{}_connect_{c_idx}_{i}", inst.name);
+                    sub_edges.insert(
+                        edge_id.clone(),
+                        GraphEdge {
+                            id: edge_id,
+                            source_node: src_node,
+                            source_port: src_port_id,
+                            target_node: tgt_node,
+                            target_port: tgt_port_id,
+                            edge_type: "connect".to_string(),
+                            properties: conn_props.clone(),
+                            bus_id: None,
+                            bus_index: None,
+                            bus_size: None,
+                        },
+                    );
+                }
+            }
         }
     }
 }
@@ -540,20 +611,6 @@ fn resolve_internal_endpoint(
         let node = format!("{}/{ref_inst}", inst.name);
         let port_id = format!("{node}:{}{suffix}", port_ref.port);
         (node, port_id)
-    }
-}
-
-fn flatten_opt_pr(spec: &Option<crate::ast::IndexSpec>) -> Vec<Option<u32>> {
-    match spec {
-        Some(s) => {
-            let flat = flatten_index_spec(s);
-            if flat.is_empty() {
-                vec![None]
-            } else {
-                flat.into_iter().map(Some).collect()
-            }
-        }
-        None => vec![None],
     }
 }
 

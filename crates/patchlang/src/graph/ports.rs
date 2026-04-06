@@ -102,43 +102,28 @@ pub(crate) fn expand_template_ports(
 
 /// Expand ports for a sub-instance inside a drillable template.
 /// Port IDs use `{parent}/{sub_inst}:{port}` format.
+/// Includes card ports from slot assignments (same logic as `expand_template_ports`).
 pub(crate) fn expand_sub_instance_ports(
     parent_name: &str,
-    sub_inst_name: &str,
+    sub_inst: &crate::ast::InstanceDecl,
     tmpl: &TemplateDecl,
+    all_templates: &std::collections::BTreeMap<String, TemplateDecl>,
 ) -> Vec<PortInfo> {
     let mut ports = Vec::new();
-    let node_id = format!("{parent_name}/{sub_inst_name}");
+    let mut used_names = HashSet::new();
+    let node_id = format!("{parent_name}/{}", sub_inst.name);
 
+    // Template's own ports
     for port_def in &tmpl.ports {
-        if let Some(ref range) = port_def.range {
-            for j in range.start..=range.end {
-                let name = format!("{}_{}", port_def.name, j);
-                ports.push(PortInfo {
-                    id: format!("{node_id}:{name}"),
-                    name,
-                    direction: direction_str(&port_def.direction).to_string(),
-                    connector: port_def.connector.clone(),
-                    attributes: port_def.attributes.clone(),
-                    connected: None,
-                    signal_names: None,
-                    label: None,
-                    label_properties: None,
-                });
+        add_port_def(port_def, &node_id, &mut ports, &mut used_names);
+    }
+
+    // Card ports from slot assignments
+    for sa in &sub_inst.slot_assignments {
+        if let Some(card_tmpl) = all_templates.get(&sa.card_name) {
+            for port_def in &card_tmpl.ports {
+                add_port_def(port_def, &node_id, &mut ports, &mut used_names);
             }
-        } else {
-            let name = port_def.name.clone();
-            ports.push(PortInfo {
-                id: format!("{node_id}:{name}"),
-                name,
-                direction: direction_str(&port_def.direction).to_string(),
-                connector: port_def.connector.clone(),
-                attributes: port_def.attributes.clone(),
-                connected: None,
-                signal_names: None,
-                label: None,
-                label_properties: None,
-            });
         }
     }
 

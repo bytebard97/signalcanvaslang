@@ -1,0 +1,28 @@
+# Radio Mic Systems — Wireless receivers
+# MTG — Hillsong Auditorium
+
+use local.generic.*
+
+template Radio_Mic_System {
+  meta { kind: "system" }
+  ports {
+    # Logical signal groups — one port per wireless system feed
+    Vocal_Feed: out(XLR) [Analogue]
+    Spare_Vocal_Feed: out(XLR) [Analogue]
+    MC_Feed: out(XLR) [Analogue]
+    Beltpack_Feed: out(XLR) [Analogue]
+    MD_Talk_Feed: out(XLR) [Analogue]
+  }
+
+  instance Vox_1_4 is AD4Q { location: "Vox 1-4" }
+  instance Vox_5_6_WL is AD4Q { location: "Vox 5-6/WL1-2" }
+  instance MCs is AD4Q { location: "MCs" }
+  instance Beltpacks is AD4Q { location: "Beltpacks" }
+  instance MD_Talk is QLXD4 { location: "MD Talk" }
+
+  bridge Vox_1_4.XLR_Out -> Vocal_Feed
+  bridge Vox_5_6_WL.XLR_Out -> Spare_Vocal_Feed
+  bridge MCs.XLR_Out -> MC_Feed
+  bridge Beltpacks.XLR_Out -> Beltpack_Feed
+  bridge MD_Talk.Line_Out -> MD_Talk_Feed
+}

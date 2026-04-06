@@ -309,7 +309,7 @@ fn expand_instances(
 /// After all edges are built, check if any edge references a port that doesn't
 /// exist. If `edge.sourcePort` doesn't exist but `edge.sourcePort + "_1"` does,
 /// remap to `_1`. Same for target.
-fn apply_scalar_port_fallback(
+pub(crate) fn apply_scalar_port_fallback(
     nodes: &BTreeMap<String, DeviceNode>,
     edges: &mut BTreeMap<String, GraphEdge>,
 ) {
