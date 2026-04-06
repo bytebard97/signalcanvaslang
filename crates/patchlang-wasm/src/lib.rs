@@ -266,6 +266,58 @@ pub fn set_label(
     .unwrap_or_else(|e| json_err(&e))
 }
 
+/// Set a slot assignment on an instance. `slot_index` of -1 means None.
+/// Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn set_slot(
+    handle: u32,
+    instance: &str,
+    slot_name: &str,
+    slot_index: i32,
+    card_template: &str,
+) -> String {
+    let index = if slot_index < 0 {
+        None
+    } else {
+        Some(slot_index as u32)
+    };
+    with_builder_mut(handle, |b| {
+        match b.set_slot(instance, slot_name, index, card_template) {
+            Ok(()) => json_ok(),
+            Err(e) => json_err(&e.to_string()),
+        }
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a bus to an instance from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_bus(handle: u32, instance: &str, bus_json: &str) -> String {
+    let bus: patchlang::ast::BusEntry = match serde_json::from_str(bus_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_bus(instance, bus) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a stream from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_stream(handle: u32, stream_json: &str) -> String {
+    let decl: patchlang::ast::StreamDecl = match serde_json::from_str(stream_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_stream(decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
 /// Add a signal from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
 #[wasm_bindgen]
 pub fn add_signal(handle: u32, signal_json: &str) -> String {
