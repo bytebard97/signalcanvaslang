@@ -1,0 +1,44 @@
+# Splits & Patch IO — Splitter, patch TIO, talkbacks, ambience
+# MTG — Hillsong Auditorium
+
+use local.generic.*
+
+template Splits_Patch_System {
+  meta { kind: "system" }
+  ports {
+    # Logical signal groups — one port per signal path between subsystems
+    Stage_Input: in(XLR) [Analogue]
+    FOH_Feed: out(XLR) [Analogue]
+    Monitor_Feed: out(XLR) [Analogue]
+    Spare_Feed: out(XLR) [Analogue]
+    Dante_Input: in(RJ45_etherCON) [Dante]
+    Comms_Output: out(XLR) [Analogue]
+  }
+
+  instance Splitter is _80_ch_3_way_Splitter { location: "Auditorium Mic Splits" }
+  instance Aud_Patch_TIO is TIO_1608_D { location: "Aud Patch TIO" }
+  instance Ableton is DVS_Computer { location: "Ableton Laptop" }
+  instance R08D_1 is R08D
+  instance R08D_2 is R08D
+  instance Amb_SL is Mono_Mic_DI { location: "Ambience SL" }
+  instance Amb_SR is Mono_Mic_DI { location: "Ambience SR" }
+  instance AVIO is AVIO_AO2
+  instance FOH_TB is Mono_Mic_DI { location: "FOH Talkback" }
+  instance MON_TB is Mono_Mic_DI { location: "MON Talkback" }
+
+  # Internal connections
+  connect Ableton.DVS_DANTE -> Aud_Patch_TIO.DANTE_In {
+    mapping: "1->1, 2->2, 3->3, 4->4"
+  }
+  connect Aud_Patch_TIO.Line_Output -> Splitter.Inputs {
+    mapping: "1->39, 2->40, 7->63, 8->64"
+  }
+
+  # Bridge subsystem ports to internal devices
+  bridge Stage_Input -> Splitter.Inputs
+  bridge Splitter.Output_A -> FOH_Feed
+  bridge Splitter.Output_B -> Monitor_Feed
+  bridge Splitter.Output_C -> Spare_Feed
+  bridge Dante_Input -> Aud_Patch_TIO.DANTE_In
+  bridge AVIO.Line_Out -> Comms_Output
+}

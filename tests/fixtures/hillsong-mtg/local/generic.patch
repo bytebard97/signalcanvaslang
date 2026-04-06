@@ -1,0 +1,547 @@
+# Hillsong MTG — Device Templates
+# All template definitions for the project
+
+template HDX_Card {
+  meta {
+    manufacturer: "AVID"
+    model: "HDX Card"
+    kind: "card"
+  }
+  ports {
+    USB_In[1..64]: in(USB)
+    USB_Out[1..64]: out(USB)
+  }
+}
+
+template MADI {
+  meta {
+    manufacturer: "AVID"
+    model: "MADI"
+    kind: "card"
+  }
+  ports {
+    MADI_In[1..48]: in(BNC_75) [MADI, flexible]
+    MADI_Out[1..48]: out(BNC_75) [MADI, flexible]
+    Word_Clock_In: in(BNC_75) [WordClock, flexible]
+    Word_Clock_Out: out(BNC_75) [WordClock, flexible]
+  }
+}
+
+template VSR_AI8 {
+  meta {
+    manufacturer: "AVID"
+    model: "VSR-AI8"
+    kind: "card"
+  }
+  ports {
+    XLR_In[1..8]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template VSR_A08 {
+  meta {
+    manufacturer: "AVID"
+    model: "VSR-A08"
+    kind: "card"
+  }
+  ports {
+    XLR_Out[1..8]: out(XLR) [Analogue, flexible]
+  }
+}
+
+template VSR_DO8 {
+  meta {
+    manufacturer: "AVID"
+    model: "VSR-DO8"
+    kind: "card"
+  }
+  ports {
+    AES3[1..8]: out(XLR) [AES3, flexible]
+  }
+}
+
+template CAT_108_G2 {
+  meta {
+    manufacturer: "RIEDEL"
+    model: "CAT-108 G2"
+    kind: "card"
+  }
+  ports {
+    Cat5_In[1..8]: in(etherCON) [AES3, flexible]
+    Cat5_Out[1..8]: out(etherCON) [AES3, flexible]
+  }
+}
+
+template AES67_108_G2 {
+  meta {
+    manufacturer: "RIEDEL"
+    model: "AES67-108 G2"
+    kind: "card"
+  }
+  ports {
+    AES67_In[1..8]: in(etherCON) [AES67, flexible]
+    AES67_Out[1..8]: out(etherCON) [AES67, flexible]
+  }
+}
+
+template COAX_108_G2 {
+  meta {
+    manufacturer: "RIEDEL"
+    model: "COAX-108 G2"
+    kind: "card"
+  }
+  ports {
+    BNC_In[1..8]: in(BNC_75) [AES3, flexible]
+    BNC_Out[1..8]: out(BNC_75) [AES3, flexible]
+  }
+}
+
+template CDN64 {
+  meta {
+    manufacturer: "QSYS"
+    model: "CDN64"
+    kind: "card"
+  }
+  ports {
+    DANTE_In[1..64]: in(etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..64]: out(etherCON) [Dante, flexible, redundant]
+  }
+}
+
+template LMY2_MLAB {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "LMY2-MLAB"
+    kind: "card"
+  }
+  ports {
+    XLR[1..2]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template LMY4_ML4 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "LMY4-ML4"
+    kind: "card"
+  }
+  ports {
+    XLR[1..4]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template LMY4_DA {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "LMY4-DA"
+    kind: "card"
+  }
+  ports {
+    XLR[1..4]: out(XLR) [Analogue, flexible]
+  }
+}
+
+template Venue_FOH_Rack {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue FOH Rack"
+  }
+  ports {
+    AES_In[1..2]: in(XLR) [AES3, flexible]
+    AES_Out[1..2]: out(XLR) [AES3, flexible]
+    LINE_In[1..8]: in(TRS_14)
+    LINE_Out[1..8]: out(TRS_14)
+    Talkback: in(XLR) [Analogue, flexible]
+    Monitor[1..2]: out(TRS_14) [Analogue, flexible]
+    _2_Track_In[1..2]: in(TRS_14) [Analogue, flexible, redundant]
+    _2_Track_Out[1..2]: out(TRS_14) [Analogue, flexible, redundant]
+  }
+  slot Expansion[1..3]: Expansion
+  slot Snake[1..2]: Snake
+}
+
+template _80_ch_3_way_Splitter {
+  meta {
+    model: "80-ch 3-way Splitter"
+    kind: "mic-splitter"
+  }
+  ports {
+    Inputs[1..80]: in(XLR)
+    Output_A[1..80]: out(XLR) [split: direct]
+    Output_B[1..80]: out(XLR) [split: direct]
+    Output_C[1..80]: out(XLR) [split: direct]
+  }
+  bridge Inputs -> Output_A
+  bridge Inputs -> Output_B
+  bridge Inputs -> Output_C
+}
+
+template Venue_Stage_Rack {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue Stage Rack"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_In[1..48]: in(BNC_75) [MADI, flexible, redundant]
+    MADI_Out[1..48]: out(BNC_75) [MADI, flexible, redundant]
+  }
+  slot Venue_Input_Slot[1..6]: Venue_Input_Slot
+  slot Venue_Output_Slot[1..6]: Venue_Output_Slot
+}
+
+template Venue_Stage_Rack_2 {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue Stage Rack"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_In[1..48]: in(BNC_75) [MADI, flexible, redundant]
+    MADI_Out[1..48]: out(BNC_75) [MADI, flexible, redundant]
+  }
+  slot Venue_Input_Slot[1..6]: Venue_Input_Slot
+  slot Venue_Output_Slot[1..6]: Venue_Output_Slot
+}
+
+template _160_XLR {
+  meta {
+    model: "16×0 XLR"
+    kind: "stage-core"
+  }
+  ports {
+    Stage_Box_Inputs[1..16]: in(XLR) [Analogue]
+    Inputs_to_Patch[1..16]: out(XLR) [Analogue]
+    Returns_from_Patch: in(XLR) [Analogue]
+    Stage_Box_Outputs: out(XLR) [Analogue]
+  }
+}
+
+template _124_XLR {
+  meta {
+    model: "12×4 XLR"
+    kind: "stage-core"
+  }
+  ports {
+    Stage_Box_Inputs[1..12]: in(XLR) [Analogue]
+    Inputs_to_Patch[1..12]: out(XLR) [Analogue]
+    Returns_from_Patch[1..4]: in(XLR) [Analogue]
+    Stage_Box_Outputs[1..4]: out(XLR) [Analogue]
+  }
+}
+
+template TIO_1608_D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "TIO 1608-D"
+    kind: "fixed-converter"
+  }
+  ports {
+    Mic_Line_Input[1..16]: in(XLR) [Analogue, flexible]
+    Line_Output[1..8]: out(XLR) [Analogue, flexible]
+    DANTE_In[1..8]: in(etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..16]: out(etherCON) [Dante, flexible, redundant]
+  }
+  bridge Mic_Line_Input -> DANTE_Out
+  bridge DANTE_In -> Line_Output
+}
+
+template ANDIAMO_v1 {
+  meta {
+    manufacturer: "DOTEC"
+    model: "ANDIAMO v1"
+    kind: "fixed-converter"
+  }
+  ports {
+    Analogue_Inputs[1..32]: in(DB25) [Analogue, flexible]
+    Analogue_Outputs[1..32]: out(DB25) [Analogue, flexible]
+    MADI_In[1..32]: in(SC_Fiber) [MADI, flexible]
+    MADI_Out[1..32]: out(SC_Fiber) [MADI, flexible]
+    Word_Clock_Input: in(BNC_75) [WordClock, flexible]
+    Word_Clock_Output: out(BNC_75) [WordClock, flexible]
+  }
+  bridge Analogue_Inputs -> MADI_Out
+  bridge MADI_In -> Analogue_Outputs
+}
+
+template ULTRIX_FR2 {
+  meta {
+    manufacturer: "Ross"
+    model: "ULTRIX FR2"
+  }
+  ports {
+    MADI_1_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    MADI_1_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+    MADI_2_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    MADI_2_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+    SDI_In[1..72]: in(SDI_BNC) [SDI, flexible]
+    SDI_Out[1..72]: out(SDI_BNC) [SDI, flexible]
+  }
+}
+
+template ExBox_MD {
+  meta {
+    manufacturer: "DOTEC"
+    model: "ExBox.MD"
+  }
+  ports {
+    DANTE_In[1..64]: in(etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..64]: out(etherCON) [Dante, flexible, redundant]
+    SC_MADI_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    SC_MADI_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+    SFP_MADI_In[1..64]: in(SFP) [MADI, flexible]
+    SFP_MADI_Out[1..64]: out(SFP) [MADI, flexible]
+    Word_Clock: in(BNC_75) [WordClock, flexible]
+  }
+}
+
+template RMIO64_D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "RMIO64-D"
+    kind: "fixed-converter"
+  }
+  ports {
+    DANTE_In[1..64]: in(etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..64]: out(etherCON) [Dante, flexible, redundant]
+    SC_MADI_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    SC_MADI_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+  }
+  bridge DANTE_In -> SC_MADI_Out
+  bridge SC_MADI_In -> DANTE_Out
+}
+
+template Live_Professor_PC_w_PCIE_DANTE_Card {
+  meta {
+    manufacturer: "GENERIC"
+    model: "Live Professor PC w/ PCIE DANTE Card"
+  }
+  ports {
+    DANTE_In[1..128]: in(etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..128]: out(etherCON) [Dante, flexible, redundant]
+  }
+}
+
+template DVS_Computer {
+  meta {
+    manufacturer: "GENERIC"
+    model: "DVS Computer"
+  }
+  ports {
+    DVS_DANTE[1..64]: out(etherCON) [Dante]
+  }
+}
+
+template Artist_64 {
+  meta {
+    manufacturer: "RIEDEL"
+    model: "Artist 64"
+  }
+  slot Client[1..8]: Client
+}
+
+template Core_250i {
+  meta {
+    manufacturer: "QSYS"
+    model: "Core 250i"
+  }
+  ports {
+    QLAN_In[1..64]: in(etherCON) [AES67, flexible, redundant]
+    QLAN_Out[1..64]: out(etherCON) [AES67, flexible, redundant]
+  }
+  slot Type2[1..8]: Type2_Card
+}
+
+template R08D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "R08D"
+    kind: "fixed-converter"
+  }
+  ports {
+    DANTE_In[1..8]: in(etherCON) [Dante, flexible, redundant]
+    XLR_Out[1..8]: out(XLR) [Analogue, flexible]
+  }
+  bridge DANTE_In -> XLR_Out
+}
+
+template Mono_Mic_DI {
+  meta {
+    model: "Mono Mic/DI"
+    kind: "mic-di"
+  }
+  ports {
+    XLR_Out: out(XLR) [Analogue]
+  }
+}
+
+template PM1D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "PM1D"
+  }
+  ports {
+    MADI_1_In[1..32]: in(BNC_75) [MADI, flexible]
+    MADI_1_Out[1..32]: out(BNC_75) [MADI, flexible]
+    MADI_2_In[1..32]: in(BNC_75) [MADI, flexible]
+    MADI_2_Out[1..32]: out(BNC_75) [MADI, flexible]
+    MADI_3_In[1..32]: in(BNC_75) [MADI, flexible]
+    MADI_3_Out[1..32]: out(BNC_75) [MADI, flexible]
+    MADI_4_In[1..32]: in(BNC_75) [MADI, flexible]
+    MADI_4_Out[1..32]: out(BNC_75) [MADI, flexible]
+    MADI_5_In[1..32]: in(BNC_75) [MADI, flexible]
+    MADI_5_Out[1..32]: out(BNC_75) [MADI, flexible]
+    MADI_6_In[1..32]: in(BNC_75) [MADI, flexible]
+    MADI_6_Out[1..32]: out(BNC_75) [MADI, flexible]
+    Line_Out[1..8]: out(XLR) [Analogue, flexible]
+  }
+}
+
+template AVIO_AO2 {
+  meta {
+    manufacturer: "Audinate"
+    model: "AVIO-AO2"
+    kind: "fixed-converter"
+  }
+  ports {
+    DANTE_In[1..2]: in(etherCON) [Dante, flexible]
+    Line_Out[1..2]: out(XLR) [Analogue, flexible]
+  }
+  bridge DANTE -> Line_Out
+}
+
+template AD4Q {
+  meta {
+    manufacturer: "SHURE"
+    model: "AD4Q"
+    kind: "rf-system"
+    rf_subtype: "radio-mic"
+    rf_min_channels: 4
+  }
+  ports {
+    Antenna_A: in(BNC_50) [RF]
+    Antenna_B: in(BNC_50) [RF]
+    XLR_Out[1..4]: out(XLR) [Analogue, AES3]
+    TRS[1..4]: out(TRS_3) [Analogue, flexible]
+    DANTE_In[1..4]: in(etherCON) [Dante, flexible]
+    DANTE_Out[1..4]: out(etherCON) [Dante, flexible]
+  }
+  bridge Antenna_A -> XLR_Out
+  bridge Antenna_A -> TRS
+  bridge Antenna_A -> DANTE_Out
+}
+
+template QLXD4 {
+  meta {
+    manufacturer: "SHURE"
+    model: "QLXD4"
+    kind: "rf-system"
+    rf_subtype: "radio-mic"
+    rf_min_channels: 1
+  }
+  ports {
+    Antenna_A: in(BNC_50) [RF]
+    Antenna_B: in(BNC_50) [RF]
+    Line_Out: out(XLR) [Analogue, flexible]
+  }
+  bridge Antenna_A -> Line_Out
+}
+
+template AI8 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "AI8"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_Out[1..32]: out(BNC_75) [MADI, flexible]
+  }
+  slot LMY[1..8]: LMY_Card
+}
+
+template AI8_2 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "AI8"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_Out[1..32]: out(BNC_75) [MADI, flexible]
+  }
+  slot LMY[1..8]: LMY_Card
+}
+
+template AI8_3 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "AI8"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_Out[1..32]: out(BNC_75) [MADI, flexible]
+  }
+  slot LMY[1..8]: LMY_Card
+}
+
+template AI8_4 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "AI8"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_Out[1..32]: out(BNC_75) [MADI, flexible]
+  }
+  slot LMY[1..8]: LMY_Card
+}
+
+template AI8_5 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "AI8"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_Out[1..32]: out(BNC_75) [MADI, flexible]
+  }
+  slot LMY[1..8]: LMY_Card
+}
+
+template A08 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "A08"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_In[1..32]: in(BNC_75) [MADI, flexible]
+  }
+  slot LMY4[1..8]: LMY4_Card
+}
+
+template PSM1000 {
+  meta {
+    manufacturer: "SHURE"
+    model: "PSM1000"
+    kind: "rf-system"
+    rf_subtype: "iem"
+    rf_min_channels: 2
+  }
+  ports {
+    Input[1..4]: in(XLR) [Analogue]
+    Antenna_A: out(BNC_50) [RF]
+    Antenna_B: out(BNC_50) [RF]
+  }
+  bridge Input -> Antenna_A
+}
+
+template RNHP {
+  meta {
+    manufacturer: "NEVE"
+    model: "RNHP"
+    kind: "fixed-converter"
+  }
+  ports {
+    Line_In[1..2]: in(XLR) [Analogue, flexible]
+  }
+}

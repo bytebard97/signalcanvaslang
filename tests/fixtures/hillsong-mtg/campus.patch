@@ -1,0 +1,62 @@
+# Hillsong MTG — Campus Level
+# Multi-level project root: 7 subsystem blocks
+
+use subsystems.stage_cores { Stage_Cores_System }
+use subsystems.radio_mic { Radio_Mic_System }
+use subsystems.splits_patch { Splits_Patch_System }
+use subsystems.foh { FOH_System }
+use subsystems.monitors { Monitor_System }
+use subsystems.infrastructure { Infrastructure_System }
+use subsystems.iems { IEM_System }
+
+# --- Subsystem instances ---
+instance Stage_Cores is Stage_Cores_System { location: "Main Stage" }
+instance Radio_Mic is Radio_Mic_System { location: "Wireless Rack" }
+instance Splits_Patch is Splits_Patch_System { location: "Patch Bay Area" }
+instance FOH is FOH_System { location: "Front of House" }
+instance Monitors is Monitor_System { location: "Monitor World" }
+instance Infrastructure is Infrastructure_System { location: "Infrastructure Rack" }
+instance IEMs is IEM_System { location: "IEM Rack" }
+
+# --- Cross-subsystem connections ---
+
+# Stage Cores -> Splits (XLR looms to splitter)
+connect Stage_Cores.Drums_Feed -> Splits_Patch.Stage_Input
+connect Stage_Cores.Bass_Feed -> Splits_Patch.Stage_Input
+connect Stage_Cores.USC_Feed -> Splits_Patch.Stage_Input
+connect Stage_Cores.Keys1_Feed -> Splits_Patch.Stage_Input
+connect Stage_Cores.Keys2_Feed -> Splits_Patch.Stage_Input
+
+# Radio Mic -> Splits (wireless outputs to splitter)
+connect Radio_Mic.Vocal_Feed -> Splits_Patch.Stage_Input
+connect Radio_Mic.Spare_Vocal_Feed -> Splits_Patch.Stage_Input
+connect Radio_Mic.MC_Feed -> Splits_Patch.Stage_Input
+connect Radio_Mic.Beltpack_Feed -> Splits_Patch.Stage_Input
+
+# Splits Output A -> FOH (splitter direct feed)
+connect Splits_Patch.FOH_Feed -> FOH.Split_A_Feed
+
+# Splits Output B -> Monitors (splitter monitor feed)
+connect Splits_Patch.Monitor_Feed -> Monitors.Split_B_Feed
+
+# Infrastructure -> Splits (video playback feeds to splitter)
+connect Infrastructure.Video_Playback_Feed -> Splits_Patch.Stage_Input
+
+# FOH -> Infrastructure (analogue ties)
+connect FOH.Infra_MADI -> Infrastructure.FOH_Analogue_Tie
+
+# Infrastructure Q-SYS -> Splits (Dante via TIO)
+connect Infrastructure.FOH_Dante_Tie -> Splits_Patch.Dante_Input
+
+# Infrastructure Q-SYS -> Splits AVIO (MON CUE line)
+connect Infrastructure.AVIO_Dante_Feed -> Splits_Patch.Dante_Input
+
+# Monitor outputs -> IEM transmitters
+connect Monitors.IEM_Output -> IEMs.Monitor_Mix_Feed
+connect Monitors.Wedge_Output -> IEMs.Headphone_Feed
+
+# Monitor PM1D cue -> IEM
+connect Monitors.Cue_Output -> IEMs.Cue_Feed
+
+# Stage Cores returns <- IEMs (headphone amp feeds)
+connect IEMs.Headphone_Feed -> Stage_Cores.Monitor_Return

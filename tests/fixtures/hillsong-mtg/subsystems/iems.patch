@@ -1,0 +1,28 @@
+# In-Ear Monitors — PSM1000 transmitters, headphone amps
+# MTG — Hillsong Auditorium
+
+use local.generic.*
+
+template IEM_System {
+  meta { kind: "system" }
+  ports {
+    # Logical signal groups — major signal paths into IEM system
+    Monitor_Mix_Feed: in(XLR) [Analogue]
+    Headphone_Feed: in(XLR) [Analogue]
+    Cue_Feed: in(XLR) [Analogue]
+    Comms_Feed: in(XLR) [Analogue]
+  }
+
+  instance P10T_01 is PSM1000 { location: "P10T-01" }
+  instance P10T_02 is PSM1000 { location: "P10T-02" }
+  instance P10T_03 is PSM1000 { location: "P10T-03" }
+  instance P10T_04 is PSM1000 { location: "P10T-04" }
+  instance P10T_05 is PSM1000 { location: "P10T-05" }
+  instance P10T_06 is PSM1000 { location: "P10T-06" }
+  instance P10T_07 is PSM1000 { location: "P10T-07" }
+  instance P10T_08 is PSM1000 { location: "P10T-08" }
+  instance HP_Drums is RNHP { location: "DRUMS" }
+  instance HP_Bass is RNHP { location: "BASS" }
+  instance HP_Keys2_1 is RNHP { location: "KEYS 2" }
+  instance HP_Keys2_2 is RNHP { location: "KEYS 2" }
+}

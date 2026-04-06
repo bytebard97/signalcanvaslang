@@ -1,0 +1,260 @@
+# Monitor World — PM1D console, AI8/A08 I/O units
+# MTG — Hillsong Auditorium
+
+use local.generic.*
+
+template Monitor_System {
+  meta { kind: "system" }
+  ports {
+    # Logical signal groups — major signal paths in/out of Monitor World
+    Split_B_Feed: in(XLR) [Analogue]
+    IEM_Output: out(XLR) [Analogue]
+    Wedge_Output: out(XLR) [Analogue]
+    Cue_Output: out(XLR) [Analogue]
+    Infra_MADI_Send: out(BNC_75) [MADI]
+    Infra_MADI_Return: in(BNC_75) [MADI]
+  }
+
+  instance MON_Console is PM1D {
+    location: "MONITORS"
+    route MADI_5[9] -> MADI_2[1]
+    route MADI_5[10] -> MADI_2[2]
+    route MADI_4[16] -> MADI_2[3]
+    bus Drums {
+      output: MADI_3[1]
+      output: MADI_3[2]
+    }
+    bus Bass {
+      output: MADI_3[3]
+      output: MADI_3[4]
+    }
+    bus Gtr_1 {
+      label: "Gtr 1"
+      output: MADI_1[17]
+      output: MADI_1[18]
+    }
+    bus Gtr_2 {
+      label: "Gtr 2"
+      output: MADI_1[19]
+      output: MADI_1[20]
+    }
+    bus Keys_1 {
+      label: "Keys 1"
+      output: MADI_3[5]
+      output: MADI_3[6]
+    }
+    bus Keys_2 {
+      label: "Keys 2"
+      output: MADI_3[7]
+      output: MADI_3[8]
+    }
+    bus Spare_1 {
+      label: "Spare 1"
+      output: MADI_1[21]
+      output: MADI_1[22]
+    }
+    bus Spare_2 {
+      label: "Spare 2"
+      output: MADI_1[23]
+      output: MADI_1[24]
+    }
+    bus Spare_3 {
+      label: "Spare 3"
+      output: MADI_1[25]
+      output: MADI_1[26]
+    }
+    bus Spare_4 {
+      label: "Spare 4"
+      output: MADI_1[27]
+      output: MADI_1[28]
+    }
+    bus WL_1 {
+      label: "WL 1"
+      output: MADI_1[1]
+      output: MADI_1[2]
+    }
+    bus WL_2 {
+      label: "WL 2"
+      output: MADI_1[3]
+      output: MADI_1[4]
+    }
+    bus Vox_1 {
+      label: "Vox 1"
+      output: MADI_1[5]
+      output: MADI_1[6]
+    }
+    bus Vox_2 {
+      label: "Vox 2"
+      output: MADI_1[7]
+      output: MADI_1[8]
+    }
+    bus Vox_3 {
+      label: "Vox 3"
+      output: MADI_1[9]
+      output: MADI_1[10]
+    }
+    bus Vox_4 {
+      label: "Vox 4"
+      output: MADI_1[11]
+      output: MADI_1[12]
+    }
+    bus Vox_5 {
+      label: "Vox 5"
+      output: MADI_1[13]
+      output: MADI_1[14]
+    }
+    bus Vox_6 {
+      label: "Vox 6"
+      output: MADI_1[15]
+      output: MADI_1[16]
+    }
+    bus MD {
+      output: MADI_1[29]
+      output: MADI_1[30]
+    }
+    bus Cue {
+      output: Line[1]
+      output: Line[2]
+    }
+    bus DSL_MONS {
+      label: "DSL MONS"
+      output: MADI_2[21]
+    }
+    bus DSC_MONS {
+      label: "DSC MONS"
+      output: MADI_2[22]
+    }
+    bus DSR_MONS {
+      label: "DSR MONS"
+      output: MADI_2[23]
+    }
+    bus MONS_SPR_1_ {
+      label: "MONS SPR 1. "
+      output: MADI_2[24]
+    }
+    bus MONS_SPR_2 {
+      label: "MONS SPR 2"
+      output: MADI_2[25]
+    }
+    bus MON_CUE_WEDGE {
+      label: "MON CUE WEDGE"
+      output: Line[3]
+    }
+    bus ClicLink {
+      label: "Clic>Link"
+      output: MADI_2[27]
+    }
+    bus MD_CUELink {
+      label: "MD/CUE>Link"
+      output: MADI_2[28]
+    }
+  }
+
+  instance AI8_Unit_1 is AI8 {
+    location: "Unit 1"
+    slot LMY[1]: LMY2_MLAB
+    slot LMY[2]: LMY2_MLAB
+    slot LMY[3]: LMY2_MLAB
+    slot LMY[4]: LMY2_MLAB
+    slot LMY[5]: LMY2_MLAB
+    slot LMY[6]: LMY2_MLAB
+    slot LMY[7]: LMY2_MLAB
+    slot LMY[8]: LMY2_MLAB
+  }
+
+  instance AI8_Unit_2 is AI8_2 {
+    location: "Unit 2"
+    slot LMY[1]: LMY2_MLAB
+    slot LMY[2]: LMY2_MLAB
+    slot LMY[3]: LMY2_MLAB
+    slot LMY[4]: LMY4_ML4
+    slot LMY[5]: LMY4_ML4
+    slot LMY[6]: LMY4_ML4
+    slot LMY[7]: LMY4_ML4
+    slot LMY[8]: LMY4_ML4
+  }
+
+  instance AI8_Unit_3 is AI8_3 {
+    location: "Unit 3"
+    slot LMY[1]: LMY4_ML4
+    slot LMY[2]: LMY2_MLAB
+    slot LMY[3]: LMY2_MLAB
+    slot LMY[4]: LMY2_MLAB
+    slot LMY[5]: LMY2_MLAB
+    slot LMY[6]: LMY4_ML4
+    slot LMY[7]: LMY4_ML4
+    slot LMY[8]: LMY4_ML4
+  }
+
+  instance AI8_Unit_4 is AI8_4 {
+    location: "Unit 4"
+    slot LMY[1]: LMY4_ML4
+    slot LMY[2]: LMY4_ML4
+    slot LMY[3]: LMY4_ML4
+    slot LMY[4]: LMY4_ML4
+    slot LMY[5]: LMY4_ML4
+    slot LMY[6]: LMY2_MLAB
+    slot LMY[7]: LMY2_MLAB
+    slot LMY[8]: LMY2_MLAB
+  }
+
+  instance AI8_Unit_5 is AI8_5 {
+    location: "UNIT 5"
+    slot LMY[1]: LMY2_MLAB
+    slot LMY[2]: LMY2_MLAB
+    slot LMY[3]: LMY2_MLAB
+    slot LMY[4]: LMY2_MLAB
+    slot LMY[5]: LMY2_MLAB
+    slot LMY[6]: LMY2_MLAB
+    slot LMY[7]: LMY2_MLAB
+    slot LMY[8]: LMY4_ML4
+  }
+
+  instance A08_Unit_1 is A08 {
+    location: "Unit 1"
+    slot LMY4[1]: LMY4_DA
+    slot LMY4[2]: LMY4_DA
+    slot LMY4[3]: LMY4_DA
+    slot LMY4[4]: LMY4_DA
+    slot LMY4[5]: LMY4_DA
+    slot LMY4[6]: LMY4_DA
+    slot LMY4[7]: LMY4_DA
+    slot LMY4[8]: LMY4_DA
+  }
+
+  instance A08_Unit_2 is A08 {
+    location: "Unit 2"
+    slot LMY4[1]: LMY4_DA
+    slot LMY4[2]: LMY4_DA
+    slot LMY4[3]: LMY4_DA
+    slot LMY4[4]: LMY4_DA
+    slot LMY4[5]: LMY4_DA
+    slot LMY4[6]: LMY4_DA
+    slot LMY4[7]: LMY4_DA
+    slot LMY4[8]: LMY4_DA
+  }
+
+  instance A08_Unit_3 is A08 {
+    location: "Unit 3"
+    slot LMY4[1]: LMY4_DA
+    slot LMY4[2]: LMY4_DA
+    slot LMY4[3]: LMY4_DA
+    slot LMY4[4]: LMY4_DA
+    slot LMY4[5]: LMY4_DA
+    slot LMY4[6]: LMY4_DA
+    slot LMY4[7]: LMY4_DA
+    slot LMY4[8]: LMY4_DA
+  }
+
+  # AI8 inputs -> PM1D MADI inputs
+  connect AI8_Unit_1.MADI -> MON_Console.MADI_1_In
+  connect AI8_Unit_2.MADI -> MON_Console.MADI_2_In
+  connect AI8_Unit_3.MADI -> MON_Console.MADI_3_In
+  connect AI8_Unit_4.MADI -> MON_Console.MADI_4_In
+  connect AI8_Unit_5.MADI -> MON_Console.MADI_5_In
+
+  # PM1D MADI outputs -> A08 output units
+  connect MON_Console.MADI_1_Out -> A08_Unit_1.MADI
+  connect MON_Console.MADI_2_Out -> A08_Unit_2.MADI
+  connect MON_Console.MADI_3_Out -> A08_Unit_3.MADI
+}
