@@ -19,32 +19,36 @@ pub enum TagCategory {
 }
 
 /// Classify a port attribute tag into its category.
+/// Case-insensitive matching per decision D016.
 pub fn tag_category(tag: &str) -> TagCategory {
-    match tag {
+    let t = tag.to_ascii_lowercase();
+    match t.as_str() {
         // Protocols
-        "Dante" | "AES67" | "AES3" | "AES/EBU"
-        | "MADI" | "SDI" | "HD_SDI" | "3G_SDI" | "12G_SDI"
-        | "OptoCore" | "TWINLANe" | "AVB" | "AES50"
-        | "CobraNet" | "Ravenna" | "SMPTE_ST_2110"
-        | "NDI" | "SRT" | "ADAT" | "S/PDIF" | "TDIF"
-        | "WordClock" | "BlackBurst" | "TriLevel"
-        | "Thunderbolt" | "USB"
-        | "GigaACE" | "DX" | "GX" | "SLink" | "Console_Link" => TagCategory::Protocol,
+        "dante" | "aes67" | "aes3" | "aes/ebu"
+        | "madi" | "sdi" | "hd_sdi" | "3g_sdi" | "12g_sdi"
+        | "optocore" | "twinlane" | "avb" | "aes50"
+        | "cobranet" | "ravenna" | "smpte_st_2110"
+        | "ndi" | "srt" | "adat" | "s/pdif" | "tdif"
+        | "wordclock" | "blackburst" | "trilevel"
+        | "thunderbolt" | "usb"
+        | "gigaace" | "dx" | "gx" | "slink" | "console_link"
+        | "analog" | "analogue" | "rf" => TagCategory::Protocol,
 
         // Signal levels
         "mic_level" | "instrument_level" | "line_level"
         | "speaker_level" | "digital" => TagCategory::Level,
 
         // Clock tags
-        "clk_44_1kHz" | "clk_48kHz" | "clk_96kHz" | "clk_192kHz"
-        | "44_1kHz" | "48kHz" | "96kHz" | "192kHz" => TagCategory::Clock,
+        "clk_44_1khz" | "clk_48khz" | "clk_96khz" | "clk_192khz"
+        | "44_1khz" | "48khz" | "96khz" | "192khz" => TagCategory::Clock,
 
         // Qualifiers (direction/role hints)
-        "balanced" | "unbalanced" | "phantom_power"
-        | "aes_pair" | "redundant" | "primary" | "secondary" => TagCategory::Qualifier,
+        "balanced" | "unbalanced" | "phantom_power" | "phantom_48v"
+        | "aes_pair" | "redundant" | "primary" | "secondary"
+        | "flexible" | "loop" | "poe" | "daisy_chain" => TagCategory::Qualifier,
 
         // Features
-        "auto_negotiate" | "poe" | "poe_plus" => TagCategory::Feature,
+        "auto_negotiate" | "poe_plus" => TagCategory::Feature,
 
         _ => TagCategory::Unknown,
     }
@@ -62,7 +66,7 @@ pub fn get_tag_by_category<'a>(attributes: &'a [String], category: &TagCategory)
 }
 
 /// Signal level ordering. Returns `None` for unknown or `digital` tags.
-/// Higher values = hotter signal.
+/// Higher values = hotter signal. Case-insensitive per D016.
 ///
 /// Ordinal assignments:
 /// - `instrument_level` and `line_level` share ordinal 1 intentionally —
@@ -71,7 +75,8 @@ pub fn get_tag_by_category<'a>(attributes: &'a [String], category: &TagCategory)
 ///   between line and speaker. The gap of 2 ensures that speaker→line is
 ///   always classified as a destructive level mismatch (gap >= LEVEL_GAP_DESTRUCTIVE).
 fn level_order(tag: &str) -> Option<i32> {
-    match tag {
+    let t = tag.to_ascii_lowercase();
+    match t.as_str() {
         "mic_level" => Some(0),
         "instrument_level" => Some(1),
         "line_level" => Some(1),
@@ -91,19 +96,24 @@ pub fn level_gap(src_tag: &str, tgt_tag: &str) -> Option<i32> {
 }
 
 /// Protocol compatibility groups. Protocols within the same group are interoperable.
+/// Stored in lowercase for case-insensitive matching (D016).
 const PROTOCOL_GROUPS: &[&[&str]] = &[
-    &["Dante", "AES67"],
-    &["SDI", "HD_SDI", "3G_SDI", "12G_SDI"],
-    &["WordClock", "BlackBurst", "TriLevel"],
+    &["dante", "aes67"],
+    &["sdi", "hd_sdi", "3g_sdi", "12g_sdi"],
+    &["wordclock", "blackburst", "trilevel"],
+    &["analog", "analogue"],
 ];
 
 /// Check whether two protocols are compatible (same or in same group).
+/// Case-insensitive per decision D016.
 pub fn are_protocols_compatible(a: &str, b: &str) -> bool {
-    if a == b {
+    let la = a.to_ascii_lowercase();
+    let lb = b.to_ascii_lowercase();
+    if la == lb {
         return true;
     }
     for group in PROTOCOL_GROUPS {
-        if group.contains(&a) && group.contains(&b) {
+        if group.contains(&la.as_str()) && group.contains(&lb.as_str()) {
             return true;
         }
     }
@@ -111,58 +121,74 @@ pub fn are_protocols_compatible(a: &str, b: &str) -> bool {
 }
 
 /// Whether a connector name represents a physical (non-virtual) connector.
+/// Case-insensitive per D016.
 pub fn is_physical_connector(name: &str) -> bool {
-    !matches!(name, "virtual" | "internal" | "software")
+    let n = name.to_ascii_lowercase();
+    !matches!(n.as_str(), "virtual" | "internal" | "software")
 }
 
-/// Connector mates-with table. Each entry: (connector, list of connectors it can mate with).
+/// Connector mates-with table. Stored in lowercase for case-insensitive matching (D016).
 /// A connector always mates with itself (handled in `are_connectors_compatible`).
 const CONNECTOR_MATES: &[(&str, &[&str])] = &[
-    ("XLR", &["XLR"]),
-    ("XLR_3pin", &["XLR_3pin", "XLR"]),
-    ("XLR_5pin", &["XLR_5pin"]),
-    ("TRS", &["TRS", "TS"]),
-    ("TS", &["TS", "TRS"]),
-    ("TRS_3_5mm", &["TRS_3_5mm"]),
-    ("BNC_75", &["BNC_75"]),
-    ("BNC_50", &["BNC_50"]),
-    ("RCA", &["RCA"]),
-    ("SpeakON", &["SpeakON"]),
-    ("NL2", &["NL2", "NL4"]),
-    ("NL4", &["NL4", "NL2"]),
-    ("NL8", &["NL8"]),
-    ("etherCON", &["etherCON", "RJ45"]),
-    ("RJ45", &["RJ45", "etherCON"]),
-    ("DB25", &["DB25"]),
-    ("DB9", &["DB9"]),
-    ("EDAC", &["EDAC"]),
-    ("DIN", &["DIN"]),
-    ("MIDI_DIN", &["MIDI_DIN"]),
-    ("OpticalCON", &["OpticalCON"]),
-    ("LC", &["LC"]),
-    ("SC", &["SC"]),
-    ("ST", &["ST"]),
-    ("HDMI", &["HDMI"]),
-    ("DisplayPort", &["DisplayPort"]),
-    ("SDI_BNC", &["SDI_BNC", "BNC_75"]),
-    ("USB_A", &["USB_A"]),
-    ("USB_B", &["USB_B"]),
-    ("USB_C", &["USB_C"]),
-    ("Thunderbolt", &["Thunderbolt", "USB_C"]),
-    ("PowerCON", &["PowerCON"]),
-    ("Socapex", &["Socapex"]),
+    ("xlr", &["xlr"]),
+    ("xlr_3pin", &["xlr_3pin", "xlr"]),
+    ("xlr_5pin", &["xlr_5pin"]),
+    ("trs", &["trs", "ts"]),
+    ("trs_14", &["trs_14", "trs"]),
+    ("trs_3", &["trs_3"]),
+    ("ts", &["ts", "trs"]),
+    ("trs_3_5mm", &["trs_3_5mm", "trs_35mm"]),
+    ("trs_35mm", &["trs_35mm", "trs_3_5mm"]),
+    ("bnc_75", &["bnc_75"]),
+    ("bnc_50", &["bnc_50"]),
+    ("rca", &["rca"]),
+    ("speakon", &["speakon"]),
+    ("nl2", &["nl2", "nl4"]),
+    ("nl4", &["nl4", "nl2"]),
+    ("nl8", &["nl8"]),
+    ("ethercon", &["ethercon", "rj45"]),
+    ("rj45", &["rj45", "ethercon"]),
+    ("rj45_ethercon", &["rj45_ethercon", "ethercon", "rj45"]),
+    ("db25", &["db25"]),
+    ("db9", &["db9"]),
+    ("edac", &["edac"]),
+    ("din", &["din"]),
+    ("midi_din", &["midi_din"]),
+    ("opticalcon", &["opticalcon"]),
+    ("lc", &["lc"]),
+    ("lc_fiber", &["lc_fiber", "lc"]),
+    ("sc", &["sc"]),
+    ("sc_fiber", &["sc_fiber", "sc"]),
+    ("st", &["st"]),
+    ("hdmi", &["hdmi"]),
+    ("displayport", &["displayport"]),
+    ("sdi_bnc", &["sdi_bnc", "bnc_75"]),
+    ("sfp", &["sfp"]),
+    ("sfp_plus", &["sfp_plus", "sfp"]),
+    ("usb", &["usb", "usb_a", "usb_b", "usb_c"]),
+    ("usb_a", &["usb_a", "usb"]),
+    ("usb_b", &["usb_b", "usb"]),
+    ("usb_c", &["usb_c", "thunderbolt"]),
+    ("thunderbolt", &["thunderbolt", "usb_c"]),
+    ("lemo", &["lemo"]),
+    ("sma", &["sma"]),
+    ("powercon", &["powercon"]),
+    ("socapex", &["socapex"]),
 ];
 
 /// Check whether two connectors can physically mate.
+/// Case-insensitive per decision D016.
 pub fn are_connectors_compatible(a: &str, b: &str) -> bool {
-    if a == b {
+    let la = a.to_ascii_lowercase();
+    let lb = b.to_ascii_lowercase();
+    if la == lb {
         return true;
     }
     for &(name, mates) in CONNECTOR_MATES {
-        if name == a && mates.contains(&b) {
+        if name == la && mates.contains(&lb.as_str()) {
             return true;
         }
-        if name == b && mates.contains(&a) {
+        if name == lb && mates.contains(&la.as_str()) {
             return true;
         }
     }
@@ -182,20 +208,22 @@ pub const KNOWN_DANTE_CHIPSETS: &[&str] = &[
     "Ultimo", "Broadway", "Brooklyn_II", "Brooklyn_3", "HC",
 ];
 
-/// Maximum flow slots per Dante chipset.
+/// Maximum flow slots per Dante chipset. Case-insensitive per D016.
 pub fn dante_chipset_max_flows(chipset: &str) -> Option<u32> {
-    match chipset {
-        "Ultimo" => Some(2),
-        "Broadway" => Some(16),
-        "Brooklyn_II" | "Brooklyn_3" => Some(32),
-        "HC" => Some(128),
+    let c = chipset.to_ascii_lowercase();
+    match c.as_str() {
+        "ultimo" => Some(2),
+        "broadway" => Some(16),
+        "brooklyn_ii" | "brooklyn_3" => Some(32),
+        "hc" => Some(128),
         _ => None,
     }
 }
 
-/// Whether a Dante chipset supports AES67 RTP flows.
+/// Whether a Dante chipset supports AES67 RTP flows. Case-insensitive per D016.
 pub fn dante_chipset_supports_aes67(chipset: &str) -> bool {
-    !matches!(chipset, "Ultimo")
+    let c = chipset.to_ascii_lowercase();
+    !matches!(c.as_str(), "ultimo")
 }
 
 /// Known rf_subtype values for meta validation hints.
