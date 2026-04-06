@@ -1,7 +1,10 @@
 //! Unit tests for the PatchProgram builder API.
 
+use std::collections::HashMap;
+
 use crate::ast::{
-    InstanceDecl, PortDef, PortDirection, RangeSpec, Statement, TemplateDecl,
+    ConnectDecl, InstanceDecl, PortDef, PortDirection, PortRef,
+    RangeSpec, TemplateDecl,
 };
 use crate::builder::{BuilderError, PatchProgramBuilder};
 use crate::error::Span;
@@ -122,10 +125,8 @@ fn remove_template_fails_when_instances_reference_it() {
     let mut b = PatchProgramBuilder::new();
     b.add_template(make_simple_template("Dante_AVIO"))
         .unwrap();
-    // Insert instance directly so this test doesn't depend on add_instance
-    b.program_mut()
-        .statements
-        .push(Statement::Instance(make_instance("rio_1", "Dante_AVIO")));
+    b.add_instance(make_instance("rio_1", "Dante_AVIO"))
+        .unwrap();
     let err = b.remove_template("Dante_AVIO").unwrap_err();
     assert!(matches!(err, BuilderError::InUse(_)));
 }
@@ -159,4 +160,131 @@ fn update_template_fails_for_missing() {
         .update_template("Nonexistent", make_simple_template("Nonexistent"))
         .unwrap_err();
     assert!(matches!(err, BuilderError::NotFound(_)));
+}
+
+// ---------------------------------------------------------------------------
+// Shared helper: PortRef construction
+// ---------------------------------------------------------------------------
+
+fn make_port_ref(instance: &str, port: &str, index: Option<u32>) -> PortRef {
+    use crate::ast::{IndexElement, IndexSpec};
+    PortRef {
+        instance: Some(instance.to_string()),
+        port: port.to_string(),
+        index: index.map(|v| IndexSpec {
+            elements: vec![IndexElement::Single { value: v }],
+        }),
+    }
+}
+
+/// Helper to push a connect statement directly into the builder program.
+fn push_connect(b: &mut PatchProgramBuilder, src: PortRef, tgt: PortRef) {
+    b.program_mut().statements.push(crate::ast::Statement::Connect(
+        ConnectDecl {
+            source: src,
+            target: tgt,
+            properties: Vec::new(),
+            suppressions: Vec::new(),
+            mapping: None,
+            span: default_span(),
+        },
+    ));
+}
+
+// ---------------------------------------------------------------------------
+// Task 4: Instance operations
+// ---------------------------------------------------------------------------
+
+#[test]
+fn add_instance_stores_declaration() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_1", "Dante_AVIO")).unwrap();
+    assert!(b.get_instance("rio_1").is_some());
+    assert_eq!(b.get_instance("rio_1").unwrap().template_name, "Dante_AVIO");
+}
+
+#[test]
+fn add_instance_rejects_unknown_template() {
+    let mut b = PatchProgramBuilder::new();
+    let err = b
+        .add_instance(make_instance("rio_1", "Nonexistent"))
+        .unwrap_err();
+    assert!(matches!(err, BuilderError::NotFound(_)));
+}
+
+#[test]
+fn add_instance_rejects_duplicate_name() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_1", "Dante_AVIO")).unwrap();
+    let err = b
+        .add_instance(make_instance("rio_1", "Dante_AVIO"))
+        .unwrap_err();
+    assert!(matches!(err, BuilderError::DuplicateName(_)));
+}
+
+#[test]
+fn remove_instance_succeeds() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_1", "Dante_AVIO")).unwrap();
+    b.remove_instance("rio_1").unwrap();
+    assert!(b.get_instance("rio_1").is_none());
+}
+
+#[test]
+fn remove_instance_cascades_connections() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_1", "Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_2", "Dante_AVIO")).unwrap();
+
+    // Insert a connect: rio_1.Dante_Out -> rio_2.Dante_In
+    push_connect(
+        &mut b,
+        make_port_ref("rio_1", "Dante_Out", Some(1)),
+        make_port_ref("rio_2", "Dante_In", Some(1)),
+    );
+
+    let connect_count_before = b
+        .program()
+        .statements
+        .iter()
+        .filter(|s| matches!(s, crate::ast::Statement::Connect(_)))
+        .count();
+    assert_eq!(connect_count_before, 1);
+
+    let cascade = b.remove_instance("rio_1").unwrap();
+    assert_eq!(cascade.removed_connects.len(), 1);
+
+    let connect_count_after = b
+        .program()
+        .statements
+        .iter()
+        .filter(|s| matches!(s, crate::ast::Statement::Connect(_)))
+        .count();
+    assert_eq!(connect_count_after, 0);
+}
+
+#[test]
+fn remove_instance_fails_for_missing() {
+    let mut b = PatchProgramBuilder::new();
+    let err = b.remove_instance("nonexistent").unwrap_err();
+    assert!(matches!(err, BuilderError::NotFound(_)));
+}
+
+#[test]
+fn update_instance_properties_works() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_1", "Dante_AVIO")).unwrap();
+
+    let mut props = HashMap::new();
+    props.insert("location".to_string(), "Stage Left".to_string());
+    b.update_instance_properties("rio_1", props).unwrap();
+
+    let inst = b.get_instance("rio_1").unwrap();
+    assert_eq!(inst.properties.len(), 1);
+    assert_eq!(inst.properties[0].key, "location");
 }
