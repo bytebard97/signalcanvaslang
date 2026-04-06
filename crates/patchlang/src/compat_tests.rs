@@ -91,7 +91,7 @@ fn kv_to_string_record_normalizes_device_type_to_kind() {
         },
     }];
     let record = kv_to_string_record(&kvs);
-    assert!(record.get("device_type").is_none(), "device_type should be normalized away");
+    assert!(!record.contains_key("device_type"), "device_type should be normalized away");
     assert_eq!(record.get("kind").unwrap(), "card");
 }
 
@@ -104,7 +104,7 @@ fn kv_to_arg_record_normalizes_device_type_to_kind() {
         },
     }];
     let record = kv_to_arg_record(&kvs);
-    assert!(record.get("device_type").is_none(), "device_type should be normalized away");
+    assert!(!record.contains_key("device_type"), "device_type should be normalized away");
     match record.get("kind").unwrap() {
         TsArgValue::Str(s) => assert_eq!(s, "device"),
         other => panic!("expected Str, got {other:?}"),
