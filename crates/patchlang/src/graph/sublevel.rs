@@ -115,20 +115,56 @@ pub(crate) fn build_sub_level(
 
     // Expand template bridges as internal edges between pseudo nodes
     for (b_idx, bridge) in tmpl.bridges.iter().enumerate() {
-        let src_prefix = format!("{}:", inst.name);
-        let tgt_prefix = format!("{}:", inst.name);
         let edge_prefix = format!("{}_bridge_{b_idx}", inst.name);
 
-        // Check if source or target references a sub-instance (bug fix)
-        let (actual_src_node, actual_src_prefix) =
-            resolve_bridge_endpoint_source(bridge, inst, tmpl, all_templates, &input_node_id);
-        let (actual_tgt_node, actual_tgt_prefix) =
-            resolve_bridge_endpoint_target(bridge, inst, tmpl, all_templates, &output_node_id);
+        // Resolve port names — "DANTE" → "DANTE_In" if prefix-matched
+        let src_resolved = resolve_port_range(&bridge.source, inst, tmpl, all_templates);
+        let tgt_resolved = resolve_port_range(&bridge.target, inst, tmpl, all_templates);
+        let src_port_name = src_resolved.actual_name.as_deref().unwrap_or(&bridge.source.port);
+        let tgt_port_name = tgt_resolved.actual_name.as_deref().unwrap_or(&bridge.target.port);
 
-        // If both endpoints are pseudo nodes, use the standard bridge expansion
+        // Create a corrected bridge with resolved port names and indices
+        let resolved_bridge = crate::ast::BridgeDecl {
+            source: crate::ast::PortRef {
+                instance: bridge.source.instance.clone(),
+                port: src_port_name.to_string(),
+                index: if src_resolved.indices.len() > 1 || src_resolved.indices.first().copied().flatten().is_some() {
+                    Some(crate::ast::IndexSpec {
+                        elements: src_resolved.indices.iter().filter_map(|i| {
+                            i.map(|v| crate::ast::IndexElement::Single { value: v })
+                        }).collect(),
+                    })
+                } else {
+                    bridge.source.index.clone()
+                },
+            },
+            target: crate::ast::PortRef {
+                instance: bridge.target.instance.clone(),
+                port: tgt_port_name.to_string(),
+                index: if tgt_resolved.indices.len() > 1 || tgt_resolved.indices.first().copied().flatten().is_some() {
+                    Some(crate::ast::IndexSpec {
+                        elements: tgt_resolved.indices.iter().filter_map(|i| {
+                            i.map(|v| crate::ast::IndexElement::Single { value: v })
+                        }).collect(),
+                    })
+                } else {
+                    bridge.target.index.clone()
+                },
+            },
+            span: bridge.span.clone(),
+        };
+
+        // Check if source or target references a sub-instance
+        let (actual_src_node, actual_src_prefix) =
+            resolve_bridge_endpoint_source(&resolved_bridge, inst, tmpl, all_templates, &input_node_id);
+        let (actual_tgt_node, actual_tgt_prefix) =
+            resolve_bridge_endpoint_target(&resolved_bridge, inst, tmpl, all_templates, &output_node_id);
+
         if actual_src_node == input_node_id && actual_tgt_node == output_node_id {
+            let src_prefix = format!("{}:", inst.name);
+            let tgt_prefix = format!("{}:", inst.name);
             sub_edges.extend(expand_bridge(
-                bridge,
+                &resolved_bridge,
                 &src_prefix,
                 &tgt_prefix,
                 &edge_prefix,
@@ -136,17 +172,14 @@ pub(crate) fn build_sub_level(
                 &output_node_id,
             ));
         } else {
-            // One or both endpoints reference sub-instances — use resolved prefixes
-            sub_edges.extend(expand_bridge_with_sub_resolution(
-                bridge,
+            // Both paths now use expand_bridge since resolution happens above
+            sub_edges.extend(expand_bridge(
+                &resolved_bridge,
                 &actual_src_prefix,
                 &actual_tgt_prefix,
                 &edge_prefix,
                 &actual_src_node,
                 &actual_tgt_node,
-                inst,
-                tmpl,
-                all_templates,
             ));
         }
     }
@@ -215,158 +248,92 @@ fn resolve_bridge_endpoint_target(
     (output_node_id.to_string(), format!("{}:", inst.name))
 }
 
-/// Expand a bridge where one or both endpoints may reference sub-instances.
-///
-/// When the bridge target references a sub-instance with a ranged port but
-/// the bridge source is scalar, we resolve the sub-instance's port range
-/// to generate the correct number of edges. This fixes the TS bug where
-/// `bridge Stage_Input -> MySplitter.Inputs` with `Inputs[1..80]` would
-/// fail to resolve the range.
-#[allow(clippy::too_many_arguments)]
-fn expand_bridge_with_sub_resolution(
-    bridge: &crate::ast::BridgeDecl,
-    src_prefix: &str,
-    tgt_prefix: &str,
-    edge_prefix: &str,
-    source_node: &str,
-    target_node: &str,
-    inst: &InstanceDecl,
-    tmpl: &TemplateDecl,
-    all_templates: &BTreeMap<String, TemplateDecl>,
-) -> BTreeMap<String, GraphEdge> {
-    // Resolve actual index ranges by looking up sub-instance templates
-    let src_indices = resolve_port_range(
-        &bridge.source,
-        inst,
-        tmpl,
-        all_templates,
-    );
-    let tgt_indices = resolve_port_range(
-        &bridge.target,
-        inst,
-        tmpl,
-        all_templates,
-    );
-
-    let mut edges = BTreeMap::new();
-
-    if src_indices.len() == tgt_indices.len() {
-        let is_bus = src_indices.len() > 1 && src_indices[0].is_some();
-        let bus_id = if is_bus {
-            Some(format!("{edge_prefix}_bus"))
-        } else {
-            None
-        };
-
-        for (i, (src, tgt)) in src_indices.iter().zip(tgt_indices.iter()).enumerate() {
-            let src_suffix = src.map_or(String::new(), |v| format!("_{v}"));
-            let tgt_suffix = tgt.map_or(String::new(), |v| format!("_{v}"));
-            let src_port_id = format!("{src_prefix}{}{src_suffix}", bridge.source.port);
-            let tgt_port_id = format!("{tgt_prefix}{}{tgt_suffix}", bridge.target.port);
-            let edge_id = format!("{edge_prefix}{src_suffix}_to{tgt_suffix}");
-
-            let mut edge = GraphEdge {
-                id: edge_id.clone(),
-                source_node: source_node.to_string(),
-                source_port: src_port_id,
-                target_node: target_node.to_string(),
-                target_port: tgt_port_id,
-                edge_type: "bridge".to_string(),
-                properties: BTreeMap::new(),
-                bus_id: None,
-                bus_index: None,
-                bus_size: None,
-            };
-            if is_bus {
-                edge.bus_id = bus_id.clone();
-                edge.bus_index = Some(i);
-                edge.bus_size = Some(src_indices.len());
-            }
-            edges.insert(edge_id, edge);
-        }
-    } else {
-        // Fan-out/fan-in
-        for src in &src_indices {
-            for tgt in &tgt_indices {
-                let src_suffix = src.map_or(String::new(), |v| format!("_{v}"));
-                let tgt_suffix = tgt.map_or(String::new(), |v| format!("_{v}"));
-                let src_port_id = format!("{src_prefix}{}{src_suffix}", bridge.source.port);
-                let tgt_port_id = format!("{tgt_prefix}{}{tgt_suffix}", bridge.target.port);
-                let edge_id = format!("{edge_prefix}{src_suffix}_to{tgt_suffix}");
-
-                edges.insert(
-                    edge_id.clone(),
-                    GraphEdge {
-                        id: edge_id,
-                        source_node: source_node.to_string(),
-                        source_port: src_port_id,
-                        target_node: target_node.to_string(),
-                        target_port: tgt_port_id,
-                        edge_type: "bridge".to_string(),
-                        properties: BTreeMap::new(),
-                        bus_id: None,
-                        bus_index: None,
-                        bus_size: None,
-                    },
-                );
-            }
-        }
-    }
-
-    edges
-}
-
 /// Resolve a port reference's index range, looking up sub-instance templates
 /// if the reference has an instance that matches a sub-instance.
+/// Result of port range resolution: the actual port name (may differ from the
+/// ref if prefix-matched) and the index range.
+struct ResolvedPortRange {
+    /// The actual port name from the template (e.g., "MADI_Out" when ref said "MADI")
+    actual_name: Option<String>,
+    indices: Vec<Option<u32>>,
+}
+
 fn resolve_port_range(
     port_ref: &PortRef,
     inst: &InstanceDecl,
     tmpl: &TemplateDecl,
     all_templates: &BTreeMap<String, TemplateDecl>,
-) -> Vec<Option<u32>> {
-    // If the port ref already has indices, use them
+) -> ResolvedPortRange {
+    // If the port ref already has indices, use them (name is exact)
     if let Some(ref idx) = port_ref.index {
         let flat = flatten_index_spec(idx);
         if !flat.is_empty() {
-            return flat.into_iter().map(Some).collect();
+            return ResolvedPortRange {
+                actual_name: None,
+                indices: flat.into_iter().map(Some).collect(),
+            };
         }
     }
 
-    // If the port ref references a sub-instance, look up its template's port range
+    // Collect all candidate port definitions to search
+    let mut candidate_ports: Vec<&crate::ast::PortDef> = Vec::new();
+
     if let Some(ref ref_inst) = port_ref.instance {
         if !ref_inst.is_empty() {
             if let Some(sub_inst) = tmpl.instances.iter().find(|si| si.name == *ref_inst) {
                 if let Some(sub_tmpl) = all_templates.get(&sub_inst.template_name) {
-                    if let Some(port_def) = sub_tmpl.ports.iter().find(|p| p.name == port_ref.port)
-                    {
-                        if let Some(ref range) = port_def.range {
-                            return (range.start..=range.end).map(Some).collect();
-                        }
+                    candidate_ports.extend(sub_tmpl.ports.iter());
+                }
+                for sa in &sub_inst.slot_assignments {
+                    if let Some(card_tmpl) = all_templates.get(&sa.card_name) {
+                        candidate_ports.extend(card_tmpl.ports.iter());
                     }
                 }
             }
-        }
-    }
-
-    // Also check if the port is on the parent template itself
-    if let Some(port_def) = tmpl.ports.iter().find(|p| p.name == port_ref.port) {
-        if let Some(ref range) = port_def.range {
-            return (range.start..=range.end).map(Some).collect();
-        }
-    }
-
-    // Check card ports from the instance's slot assignments
-    for sa in &inst.slot_assignments {
-        if let Some(card_tmpl) = all_templates.get(&sa.card_name) {
-            if let Some(port_def) = card_tmpl.ports.iter().find(|p| p.name == port_ref.port) {
-                if let Some(ref range) = port_def.range {
-                    return (range.start..=range.end).map(Some).collect();
+        } else {
+            candidate_ports.extend(tmpl.ports.iter());
+            for sa in &inst.slot_assignments {
+                if let Some(card_tmpl) = all_templates.get(&sa.card_name) {
+                    candidate_ports.extend(card_tmpl.ports.iter());
                 }
+            }
+        }
+    } else {
+        candidate_ports.extend(tmpl.ports.iter());
+        for sa in &inst.slot_assignments {
+            if let Some(card_tmpl) = all_templates.get(&sa.card_name) {
+                candidate_ports.extend(card_tmpl.ports.iter());
             }
         }
     }
 
-    vec![None]
+    // Exact name match
+    if let Some(port_def) = candidate_ports.iter().find(|p| p.name == port_ref.port) {
+        if let Some(ref range) = port_def.range {
+            return ResolvedPortRange {
+                actual_name: None, // name matches exactly
+                indices: (range.start..=range.end).map(Some).collect(),
+            };
+        }
+        return ResolvedPortRange { actual_name: None, indices: vec![None] };
+    }
+
+    // Prefix match: "MADI" matches "MADI_In" or "MADI_Out"
+    let prefix = format!("{}_", port_ref.port);
+    if let Some(port_def) = candidate_ports.iter().find(|p| p.name.starts_with(&prefix)) {
+        if let Some(ref range) = port_def.range {
+            return ResolvedPortRange {
+                actual_name: Some(port_def.name.clone()),
+                indices: (range.start..=range.end).map(Some).collect(),
+            };
+        }
+        return ResolvedPortRange {
+            actual_name: Some(port_def.name.clone()),
+            indices: vec![None],
+        };
+    }
+
+    ResolvedPortRange { actual_name: None, indices: vec![None] }
 }
 
 /// Expand sub-instances within a drillable template.
@@ -452,15 +419,18 @@ fn expand_internal_connects(
 
         match mapping {
             Some(crate::compat_types::TsMappingSpec::Explicit { ref pairs }) => {
-                // Explicit mapping: generate one edge per pair with indexed port IDs
+                // Resolve actual port names (may differ via prefix match)
+                let src_resolved = resolve_port_range(&conn.source, inst, tmpl, all_templates);
+                let tgt_resolved = resolve_port_range(&conn.target, inst, tmpl, all_templates);
+
                 for (i, pair) in pairs.iter().enumerate() {
                     let src_suffix = format!("_{}", pair.from);
                     let tgt_suffix = format!("_{}", pair.to);
 
                     let (src_node, src_port_id) =
-                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true);
+                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true, src_resolved.actual_name.as_deref());
                     let (tgt_node, tgt_port_id) =
-                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false);
+                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false, tgt_resolved.actual_name.as_deref());
 
                     let edge_id = format!("{}_connect_{c_idx}_{i}", inst.name);
                     sub_edges.insert(
@@ -481,17 +451,17 @@ fn expand_internal_connects(
                 }
             }
             Some(crate::compat_types::TsMappingSpec::Offset { offset }) => {
-                // Offset mapping: source index i → target index (i + offset)
-                let src_indices = resolve_port_range(&conn.source, inst, tmpl, all_templates);
-                for (i, src) in src_indices.iter().enumerate() {
+                let src_resolved = resolve_port_range(&conn.source, inst, tmpl, all_templates);
+                let tgt_resolved = resolve_port_range(&conn.target, inst, tmpl, all_templates);
+                for (i, src) in src_resolved.indices.iter().enumerate() {
                     let src_suffix = src.map_or(String::new(), |v| format!("_{v}"));
                     let tgt_idx = src.map(|v| (v as i64 + offset) as u32);
                     let tgt_suffix = tgt_idx.map_or(String::new(), |v| format!("_{v}"));
 
                     let (src_node, src_port_id) =
-                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true);
+                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true, src_resolved.actual_name.as_deref());
                     let (tgt_node, tgt_port_id) =
-                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false);
+                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false, tgt_resolved.actual_name.as_deref());
 
                     let edge_id = format!("{}_connect_{c_idx}_{i}", inst.name);
                     sub_edges.insert(
@@ -512,39 +482,37 @@ fn expand_internal_connects(
                 }
             }
             _ => {
-                // Default/OneToOne: sequential mapping
-                // Use resolve_port_range to expand unindexed refs to ranged ports
-                let src_indices = resolve_port_range(&conn.source, inst, tmpl, all_templates);
-                let tgt_indices = resolve_port_range(&conn.target, inst, tmpl, all_templates);
+                let src_resolved = resolve_port_range(&conn.source, inst, tmpl, all_templates);
+                let tgt_resolved = resolve_port_range(&conn.target, inst, tmpl, all_templates);
 
-                if src_indices.len() != tgt_indices.len()
-                    && src_indices.len() > 1
-                    && tgt_indices.len() > 1
+                if src_resolved.indices.len() != tgt_resolved.indices.len()
+                    && src_resolved.indices.len() > 1
+                    && tgt_resolved.indices.len() > 1
                 {
                     continue; // range mismatch
                 }
 
-                let count = src_indices.len().max(tgt_indices.len());
+                let count = src_resolved.indices.len().max(tgt_resolved.indices.len());
 
                 for i in 0..count {
-                    let src = if src_indices.len() > 1 {
-                        src_indices[i]
+                    let src = if src_resolved.indices.len() > 1 {
+                        src_resolved.indices[i]
                     } else {
-                        src_indices[0]
+                        src_resolved.indices[0]
                     };
-                    let tgt = if tgt_indices.len() > 1 {
-                        tgt_indices[i]
+                    let tgt = if tgt_resolved.indices.len() > 1 {
+                        tgt_resolved.indices[i]
                     } else {
-                        tgt_indices[0]
+                        tgt_resolved.indices[0]
                     };
 
                     let src_suffix = src.map_or(String::new(), |v| format!("_{v}"));
                     let tgt_suffix = tgt.map_or(String::new(), |v| format!("_{v}"));
 
                     let (src_node, src_port_id) =
-                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true);
+                        resolve_internal_endpoint(&conn.source, &src_suffix, inst, own_ports, true, src_resolved.actual_name.as_deref());
                     let (tgt_node, tgt_port_id) =
-                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false);
+                        resolve_internal_endpoint(&conn.target, &tgt_suffix, inst, own_ports, false, tgt_resolved.actual_name.as_deref());
 
                     let edge_id = format!("{}_connect_{c_idx}_{i}", inst.name);
                     sub_edges.insert(
@@ -571,18 +539,21 @@ fn expand_internal_connects(
 /// Resolve a connect endpoint within a sub-level.
 /// Empty instance = local port (resolve to _inputs or _outputs pseudo node).
 /// Non-empty instance = sub-instance reference.
+/// `port_name_override`: if Some, use this instead of port_ref.port (for prefix-matched names).
 fn resolve_internal_endpoint(
     port_ref: &PortRef,
     suffix: &str,
     inst: &InstanceDecl,
     own_ports: &[PortInfo],
     is_source: bool,
+    port_name_override: Option<&str>,
 ) -> (String, String) {
     let ref_inst = port_ref.instance.as_deref().unwrap_or("");
+    let port_name = port_name_override.unwrap_or(&port_ref.port);
 
     if ref_inst.is_empty() {
         // Local port — find direction to decide _inputs vs _outputs
-        let port_name_with_suffix = format!("{}{suffix}", port_ref.port);
+        let port_name_with_suffix = format!("{port_name}{suffix}");
         let port_id_candidate = format!("{}:{port_name_with_suffix}", inst.name);
 
         let port_info = own_ports.iter().find(|p| {
@@ -590,14 +561,12 @@ fn resolve_internal_endpoint(
         });
 
         let node = if is_source {
-            // Source: output ports come from _outputs, input ports from _inputs
             if port_info.is_some_and(|p| p.direction == "out" || p.direction == "io") {
                 format!("{}_outputs", inst.name)
             } else {
                 format!("{}_inputs", inst.name)
             }
         } else {
-            // Target: input ports go to _inputs, output ports to _outputs
             if port_info.is_some_and(|p| p.direction == "in" || p.direction == "io") {
                 format!("{}_inputs", inst.name)
             } else {
@@ -605,11 +574,11 @@ fn resolve_internal_endpoint(
             }
         };
 
-        let port_id = format!("{}:{}{suffix}", inst.name, port_ref.port);
+        let port_id = format!("{}:{port_name}{suffix}", inst.name);
         (node, port_id)
     } else {
         let node = format!("{}/{ref_inst}", inst.name);
-        let port_id = format!("{node}:{}{suffix}", port_ref.port);
+        let port_id = format!("{node}:{port_name}{suffix}");
         (node, port_id)
     }
 }
