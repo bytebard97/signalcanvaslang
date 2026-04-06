@@ -307,8 +307,10 @@ fn expand_instances(
 }
 
 /// After all edges are built, check if any edge references a port that doesn't
-/// exist. If `edge.sourcePort` doesn't exist but `edge.sourcePort + "_1"` does,
-/// remap to `_1`. Same for target.
+/// exist. Tries these fallbacks in order:
+/// 1. Append `_1` (scalar ref to ranged port: `MADI` → `MADI_1`)
+/// 2. Append `_In_1` or `_Out_1` (abbreviated name: `MADI` → `MADI_In_1` or `MADI_Out_1`)
+/// 3. Prefix match against all ports on the node (finds first port starting with the ref)
 pub(crate) fn apply_scalar_port_fallback(
     nodes: &BTreeMap<String, DeviceNode>,
     edges: &mut BTreeMap<String, GraphEdge>,
@@ -320,18 +322,51 @@ pub(crate) fn apply_scalar_port_fallback(
 
     for edge in edges.values_mut() {
         if !all_port_ids.contains(&edge.source_port) {
-            let fallback = format!("{}_1", edge.source_port);
-            if all_port_ids.contains(&fallback) {
-                edge.source_port = fallback;
+            if let Some(resolved) = resolve_port_fallback(&edge.source_port, &edge.source_node, nodes, &all_port_ids) {
+                edge.source_port = resolved;
             }
         }
         if !all_port_ids.contains(&edge.target_port) {
-            let fallback = format!("{}_1", edge.target_port);
-            if all_port_ids.contains(&fallback) {
-                edge.target_port = fallback;
+            if let Some(resolved) = resolve_port_fallback(&edge.target_port, &edge.target_node, nodes, &all_port_ids) {
+                edge.target_port = resolved;
             }
         }
     }
+}
+
+/// Try to resolve a broken port reference using fallback strategies.
+fn resolve_port_fallback(
+    port_id: &str,
+    node_id: &str,
+    nodes: &BTreeMap<String, DeviceNode>,
+    all_port_ids: &HashSet<String>,
+) -> Option<String> {
+    // Strategy 1: append _1 (scalar ref to ranged port)
+    let with_1 = format!("{port_id}_1");
+    if all_port_ids.contains(&with_1) {
+        return Some(with_1);
+    }
+
+    // Strategy 2: append _In_1 or _Out_1 (abbreviated interface name)
+    let with_in = format!("{port_id}_In_1");
+    if all_port_ids.contains(&with_in) {
+        return Some(with_in);
+    }
+    let with_out = format!("{port_id}_Out_1");
+    if all_port_ids.contains(&with_out) {
+        return Some(with_out);
+    }
+
+    // Strategy 3: prefix match on the node's ports
+    // e.g., "Monitors/AI8_Unit_1:MADI" matches "Monitors/AI8_Unit_1:MADI_Out_1"
+    if let Some(node) = nodes.get(node_id) {
+        let prefix = format!("{port_id}_");
+        if let Some(port) = node.ports.iter().find(|p| p.id.starts_with(&prefix)) {
+            return Some(port.id.clone());
+        }
+    }
+
+    None
 }
 
 /// Mark ports as connected based on edge references.
