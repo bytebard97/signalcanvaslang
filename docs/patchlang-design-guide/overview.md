@@ -1,7 +1,7 @@
 # PatchLang Specification
 
-**Version:** 0.2.2
-**Date:** 2026-03-23
+**Version:** 0.2.8
+**Date:** 2026-04-06
 **Status:** Canonical — all frontend, backend, and compiler work must conform to this document
 
 PatchLang is a domain-specific language for describing signal flow in broadcast and live production environments. It defines device templates, physical instances, cable connections, logical signal mappings, and channel configuration. PatchLang files (`.patch`) are the source of truth — they are human-readable, git-diffable, and designed for LLM generation.

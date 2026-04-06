@@ -240,8 +240,11 @@ The `patchlang` crate exports these public functions and types:
 | `generate_port_id(instance, template, port, index) -> String` | Deterministic port ID. |
 | `generate_route_id(template, source_port, target_port) -> String` | Deterministic route ID. |
 | `generate_slot_id(template, slot_name) -> String` | Deterministic slot ID. |
+| `format_program(program) -> String` | Format a `PatchProgram` AST directly (no parse step). |
+| `PatchProgramBuilder::new()` | Create an empty builder for programmatic AST construction. |
+| `PatchProgramBuilder::from_program(program)` | Wrap an existing parsed program for editing. |
 
-**Re-exported types:** `PatchProgram`, `CheckResult`, `Diagnostic`, `ParseError`, `Span`, `ProjectResult`, `ProjectManifest`, `ManifestResult`.
+**Re-exported types:** `PatchProgram`, `CheckResult`, `Diagnostic`, `ParseError`, `Span`, `ProjectResult`, `ProjectManifest`, `ManifestResult`, `PatchProgramBuilder`, `BuilderError`, `CascadeResult`.
 
 ### Single-File Pipeline
 
@@ -627,6 +630,71 @@ All segments are sanitized before inclusion:
 
 ---
 
+## PatchProgram Builder API
+
+The builder API (`crates/patchlang/src/builder/`) provides programmatic AST construction as an alternative to parsing text. The frontend calls builder methods via WASM instead of concatenating PatchLang strings in a TypeScript emitter. This eliminates the emitter bug class — port naming, direction model, and slot resolution are enforced in Rust.
+
+### Architecture
+
+```
+Frontend (TypeScript)              SignalCanvasLang (Rust/WASM)
+───────────────────                ──────────────────────────────
+Call WASM: add_instance()  ──────► PatchProgramBuilder
+                                           │
+                                   format() → valid .patch text
+                                   check()  → DRC diagnostics
+                                   to_json() → AST JSON
+```
+
+### Builder Methods
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `new()` | `PatchProgramBuilder` | Empty builder |
+| `from_program(program)` | `PatchProgramBuilder` | Wrap existing parsed program |
+| `program()` | `&PatchProgram` | Read-only access to AST |
+| `format()` | `String` | Canonical PatchLang text (guaranteed parseable) |
+| `check()` | `Vec<Diagnostic>` | Full DRC without serializing |
+| `to_json()` | `String` | TypeScript-compatible AST JSON |
+| `add_template(decl)` | `Result<(), BuilderError>` | Add template; rejects duplicates |
+| `remove_template(name)` | `Result<(), BuilderError>` | Remove; rejects if instances reference it |
+| `update_template(name, decl)` | `Result<(), BuilderError>` | Full replacement |
+| `add_instance(decl)` | `Result<(), BuilderError>` | Add; validates template exists |
+| `remove_instance(name)` | `Result<CascadeResult, BuilderError>` | Cascade: removes connects, bridges, configs, ring members |
+| `add_connect(src, tgt, props)` | `Result<String, BuilderError>` | Returns deterministic ID; validates ports + direction |
+| `remove_connect(id)` | `Result<(), BuilderError>` | Remove by ID |
+| `set_slot(inst, slot, idx, card)` | `Result<(), BuilderError>` | Install card; validates slot + card template |
+| `add_route(inst, from, ch, to, ch)` | `Result<(), BuilderError>` | Internal routing |
+| `set_routes(inst, routes)` | `Result<(), BuilderError>` | Replace all routes |
+| `add_bus(inst, bus)` / `remove_bus(inst, name)` | `Result<(), BuilderError>` | Bus CRUD |
+| `set_label(inst, port, idx, label, props)` | `Result<(), BuilderError>` | Channel labels; auto-creates config block |
+| `add_signal(decl)` / `add_stream(decl)` / `add_flag(decl)` | `Result<(), BuilderError>` | Signal flow declarations |
+| `add_ring(decl)` / `add_ring_member(ring, inst, port)` | `Result<(), BuilderError>` | Ring topology |
+| `add_bridge(src, tgt)` | `Result<(), BuilderError>` | Top-level bridges |
+
+### Eager Validation
+
+`add_connect()` validates at build time:
+1. Source and target instances exist
+2. Source and target ports exist (including card-expanded ports from slot assignments)
+3. Direction compatibility — out→out and in→in rejected
+
+Uses the same `build_effective_port_map` as the DRC — no rule duplication.
+
+### Connection IDs
+
+Format: `connect_{srcInst}_{srcPort}_{tgtInst}_{tgtPort}`. Duplicate endpoints get `_2`, `_3` suffix. Deterministic and stable across edits.
+
+### Statement Ordering
+
+`format()` outputs canonical order: uses → card templates → device templates → instances → connects → bridges → signals → streams → flags → configs → rings. Internal storage uses insertion order.
+
+### Spec
+
+Full specification: `docs/specs/ast-builder-api.md`
+
+---
+
 ## WASM Exports
 
 The `patchlang-wasm` crate exports all functions via `wasm_bindgen`:
@@ -656,9 +724,37 @@ const portId = generate_port_id("Console", "CL5", "Dante_In", 1);   // "pl::CL5:
 const portIdScalar = generate_port_id("Console", "CL5", "Dante_In", -1);  // "pl::CL5::Dante_In"
 const routeId = generate_route_id("CL5", "Mic_In", "Dante_Out");     // "rule::CL5::Mic_In::Dante_Out"
 const slotId = generate_slot_id("CL5", "MY_Slot");                    // "slot::CL5::MY_Slot"
+
+// Builder API (handle-based)
+const handle = create_program();                          // new empty builder
+const handle2 = JSON.parse(create_program_from_source(src)); // from existing .patch
+const source = format_program(handle);                    // → .patch text
+const json = get_program_json(handle);                    // → AST JSON
+const diags = check_program(handle);                      // → diagnostics JSON
+free_program(handle);                                     // release memory
+
+// Builder mutations (all return JSON: {"ok":true} or {"error":"..."})
+add_template(handle, templateJson);
+remove_template(handle, name);
+add_instance(handle, instanceJson);
+remove_instance(handle, name);                            // → CascadeResult JSON
+add_connect(handle, sourceJson, targetJson, propsJson);   // → {"ok":true,"id":"..."}
+remove_connect(handle, id);
+set_slot(handle, instance, slotName, slotIndex, cardTemplate); // slotIndex: -1 = None
+add_route(handle, instance, fromPort, fromCh, toPort, toCh);
+set_routes(handle, instance, routesJson);
+add_bus(handle, instance, busJson);
+set_label(handle, instance, port, index, label, propsJson);
+add_signal(handle, signalJson);
+add_stream(handle, streamJson);
+add_ring(handle, ringJson);
+add_ring_member(handle, ringName, instance, port);        // empty port = None
+add_bridge(handle, sourceJson, targetJson);
 ```
 
-**Note:** `generate_port_id` uses `i32` for the index because `wasm_bindgen` does not support `Option<u32>`. Pass `-1` for scalar ports.
+**Note:** `generate_port_id` and `set_slot` use `i32` for optional indices because `wasm_bindgen` does not support `Option<u32>`. Pass `-1` for "no index".
+
+**Handle lifecycle:** `create_program` / `create_program_from_source` allocate a handle (u32). `free_program` releases it. Handles are indices into `Vec<Option<PatchProgramBuilder>>` — freed slots are reused.
 
 ---
 
@@ -698,6 +794,33 @@ slot_id = pl.generate_slot_id("CL5", "MY_Slot")
 ```
 
 **Note:** `compile_project` and `check` return JSON strings, not Python dicts. Call `json.loads()` on the result. `resolve_uses` returns a native Python list (not JSON). `format_source` raises `ValueError` on parse errors (does not return an error string).
+
+### Python Builder API
+
+```python
+from patchlang_python import ProgramBuilder
+import json
+
+# Create builder
+prog = ProgramBuilder()                          # empty
+prog = ProgramBuilder.from_source(patch_source)  # from existing .patch
+
+# Add statements (JSON strings for complex types)
+prog.add_template(template_json)
+prog.add_instance(instance_json)
+conn_id = prog.add_connect(source_json, target_json, props_json)
+prog.add_route("FOH", "MADI_In", 41, "LINE_Out", 1)
+prog.set_label("FOH", "Dante_In", 1, "Lead Vocal")
+prog.remove_connect(conn_id)
+cascade_json = prog.remove_instance("Stage_Left")
+
+# Output
+source = prog.format()          # → .patch text
+diags_json = prog.check()       # → diagnostics JSON
+ast_json = prog.to_json()       # → AST JSON
+```
+
+All errors raise `ValueError`. `remove_instance` returns cascade result as JSON string.
 
 ---
 

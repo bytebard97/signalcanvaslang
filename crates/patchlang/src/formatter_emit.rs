@@ -415,7 +415,13 @@ fn emit_slot_assignment(out: &mut String, sa: &SlotAssignment, indent: &str) {
         out.push_str(&format!("[{idx}]"));
     }
     out.push_str(": ");
-    out.push_str(&sa.card_name);
+    if needs_quoting(&sa.card_name) {
+        out.push('"');
+        out.push_str(&sa.card_name);
+        out.push('"');
+    } else {
+        out.push_str(&sa.card_name);
+    }
     out.push('\n');
 }
 
@@ -498,4 +504,9 @@ fn emit_kv_value_inline(out: &mut String, value: &KvValue) {
         KvValue::Num { value } => out.push_str(&value.to_string()),
         KvValue::PortRef(pr) => emit_port_ref(out, pr),
     }
+}
+
+/// Returns true if an identifier needs quoting (contains non-alphanumeric/underscore chars).
+fn needs_quoting(s: &str) -> bool {
+    s.is_empty() || !s.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
 }

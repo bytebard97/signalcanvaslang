@@ -113,7 +113,6 @@ fn fixture_broadcast_truck() {
 }
 
 #[test]
-#[ignore = "builder drops quotes on slot template UUIDs containing hyphens"]
 fn fixture_hillsong_mtg() {
     let source = include_str!("../../../../tests/fixtures/examples/hillsong-mtg.patch");
     roundtrip_fixture(source);
