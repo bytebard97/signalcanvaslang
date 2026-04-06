@@ -288,3 +288,132 @@ fn update_instance_properties_works() {
     assert_eq!(inst.properties.len(), 1);
     assert_eq!(inst.properties[0].key, "location");
 }
+
+// ---------------------------------------------------------------------------
+// Task 5: Connection operations
+// ---------------------------------------------------------------------------
+
+/// Helper to create a builder pre-loaded with two instances.
+fn builder_with_two_instances() -> PatchProgramBuilder {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_1", "Dante_AVIO")).unwrap();
+    b.add_instance(make_instance("rio_2", "Dante_AVIO")).unwrap();
+    b
+}
+
+#[test]
+fn add_connect_returns_deterministic_id() {
+    let mut b = builder_with_two_instances();
+    let id = b
+        .add_connect(
+            make_port_ref("rio_1", "Dante_Out", Some(1)),
+            make_port_ref("rio_2", "Dante_In", Some(1)),
+            Vec::new(),
+        )
+        .unwrap();
+    assert_eq!(id, "connect_rio_1_Dante_Out_rio_2_Dante_In");
+}
+
+#[test]
+fn add_connect_disambiguates_duplicate_endpoints() {
+    let mut b = builder_with_two_instances();
+    let id1 = b
+        .add_connect(
+            make_port_ref("rio_1", "Dante_Out", Some(1)),
+            make_port_ref("rio_2", "Dante_In", Some(1)),
+            Vec::new(),
+        )
+        .unwrap();
+    let id2 = b
+        .add_connect(
+            make_port_ref("rio_1", "Dante_Out", Some(2)),
+            make_port_ref("rio_2", "Dante_In", Some(2)),
+            Vec::new(),
+        )
+        .unwrap();
+    assert_eq!(id1, "connect_rio_1_Dante_Out_rio_2_Dante_In");
+    assert_eq!(id2, "connect_rio_1_Dante_Out_rio_2_Dante_In_2");
+}
+
+#[test]
+fn add_connect_rejects_unknown_instance() {
+    let mut b = builder_with_two_instances();
+    let err = b
+        .add_connect(
+            make_port_ref("nonexistent", "Dante_Out", Some(1)),
+            make_port_ref("rio_2", "Dante_In", Some(1)),
+            Vec::new(),
+        )
+        .unwrap_err();
+    assert!(matches!(err, BuilderError::NotFound(_)));
+}
+
+#[test]
+fn add_connect_rejects_unknown_port() {
+    let mut b = builder_with_two_instances();
+    let err = b
+        .add_connect(
+            make_port_ref("rio_1", "NoSuchPort", Some(1)),
+            make_port_ref("rio_2", "Dante_In", Some(1)),
+            Vec::new(),
+        )
+        .unwrap_err();
+    assert!(matches!(err, BuilderError::PortNotFound { .. }));
+}
+
+#[test]
+fn add_connect_rejects_output_to_output() {
+    let mut b = builder_with_two_instances();
+    let err = b
+        .add_connect(
+            make_port_ref("rio_1", "Dante_Out", Some(1)),
+            make_port_ref("rio_2", "Dante_Out", Some(1)),
+            Vec::new(),
+        )
+        .unwrap_err();
+    assert!(matches!(err, BuilderError::DirectionViolation { .. }));
+}
+
+#[test]
+fn add_connect_rejects_input_to_input() {
+    let mut b = builder_with_two_instances();
+    let err = b
+        .add_connect(
+            make_port_ref("rio_1", "Dante_In", Some(1)),
+            make_port_ref("rio_2", "Dante_In", Some(1)),
+            Vec::new(),
+        )
+        .unwrap_err();
+    assert!(matches!(err, BuilderError::DirectionViolation { .. }));
+}
+
+#[test]
+fn remove_connect_by_id() {
+    let mut b = builder_with_two_instances();
+    let id = b
+        .add_connect(
+            make_port_ref("rio_1", "Dante_Out", Some(1)),
+            make_port_ref("rio_2", "Dante_In", Some(1)),
+            Vec::new(),
+        )
+        .unwrap();
+
+    let connect_count = b
+        .program()
+        .statements
+        .iter()
+        .filter(|s| matches!(s, crate::ast::Statement::Connect(_)))
+        .count();
+    assert_eq!(connect_count, 1);
+
+    b.remove_connect(&id).unwrap();
+
+    let connect_count = b
+        .program()
+        .statements
+        .iter()
+        .filter(|s| matches!(s, crate::ast::Statement::Connect(_)))
+        .count();
+    assert_eq!(connect_count, 0);
+}

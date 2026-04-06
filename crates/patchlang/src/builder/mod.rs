@@ -5,6 +5,7 @@
 //! validation and cascade tracking.
 
 pub mod error;
+mod connections;
 mod instances;
 mod templates;
 pub(crate) mod validate;
