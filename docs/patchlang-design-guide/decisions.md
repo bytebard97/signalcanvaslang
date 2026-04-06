@@ -445,3 +445,40 @@ stream Ceiling_AES67 {
 **Affects:** `crates/patchlang/src/drc/structural.rs` — `check_route_port_refs()`, `check_bus_port_refs()`.
 
 **Related issues:** ByteBard97/SignalCanvasLang#4, ByteBard97/SignalCanvasLang#5
+
+---
+
+### D016 — Case Sensitivity Policy
+**2026-04-05** | **Decided**
+
+**Question:** Should PatchLang be case-sensitive or case-insensitive? The spec never stated this. The compiler used exact string matching (case-sensitive) by accident. This caused `Analogue` and `analog` to both fall through to `TagCategory::Unknown` in the DRC catalog — neither triggered protocol matching, level checking, or any DRC rule. 7 library files used `Analogue`, 49 used `analog`. Manufacturer names varied (`YAMAHA` vs `Yamaha`).
+
+**Decision:** Case-insensitive for attributes, connectors, and meta values. Case-sensitive for identifiers (template names, instance names, port names).
+
+- **Attributes** like `Dante`, `analog`, `primary`, `redundant` — case-insensitive. `analog` matches `Analogue` matches `ANALOG`.
+- **Connectors** like `XLR`, `etherCON`, `BNC_75` — case-insensitive. `xlr` matches `XLR`.
+- **Meta values** like `manufacturer`, `model` — case-insensitive for catalog lookups (e.g., `"YAMAHA"` and `"Yamaha"` are the same manufacturer).
+- **Identifiers** (template names, instance names, port names, slot names) — case-sensitive. `FOH_Console` ≠ `foh_console`. These are user-defined names that function like variable names and must remain distinct for ID generation and cross-referencing.
+
+**Rejected alternatives:**
+
+1. *Fully case-sensitive (Option A):* Requires auditing and fixing 373+ templates to match canonical forms. High migration cost. Users silently get `TagCategory::Unknown` for casing typos with no feedback.
+
+2. *Fully case-insensitive (Option C):* Risks silent identifier collisions (`FOH_Console` vs `foh_console`). Breaks deterministic ID generation (`pl::CL5::Dante_In_1`). Unusual for a modern DSL.
+
+3. *Case-sensitive with DRC "did you mean?" warnings (Option D):* Principled but creates maintenance burden for a canonical spelling catalog. The emitter generates code from UI input — if it outputs `analog` but the catalog says `Analogue`, the user gets a warning they can't fix without editing generated code. Can be layered on top of this decision later for identifiers (template name typo detection) without conflict.
+
+**Rationale:** Determined via Socratic debate (4 perspectives). The key factor: the emitter generates `.patch` files from frontend UI input. If the language is strict about casing for things the user doesn't directly control (protocol names, connector types), every casing mismatch between the emitter and the catalog becomes a bug the user can't fix. Case-insensitive matching at the catalog boundary eliminates this entire class of problem.
+
+This matches the CSS/HTML model (properties case-insensitive, selectors case-sensitive) that web-adjacent users and LLMs already understand. VHDL, the closest hardware-description language, is fully case-insensitive.
+
+**Implementation:**
+
+1. Normalize to lowercase in `tag_category()`, `are_connectors_compatible()`, `are_protocols_compatible()` — add `.to_ascii_lowercase()` at the comparison boundary.
+2. Add `Analog` / `Analogue` to the catalog as a known protocol tag (both currently missing).
+3. Choose a canonical display form for `format_source()` output.
+4. Identifiers remain exact-match — no normalization.
+
+**Affects:** `crates/patchlang/src/drc/catalog.rs` — `tag_category()`, `are_connectors_compatible()`, `are_protocols_compatible()`, `CONNECTOR_MATES`.
+
+**Related issues:** Hillsong MTG fixture 613→0 DRC error fix, stock library `Analogue` vs `analog` inconsistency
