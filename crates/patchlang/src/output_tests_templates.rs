@@ -87,8 +87,7 @@ fn template_with_full_port_definitions_output() {
     let optocore = &ports[2];
     assert_eq!(optocore["name"], "OptoCore_A");
     assert!(
-        optocore.get("rangeStart").map_or(true, |v| v.is_null())
-            || optocore.get("rangeStart").is_none(),
+        optocore.get("rangeStart").is_none_or(|v| v.is_null()),
         "scalar port should have no rangeStart"
     );
     assert_eq!(optocore["direction"], "io");
@@ -258,7 +257,7 @@ fn template_with_slot_definitions_output() {
     assert_eq!(slot0["slotType"], "MY_Format");
     // properties omitted when empty (skip_serializing_if = BTreeMap::is_empty)
     assert!(
-        slot0.get("properties").is_none() || slot0["properties"].as_object().map_or(true, |m| m.is_empty()),
+        slot0.get("properties").is_none_or(|v| v.as_object().is_none_or(|m| m.is_empty())),
         "MY_Slot should have no properties"
     );
 

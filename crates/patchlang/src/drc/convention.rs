@@ -209,13 +209,13 @@ fn check_aes67_redundancy(
         // Check if either endpoint instance has aes67_mode: true
         let src_aes67 = conn.source.instance.as_deref().and_then(|name| {
             ctx.instance_map.get(name)
-        }).map_or(false, |inst| {
+        }).is_some_and(|inst| {
             has_bool_property(&inst.properties, "aes67_mode")
         });
 
         let tgt_aes67 = conn.target.instance.as_deref().and_then(|name| {
             ctx.instance_map.get(name)
-        }).map_or(false, |inst| {
+        }).is_some_and(|inst| {
             has_bool_property(&inst.properties, "aes67_mode")
         });
 

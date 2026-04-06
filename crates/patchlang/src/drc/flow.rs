@@ -188,9 +188,9 @@ fn check_multicast_prefix_mismatch(
                     span: Some(conn.span.clone()),
                     source: Some(src_name.to_string()),
                     target: Some(tgt_name.to_string()),
-                    fix: Some(format!(
-                        "Set both instances to the same multicast_prefix value"
-                    )),
+                    fix: Some(
+                        "Set both instances to the same multicast_prefix value".to_string()
+                    ),
                 });
             }
         }

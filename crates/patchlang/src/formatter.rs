@@ -19,7 +19,7 @@ pub fn format_source(source: &str) -> Result<String, String> {
     Ok(format_program(&result.program))
 }
 
-fn format_program(program: &PatchProgram) -> String {
+pub fn format_program(program: &PatchProgram) -> String {
     let mut out = String::new();
     for (i, stmt) in program.statements.iter().enumerate() {
         if i > 0 {

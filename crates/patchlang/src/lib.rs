@@ -1,4 +1,5 @@
 pub mod ast;
+pub mod builder;
 pub mod compat;
 pub mod compat_types;
 pub mod drc;
@@ -56,7 +57,8 @@ pub use ids::{generate_port_id, generate_route_id, generate_slot_id};
 pub use layout_validator::{validate_layout, validate_project_consistency};
 pub use manifest::{parse_manifest, ManifestResult, ProjectManifest};
 pub use multi_file::{compile_project, resolve_uses, ProjectResult};
-pub use formatter::format_source;
+pub use builder::{BuilderError, CascadeResult, PatchProgramBuilder};
+pub use formatter::{format_program, format_source};
 pub use parser::parse;
 
 /// Parse PatchLang source and run all DRC checks.
