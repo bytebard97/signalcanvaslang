@@ -48,6 +48,8 @@ mod output_tests_ids;
 mod resolve_auto_tests;
 #[cfg(test)]
 mod output_tests_auto;
+#[cfg(test)]
+mod builder_tests;
 
 pub use ast::PatchProgram;
 pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result, to_ts_result_with_resolutions};

@@ -5,6 +5,7 @@
 //! validation and cascade tracking.
 
 pub mod error;
+mod templates;
 pub(crate) mod validate;
 
 pub use error::{BuilderError, CascadeResult};
@@ -63,6 +64,12 @@ impl PatchProgramBuilder {
     /// Borrow the underlying program (read-only).
     pub fn program(&self) -> &PatchProgram {
         &self.program
+    }
+
+    /// Borrow the underlying program mutably.
+    /// Prefer the typed mutation methods for validated changes.
+    pub fn program_mut(&mut self) -> &mut PatchProgram {
+        &mut self.program
     }
 
     /// Format the program as canonical PatchLang source text.
