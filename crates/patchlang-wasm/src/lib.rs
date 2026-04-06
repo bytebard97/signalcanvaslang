@@ -359,6 +359,61 @@ pub fn add_ring_member(handle: u32, ring_name: &str, instance: &str, port: &str)
     .unwrap_or_else(|e| json_err(&e))
 }
 
+/// Add a connection with explicit channel mappings.
+/// `mappings_json`: JSON array of `[fromCh, toCh, "label"]` triples.
+/// Returns `{"ok":true,"ids":["conn_1",...]}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_connect_mapped(
+    handle: u32,
+    source_instance: &str,
+    source_port: &str,
+    target_instance: &str,
+    target_port: &str,
+    mappings_json: &str,
+    props_json: &str,
+) -> String {
+    let mappings: Vec<(u32, u32, String)> = match serde_json::from_str(mappings_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    let props: Vec<patchlang::ast::KeyValue> =
+        serde_json::from_str(props_json).unwrap_or_default();
+    with_builder_mut(handle, |b| {
+        match b.add_connect_mapped(
+            source_instance,
+            source_port,
+            target_instance,
+            target_port,
+            mappings,
+            props,
+        ) {
+            Ok(ids) => {
+                let ids_json: Vec<String> = ids.iter().map(|id| format!(r#""{id}""#)).collect();
+                format!(r#"{{"ok":true,"ids":[{}]}}"#, ids_json.join(","))
+            }
+            Err(e) => json_err(&e.to_string()),
+        }
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Set RF channel labels on an rf-system instance.
+/// `labels_json`: JSON array of `[channelIndex, "label", {}]` triples.
+/// Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn set_rf_labels(handle: u32, instance: &str, labels_json: &str) -> String {
+    let labels: Vec<(u32, String, Vec<patchlang::ast::KeyValue>)> =
+        match serde_json::from_str(labels_json) {
+            Ok(d) => d,
+            Err(e) => return json_err(&e.to_string()),
+        };
+    with_builder_mut(handle, |b| match b.set_rf_labels(instance, labels) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
 /// Add a bridge from JSON port refs. Returns `{"ok":true}` or `{"error":"..."}`.
 #[wasm_bindgen]
 pub fn add_bridge(handle: u32, source_json: &str, target_json: &str) -> String {

@@ -228,6 +228,102 @@ impl PatchProgramBuilder {
             Ok(())
         }
     }
+
+    /// Add a connection with explicit channel mappings.
+    /// Splits non-contiguous source channels into separate connect statements,
+    /// each covering a contiguous run on the source side.
+    ///
+    /// `mappings`: Vec of (from_channel, to_channel, label) triples.
+    /// Returns IDs of all generated connect statements.
+    pub fn add_connect_mapped(
+        &mut self,
+        source_instance: &str,
+        source_port: &str,
+        target_instance: &str,
+        target_port: &str,
+        mappings: Vec<(u32, u32, String)>,
+        properties: Vec<KeyValue>,
+    ) -> Result<Vec<String>, BuilderError> {
+        if mappings.is_empty() {
+            let source = PortRef {
+                instance: Some(source_instance.to_string()),
+                port: source_port.to_string(),
+                index: None,
+            };
+            let target = PortRef {
+                instance: Some(target_instance.to_string()),
+                port: target_port.to_string(),
+                index: None,
+            };
+            let id = self.add_connect(source, target, properties)?;
+            return Ok(vec![id]);
+        }
+
+        let mut sorted = mappings;
+        sorted.sort_by_key(|(from, _, _)| *from);
+
+        // Group into contiguous runs on source side
+        let mut groups: Vec<Vec<(u32, u32, String)>> = Vec::new();
+        for mapping in sorted {
+            let should_extend = groups.last().is_some_and(|group| {
+                let last = &group[group.len() - 1];
+                mapping.0 == last.0 + 1
+            });
+            if should_extend {
+                groups.last_mut().unwrap().push(mapping);
+            } else {
+                groups.push(vec![mapping]);
+            }
+        }
+
+        let mut ids = Vec::new();
+        for group in groups {
+            let first = &group[0];
+            let last = &group[group.len() - 1];
+
+            let src_index = if group.len() == 1 {
+                Some(IndexSpec {
+                    elements: vec![IndexElement::Single { value: first.0 }],
+                })
+            } else {
+                Some(IndexSpec {
+                    elements: vec![IndexElement::Range {
+                        start: first.0,
+                        end: last.0,
+                    }],
+                })
+            };
+
+            let tgt_index = if group.len() == 1 {
+                Some(IndexSpec {
+                    elements: vec![IndexElement::Single { value: first.1 }],
+                })
+            } else {
+                Some(IndexSpec {
+                    elements: vec![IndexElement::Range {
+                        start: first.1,
+                        end: last.1,
+                    }],
+                })
+            };
+
+            let source = PortRef {
+                instance: Some(source_instance.to_string()),
+                port: source_port.to_string(),
+                index: src_index,
+            };
+            let target = PortRef {
+                instance: Some(target_instance.to_string()),
+                port: target_port.to_string(),
+                index: tgt_index,
+            };
+
+            let id = self.add_connect(source, target, properties.clone())?;
+            ids.push(id);
+        }
+
+        Ok(ids)
+    }
 }
 
 /// Check whether two PortRefs are structurally equal.
