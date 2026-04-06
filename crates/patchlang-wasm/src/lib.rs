@@ -559,3 +559,23 @@ pub fn validate_layout(json: &str) -> String {
 pub fn validate_project_consistency(patch: &str, layout: &str) -> String {
     patchlang::validate_project_consistency(patch, layout)
 }
+
+/// Compile PatchLang source to a hierarchical graph (JSON).
+/// Returns a `CompileToGraphResult` with levels, signals, and streams.
+#[wasm_bindgen]
+pub fn compile_to_graph(source: &str) -> String {
+    patchlang::compile_to_graph(source)
+}
+
+/// Multi-file compilation to graph.
+/// `files_json` is a JSON object mapping file paths to source strings.
+/// `entry` is the path of the entry file.
+/// Returns a `CompileToGraphResult` JSON string.
+#[wasm_bindgen]
+pub fn compile_project_to_graph(files_json: &str, entry: &str) -> String {
+    let files: std::collections::HashMap<String, String> = match serde_json::from_str(files_json) {
+        Ok(f) => f,
+        Err(e) => return format!(r#"{{"error":"invalid files JSON: {e}"}}"#),
+    };
+    patchlang::compile_project_to_graph_from_sources(&files, entry)
+}
