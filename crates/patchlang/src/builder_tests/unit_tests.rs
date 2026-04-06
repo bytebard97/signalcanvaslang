@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::ast::{
     BusEntry, ConnectDecl, FlagDecl, IndexElement, IndexSpec, InstanceDecl,
     KeyValue, KvValue, PortDef, PortDirection, PortRef, RangeSpec, RingDecl,
-    SignalDecl, Statement, StreamDecl, TemplateDecl,
+    SignalDecl, SlotDef, Statement, StreamDecl, TemplateDecl,
 };
 use crate::builder::{BuilderError, PatchProgramBuilder};
 use crate::error::Span;
@@ -644,4 +644,120 @@ fn add_and_remove_flag() {
         name: "rehearsal".to_string(), properties: vec![], span: default_span(),
     }).unwrap();
     b.remove_flag("rehearsal").unwrap();
+}
+
+// ---------------------------------------------------------------------------
+// Card port expansion: add_connect must see card-expanded ports
+// ---------------------------------------------------------------------------
+
+#[test]
+fn add_connect_accepts_card_port_after_set_slot() {
+    let mut b = PatchProgramBuilder::new();
+
+    // Card template with XLR[1..8]: in
+    b.add_template(TemplateDecl {
+        name: "VSR_AI8".to_string(),
+        params: vec![],
+        version: None,
+        meta: vec![KeyValue {
+            key: "kind".to_string(),
+            value: KvValue::Str { value: "card".to_string() },
+        }],
+        ports: vec![PortDef {
+            name: "XLR".to_string(),
+            range: Some(RangeSpec { start: 1, end: 8 }),
+            direction: PortDirection::In,
+            connector: Some("XLR".to_string()),
+            attributes: vec![],
+            named_attributes: vec![],
+            span: default_span(),
+        }],
+        bridges: vec![],
+        instances: vec![],
+        connects: vec![],
+        slots: vec![],
+        span: default_span(),
+    }).unwrap();
+
+    // Host template with a slot and an output port
+    b.add_template(TemplateDecl {
+        name: "Rack".to_string(),
+        params: vec![],
+        version: None,
+        meta: vec![],
+        ports: vec![PortDef {
+            name: "MADI_Out".to_string(),
+            range: Some(RangeSpec { start: 1, end: 48 }),
+            direction: PortDirection::Out,
+            connector: None,
+            attributes: vec![],
+            named_attributes: vec![],
+            span: default_span(),
+        }],
+        bridges: vec![],
+        instances: vec![],
+        connects: vec![],
+        slots: vec![SlotDef {
+            name: "Input_Slot".to_string(),
+            range: None,
+            slot_type: "Input_Slot".to_string(),
+            properties: vec![],
+            span: default_span(),
+        }],
+        span: default_span(),
+    }).unwrap();
+
+    // Source template with output port
+    b.add_template(TemplateDecl {
+        name: "Splitter".to_string(),
+        params: vec![],
+        version: None,
+        meta: vec![],
+        ports: vec![PortDef {
+            name: "Output_A".to_string(),
+            range: Some(RangeSpec { start: 1, end: 80 }),
+            direction: PortDirection::Out,
+            connector: None,
+            attributes: vec![],
+            named_attributes: vec![],
+            span: default_span(),
+        }],
+        bridges: vec![],
+        instances: vec![],
+        connects: vec![],
+        slots: vec![],
+        span: default_span(),
+    }).unwrap();
+
+    b.add_instance(make_instance("SR", "Rack")).unwrap();
+    b.add_instance(make_instance("Split", "Splitter")).unwrap();
+
+    // Install card into slot
+    b.set_slot("SR", "Input_Slot", None, "VSR_AI8").unwrap();
+
+    // This MUST succeed — XLR comes from the installed card
+    let result = b.add_connect(
+        make_port_ref("Split", "Output_A", Some(1)),
+        make_port_ref("SR", "XLR", Some(1)),
+        vec![],
+    );
+    assert!(result.is_ok(), "Should accept card port: {:?}", result);
+}
+
+#[test]
+fn add_stream_appears_in_format() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dev")).unwrap();
+    b.add_instance(make_instance("SL", "Dev")).unwrap();
+    b.add_stream(StreamDecl {
+        name: "Main_Mix".to_string(),
+        properties: vec![KeyValue {
+            key: "type".to_string(),
+            value: KvValue::Str { value: "audio".to_string() },
+        }],
+        source: Some(make_port_ref("SL", "Dante_Out", Some(1))),
+        span: default_span(),
+    }).unwrap();
+    let source = b.format();
+    assert!(source.contains("stream"), "output should contain stream:\n{source}");
 }
