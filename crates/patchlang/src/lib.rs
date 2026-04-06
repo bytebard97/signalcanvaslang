@@ -6,6 +6,7 @@ pub mod drc;
 pub mod error;
 pub mod formatter;
 pub(crate) mod formatter_emit;
+pub mod graph;
 pub mod ids;
 pub mod layout_validator;
 pub mod lexer;
@@ -50,6 +51,8 @@ mod resolve_auto_tests;
 mod output_tests_auto;
 #[cfg(test)]
 mod builder_tests;
+#[cfg(test)]
+mod graph_tests;
 
 pub use ast::PatchProgram;
 pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result, to_ts_result_with_resolutions};
@@ -61,6 +64,7 @@ pub use manifest::{parse_manifest, ManifestResult, ProjectManifest};
 pub use multi_file::{compile_project, resolve_uses, ProjectResult};
 pub use builder::{BuilderError, CascadeResult, PatchProgramBuilder};
 pub use formatter::{format_program, format_source};
+pub use graph::{compile_to_graph, compile_project_to_graph_from_sources};
 pub use parser::parse;
 
 /// Parse PatchLang source and run all DRC checks.
