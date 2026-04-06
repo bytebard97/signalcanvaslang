@@ -1,9 +1,9 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Byte-offset span in the source text.
 /// The optional `file` field tracks which file this span belongs to
 /// in multi-file compilation (index into a file table).
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Span {
     pub start: usize,
     pub end: usize,
@@ -12,7 +12,7 @@ pub struct Span {
 }
 
 /// A parse error with location and optional hint.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParseError {
     pub message: String,
     pub span: Span,
@@ -20,7 +20,7 @@ pub struct ParseError {
 }
 
 /// Result of parsing — may contain both a partial AST and errors.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParseResult {
     pub program: crate::ast::PatchProgram,
     pub errors: Vec<ParseError>,

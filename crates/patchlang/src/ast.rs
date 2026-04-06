@@ -1,15 +1,15 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::error::Span;
 
 /// Top-level program — a list of statements.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PatchProgram {
     pub statements: Vec<Statement>,
 }
 
 /// A top-level statement.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum Statement {
     Template(TemplateDecl),
@@ -28,7 +28,7 @@ pub enum Statement {
     Error(Span),
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TemplateDecl {
     pub name: String,
     pub params: Vec<ParamDef>,
@@ -43,13 +43,13 @@ pub struct TemplateDecl {
 }
 
 /// A template parameter with a name and default value.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParamDef {
     pub name: String,
     pub default_value: ParamValue,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InstanceDecl {
     pub name: String,
     pub template_name: String,
@@ -62,7 +62,7 @@ pub struct InstanceDecl {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConnectDecl {
     pub source: PortRef,
     pub target: PortRef,
@@ -72,21 +72,21 @@ pub struct ConnectDecl {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BridgeDecl {
     pub source: PortRef,
     pub target: PortRef,
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BridgeGroupDecl {
     pub target: PortRef,
     pub sources: Vec<PortRef>,
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LinkGroupDecl {
     pub name: String,
     pub connects: Vec<ConnectDecl>,
@@ -94,7 +94,7 @@ pub struct LinkGroupDecl {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SignalDecl {
     pub name: String,
     pub properties: Vec<KeyValue>,
@@ -102,14 +102,14 @@ pub struct SignalDecl {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlagDecl {
     pub name: String,
     pub properties: Vec<KeyValue>,
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StreamDecl {
     pub name: String,
     pub properties: Vec<KeyValue>,
@@ -117,7 +117,7 @@ pub struct StreamDecl {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigDecl {
     pub name: String,
     pub labels: Vec<ConfigLabel>,
@@ -125,14 +125,14 @@ pub struct ConfigDecl {
 }
 
 /// A label entry inside a config block.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigLabel {
     pub port: PortRef,
     pub label: String,
     pub properties: Vec<KeyValue>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UseDecl {
     pub namespace: String,
     pub templates: Vec<String>,
@@ -140,7 +140,7 @@ pub struct UseDecl {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PortDef {
     pub name: String,
     pub range: Option<RangeSpec>,
@@ -151,32 +151,32 @@ pub struct PortDef {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PortDirection {
     In,
     Out,
     Io,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RangeSpec {
     pub start: u32,
     pub end: u32,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PortRef {
     pub instance: Option<String>,
     pub port: String,
     pub index: Option<IndexSpec>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IndexSpec {
     pub elements: Vec<IndexElement>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum IndexElement {
     Single { value: u32 },
@@ -185,7 +185,7 @@ pub enum IndexElement {
 }
 
 /// Which side of a connection an auto-resolution applies to.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PortSide {
     Source,
     Target,
@@ -209,7 +209,7 @@ pub struct AutoResolutions {
 }
 
 /// Value in a key-value pair: string, number, or port reference.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ParamValue {
     Str { value: String },
@@ -217,7 +217,7 @@ pub enum ParamValue {
 }
 
 /// Value in a key-value property pair.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub enum KvValue {
     Str { value: String },
@@ -225,13 +225,13 @@ pub enum KvValue {
     PortRef(PortRef),
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyValue {
     pub key: String,
     pub value: KvValue,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SlotDef {
     pub name: String,
     pub range: Option<RangeSpec>,
@@ -240,14 +240,14 @@ pub struct SlotDef {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RouteEntry {
     pub source: PortRef,
     pub target: PortRef,
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BusEntry {
     pub name: String,
     /// Human-readable display name. May contain characters invalid in identifiers
@@ -258,7 +258,7 @@ pub struct BusEntry {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SlotAssignment {
     pub slot_name: String,
     pub index: Option<u32>,
@@ -266,14 +266,14 @@ pub struct SlotAssignment {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RingMember {
     pub instance_name: String,
     pub port_name: Option<String>,
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RingDecl {
     pub name: String,
     pub properties: Vec<KeyValue>,

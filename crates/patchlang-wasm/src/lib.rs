@@ -1,7 +1,333 @@
+use std::sync::Mutex;
+
 use wasm_bindgen::prelude::*;
+
+use patchlang::builder::PatchProgramBuilder;
 
 /// Sentinel value indicating a non-ranged (single) port in [`generate_port_id`].
 pub const NO_INDEX: i32 = -1;
+
+// ---------------------------------------------------------------------------
+// Handle-based builder store
+// ---------------------------------------------------------------------------
+
+static BUILDERS: Mutex<Vec<Option<PatchProgramBuilder>>> = Mutex::new(Vec::new());
+
+/// Allocate a slot for a builder, returning the handle (index).
+fn allocate_builder(builder: PatchProgramBuilder) -> u32 {
+    let mut store = BUILDERS.lock().unwrap();
+    // Reuse the first empty slot.
+    for (i, slot) in store.iter_mut().enumerate() {
+        if slot.is_none() {
+            *slot = Some(builder);
+            return i as u32;
+        }
+    }
+    let idx = store.len();
+    store.push(Some(builder));
+    idx as u32
+}
+
+/// Borrow a builder immutably by handle and call `f`.
+fn with_builder<R>(handle: u32, f: impl FnOnce(&PatchProgramBuilder) -> R) -> Result<R, String> {
+    let store = BUILDERS.lock().unwrap();
+    match store.get(handle as usize) {
+        Some(Some(b)) => Ok(f(b)),
+        _ => Err(format!("invalid handle {handle}")),
+    }
+}
+
+/// Borrow a builder mutably by handle and call `f`.
+fn with_builder_mut<R>(
+    handle: u32,
+    f: impl FnOnce(&mut PatchProgramBuilder) -> R,
+) -> Result<R, String> {
+    let mut store = BUILDERS.lock().unwrap();
+    match store.get_mut(handle as usize) {
+        Some(Some(b)) => Ok(f(b)),
+        _ => Err(format!("invalid handle {handle}")),
+    }
+}
+
+/// Format a JSON error string.
+fn json_err(msg: &str) -> String {
+    let escaped = msg.replace('\\', "\\\\").replace('"', "\\\"");
+    format!(r#"{{"error":"{escaped}"}}"#)
+}
+
+/// Return `{"ok":true}`.
+fn json_ok() -> String {
+    r#"{"ok":true}"#.to_string()
+}
+
+// ---------------------------------------------------------------------------
+// Builder WASM exports
+// ---------------------------------------------------------------------------
+
+/// Create an empty program builder. Returns a handle (u32).
+#[wasm_bindgen]
+pub fn create_program() -> u32 {
+    allocate_builder(PatchProgramBuilder::new())
+}
+
+/// Create a builder from PatchLang source. Returns handle as JSON number on
+/// success or `{"error":"..."}` on parse failure.
+#[wasm_bindgen]
+pub fn create_program_from_source(source: &str) -> String {
+    let result = patchlang::parse(source);
+    if !result.is_valid() {
+        let msgs: Vec<String> = result.errors.iter().map(|e| e.to_string()).collect();
+        return json_err(&msgs.join("; "));
+    }
+    let handle = allocate_builder(PatchProgramBuilder::from_program(result.program));
+    handle.to_string()
+}
+
+/// Format the program as canonical PatchLang source text.
+#[wasm_bindgen]
+pub fn format_program(handle: u32) -> String {
+    with_builder(handle, |b| b.format()).unwrap_or_else(|e| json_err(&e))
+}
+
+/// Get the program as JSON (TS-compatible shape).
+#[wasm_bindgen]
+pub fn get_program_json(handle: u32) -> String {
+    with_builder(handle, |b| b.to_json()).unwrap_or_else(|e| json_err(&e))
+}
+
+/// Run DRC checks and return diagnostics as JSON array.
+#[wasm_bindgen]
+pub fn check_program(handle: u32) -> String {
+    with_builder(handle, |b| {
+        let diags = b.check();
+        serde_json::to_string(&diags).unwrap_or_else(|e| json_err(&e.to_string()))
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Free a builder handle.
+#[wasm_bindgen]
+pub fn free_program(handle: u32) {
+    let mut store = BUILDERS.lock().unwrap();
+    if let Some(slot) = store.get_mut(handle as usize) {
+        *slot = None;
+    }
+}
+
+/// Add a template from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_template(handle: u32, template_json: &str) -> String {
+    let decl: patchlang::ast::TemplateDecl = match serde_json::from_str(template_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_template(decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a template by name. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_template(handle: u32, name: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_template(name) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add an instance from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_instance(handle: u32, instance_json: &str) -> String {
+    let decl: patchlang::ast::InstanceDecl = match serde_json::from_str(instance_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_instance(decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove an instance by name. Returns cascade result as JSON or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_instance(handle: u32, name: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_instance(name) {
+        Ok(cascade) => {
+            serde_json::to_string(&serde_json::json!({
+                "ok": true,
+                "removed_connects": cascade.removed_connects,
+                "removed_bridges": cascade.removed_bridges,
+                "removed_configs": cascade.removed_configs,
+                "removed_ring_members": cascade.removed_ring_members,
+                "removed_signal_origins": cascade.removed_signal_origins,
+                "removed_stream_sources": cascade.removed_stream_sources,
+            }))
+            .unwrap_or_else(|e| json_err(&e.to_string()))
+        }
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a connection. Returns `{"ok":true,"id":"..."}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_connect(
+    handle: u32,
+    source_json: &str,
+    target_json: &str,
+    props_json: &str,
+) -> String {
+    let source: patchlang::ast::PortRef = match serde_json::from_str(source_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    let target: patchlang::ast::PortRef = match serde_json::from_str(target_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    let props: Vec<patchlang::ast::KeyValue> = match serde_json::from_str(props_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_connect(source, target, props) {
+        Ok(id) => format!(r#"{{"ok":true,"id":"{id}"}}"#),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a connection by ID. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_connect(handle: u32, id: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_connect(id) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add an internal route to an instance. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_route(
+    handle: u32,
+    instance: &str,
+    from_port: &str,
+    from_ch: u32,
+    to_port: &str,
+    to_ch: u32,
+) -> String {
+    with_builder_mut(handle, |b| {
+        match b.add_route(instance, from_port, from_ch, to_port, to_ch) {
+            Ok(()) => json_ok(),
+            Err(e) => json_err(&e.to_string()),
+        }
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Replace all routes on an instance from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn set_routes(handle: u32, instance: &str, routes_json: &str) -> String {
+    let routes: Vec<patchlang::ast::RouteEntry> = match serde_json::from_str(routes_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.set_routes(instance, routes) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Set a channel label. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn set_label(
+    handle: u32,
+    instance: &str,
+    port: &str,
+    index: u32,
+    label: &str,
+    props_json: &str,
+) -> String {
+    let props: std::collections::HashMap<String, String> = match serde_json::from_str(props_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| {
+        match b.set_label(instance, port, index, label, props) {
+            Ok(()) => json_ok(),
+            Err(e) => json_err(&e.to_string()),
+        }
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a signal from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_signal(handle: u32, signal_json: &str) -> String {
+    let decl: patchlang::ast::SignalDecl = match serde_json::from_str(signal_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_signal(decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a ring from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_ring(handle: u32, ring_json: &str) -> String {
+    let decl: patchlang::ast::RingDecl = match serde_json::from_str(ring_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_ring(decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a member to an existing ring. Empty port string is treated as None.
+#[wasm_bindgen]
+pub fn add_ring_member(handle: u32, ring_name: &str, instance: &str, port: &str) -> String {
+    let port_opt = if port.is_empty() { None } else { Some(port) };
+    with_builder_mut(handle, |b| {
+        match b.add_ring_member(ring_name, instance, port_opt) {
+            Ok(()) => json_ok(),
+            Err(e) => json_err(&e.to_string()),
+        }
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a bridge from JSON port refs. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_bridge(handle: u32, source_json: &str, target_json: &str) -> String {
+    let source: patchlang::ast::PortRef = match serde_json::from_str(source_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    let target: patchlang::ast::PortRef = match serde_json::from_str(target_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_bridge(source, target) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+// ---------------------------------------------------------------------------
+// Original exports (unchanged)
+// ---------------------------------------------------------------------------
 
 /// Parse PatchLang source and return JSON result.
 /// Returns JSON with { program, errors } in TypeScript-compatible shape.
