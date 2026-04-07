@@ -70,7 +70,7 @@ pub fn build_diagnostics(source: &str) -> (ParseResult, Vec<Diagnostic>) {
         .collect();
 
     if parse_result.errors.is_empty() {
-        let drc_diags = drc::run_all(&parse_result.program);
+        let drc_diags = drc::run_all(&parse_result.program, &patchlang::LibraryContext::empty());
         lsp_diagnostics.extend(drc_diags.iter().map(|d| drc_to_diagnostic(source, d)));
     }
 

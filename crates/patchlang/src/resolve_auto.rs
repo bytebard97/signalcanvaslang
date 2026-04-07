@@ -9,6 +9,7 @@ use crate::ast::{
     AutoResolution, AutoResolutions, ConnectDecl, IndexElement, IndexSpec,
     PatchProgram, PortDirection, PortRef, PortSide, Statement,
 };
+use crate::builder::LibraryContext;
 use crate::drc::helpers::{build_context, expand_index_spec, DRCContext};
 use crate::error::Span;
 
@@ -43,7 +44,8 @@ pub struct AutoError {
 /// Resolve all `[auto]` index specs in the program.
 /// Returns the side table of resolutions and any errors.
 pub fn resolve_auto_indices(program: &PatchProgram) -> (AutoResolutions, Vec<AutoError>) {
-    let ctx = build_context(program);
+    let empty_lib = LibraryContext::empty();
+    let ctx = build_context(program, &empty_lib);
     let mut allocators: HashMap<PortKey, PortAllocator> = HashMap::new();
     let mut resolutions = AutoResolutions::default();
     let mut errors = Vec::new();

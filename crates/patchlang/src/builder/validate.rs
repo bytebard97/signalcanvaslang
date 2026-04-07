@@ -8,19 +8,28 @@
 
 use crate::ast::{PatchProgram, PortDirection, Statement};
 use crate::builder::error::BuilderError;
+use crate::builder::LibraryContext;
 use crate::drc::helpers::{self, DRCContext};
 
 /// Build a DRC context (template/instance/port maps) from the current program.
-pub fn build_ctx(program: &PatchProgram) -> DRCContext<'_> {
-    helpers::build_context(program)
+pub fn build_ctx<'a>(
+    program: &'a PatchProgram,
+    library: &'a LibraryContext,
+) -> DRCContext<'a> {
+    helpers::build_context(program, library)
 }
 
 /// Return `Ok(())` if a template with `name` exists, else `NotFound`.
-pub fn require_template(program: &PatchProgram, name: &str) -> Result<(), BuilderError> {
-    let exists = program.statements.iter().any(|s| {
+pub fn require_template(
+    program: &PatchProgram,
+    library: &LibraryContext,
+    name: &str,
+) -> Result<(), BuilderError> {
+    let in_program = program.statements.iter().any(|s| {
         matches!(s, Statement::Template(t) if t.name == name)
     });
-    if exists {
+    let in_library = library.templates.contains_key(name);
+    if in_program || in_library {
         Ok(())
     } else {
         Err(BuilderError::NotFound(format!("template '{name}'")))
@@ -73,10 +82,11 @@ pub fn reject_duplicate_instance(
 /// Returns the port direction on success, or `PortNotFound` on failure.
 pub fn require_port_on_instance(
     program: &PatchProgram,
+    library: &LibraryContext,
     instance_name: &str,
     port_name: &str,
 ) -> Result<PortDirection, BuilderError> {
-    let ctx = build_ctx(program);
+    let ctx = build_ctx(program, library);
     match helpers::resolve_effective_port(instance_name, port_name, &ctx) {
         Some(port_def) => Ok(port_def.direction.clone()),
         None => Err(BuilderError::PortNotFound {

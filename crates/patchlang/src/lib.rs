@@ -62,7 +62,7 @@ pub use ids::{generate_port_id, generate_route_id, generate_slot_id};
 pub use layout_validator::{validate_layout, validate_project_consistency};
 pub use manifest::{parse_manifest, ManifestResult, ProjectManifest};
 pub use multi_file::{compile_project, resolve_uses, ProjectResult};
-pub use builder::{BuilderError, CascadeResult, PatchProgramBuilder};
+pub use builder::{BuilderError, CascadeResult, LibraryContext, PatchProgramBuilder};
 pub use formatter::{format_program, format_source};
 pub use graph::{compile_to_graph, compile_project_to_graph_from_sources};
 pub use parser::parse;
@@ -100,7 +100,7 @@ pub fn check(source: &str) -> CheckResult {
         })
         .collect();
 
-    diagnostics.extend(drc::run_all(&parse_result.program));
+    diagnostics.extend(drc::run_all(&parse_result.program, &builder::LibraryContext::empty()));
 
     CheckResult {
         program: ts_result.program,

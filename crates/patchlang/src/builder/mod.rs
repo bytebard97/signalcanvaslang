@@ -22,6 +22,23 @@ use crate::compat::to_ts_program;
 use crate::drc;
 use crate::formatter::format_program;
 
+/// Templates available from imported library files.
+/// Set once via set_library(), used for validation and compilation.
+/// NOT emitted by format_program() — the program's use statements are preserved instead.
+pub struct LibraryContext {
+    /// Template name -> owned TemplateDecl (parsed from library .patch files)
+    pub templates: HashMap<String, crate::ast::TemplateDecl>,
+}
+
+impl LibraryContext {
+    /// Create an empty library context.
+    pub fn empty() -> Self {
+        Self {
+            templates: HashMap::new(),
+        }
+    }
+}
+
 /// Builder wrapper around a `PatchProgram` that provides validated mutation
 /// operations, canonical ordering, and serialization helpers.
 pub struct PatchProgramBuilder {
@@ -31,6 +48,7 @@ pub struct PatchProgramBuilder {
     /// Used by `add_connect` (added in a later task).
     #[allow(dead_code)]
     connect_id_counter: HashMap<String, u32>,
+    library: LibraryContext,
 }
 
 impl PatchProgramBuilder {
@@ -41,6 +59,7 @@ impl PatchProgramBuilder {
                 statements: Vec::new(),
             },
             connect_id_counter: HashMap::new(),
+            library: LibraryContext::empty(),
         }
     }
 
@@ -63,6 +82,7 @@ impl PatchProgramBuilder {
         Self {
             program,
             connect_id_counter: counter,
+            library: LibraryContext::empty(),
         }
     }
 
@@ -77,6 +97,16 @@ impl PatchProgramBuilder {
         &mut self.program
     }
 
+    /// Set library context from parsed library files. Replaces any existing library context.
+    pub fn set_library(&mut self, library: LibraryContext) {
+        self.library = library;
+    }
+
+    /// Get read-only access to library templates.
+    pub fn library(&self) -> &LibraryContext {
+        &self.library
+    }
+
     /// Format the program as canonical PatchLang source text.
     pub fn format(&self) -> String {
         let ordered = self.canonical_program();
@@ -85,7 +115,7 @@ impl PatchProgramBuilder {
 
     /// Run all DRC checks against the current program state.
     pub fn check(&self) -> Vec<drc::Diagnostic> {
-        drc::run_all(&self.program)
+        drc::run_all(&self.program, &self.library)
     }
 
     /// Serialize the program to JSON (TS-compatible shape).

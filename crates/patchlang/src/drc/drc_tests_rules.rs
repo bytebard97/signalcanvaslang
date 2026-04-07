@@ -1,11 +1,12 @@
 #[cfg(test)]
 mod structural {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]
@@ -311,12 +312,13 @@ mod structural {
 
 #[cfg(test)]
 mod direction {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     const DEVICE_HEADER: &str = "
@@ -399,11 +401,12 @@ mod direction {
 
 #[cfg(test)]
 mod mechanical {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
-        drc::run_all(&parse(source).program)
+        drc::run_all(&parse(source).program, &LibraryContext::empty())
     }
 
     const HDR: &str = "
@@ -461,11 +464,12 @@ mod mechanical {
 
 #[cfg(test)]
 mod electrical {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
-        drc::run_all(&parse(source).program)
+        drc::run_all(&parse(source).program, &LibraryContext::empty())
     }
 
     const HDR: &str = "
@@ -542,11 +546,12 @@ mod electrical {
 
 #[cfg(test)]
 mod logical {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
-        drc::run_all(&parse(source).program)
+        drc::run_all(&parse(source).program, &LibraryContext::empty())
     }
 
     const HDR: &str = "
@@ -602,11 +607,12 @@ mod logical {
 
 #[cfg(test)]
 mod temporal {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
-        drc::run_all(&parse(source).program)
+        drc::run_all(&parse(source).program, &LibraryContext::empty())
     }
 
     const HDR: &str = "
@@ -654,12 +660,13 @@ mod temporal {
 
 #[cfg(test)]
 mod flow {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     fn flow_diags(source: &str) -> Vec<crate::drc::Diagnostic> {
@@ -797,12 +804,13 @@ mod flow {
 
 #[cfg(test)]
 mod convention_c05 {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     fn convention_diags(source: &str) -> Vec<crate::drc::Diagnostic> {

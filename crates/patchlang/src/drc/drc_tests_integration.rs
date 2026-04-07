@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod integration {
+    use crate::builder::LibraryContext;
     use crate::drc;
     use crate::parser::parse;
 
@@ -13,7 +14,7 @@ mod integration {
             "fixture should parse cleanly: {:?}",
             result.errors
         );
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
         let structural_errors: Vec<_> = diags
             .iter()
             .filter(|d| {
@@ -39,7 +40,7 @@ mod integration {
             "fixture should parse cleanly: {:?}",
             result.errors
         );
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
 
         // Diagnostic count should be bounded — not an explosion
         assert!(
@@ -150,7 +151,7 @@ mod integration {
     fn fixture_structural_errors() {
         let source = include_str!("../../../../tests/fixtures/drc/structural-errors.patch");
         let result = parse(source);
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
         let structural_errors: Vec<_> = diags
             .iter()
             .filter(|d| {
@@ -178,7 +179,7 @@ mod integration {
     fn fixture_direction_errors() {
         let source = include_str!("../../../../tests/fixtures/drc/direction-errors.patch");
         let result = parse(source);
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
         let direction_errors: Vec<_> = diags
             .iter()
             .filter(|d| d.layer == crate::drc::DRCLayer::Direction)
@@ -197,7 +198,7 @@ mod integration {
     fn fixture_mechanical_errors() {
         let source = include_str!("../../../../tests/fixtures/drc/mechanical-errors.patch");
         let result = parse(source);
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
         let mech_errors: Vec<_> = diags
             .iter()
             .filter(|d| d.layer == crate::drc::DRCLayer::Mechanical)
@@ -214,7 +215,7 @@ mod integration {
     fn fixture_electrical_errors() {
         let source = include_str!("../../../../tests/fixtures/drc/electrical-errors.patch");
         let result = parse(source);
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
         let elec_errors: Vec<_> = diags
             .iter()
             .filter(|d| d.layer == crate::drc::DRCLayer::Electrical)
@@ -235,7 +236,7 @@ mod integration {
     fn fixture_logical_errors() {
         let source = include_str!("../../../../tests/fixtures/drc/logical-errors.patch");
         let result = parse(source);
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
         let logical_errors: Vec<_> = diags
             .iter()
             .filter(|d| d.layer == crate::drc::DRCLayer::Logical)
@@ -252,7 +253,7 @@ mod integration {
     fn fixture_temporal_errors() {
         let source = include_str!("../../../../tests/fixtures/drc/temporal-errors.patch");
         let result = parse(source);
-        let diags = drc::run_all(&result.program);
+        let diags = drc::run_all(&result.program, &LibraryContext::empty());
         let temporal_errors: Vec<_> = diags
             .iter()
             .filter(|d| d.layer == crate::drc::DRCLayer::Temporal)
@@ -268,12 +269,13 @@ mod integration {
 
 #[cfg(test)]
 mod ring_topology {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]

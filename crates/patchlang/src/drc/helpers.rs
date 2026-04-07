@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use crate::ast::{
     IndexElement, IndexSpec, InstanceDecl, PatchProgram, PortDef, PortRef, Statement, TemplateDecl,
 };
+use crate::builder::LibraryContext;
 use crate::drc::catalog::{self, TagCategory};
 use crate::drc::types::{DRCLayer, Diagnostic, Severity};
 
@@ -56,7 +57,10 @@ pub enum CollisionTarget<'a> {
 }
 
 /// Build lookup context from a parsed program.
-pub fn build_context(program: &PatchProgram) -> DRCContext<'_> {
+pub fn build_context<'a>(
+    program: &'a PatchProgram,
+    library: &'a LibraryContext,
+) -> DRCContext<'a> {
     let mut template_map = HashMap::new();
     let mut instance_map = HashMap::new();
 
@@ -71,6 +75,11 @@ pub fn build_context(program: &PatchProgram) -> DRCContext<'_> {
             }
             _ => {}
         }
+    }
+
+    // Library templates (program-local takes precedence on name collision)
+    for (name, tmpl) in &library.templates {
+        template_map.entry(name.as_str()).or_insert(tmpl);
     }
 
     let (effective_ports, _collisions) =
