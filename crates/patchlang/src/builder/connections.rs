@@ -32,9 +32,9 @@ impl PatchProgramBuilder {
 
         // Validate ports exist on their instances
         let src_dir =
-            validate::require_port_on_instance(&self.program, src_inst, &source.port)?;
+            validate::require_port_on_instance(&self.program, &self.library, src_inst, &source.port)?;
         let tgt_dir =
-            validate::require_port_on_instance(&self.program, tgt_inst, &target.port)?;
+            validate::require_port_on_instance(&self.program, &self.library, tgt_inst, &target.port)?;
 
         // Check direction compatibility
         validate::check_direction(
@@ -156,11 +156,11 @@ impl PatchProgramBuilder {
         // Validate instances/ports if instance is Some
         if let Some(inst) = source.instance.as_deref() {
             validate::require_instance(&self.program, inst)?;
-            validate::require_port_on_instance(&self.program, inst, &source.port)?;
+            validate::require_port_on_instance(&self.program, &self.library, inst, &source.port)?;
         }
         if let Some(inst) = target.instance.as_deref() {
             validate::require_instance(&self.program, inst)?;
-            validate::require_port_on_instance(&self.program, inst, &target.port)?;
+            validate::require_port_on_instance(&self.program, &self.library, inst, &target.port)?;
         }
 
         self.program

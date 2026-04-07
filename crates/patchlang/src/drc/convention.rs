@@ -237,11 +237,12 @@ fn check_aes67_redundancy(
 #[cfg(test)]
 mod tests {
     use crate::drc::{self, DRCLayer, Severity};
+    use crate::builder::LibraryContext;
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     fn convention_diags(source: &str) -> Vec<crate::drc::Diagnostic> {

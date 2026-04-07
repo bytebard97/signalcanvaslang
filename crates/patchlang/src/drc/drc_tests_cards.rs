@@ -2,12 +2,13 @@
 
 #[cfg(test)]
 mod card_port_resolution {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]
@@ -132,12 +133,13 @@ mod card_port_resolution {
 
 #[cfg(test)]
 mod card_port_collision_s16 {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]
@@ -357,13 +359,14 @@ mod card_port_collision_s16 {
 
 #[cfg(test)]
 mod card_port_flattening {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, DRCLayer, Severity};
     use crate::drc::helpers::{build_context, resolve_effective_port};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]
@@ -415,7 +418,8 @@ mod card_port_flattening {
                 slot Bay[3]: "MicCard"
             }
         "#);
-        let ctx = build_context(&result.program);
+        let empty_lib = LibraryContext::empty();
+        let ctx = build_context(&result.program, &empty_lib);
         let port = resolve_effective_port("Unit", "XLR", &ctx)
             .expect("XLR should exist as flattened port");
         let range = port.range.as_ref().expect("Flattened port should have a range");
@@ -443,7 +447,8 @@ mod card_port_flattening {
                 slot Bay[3]: "Card4ch"
             }
         "#);
-        let ctx = build_context(&result.program);
+        let empty_lib = LibraryContext::empty();
+        let ctx = build_context(&result.program, &empty_lib);
         let port = resolve_effective_port("Unit", "XLR", &ctx)
             .expect("XLR should exist as flattened port");
         let range = port.range.as_ref().expect("Flattened port should have a range");
@@ -529,7 +534,8 @@ mod card_port_flattening {
                 slot Bay[1]: "MicCard"
             }
         "#);
-        let ctx = build_context(&result.program);
+        let empty_lib = LibraryContext::empty();
+        let ctx = build_context(&result.program, &empty_lib);
         let port = resolve_effective_port("Unit", "XLR", &ctx)
             .expect("XLR should exist");
         let range = port.range.as_ref().expect("Port should have a range");

@@ -14,7 +14,7 @@ impl PatchProgramBuilder {
     /// Add an instance. Rejects duplicate name and requires the template to exist.
     pub fn add_instance(&mut self, decl: InstanceDecl) -> Result<(), BuilderError> {
         validate::reject_duplicate_instance(&self.program, &decl.name)?;
-        validate::require_template(&self.program, &decl.template_name)?;
+        validate::require_template(&self.program, &self.library, &decl.template_name)?;
         self.program.statements.push(Statement::Instance(decl));
         Ok(())
     }
@@ -175,7 +175,7 @@ impl PatchProgramBuilder {
         card_template: &str,
     ) -> Result<(), BuilderError> {
         // Validate the card template exists
-        validate::require_template(&self.program, card_template)?;
+        validate::require_template(&self.program, &self.library, card_template)?;
 
         // Validate the slot exists on the instance's template
         let inst = self

@@ -15,7 +15,7 @@ impl PatchProgramBuilder {
 
     /// Remove a template by name. Fails if any instances still reference it.
     pub fn remove_template(&mut self, name: &str) -> Result<(), BuilderError> {
-        validate::require_template(&self.program, name)?;
+        validate::require_template(&self.program, &self.library, name)?;
         let users = validate::instances_using_template(&self.program, name);
         if !users.is_empty() {
             return Err(BuilderError::InUse(format!(

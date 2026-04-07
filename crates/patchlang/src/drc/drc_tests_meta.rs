@@ -1,11 +1,12 @@
 #[cfg(test)]
 mod slots_fits {
+    use crate::builder::LibraryContext;
     use crate::drc;
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]
@@ -58,12 +59,13 @@ mod slots_fits {
 
 #[cfg(test)]
 mod meta_rf {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]
@@ -121,12 +123,13 @@ mod meta_rf {
 
 #[cfg(test)]
 mod meta_dante_chipset {
+    use crate::builder::LibraryContext;
     use crate::drc::{self, Severity};
     use crate::parser::parse;
 
     fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
         let result = parse(source);
-        drc::run_all(&result.program)
+        drc::run_all(&result.program, &LibraryContext::empty())
     }
 
     #[test]

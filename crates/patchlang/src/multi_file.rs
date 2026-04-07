@@ -217,7 +217,7 @@ pub fn compile_project(files: HashMap<String, String>, entry: &str) -> ProjectRe
 
     // Run DRC only if no parse errors
     let diagnostics = if all_errors.is_empty() {
-        drc::run_all(&merged_program)
+        drc::run_all(&merged_program, &crate::builder::LibraryContext::empty())
     } else {
         Vec::new()
     };
