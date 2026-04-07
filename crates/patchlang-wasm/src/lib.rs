@@ -432,6 +432,54 @@ pub fn add_bridge(handle: u32, source_json: &str, target_json: &str) -> String {
     .unwrap_or_else(|e| json_err(&e))
 }
 
+/// Parse library files and store their templates in the builder's library context.
+/// files_json: { "lib/yamaha.patch": "template CL5 { ... }\n...", ... }
+/// Returns: {"ok": true} or {"error": "parse error in lib/yamaha.patch: ..."}
+#[wasm_bindgen]
+pub fn set_builder_library(handle: u32, files_json: &str) -> String {
+    let files: std::collections::HashMap<String, String> = match serde_json::from_str(files_json) {
+        Ok(f) => f,
+        Err(e) => return json_err(&format!("invalid JSON: {e}")),
+    };
+
+    let mut templates = std::collections::HashMap::new();
+    for (path, source) in &files {
+        let parse_result = patchlang::parse(source);
+        if !parse_result.errors.is_empty() {
+            return json_err(&format!(
+                "parse error in {}: {}",
+                path, parse_result.errors[0]
+            ));
+        }
+        for stmt in &parse_result.program.statements {
+            if let patchlang::ast::Statement::Template(t) = stmt {
+                templates.insert(t.name.clone(), t.clone());
+            }
+        }
+    }
+
+    with_builder_mut(handle, |builder| {
+        builder.set_library(patchlang::builder::LibraryContext { templates });
+    })
+    .map(|_| json_ok())
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Compile from the builder's in-memory AST + library context.
+/// No format/reparse round-trip.
+/// Returns: CompileToGraphResult JSON (same shape as compile_to_graph)
+#[wasm_bindgen]
+pub fn compile_program_to_graph(handle: u32) -> String {
+    with_builder(handle, |builder| {
+        let result = patchlang::graph::compile_program_to_graph(
+            builder.program(),
+            builder.library(),
+        );
+        serde_json::to_string(&result).unwrap_or_else(|e| json_err(&e.to_string()))
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
 // ---------------------------------------------------------------------------
 // Original exports (unchanged)
 // ---------------------------------------------------------------------------
