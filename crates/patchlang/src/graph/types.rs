@@ -5,9 +5,11 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use ts_rs::TS;
 
 /// Top-level result from `compile_to_graph`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct CompileToGraphResult {
     pub levels: BTreeMap<String, GraphLevel>,
@@ -16,7 +18,8 @@ pub struct CompileToGraphResult {
 }
 
 /// A single level in the hierarchical graph ("root" or a drillable instance).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct GraphLevel {
     pub id: String,
@@ -27,7 +30,8 @@ pub struct GraphLevel {
 }
 
 /// A device/instance node in the graph.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct DeviceNode {
     pub id: String,
@@ -39,7 +43,8 @@ pub struct DeviceNode {
 }
 
 /// A port on a device node.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct PortInfo {
     pub id: String,
@@ -63,7 +68,8 @@ pub struct PortInfo {
 }
 
 /// An edge between two ports.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct GraphEdge {
     pub id: String,
@@ -82,7 +88,8 @@ pub struct GraphEdge {
 }
 
 /// Signal identity metadata.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct SignalIdentity {
     pub name: String,
@@ -94,7 +101,8 @@ pub struct SignalIdentity {
 }
 
 /// Stream identity metadata.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct StreamIdentity {
     pub name: String,
