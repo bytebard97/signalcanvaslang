@@ -21,4 +21,20 @@ wasm-pack build crates/patchlang-wasm --target nodejs --release --out-dir ../../
 echo "  → bundler target (pkg-bundler/)..."
 wasm-pack build crates/patchlang-wasm --target bundler --release --out-dir ../../pkg-bundler
 
+# Generate ts-rs TypeScript bindings (requires running tests)
+echo "  → generating TypeScript bindings..."
+cargo test -p patchlang --quiet 2>/dev/null
+
+# Copy bindings into each package output
+BINDINGS_DIR="crates/patchlang/bindings"
+if [ -d "$BINDINGS_DIR" ]; then
+  for pkg in pkg-web pkg-node pkg-bundler; do
+    mkdir -p "$pkg/bindings"
+    cp "$BINDINGS_DIR"/*.ts "$pkg/bindings/"
+  done
+  echo "  → copied $(ls "$BINDINGS_DIR"/*.ts | wc -l | tr -d ' ') TypeScript binding files to each package"
+else
+  echo "  ⚠ bindings/ not found — run 'cargo test -p patchlang' to generate"
+fi
+
 echo "Done — v${VERSION} built to pkg-web/, pkg-node/, pkg-bundler/"
