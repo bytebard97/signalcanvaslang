@@ -44,6 +44,86 @@ instance Stage_Left is Rio3224
     let last_port = &node.ports[31];
     assert_eq!(last_port.id, "Stage_Left:Mic_In_32");
     assert_eq!(last_port.name, "Mic_In_32");
+
+    // source_key groups ranged ports by definition name, not channel
+    assert_eq!(first_port.source_key.as_deref(), Some("pl::Rio3224::Mic_In"));
+    assert_eq!(last_port.source_key.as_deref(), Some("pl::Rio3224::Mic_In"));
+}
+
+// ---------------------------------------------------------------------------
+// 1b. source_key for card-contributed ports and sub-instance ports
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_source_key_card_ports() {
+    let source = r#"
+template MY16_AUD {
+  meta { device_type: "card" }
+  ports {
+    Dante_In[1..16]: in(etherCON) [Dante]
+    Dante_Out[1..16]: out(etherCON) [Dante]
+  }
+}
+template CL5 {
+  ports {
+    Fader[1..4]: in(virtual)
+  }
+  slot MY_Slot[1]: MY_Expansion
+}
+instance Console is CL5 {
+  slot MY_Slot[1]: MY16_AUD
+}
+"#;
+    let result = parse_graph(source);
+    let root = result.levels.get("root").expect("root level");
+    let node = root.nodes.get("Console").expect("Console node");
+
+    // Template's own ports use the template name
+    let fader = node.ports.iter().find(|p| p.name == "Fader_1").expect("Fader_1");
+    assert_eq!(fader.source_key.as_deref(), Some("pl::CL5::Fader"));
+
+    // Card-contributed ports use the card template name
+    let dante_in = node.ports.iter().find(|p| p.name == "Dante_In_1").expect("Dante_In_1");
+    assert_eq!(dante_in.source_key.as_deref(), Some("pl::MY16_AUD::Dante_In"));
+
+    let dante_out = node.ports.iter().find(|p| p.name == "Dante_Out_16").expect("Dante_Out_16");
+    assert_eq!(dante_out.source_key.as_deref(), Some("pl::MY16_AUD::Dante_Out"));
+}
+
+#[test]
+fn test_source_key_sub_instance_ports() {
+    let source = r#"
+template TIO_1608_D {
+  ports {
+    DANTE_In[1..8]: in(etherCON) [Dante]
+    Line_Output[1..8]: out(XLR)
+  }
+  bridge DANTE_In -> Line_Output
+}
+template SplitsSystem {
+  ports { Feed: in(XLR) }
+  instance TIO is TIO_1608_D
+  bridge Feed -> TIO.DANTE_In
+}
+instance Splits is SplitsSystem
+"#;
+    let result = parse_graph(source);
+
+    // Sub-level for Splits should have sub-instance node
+    let sub = result.levels.get("Splits").expect("Splits sub-level");
+    let tio_node = sub.nodes.get("Splits/TIO").expect("Splits/TIO node");
+
+    // Sub-instance ports use the sub-instance's template name
+    let din = tio_node.ports.iter().find(|p| p.name == "DANTE_In_1").expect("DANTE_In_1");
+    assert_eq!(din.source_key.as_deref(), Some("pl::TIO_1608_D::DANTE_In"));
+
+    let lout = tio_node.ports.iter().find(|p| p.name == "Line_Output_8").expect("Line_Output_8");
+    assert_eq!(lout.source_key.as_deref(), Some("pl::TIO_1608_D::Line_Output"));
+
+    // Pseudo _inputs node ports should also carry source_key (from parent template)
+    let inputs_node = sub.nodes.get("Splits_inputs").expect("Splits_inputs node");
+    let feed = inputs_node.ports.iter().find(|p| p.name == "Feed").expect("Feed port");
+    assert_eq!(feed.source_key.as_deref(), Some("pl::SplitsSystem::Feed"));
 }
 
 // ---------------------------------------------------------------------------
@@ -547,5 +627,33 @@ fn test_fixture_hillsong_mtg_multi_file() {
         result.levels.len() >= 5,
         "should have multiple sub-levels, got {}",
         result.levels.len()
+    );
+
+    // Invariant: every edge must reference nodes and ports that exist in its level.
+    // This catches the class of bugs where cross-level references leak into sub-levels
+    // (e.g., edges using hierarchical "Parent/Child" IDs when nodes are keyed locally).
+    let mut missing_node_refs = 0;
+    for (level_id, level) in &result.levels {
+        let node_ids: std::collections::HashSet<&String> = level.nodes.keys().collect();
+        for edge in level.edges.values() {
+            if !node_ids.contains(&edge.source_node) {
+                missing_node_refs += 1;
+                eprintln!(
+                    "[{level_id}] edge '{}' references non-existent source node '{}'",
+                    edge.id, edge.source_node
+                );
+            }
+            if !node_ids.contains(&edge.target_node) {
+                missing_node_refs += 1;
+                eprintln!(
+                    "[{level_id}] edge '{}' references non-existent target node '{}'",
+                    edge.id, edge.target_node
+                );
+            }
+        }
+    }
+    assert!(
+        missing_node_refs == 0,
+        "found {missing_node_refs} edges referencing non-existent nodes"
     );
 }
