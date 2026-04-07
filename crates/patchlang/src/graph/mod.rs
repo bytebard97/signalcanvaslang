@@ -13,6 +13,7 @@ use crate::ast::{
     BridgeDecl, BridgeGroupDecl, ConfigDecl, ConnectDecl, InstanceDecl, KvValue, PatchProgram,
     SignalDecl, Statement, StreamDecl, TemplateDecl,
 };
+use crate::builder::LibraryContext;
 
 use edges::{expand_bridge, expand_bridge_group_edges, expand_connect_edges};
 use ports::expand_template_ports;
@@ -22,7 +23,7 @@ use types::*;
 /// Parse PatchLang source and build the graph. Returns JSON string.
 pub fn compile_to_graph(source: &str) -> String {
     let parse_result = crate::parser::parse(source);
-    let result = compile_ast_to_graph(&parse_result.program);
+    let result = compile_ast_to_graph(&parse_result.program, &LibraryContext::empty());
     serde_json::to_string(&result).unwrap_or_else(|e| {
         format!(r#"{{"error":"serialization failed: {e}"}}"#)
     })
@@ -47,7 +48,7 @@ pub fn compile_project_to_graph(files: HashMap<String, String>, entry: &str) -> 
     );
 
     // If the project had errors, we still try to build what we can
-    let result = compile_ast_to_graph(&merged);
+    let result = compile_ast_to_graph(&merged, &LibraryContext::empty());
     serde_json::to_string(&result).unwrap_or_else(|e| {
         format!(r#"{{"error":"serialization failed: {e}"}}"#)
     })
@@ -105,14 +106,23 @@ pub fn compile_project_to_graph_from_sources(
     let program = PatchProgram {
         statements: merged_stmts,
     };
-    let result = compile_ast_to_graph(&program);
+    let result = compile_ast_to_graph(&program, &LibraryContext::empty());
     serde_json::to_string(&result).unwrap_or_else(|e| {
         format!(r#"{{"error":"serialization failed: {e}"}}"#)
     })
 }
 
+/// Compile from a builder's in-memory AST + library context.
+/// No format/reparse round-trip.
+pub fn compile_program_to_graph(
+    program: &PatchProgram,
+    library: &LibraryContext,
+) -> CompileToGraphResult {
+    compile_ast_to_graph(program, library)
+}
+
 /// Core graph compilation from a parsed AST.
-pub fn compile_ast_to_graph(ast: &PatchProgram) -> CompileToGraphResult {
+pub fn compile_ast_to_graph(ast: &PatchProgram, library: &LibraryContext) -> CompileToGraphResult {
     // 1. Classify statements
     let mut templates: BTreeMap<String, TemplateDecl> = BTreeMap::new();
     let mut instances: Vec<&InstanceDecl> = Vec::new();
@@ -137,6 +147,11 @@ pub fn compile_ast_to_graph(ast: &PatchProgram) -> CompileToGraphResult {
             Statement::Config(c) => config_decls.push(c),
             _ => {}
         }
+    }
+
+    // Merge library templates (program-local takes precedence)
+    for (name, tmpl) in &library.templates {
+        templates.entry(name.clone()).or_insert_with(|| tmpl.clone());
     }
 
     let mut root_nodes: BTreeMap<String, DeviceNode> = BTreeMap::new();
