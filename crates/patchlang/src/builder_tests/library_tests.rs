@@ -585,3 +585,39 @@ fn collect_patch_files_recursive(dir: &std::path::Path, out: &mut Vec<std::path:
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Mutation atomicity
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_add_connect_invalid_does_not_mutate_ast() {
+    let mut builder = PatchProgramBuilder::new();
+    let cl5 = make_template("CL5", vec![
+        make_port("Dante_Pri_In", PortDirection::In, Some(RangeSpec { start: 1, end: 72 })),
+    ]);
+    builder.set_library(make_library(vec![cl5]));
+    builder.add_instance(make_instance("FOH", "CL5")).unwrap();
+
+    let stmt_count_before = builder.program().statements.len();
+
+    // Try to connect to a nonexistent instance — should fail
+    let source = PortRef {
+        instance: Some("NONEXISTENT".to_string()),
+        port: "Dante_Pri_In".to_string(),
+        index: None,
+    };
+    let target = PortRef {
+        instance: Some("FOH".to_string()),
+        port: "Dante_Pri_In".to_string(),
+        index: None,
+    };
+    let result = builder.add_connect(source, target, vec![]);
+    assert!(result.is_err(), "add_connect with invalid instance should fail");
+
+    assert_eq!(
+        builder.program().statements.len(),
+        stmt_count_before,
+        "AST must not be mutated after a failed add_connect"
+    );
+}
