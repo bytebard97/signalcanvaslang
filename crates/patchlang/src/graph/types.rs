@@ -56,6 +56,10 @@ pub struct PortInfo {
     pub label: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label_properties: Option<BTreeMap<String, String>>,
+    /// Scene interface ID: `pl::{TemplateName}::{PortDefName}`.
+    /// Groups ranged ports under one key per definition (e.g., `Mic_In`, not `Mic_In_1`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_key: Option<String>,
 }
 
 /// An edge between two ports.
