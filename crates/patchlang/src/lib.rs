@@ -64,7 +64,7 @@ pub use manifest::{parse_manifest, ManifestResult, ProjectManifest};
 pub use multi_file::{compile_project, resolve_uses, ProjectResult};
 pub use builder::{BuilderError, CascadeResult, LibraryContext, PatchProgramBuilder};
 pub use formatter::{format_program, format_source};
-pub use graph::{compile_to_graph, compile_project_to_graph_from_sources};
+pub use graph::{compile_to_graph, compile_project_to_graph_from_sources, compile_program_to_graph};
 pub use parser::parse;
 
 /// Parse PatchLang source and run all DRC checks.
