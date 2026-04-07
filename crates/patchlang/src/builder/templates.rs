@@ -13,9 +13,22 @@ impl PatchProgramBuilder {
         Ok(())
     }
 
-    /// Remove a template by name. Fails if any instances still reference it.
+    /// Remove a template by name. Fails if any instances still reference it
+    /// or if the template only exists in the library (imported, not local).
     pub fn remove_template(&mut self, name: &str) -> Result<(), BuilderError> {
         validate::require_template(&self.program, &self.library, name)?;
+
+        // Cannot remove a library template — it's imported, not defined locally
+        let in_program = self.program.statements.iter().any(|s| {
+            matches!(s, Statement::Template(t) if t.name == name)
+        });
+        if !in_program {
+            return Err(BuilderError::ValidationError(format!(
+                "cannot remove library template '{}' — it is imported, not defined in this project",
+                name
+            )));
+        }
+
         let users = validate::instances_using_template(&self.program, name);
         if !users.is_empty() {
             return Err(BuilderError::InUse(format!(
@@ -51,11 +64,18 @@ impl PatchProgramBuilder {
     }
 
     /// Look up a template by name (read-only).
+    /// Searches program-local templates first, then falls back to library context.
     pub fn get_template(&self, name: &str) -> Option<&TemplateDecl> {
-        self.program.statements.iter().find_map(|s| match s {
+        // Check program-local templates first
+        let from_program = self.program.statements.iter().find_map(|s| match s {
             Statement::Template(t) if t.name == name => Some(t),
             _ => None,
-        })
+        });
+        if from_program.is_some() {
+            return from_program;
+        }
+        // Fall back to library context
+        self.library.templates.get(name)
     }
 
     /// Return the names of all templates in insertion order.
