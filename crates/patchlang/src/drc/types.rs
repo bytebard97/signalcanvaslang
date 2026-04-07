@@ -1,9 +1,11 @@
 use serde::Serialize;
+use ts_rs::TS;
 
 use crate::compat_types::{TsParseError, TsProgram};
 
 /// Which validation layer produced this diagnostic.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "lowercase")]
 pub enum DRCLayer {
     Structural,
@@ -18,7 +20,8 @@ pub enum DRCLayer {
 }
 
 /// How severe the diagnostic is.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, TS)]
+#[ts(export)]
 #[serde(rename_all = "lowercase")]
 pub enum Severity {
     Error,
@@ -27,7 +30,8 @@ pub enum Severity {
 }
 
 /// A single design rule violation or advisory.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, TS)]
+#[ts(export)]
 pub struct Diagnostic {
     pub severity: Severity,
     pub layer: DRCLayer,
