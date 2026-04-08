@@ -480,6 +480,180 @@ pub fn compile_program_to_graph(handle: u32) -> String {
     .unwrap_or_else(|e| json_err(&e))
 }
 
+/// Update a template by name from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn update_template(handle: u32, name: &str, template_json: &str) -> String {
+    let decl: patchlang::ast::TemplateDecl = match serde_json::from_str(template_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.update_template(name, decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Get a template by name as JSON. Returns JSON or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn get_template(handle: u32, name: &str) -> String {
+    with_builder(handle, |b| match b.get_template(name) {
+        Some(t) => serde_json::to_string(t).unwrap_or_else(|e| json_err(&e.to_string())),
+        None => json_err(&format!("template '{name}' not found")),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Get all template names as JSON array. Returns `["name1", "name2", ...]`.
+#[wasm_bindgen]
+pub fn template_names(handle: u32) -> String {
+    with_builder(handle, |b| {
+        let names = b.template_names();
+        serde_json::to_string(&names).unwrap_or_else(|e| json_err(&e.to_string()))
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Get an instance by name as JSON. Returns JSON or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn get_instance(handle: u32, name: &str) -> String {
+    with_builder(handle, |b| match b.get_instance(name) {
+        Some(i) => serde_json::to_string(i).unwrap_or_else(|e| json_err(&e.to_string())),
+        None => json_err(&format!("instance '{name}' not found")),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Update all properties on an instance. `props_json`: `{"key": "value", ...}`.
+/// Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn update_instance_properties(handle: u32, name: &str, props_json: &str) -> String {
+    let props: std::collections::HashMap<String, String> = match serde_json::from_str(props_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.update_instance_properties(name, props) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a slot assignment from an instance. `slot_index` of -1 means None.
+/// Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_slot(handle: u32, instance: &str, slot_name: &str, slot_index: i32) -> String {
+    let index = if slot_index < 0 {
+        None
+    } else {
+        Some(slot_index as u32)
+    };
+    with_builder_mut(handle, |b| {
+        match b.remove_slot(instance, slot_name, index) {
+            Ok(_cascade) => json_ok(),
+            Err(e) => json_err(&e.to_string()),
+        }
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Update properties on a connection by ID. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn update_connect_properties(handle: u32, id: &str, props_json: &str) -> String {
+    let props: Vec<patchlang::ast::KeyValue> = match serde_json::from_str(props_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.update_connect_properties(id, props) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a bridge group from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_bridge_group(handle: u32, bridge_group_json: &str) -> String {
+    let decl: patchlang::ast::BridgeGroupDecl = match serde_json::from_str(bridge_group_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_bridge_group(decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Clear all routes on an instance. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn clear_routes(handle: u32, instance: &str) -> String {
+    with_builder_mut(handle, |b| match b.clear_routes(instance) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Update a bus on an instance (full replacement by name).
+/// Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn update_bus(handle: u32, instance: &str, bus_name: &str, bus_json: &str) -> String {
+    let bus: patchlang::ast::BusEntry = match serde_json::from_str(bus_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.update_bus(instance, bus_name, bus) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Add a flag from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn add_flag(handle: u32, flag_json: &str) -> String {
+    let decl: patchlang::ast::FlagDecl = match serde_json::from_str(flag_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.add_flag(decl) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a flag by name. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_flag(handle: u32, name: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_flag(name) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a channel label. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_label(handle: u32, instance: &str, port: &str, index: u32) -> String {
+    with_builder_mut(handle, |b| match b.remove_label(instance, port, index) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove an entire config block for an instance. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_config(handle: u32, instance: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_config(instance) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
 /// Remove a bridge matching the given source and target port refs.
 /// Returns `{"ok":true}` or `{"error":"..."}`.
 #[wasm_bindgen]
