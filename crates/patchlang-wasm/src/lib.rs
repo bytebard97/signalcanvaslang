@@ -480,6 +480,90 @@ pub fn compile_program_to_graph(handle: u32) -> String {
     .unwrap_or_else(|e| json_err(&e))
 }
 
+/// Remove a bridge matching the given source and target port refs.
+/// Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_bridge(handle: u32, source_json: &str, target_json: &str) -> String {
+    let source: patchlang::ast::PortRef = match serde_json::from_str(source_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    let target: patchlang::ast::PortRef = match serde_json::from_str(target_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.remove_bridge(&source, &target) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a bridge group matching the given target port ref.
+/// Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_bridge_group(handle: u32, target_json: &str) -> String {
+    let target: patchlang::ast::PortRef = match serde_json::from_str(target_json) {
+        Ok(d) => d,
+        Err(e) => return json_err(&e.to_string()),
+    };
+    with_builder_mut(handle, |b| match b.remove_bridge_group(&target) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a bus from an instance. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_bus(handle: u32, instance: &str, bus_name: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_bus(instance, bus_name) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a signal by name. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_signal(handle: u32, name: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_signal(name) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a stream by name. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_stream(handle: u32, name: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_stream(name) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a ring by name. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_ring(handle: u32, name: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_ring(name) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
+/// Remove a member from a ring. Returns `{"ok":true}` or `{"error":"..."}`.
+#[wasm_bindgen]
+pub fn remove_ring_member(handle: u32, ring_name: &str, instance: &str) -> String {
+    with_builder_mut(handle, |b| match b.remove_ring_member(ring_name, instance) {
+        Ok(()) => json_ok(),
+        Err(e) => json_err(&e.to_string()),
+    })
+    .unwrap_or_else(|e| json_err(&e))
+}
+
 // ---------------------------------------------------------------------------
 // Original exports (unchanged)
 // ---------------------------------------------------------------------------
