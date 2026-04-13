@@ -109,7 +109,8 @@ fn instance_with_buses() {
 
     let outputs = buses[0]["outputs"].as_array().expect("outputs must be an array");
     assert!(!outputs.is_empty(), "outputs should not be empty");
-    assert_eq!(outputs[0]["port"], "Matrix_Out");
+    // outputs[0] is now TsBusOutput { label, destinations }
+    assert_eq!(outputs[0]["destinations"][0]["port"], "Matrix_Out");
 }
 
 // ── Test 5: Instance with slot assignment ────────────────────────────────────

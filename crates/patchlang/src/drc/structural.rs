@@ -378,18 +378,21 @@ fn check_bus_port_refs(
 
             for bus in &inst.buses {
                 for output in &bus.outputs {
-                    match resolve_effective_port(&inst.name, &output.port, ctx) {
-                        None => emit_missing_port_diagnostic(
-                            &output.port,
-                            &inst.template_name,
-                            "Bus output",
-                            &bus.span,
-                            diags,
-                        ),
-                        Some(pd) => check_vector_port_indexed(
-                            output, pd, &inst.name, &bus.span, &[], diags,
-                        ),
+                    for dest in &output.destinations {
+                        match resolve_effective_port(&inst.name, &dest.port, ctx) {
+                            None => emit_missing_port_diagnostic(
+                                &dest.port,
+                                &inst.template_name,
+                                "Bus output",
+                                &bus.span,
+                                diags,
+                            ),
+                            Some(pd) => check_vector_port_indexed(
+                                dest, pd, &inst.name, &bus.span, &[], diags,
+                            ),
+                        }
                     }
+                    // Unrouted outputs (destinations empty) skip S05 validation.
                 }
                 for input in &bus.inputs {
                     match resolve_effective_port(&inst.name, &input.port, ctx) {

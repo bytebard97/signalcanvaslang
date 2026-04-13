@@ -111,8 +111,8 @@ fn instance_with_bus_entry() {
             assert_eq!(i.buses[0].outputs.len(), 2);
             assert_eq!(i.buses[0].inputs[0].port, "Ch_A");
             assert_eq!(i.buses[0].inputs[1].port, "Ch_B");
-            assert_eq!(i.buses[0].outputs[0].port, "Mix_L");
-            assert_eq!(i.buses[0].outputs[1].port, "Mix_R");
+            assert_eq!(i.buses[0].outputs[0].destinations[0].port, "Mix_L");
+            assert_eq!(i.buses[0].outputs[1].destinations[0].port, "Mix_R");
         }
         other => panic!("expected Instance, got {other:?}"),
     }
@@ -309,6 +309,6 @@ fn bus_entry_with_local_port_refs() {
     assert!(bus.inputs[0].instance.is_none(), "bus input should have no instance prefix");
     assert_eq!(bus.inputs[0].port, "Fader");
     assert_eq!(bus.outputs.len(), 1);
-    assert!(bus.outputs[0].instance.is_none(), "bus output should have no instance prefix");
-    assert_eq!(bus.outputs[0].port, "Matrix_Out");
+    assert!(bus.outputs[0].destinations[0].instance.is_none(), "bus output should have no instance prefix");
+    assert_eq!(bus.outputs[0].destinations[0].port, "Matrix_Out");
 }

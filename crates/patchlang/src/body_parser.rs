@@ -147,7 +147,13 @@ impl<'a> Parser<'a> {
             if direction == "input" {
                 inputs.push(port);
             } else {
-                outputs.push(port);
+                // Temporary stub: Task 2 replaces this with proper "Label": Port syntax.
+                let label = port.port.clone();
+                outputs.push(BusOutput {
+                    label,
+                    destinations: vec![port],
+                    span: self.span_from(start),
+                });
             }
         }
         self.expect(&Token::RBrace);
@@ -157,7 +163,9 @@ impl<'a> Parser<'a> {
             reject_auto_in_index(&input.index, &span, &mut self.errors, "bus");
         }
         for output in &outputs {
-            reject_auto_in_index(&output.index, &span, &mut self.errors, "bus");
+            for dest in &output.destinations {
+                reject_auto_in_index(&dest.index, &span, &mut self.errors, "bus");
+            }
         }
         BusEntry { name, label, inputs, outputs, span }
     }

@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 
 use crate::ast::{
-    BusEntry, IndexElement, IndexSpec, InstanceDecl, PortDef, PortDirection,
+    BusEntry, BusOutput, IndexElement, IndexSpec, InstanceDecl, PortDef, PortDirection,
     PortRef, RangeSpec, SignalDecl, Statement, TemplateDecl,
 };
 use crate::builder::PatchProgramBuilder;
@@ -266,7 +266,11 @@ fn roundtrip_preserves_routes_and_buses() {
         name: "PA_Matrix".to_string(),
         label: None,
         inputs: vec![port_ref(None, "Dante_In", Some(single_index(2)))],
-        outputs: vec![port_ref(None, "Dante_Out", Some(single_index(2)))],
+        outputs: vec![BusOutput {
+            label: "PA Out".to_string(),
+            destinations: vec![port_ref(None, "Dante_Out", Some(single_index(2)))],
+            span: span(),
+        }],
         span: span(),
     };
     b.add_bus("SL_Rack", bus).unwrap();
