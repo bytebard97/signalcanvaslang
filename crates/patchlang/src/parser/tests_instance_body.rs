@@ -380,12 +380,7 @@ fn bus_output_unlabeled_is_parse_error() {
         }
     }"#;
     let result = parse(src);
-    assert!(
-        !result.errors.is_empty() || result.program.statements.iter().any(|s| {
-            matches!(s, Statement::Instance(i) if i.buses.iter().any(|b| b.outputs.is_empty()))
-        }),
-        "old output: Port syntax should produce an error or empty outputs"
-    );
+    assert!(!result.errors.is_empty(), "old output: Port syntax should produce a parse error");
 }
 
 #[test]
