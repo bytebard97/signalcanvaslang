@@ -237,4 +237,74 @@ connect X.A->Y.B{mapping:"1:1"}"#;
         );
         assert_format_roundtrip(input);
     }
+
+    #[test]
+    fn format_bus_labeled_routed_output() {
+        let src = r#"instance Mixer is CL5 {
+  bus Link_1 {
+    input: Fader[1]
+    output "Link 1-L": MADI_1_Out[1]
+  }
+}"#;
+        let output = format_source(src).unwrap();
+        assert!(
+            output.contains("output \"Link 1-L\": MADI_1_Out[1]"),
+            "expected labeled output in:\n{output}"
+        );
+        assert_format_roundtrip(src);
+    }
+
+    #[test]
+    fn format_bus_unrouted_output() {
+        let src = r#"instance Mixer is CL5 {
+  bus Link_1 {
+    output "Link 1-C"
+  }
+}"#;
+        let output = format_source(src).unwrap();
+        assert!(
+            output.contains("output \"Link 1-C\""),
+            "expected unrouted output in:\n{output}"
+        );
+        // Unrouted must NOT have a colon or port ref after the label
+        let line = output
+            .lines()
+            .find(|l| l.contains("output \"Link 1-C\""))
+            .unwrap();
+        assert!(!line.contains(':'), "unrouted output should have no colon: {line}");
+        assert_format_roundtrip(src);
+    }
+
+    #[test]
+    fn format_bus_multi_destination_output() {
+        let src = r#"instance Mixer is CL5 {
+  bus Link_1 {
+    output "Main": MADI_1_Out[1], MADI_2_Out[1]
+  }
+}"#;
+        let output = format_source(src).unwrap();
+        assert!(
+            output.contains("output \"Main\": MADI_1_Out[1], MADI_2_Out[1]"),
+            "expected multi-destination output in:\n{output}"
+        );
+        assert_format_roundtrip(src);
+    }
+
+    #[test]
+    fn format_bus_display_label_emitted() {
+        // Gap 2: bus label: "..." must survive round-trip
+        let src = r#"instance Mixer is CL5 {
+  bus PQMM {
+    label: "PQ>MM"
+    input: Fader[1]
+    output "Main": Matrix_Out[1]
+  }
+}"#;
+        let output = format_source(src).unwrap();
+        assert!(
+            output.contains("label: \"PQ>MM\""),
+            "expected bus display label in:\n{output}"
+        );
+        assert_format_roundtrip(src);
+    }
 }
