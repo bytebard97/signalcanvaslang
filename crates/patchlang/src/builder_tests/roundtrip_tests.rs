@@ -307,6 +307,11 @@ fn roundtrip_preserves_routes_and_buses() {
         "PA Out",
         "bus output label should survive roundtrip\n\nSource:\n{source}"
     );
+    assert_eq!(
+        inst.buses[0].outputs[0].destinations[0].port,
+        "Dante_Out",
+        "bus output destination port should survive roundtrip\n\nSource:\n{source}"
+    );
 }
 
 #[test]

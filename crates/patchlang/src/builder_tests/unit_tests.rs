@@ -486,7 +486,32 @@ fn add_bus_to_instance() {
         span: default_span(),
     };
     b.add_bus("SL", bus).unwrap();
-    assert_eq!(b.get_instance("SL").unwrap().buses.len(), 1);
+    let buses = &b.get_instance("SL").unwrap().buses;
+    assert_eq!(buses.len(), 1);
+    assert_eq!(buses[0].outputs[0].label, "PA Out");
+    assert_eq!(buses[0].outputs[0].destinations[0].port, "Dante_Out");
+}
+
+#[test]
+fn bus_with_unrouted_output() {
+    let mut b = PatchProgramBuilder::new();
+    b.add_template(make_simple_template("Dev")).unwrap();
+    b.add_instance(make_instance("SL", "Dev")).unwrap();
+    let bus = BusEntry {
+        name: "Unrouted".to_string(),
+        label: None,
+        inputs: vec![],
+        outputs: vec![BusOutput {
+            label: "Pending Mix".to_string(),
+            destinations: vec![],
+            span: default_span(),
+        }],
+        span: default_span(),
+    };
+    b.add_bus("SL", bus).unwrap();
+    let buses = &b.get_instance("SL").unwrap().buses;
+    assert_eq!(buses[0].outputs[0].label, "Pending Mix");
+    assert_eq!(buses[0].outputs[0].destinations.len(), 0);
 }
 
 #[test]
