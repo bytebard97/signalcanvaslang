@@ -139,15 +139,15 @@ Broadcast console software uses `>` as a routing convention in bus names — `SP
 instance FOH_Engine is CL5 {
   bus PQ_MM {
     label: "PQ>MM"
-    output: Mix_Out[1]
-    output: Mix_Out[2]
+    output "Mix L": Mix_Out[1]
+    output "Mix R": Mix_Out[2]
   }
   bus SpotifyFOH {
     label: "SPOTIFY>FOH"
     input: Dante_Pri_In[41]
     input: Dante_Pri_In[42]
-    output: Mix_Out[25]
-    output: Mix_Out[26]
+    output "Main L": Mix_Out[25]
+    output "Main R": Mix_Out[26]
   }
 }
 ```

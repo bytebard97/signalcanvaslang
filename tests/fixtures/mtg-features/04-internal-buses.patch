@@ -1,7 +1,10 @@
 # MTG Feature Test: Internal mix buses with output destinations
 # Source: MTG.json — FOH Engine mix buses routed to MADI snake outputs
-# Demonstrates bus label: field for display names containing broadcast
-# naming conventions (e.g. abbreviations that expand to readable names).
+# Demonstrates:
+#   - bus label: field for display names with special chars (e.g. "PQ>MM")
+#   - labeled single-destination outputs: output "Name": Port[n]
+#   - labeled multi-destination outputs: output "Name": Port[n], Port[m]
+#   - labeled unrouted outputs: output "Name"  (bus reserved, not yet cabled)
 
 template Venue_FOH_Rack {
   meta {
@@ -60,5 +63,19 @@ instance FOH_Engine is Venue_FOH_Rack {
   bus DrumVerb_LP {
     label: "Drum Verb LP"
     output "MADI_Out 14": MADI_Out[14]
+  }
+  # Multi-destination: one mix sent to both MADI snakes simultaneously
+  bus Record_Mix {
+    label: "Record"
+    input: MADI_In[1]
+    output "Record L": MADI_Out[15], MADI_Out[31]
+    output "Record R": MADI_Out[16], MADI_Out[32]
+  }
+  # Unrouted: bus reserved in the console, destination not yet cabled
+  bus Broadcast_Feed {
+    label: "Broadcast"
+    input: MADI_In[2]
+    output "Broadcast L"
+    output "Broadcast R"
   }
 }
