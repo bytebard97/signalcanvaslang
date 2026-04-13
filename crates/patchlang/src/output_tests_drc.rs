@@ -276,6 +276,97 @@ fn valid_program_produces_no_diagnostics() {
     );
 }
 
+// ── Test 13a: C-new — Duplicate bus output label is a warning ────────────────
+
+#[test]
+fn drc_duplicate_bus_output_label_is_warning() {
+    let source = r#"
+template CL5 {
+  ports { Fader[1..8]: in  Matrix_Out[1..2]: out }
+}
+instance Mixer is CL5 {
+  bus Main {
+    input: Fader[1]
+    output "Mix": Matrix_Out[1]
+    output "Mix": Matrix_Out[2]
+  }
+}
+"#;
+    let diags = get_diagnostics(source);
+    let warnings: Vec<_> = diags
+        .iter()
+        .filter(|d| {
+            let msg = d["message"].as_str().unwrap_or("");
+            msg.to_lowercase().contains("duplicate")
+        })
+        .collect();
+    assert!(
+        !warnings.is_empty(),
+        "expected a duplicate output label warning, got diagnostics: {diags:#?}"
+    );
+}
+
+// ── Test 13b: S05 skips unrouted outputs (empty destinations) ────────────────
+
+#[test]
+fn drc_s05_skips_unrouted_outputs() {
+    let source = r#"
+template CL5 {
+  ports { Fader[1..1]: in }
+}
+instance Mixer is CL5 {
+  bus Main {
+    input: Fader[1]
+    output "Pending"
+  }
+}
+"#;
+    let diags = get_diagnostics(source);
+    let s05_errors: Vec<_> = diags
+        .iter()
+        .filter(|d| {
+            d["message"]
+                .as_str()
+                .unwrap_or("")
+                .starts_with("Bus output")
+        })
+        .collect();
+    assert!(
+        s05_errors.is_empty(),
+        "unrouted output should not trigger S05, got: {s05_errors:#?}"
+    );
+}
+
+// ── Test 13c: S05 fires on unknown destination port ───────────────────────────
+
+#[test]
+fn drc_s05_fires_on_unknown_destination_port() {
+    let source = r#"
+template CL5 {
+  ports { Fader[1..1]: in }
+}
+instance Mixer is CL5 {
+  bus Main {
+    output "Mix": NonExistentPort[1]
+  }
+}
+"#;
+    let diags = get_diagnostics(source);
+    let s05_errors: Vec<_> = diags
+        .iter()
+        .filter(|d| {
+            d["message"]
+                .as_str()
+                .unwrap_or("")
+                .starts_with("Bus output")
+        })
+        .collect();
+    assert!(
+        !s05_errors.is_empty(),
+        "S05 should fire on unknown destination port, got all diagnostics: {diags:#?}"
+    );
+}
+
 // ── Test 13: Diagnostics JSON shape — all required fields present ─────────────
 
 #[test]
