@@ -482,3 +482,36 @@ This matches the CSS/HTML model (properties case-insensitive, selectors case-sen
 **Affects:** `crates/patchlang/src/drc/catalog.rs` — `tag_category()`, `are_connectors_compatible()`, `are_protocols_compatible()`, `CONNECTOR_MATES`.
 
 **Related issues:** Hillsong MTG fixture 613→0 DRC error fix, stock library `Analogue` vs `analog` inconsistency
+
+---
+
+### D017 — Bus Output Syntax: Named Outputs with Optional Destinations
+**2026-04-13** | **Decided**
+
+**Question:** How should named bus outputs be represented in PatchLang? The frontend `InternalBusOutput.name` (a required string) was being silently dropped by the emitter — no syntax existed for it. What syntax and AST shape should replace the old `output: Port` form?
+
+**Decision:** Output labels are **required**. Multi-destination outputs are supported via comma-separated port refs. Unrouted outputs (no destination) are valid. Old `output: Port` (unlabeled) syntax is removed.
+
+```
+bus Link_1 {
+  input: Fader[1..8]
+  output "Link 1-L": MADI_1_Out[1]              # labeled, single destination
+  output "Link 1-R": MADI_1_Out[2], Dante[5]    # labeled, multi-destination
+  output "Link 1-C"                              # labeled, unrouted
+}
+```
+
+AST: `BusEntry.outputs` changes from `Vec<PortRef>` to `Vec<BusOutput>` where `BusOutput { label: String, destinations: Vec<PortRef> }`.
+
+**Rejected alternative — optional labels:** Keeping labels optional would perpetuate the data-loss bug. The frontend `InternalBusOutput.name: string` is non-optional — every output always has a name in the UI. Making it optional in PatchLang creates a permanent class of round-trip data loss.
+
+**Rejected alternative — `Option<PortRef>` instead of `Vec<PortRef>` for destinations:** The frontend `InternalBusOutput.destinations` is a Vec (one output can route to multiple ports). Using `Option<PortRef>` would cap destinations at one and lose data for multi-routed outputs.
+
+**Rejected alternative — unified `BusPort` struct for both inputs and outputs:** `InternalBusInput` has no name field — inputs are bare channel references. Wrapping inputs in a named struct would add an invalid state (`Option<PortRef>` on inputs) that the domain doesn't support. Asymmetry is correct here.
+
+**Rationale:** Determined via Socratic debate (4 perspectives) + review of frontend `internalRouting.ts` and `emitterBuilder.ts`. The emitter comment `// KNOWN LIMITATION (C6): PatchLang InstanceBusDecl.outputs is PortRef[]. Named outputs with zero destinations are silently dropped` confirmed the exact problem. No backward compat needed — language not yet deployed to users.
+
+**Also decided (Gap 2 — bus display names):** The `label: "..."` body key is retained as-is (parser already reads it). The formatter is fixed to emit it. No grammar change to the `bus-entry` production. No inline syntax (`bus PQMM "PQ>MM" {` was considered and rejected — body form is consistent with `config` block label style).
+
+**Spec:** `docs/superpowers/specs/2026-04-13-bus-named-outputs-design.md`
+**Ticket:** ByteBard97/SignalCanvasLang#9
