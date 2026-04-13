@@ -302,6 +302,11 @@ fn roundtrip_preserves_routes_and_buses() {
         "expected 1 bus on SL_Rack, got {}\n\nSource:\n{source}",
         inst.buses.len()
     );
+    assert_eq!(
+        inst.buses[0].outputs[0].label,
+        "PA Out",
+        "bus output label should survive roundtrip\n\nSource:\n{source}"
+    );
 }
 
 #[test]

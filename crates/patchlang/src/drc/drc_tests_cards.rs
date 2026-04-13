@@ -271,8 +271,8 @@ mod card_port_collision_s16 {
             instance FOH is Console {
                 slot Bay: "DanteCard"
                 bus "Aux1" {
-                    input MainOut
-                    output Dante[1]
+                    input: MainOut
+                    output "Dante": Dante[1]
                 }
             }
         "#);
@@ -305,8 +305,8 @@ mod card_port_collision_s16 {
             instance FOH is Console {
                 slot Bay: "DanteCard"
                 bus "Aux1" {
-                    input MainOut
-                    output GhostPort
+                    input: MainOut
+                    output "Ghost": GhostPort
                 }
             }
         "#);

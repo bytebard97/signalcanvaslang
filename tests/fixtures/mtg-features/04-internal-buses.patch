@@ -19,46 +19,46 @@ template Venue_FOH_Rack {
 instance FOH_Engine is Venue_FOH_Rack {
   bus PA_Matrix {
     label: "PA Matrix"
-    output: MADI_Out[9]
-    output: MADI_Out[10]
+    output "MADI_Out 9": MADI_Out[9]
+    output "MADI_Out 10": MADI_Out[10]
   }
   bus Front_Fill_Matrix {
     label: "Front Fill Matrix"
-    output: MADI_Out[11]
+    output "MADI_Out 11": MADI_Out[11]
   }
   bus Floor_Sub_Matrix {
     label: "Floor Sub Matrix"
-    output: MADI_Out[12]
+    output "MADI_Out 12": MADI_Out[12]
   }
   bus PQ_MM {
     label: "PQ>MM"
-    output: MADI_Out[1]
-    output: MADI_Out[2]
+    output "MADI_Out 1": MADI_Out[1]
+    output "MADI_Out 2": MADI_Out[2]
   }
   bus PQ_Band {
     label: "PQ>Band"
-    output: MADI_Out[3]
-    output: MADI_Out[4]
+    output "MADI_Out 3": MADI_Out[3]
+    output "MADI_Out 4": MADI_Out[4]
   }
   bus PQ_Vox {
     label: "PQ>Vox"
-    output: MADI_Out[5]
+    output "MADI_Out 5": MADI_Out[5]
   }
   bus PQ_MC {
     label: "PQ>MC"
-    output: MADI_Out[6]
+    output "MADI_Out 6": MADI_Out[6]
   }
   bus PQ_PGM {
     label: "PQ>PGM"
-    output: MADI_Out[7]
-    output: MADI_Out[8]
+    output "MADI_Out 7": MADI_Out[7]
+    output "MADI_Out 8": MADI_Out[8]
   }
   bus VoxVerb_LP {
     label: "Vox Verb LP"
-    output: MADI_Out[13]
+    output "MADI_Out 13": MADI_Out[13]
   }
   bus DrumVerb_LP {
     label: "Drum Verb LP"
-    output: MADI_Out[14]
+    output "MADI_Out 14": MADI_Out[14]
   }
 }

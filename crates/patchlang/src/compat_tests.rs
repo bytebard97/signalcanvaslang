@@ -458,11 +458,12 @@ fn bus_label_roundtrips_through_parser() {
           bus Main_LR {
             label: "SPOTIFY>FOH"
             in: Fader[1]
-            out: Matrix_Out[1]
+            output "Mix": Matrix_Out[1]
           }
         }
     "#;
     let result = crate::parse(src);
+    assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
     let instance = match &result.program.statements[0] {
         crate::ast::Statement::Instance(i) => i,
         _ => panic!("expected instance"),
@@ -477,11 +478,12 @@ fn bus_label_serialises_to_json() {
           bus Main_LR {
             label: "SPOTIFY>FOH"
             in: Fader[1]
-            out: Matrix_Out[1]
+            output "Mix": Matrix_Out[1]
           }
         }
     "#;
     let result = crate::parse(src);
+    assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
     let json = serde_json::to_value(crate::to_ts_result(&result)).unwrap();
     let bus = &json["program"]["statements"][0]["buses"][0];
     assert_eq!(bus["label"], "SPOTIFY>FOH");
@@ -493,11 +495,12 @@ fn bus_without_label_omits_label_field_from_json() {
         instance FOH is CL5 {
           bus Main_LR {
             in: Fader[1]
-            out: Matrix_Out[1]
+            output "Mix": Matrix_Out[1]
           }
         }
     "#;
     let result = crate::parse(src);
+    assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
     let json = serde_json::to_value(crate::to_ts_result(&result)).unwrap();
     let bus = &json["program"]["statements"][0]["buses"][0];
     assert!(bus.get("label").is_none(), "label should be absent when not set");
@@ -510,7 +513,7 @@ fn bus_label_preserves_special_characters() {
           bus Ch_Strip {
             label: "IEM>WORSHIP-LEAD"
             in: Fader[2]
-            out: IEM_Out[1]
+            output "IEM": IEM_Out[1]
           }
         }
     "#;

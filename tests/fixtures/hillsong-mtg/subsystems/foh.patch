@@ -32,85 +32,85 @@ template FOH_System {
     route MADI[48] -> LINE[8]
     bus PA_Matrix {
       label: "PA Matrix"
-      output: MADI[9]
-      output: MADI[10]
+      output "MADI 9": MADI[9]
+      output "MADI 10": MADI[10]
     }
     bus Front_Fill_Matrix {
       label: "Front Fill Matrix"
-      output: MADI[11]
+      output "MADI 11": MADI[11]
     }
     bus Floor_Sub_Matrix {
       label: "Floor Sub Matrix"
-      output: MADI[12]
+      output "MADI 12": MADI[12]
     }
     bus PQ_MM {
       label: "PQ MM"
-      output: MADI[1]
-      output: MADI[2]
+      output "MADI 1": MADI[1]
+      output "MADI 2": MADI[2]
     }
     bus PQ_Band {
       label: "PQ Band"
-      output: MADI[3]
-      output: MADI[4]
+      output "MADI 3": MADI[3]
+      output "MADI 4": MADI[4]
     }
     bus PQ_Vox {
       label: "PQ Vox"
-      output: MADI[5]
+      output "MADI 5": MADI[5]
     }
     bus PQ_MC {
       label: "PQ MC"
-      output: MADI[6]
+      output "MADI 6": MADI[6]
     }
     bus PQ_PGM {
       label: "PQ PGM"
-      output: MADI[7]
-      output: MADI[8]
+      output "MADI 7": MADI[7]
+      output "MADI 8": MADI[8]
     }
     bus PQ_Links {
       label: "PQ Links"
-      output: MADI[9]
-      output: MADI[10]
+      output "MADI 9": MADI[9]
+      output "MADI 10": MADI[10]
     }
     bus HLVLMON_IEM {
       label: "HLVL>MON IEM"
     }
     bus HLVLMON_Wedges {
       label: "HLVL>MON Wedges"
-      output: MADI[11]
+      output "MADI 11": MADI[11]
     }
     bus SMAART_Console_REF {
       label: "SMAART Console REF"
-      output: MADI[12]
+      output "MADI 12": MADI[12]
     }
     bus VoxVerbLP {
       label: "VoxVerb>LP"
-      output: MADI[13]
+      output "MADI 13": MADI[13]
     }
     bus DrumVerbLP {
       label: "DrumVerb>LP"
-      output: MADI[14]
+      output "MADI 14": MADI[14]
     }
     bus SnareVerbLP {
       label: "SnareVerb>LP"
-      output: MADI[15]
+      output "MADI 15": MADI[15]
     }
     bus SpareLP {
       label: "Spare>LP"
-      output: MADI[16]
+      output "MADI 16": MADI[16]
     }
     bus LINKS_GRP {
       label: "LINKS GRP"
-      output: MADI[1]
-      output: MADI[2]
+      output "MADI 1": MADI[1]
+      output "MADI 2": MADI[2]
     }
     bus PB_GRP {
       label: "PB GRP"
-      output: MADI[3]
-      output: MADI[4]
+      output "MADI 3": MADI[3]
+      output "MADI 4": MADI[4]
     }
     bus MUSIC {
-      output: MADI[5]
-      output: MADI[6]
+      output "MADI 5": MADI[5]
+      output "MADI 6": MADI[6]
     }
   }
 

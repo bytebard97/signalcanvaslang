@@ -401,7 +401,7 @@ mod tests {
     fn c04_bus_with_outputs_no_diagnostic() {
         let diags = convention_diags(
             "template T { ports { In[1..4]: in Out[1..4]: out } }\n\
-             instance M is T { bus StereoMix { input In[1..2] output Out[1..2] } }",
+             instance M is T { bus StereoMix { input: In[1] output \"Mix\": Out[1] } }",
         );
         assert!(diags.iter().all(|d| !d.message.contains("no outputs declared")));
     }

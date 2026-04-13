@@ -96,13 +96,13 @@ fn instance_with_bus_entry() {
     let src = r#"instance Mixer is CL5 {
         bus Main_LR {
             input: Ch_A
-            output: Mix_L
-            in: Ch_B
-            out: Mix_R
+            input: Ch_B
+            output "Mix L": Mix_L
+            output "Mix R": Mix_R
         }
     }"#;
     let result = parse(src);
-    assert!(result.is_valid());
+    assert!(result.is_valid(), "errors: {:?}", result.errors);
     match &result.program.statements[0] {
         Statement::Instance(i) => {
             assert_eq!(i.buses.len(), 1);
@@ -111,7 +111,9 @@ fn instance_with_bus_entry() {
             assert_eq!(i.buses[0].outputs.len(), 2);
             assert_eq!(i.buses[0].inputs[0].port, "Ch_A");
             assert_eq!(i.buses[0].inputs[1].port, "Ch_B");
+            assert_eq!(i.buses[0].outputs[0].label, "Mix L");
             assert_eq!(i.buses[0].outputs[0].destinations[0].port, "Mix_L");
+            assert_eq!(i.buses[0].outputs[1].label, "Mix R");
             assert_eq!(i.buses[0].outputs[1].destinations[0].port, "Mix_R");
         }
         other => panic!("expected Instance, got {other:?}"),
@@ -293,7 +295,7 @@ fn bus_entry_with_local_port_refs() {
         instance Console is Mixer {
             bus Main_LR {
                 input: Fader[1]
-                output: Matrix_Out[1]
+                output "Mix": Matrix_Out[1]
             }
         }
     "#);
@@ -309,6 +311,90 @@ fn bus_entry_with_local_port_refs() {
     assert!(bus.inputs[0].instance.is_none(), "bus input should have no instance prefix");
     assert_eq!(bus.inputs[0].port, "Fader");
     assert_eq!(bus.outputs.len(), 1);
-    assert!(bus.outputs[0].destinations[0].instance.is_none(), "bus output should have no instance prefix");
+    assert_eq!(bus.outputs[0].label, "Mix");
+    assert!(bus.outputs[0].destinations[0].instance.is_none(), "bus output dest should have no instance prefix");
     assert_eq!(bus.outputs[0].destinations[0].port, "Matrix_Out");
+}
+
+#[test]
+fn bus_output_labeled_routed() {
+    let src = r#"instance Mixer is CL5 {
+        bus Link_1 {
+            input: Fader[1]
+            output "Link 1-L": MADI_1_Out[1]
+        }
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid(), "errors: {:?}", result.errors);
+    let inst = match &result.program.statements[0] {
+        Statement::Instance(i) => i,
+        other => panic!("expected Instance, got {other:?}"),
+    };
+    assert_eq!(inst.buses[0].outputs.len(), 1);
+    assert_eq!(inst.buses[0].outputs[0].label, "Link 1-L");
+    assert_eq!(inst.buses[0].outputs[0].destinations.len(), 1);
+    assert_eq!(inst.buses[0].outputs[0].destinations[0].port, "MADI_1_Out");
+}
+
+#[test]
+fn bus_output_labeled_unrouted() {
+    let src = r#"instance Mixer is CL5 {
+        bus Link_1 {
+            output "Link 1-C"
+        }
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid(), "errors: {:?}", result.errors);
+    let inst = match &result.program.statements[0] {
+        Statement::Instance(i) => i,
+        other => panic!("expected Instance, got {other:?}"),
+    };
+    assert_eq!(inst.buses[0].outputs[0].label, "Link 1-C");
+    assert_eq!(inst.buses[0].outputs[0].destinations.len(), 0);
+}
+
+#[test]
+fn bus_output_multi_destination() {
+    let src = r#"instance Mixer is CL5 {
+        bus Link_1 {
+            output "Main": MADI_1_Out[1], MADI_2_Out[1]
+        }
+    }"#;
+    let result = parse(src);
+    assert!(result.is_valid(), "errors: {:?}", result.errors);
+    let inst = match &result.program.statements[0] {
+        Statement::Instance(i) => i,
+        other => panic!("expected Instance, got {other:?}"),
+    };
+    assert_eq!(inst.buses[0].outputs[0].label, "Main");
+    assert_eq!(inst.buses[0].outputs[0].destinations.len(), 2);
+    assert_eq!(inst.buses[0].outputs[0].destinations[0].port, "MADI_1_Out");
+    assert_eq!(inst.buses[0].outputs[0].destinations[1].port, "MADI_2_Out");
+}
+
+#[test]
+fn bus_output_unlabeled_is_parse_error() {
+    let src = r#"instance Mixer is CL5 {
+        bus Link_1 {
+            output: MADI_1_Out[1]
+        }
+    }"#;
+    let result = parse(src);
+    assert!(
+        !result.errors.is_empty() || result.program.statements.iter().any(|s| {
+            matches!(s, Statement::Instance(i) if i.buses.iter().any(|b| b.outputs.is_empty()))
+        }),
+        "old output: Port syntax should produce an error or empty outputs"
+    );
+}
+
+#[test]
+fn bus_output_empty_label_is_parse_error() {
+    let src = r#"instance Mixer is CL5 {
+        bus Link_1 {
+            output "": MADI_1_Out[1]
+        }
+    }"#;
+    let result = parse(src);
+    assert!(!result.errors.is_empty(), "empty label should be a parse error");
 }

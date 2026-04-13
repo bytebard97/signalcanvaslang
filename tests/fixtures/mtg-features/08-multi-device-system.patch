@@ -80,12 +80,12 @@ instance FOH_Stage_Rack is Venue_Stage_Rack {
 instance FOH_Console is Console {
   location: "Front of House"
   bus PA_Matrix {
-    output: MADI_Out[9]
-    output: MADI_Out[10]
+    output "MADI_Out 9": MADI_Out[9]
+    output "MADI_Out 10": MADI_Out[10]
   }
   bus Monitor_Send {
-    output: MADI_Out[11]
-    output: MADI_Out[12]
+    output "MADI_Out 11": MADI_Out[11]
+    output "MADI_Out 12": MADI_Out[12]
   }
   route MADI_In[41] -> Main_L
   route MADI_In[42] -> Main_R

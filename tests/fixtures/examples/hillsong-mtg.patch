@@ -347,68 +347,68 @@ instance _11260614_f74c_489c_8f24_04db0114b216 is AVID_Venue_FOH_Rack {
   route _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[47] -> LINE[7]
   route _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[48] -> LINE[8]
   bus PA_Matrix {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[9]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[10]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 9": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[9]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 10": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[10]
   }
   bus Front_Fill_Matrix {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[11]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 11": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[11]
   }
   bus Floor_Sub_Matrix {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[12]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 12": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[12]
   }
   bus PQ_MM {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[1]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[2]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 1": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[1]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 2": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[2]
   }
   bus PQ_Band {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[3]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[4]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 3": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[3]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 4": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[4]
   }
   bus PQ_Vox {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[5]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 5": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[5]
   }
   bus PQ_MC {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[6]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 6": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[6]
   }
   bus PQ_PGM {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[7]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[8]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 7": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[7]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 8": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[8]
   }
   bus PQ_Links {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[9]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[10]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 9": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[9]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 10": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[10]
   }
   bus HLVLMON_IEM {
   }
   bus HLVLMON_Wedges {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[11]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 11": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[11]
   }
   bus SMAART_Console_REF {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[12]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 12": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[12]
   }
   bus VoxVerbLP {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[13]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 13": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[13]
   }
   bus DrumVerbLP {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[14]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 14": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[14]
   }
   bus SnareVerbLP {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[15]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 15": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[15]
   }
   bus SpareLP {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[16]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20 16": _75e05cfe_2915_4232_801e_9042a5f68781__2__5efbb62d_c1be_475a_875a_c848cc8d6a20[16]
   }
   bus LINKS_GRP {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[1]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[2]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 1": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[1]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 2": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[2]
   }
   bus PB_GRP {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[3]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[4]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 3": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[3]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 4": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[4]
   }
   bus MUSIC {
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[5]
-    output: _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[6]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 5": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[5]
+    output "_75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20 6": _75e05cfe_2915_4232_801e_9042a5f68781__1__5efbb62d_c1be_475a_875a_c848cc8d6a20[6]
   }
 }
 instance ab5b1a2e_1662_4963_a569_7f44f82379cc is _80_ch_3_way_Splitter {
@@ -456,62 +456,62 @@ instance b33e060d_e741_409d_b3f3_48697ceb7a8d is DOTEC_ANDIAMO_v1 {
 }
 instance cbfed6a8_ee24_4f24_b8fa_707a95bb6821 is Ross_ULTRIX_FR2 {
   bus Link_1 {
-    output: MADI_1_Out[1], MADI_2[1]
-    output: MADI_1_Out[2], MADI_2[2]
-    output: MADI_1_Out[3], MADI_2[3]
-    output: MADI_1_Out[4], MADI_2[4]
-    output: MADI_1_Out[5], MADI_2[5]
-    output: MADI_1_Out[6], MADI_2[6]
-    output: MADI_1_Out[7], MADI_2[7]
-    output: MADI_1_Out[8], MADI_2[8]
+    output "MADI_1_Out 1": MADI_1_Out[1], MADI_2[1]
+    output "MADI_1_Out 2": MADI_1_Out[2], MADI_2[2]
+    output "MADI_1_Out 3": MADI_1_Out[3], MADI_2[3]
+    output "MADI_1_Out 4": MADI_1_Out[4], MADI_2[4]
+    output "MADI_1_Out 5": MADI_1_Out[5], MADI_2[5]
+    output "MADI_1_Out 6": MADI_1_Out[6], MADI_2[6]
+    output "MADI_1_Out 7": MADI_1_Out[7], MADI_2[7]
+    output "MADI_1_Out 8": MADI_1_Out[8], MADI_2[8]
   }
   bus Link_2 {
-    output: MADI_1_Out[9], MADI_2[9]
-    output: MADI_1_Out[10], MADI_2[10]
-    output: MADI_1_Out[11], MADI_2[11]
-    output: MADI_1_Out[12], MADI_2[12]
-    output: MADI_1_Out[13], MADI_2[13]
-    output: MADI_1_Out[14], MADI_2[14]
-    output: MADI_1_Out[15], MADI_2[15]
-    output: MADI_1_Out[16], MADI_2[16]
+    output "MADI_1_Out 9": MADI_1_Out[9], MADI_2[9]
+    output "MADI_1_Out 10": MADI_1_Out[10], MADI_2[10]
+    output "MADI_1_Out 11": MADI_1_Out[11], MADI_2[11]
+    output "MADI_1_Out 12": MADI_1_Out[12], MADI_2[12]
+    output "MADI_1_Out 13": MADI_1_Out[13], MADI_2[13]
+    output "MADI_1_Out 14": MADI_1_Out[14], MADI_2[14]
+    output "MADI_1_Out 15": MADI_1_Out[15], MADI_2[15]
+    output "MADI_1_Out 16": MADI_1_Out[16], MADI_2[16]
   }
   bus VID_PB_1 {
-    output: MADI_1_Out[17], MADI_2[17]
-    output: MADI_1_Out[18], MADI_2[18]
-    output: MADI_1_Out[19], MADI_2[19]
-    output: MADI_1_Out[20], MADI_2[20]
-    output: MADI_1_Out[21], MADI_2[21]
-    output: MADI_1_Out[22], MADI_2[22]
-    output: MADI_1_Out[23], MADI_2[23]
-    output: MADI_1_Out[24], MADI_2[24]
+    output "MADI_1_Out 17": MADI_1_Out[17], MADI_2[17]
+    output "MADI_1_Out 18": MADI_1_Out[18], MADI_2[18]
+    output "MADI_1_Out 19": MADI_1_Out[19], MADI_2[19]
+    output "MADI_1_Out 20": MADI_1_Out[20], MADI_2[20]
+    output "MADI_1_Out 21": MADI_1_Out[21], MADI_2[21]
+    output "MADI_1_Out 22": MADI_1_Out[22], MADI_2[22]
+    output "MADI_1_Out 23": MADI_1_Out[23], MADI_2[23]
+    output "MADI_1_Out 24": MADI_1_Out[24], MADI_2[24]
   }
   bus VID_PB_2 {
-    output: MADI_1_Out[25], MADI_2[25]
-    output: MADI_1_Out[26], MADI_2[26]
-    output: MADI_1_Out[27], MADI_2[27]
-    output: MADI_1_Out[28], MADI_2[28]
-    output: MADI_1_Out[29], MADI_2[29]
-    output: MADI_1_Out[30], MADI_2[30]
-    output: MADI_1_Out[31], MADI_2[31]
-    output: MADI_1_Out[32], MADI_2[32]
+    output "MADI_1_Out 25": MADI_1_Out[25], MADI_2[25]
+    output "MADI_1_Out 26": MADI_1_Out[26], MADI_2[26]
+    output "MADI_1_Out 27": MADI_1_Out[27], MADI_2[27]
+    output "MADI_1_Out 28": MADI_1_Out[28], MADI_2[28]
+    output "MADI_1_Out 29": MADI_1_Out[29], MADI_2[29]
+    output "MADI_1_Out 30": MADI_1_Out[30], MADI_2[30]
+    output "MADI_1_Out 31": MADI_1_Out[31], MADI_2[31]
+    output "MADI_1_Out 32": MADI_1_Out[32], MADI_2[32]
   }
   bus QLAB_ {
-    output: MADI_2_Out[49]
-    output: MADI_2_Out[50]
-    output: MADI_2_Out[51]
-    output: MADI_2_Out[52]
-    output: MADI_2_Out[53]
-    output: MADI_2_Out[54]
-    output: MADI_2_Out[55]
-    output: MADI_2_Out[56]
-    output: MADI_2_Out[57]
-    output: MADI_2_Out[58]
-    output: MADI_2_Out[59]
-    output: MADI_2_Out[60]
-    output: MADI_2_Out[61]
-    output: MADI_2_Out[62]
-    output: MADI_2_Out[63]
-    output: MADI_2_Out[64]
+    output "MADI_2_Out 49": MADI_2_Out[49]
+    output "MADI_2_Out 50": MADI_2_Out[50]
+    output "MADI_2_Out 51": MADI_2_Out[51]
+    output "MADI_2_Out 52": MADI_2_Out[52]
+    output "MADI_2_Out 53": MADI_2_Out[53]
+    output "MADI_2_Out 54": MADI_2_Out[54]
+    output "MADI_2_Out 55": MADI_2_Out[55]
+    output "MADI_2_Out 56": MADI_2_Out[56]
+    output "MADI_2_Out 57": MADI_2_Out[57]
+    output "MADI_2_Out 58": MADI_2_Out[58]
+    output "MADI_2_Out 59": MADI_2_Out[59]
+    output "MADI_2_Out 60": MADI_2_Out[60]
+    output "MADI_2_Out 61": MADI_2_Out[61]
+    output "MADI_2_Out 62": MADI_2_Out[62]
+    output "MADI_2_Out 63": MADI_2_Out[63]
+    output "MADI_2_Out 64": MADI_2_Out[64]
   }
 }
 instance _2d3c5595_7f61_47df_bdb4_572ddb77f0eb is DOTEC_ExBox_MD {
@@ -674,35 +674,35 @@ instance _86b83d5a_0a22_45d0_bcba_fa4cbbabe096 is QSYS_Core_250i {
   route QLAN_In[1] -> _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[41]
   bus Shouts__MD_Conf {
     label: "Shouts > MD Conf"
-    output: QLAN_Out[1]
+    output "QLAN_Out 1": QLAN_Out[1]
   }
   bus Shouts__Show_Conf {
     label: "Shouts > Show Conf"
     input: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[1]
-    output: QLAN_Out[2]
+    output "QLAN_Out 2": QLAN_Out[2]
   }
   bus Shouts__Audio_Conf {
     label: "Shouts > Audio Conf"
-    output: QLAN_Out[3]
+    output "QLAN_Out 3": QLAN_Out[3]
   }
   bus PGM__Comms_ {
     label: "PGM > Comms"
-    output: QLAN_Out[4]
+    output "QLAN_Out 4": QLAN_Out[4]
   }
   bus Vid_Solo__Comms {
     label: "Vid Solo > Comms"
-    output: QLAN_Out[6]
+    output "QLAN_Out 6": QLAN_Out[6]
   }
   bus MONS_IEM {
     label: "MONS > IEM"
     input: QLAN_In[2], QLAN[3]
-    output: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[42]
+    output "_85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 42": _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[42]
   }
   bus SpotifyFOH {
     label: "SPOTIFY>FOH"
     input: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[1], _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[2]
-    output: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[25]
-    output: _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[26]
+    output "_85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 25": _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[25]
+    output "_85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5 26": _85e272f3_57bc_4dd9_8127_fa5773125ba2__8__b119a346_6bdd_4313_b9ab_f7f5decaf3c5[26]
   }
 }
 instance _96c80b41_8249_4aec_936e_492d7b59f504 is YAMAHA_R08D
@@ -722,108 +722,108 @@ instance a596a349_04b5_4242_813b_b3a6607fb135 is YAMAHA_PM1D {
   route MADI_5_In[10] -> MADI_2_Out[2]
   route MADI_4_In[16] -> MADI_2_Out[3]
   bus Drums {
-    output: MADI_3_Out[1]
-    output: MADI_3_Out[2]
+    output "MADI_3_Out 1": MADI_3_Out[1]
+    output "MADI_3_Out 2": MADI_3_Out[2]
   }
   bus Bass {
-    output: MADI_3_Out[3]
-    output: MADI_3_Out[4]
+    output "MADI_3_Out 3": MADI_3_Out[3]
+    output "MADI_3_Out 4": MADI_3_Out[4]
   }
   bus Gtr_1 {
-    output: MADI_1_Out[17]
-    output: MADI_1_Out[18]
+    output "MADI_1_Out 17": MADI_1_Out[17]
+    output "MADI_1_Out 18": MADI_1_Out[18]
   }
   bus Gtr_2 {
-    output: MADI_1_Out[19]
-    output: MADI_1_Out[20]
+    output "MADI_1_Out 19": MADI_1_Out[19]
+    output "MADI_1_Out 20": MADI_1_Out[20]
   }
   bus Keys_1 {
-    output: MADI_3_Out[5]
-    output: MADI_3_Out[6]
+    output "MADI_3_Out 5": MADI_3_Out[5]
+    output "MADI_3_Out 6": MADI_3_Out[6]
   }
   bus Keys_2 {
-    output: MADI_3_Out[7]
-    output: MADI_3_Out[8]
+    output "MADI_3_Out 7": MADI_3_Out[7]
+    output "MADI_3_Out 8": MADI_3_Out[8]
   }
   bus Spare_1 {
-    output: MADI_1_Out[21]
-    output: MADI_1_Out[22]
+    output "MADI_1_Out 21": MADI_1_Out[21]
+    output "MADI_1_Out 22": MADI_1_Out[22]
   }
   bus Spare_2 {
-    output: MADI_1_Out[23]
-    output: MADI_1_Out[24]
+    output "MADI_1_Out 23": MADI_1_Out[23]
+    output "MADI_1_Out 24": MADI_1_Out[24]
   }
   bus Spare_3 {
-    output: MADI_1_Out[25]
-    output: MADI_1_Out[26]
+    output "MADI_1_Out 25": MADI_1_Out[25]
+    output "MADI_1_Out 26": MADI_1_Out[26]
   }
   bus Spare_4 {
-    output: MADI_1_Out[27]
-    output: MADI_1_Out[28]
+    output "MADI_1_Out 27": MADI_1_Out[27]
+    output "MADI_1_Out 28": MADI_1_Out[28]
   }
   bus WL_1 {
-    output: MADI_1_Out[1]
-    output: MADI_1_Out[2]
+    output "MADI_1_Out 1": MADI_1_Out[1]
+    output "MADI_1_Out 2": MADI_1_Out[2]
   }
   bus WL_2 {
-    output: MADI_1_Out[3]
-    output: MADI_1_Out[4]
+    output "MADI_1_Out 3": MADI_1_Out[3]
+    output "MADI_1_Out 4": MADI_1_Out[4]
   }
   bus Vox_1 {
-    output: MADI_1_Out[5]
-    output: MADI_1_Out[6]
+    output "MADI_1_Out 5": MADI_1_Out[5]
+    output "MADI_1_Out 6": MADI_1_Out[6]
   }
   bus Vox_2 {
-    output: MADI_1_Out[7]
-    output: MADI_1_Out[8]
+    output "MADI_1_Out 7": MADI_1_Out[7]
+    output "MADI_1_Out 8": MADI_1_Out[8]
   }
   bus Vox_3 {
-    output: MADI_1_Out[9]
-    output: MADI_1_Out[10]
+    output "MADI_1_Out 9": MADI_1_Out[9]
+    output "MADI_1_Out 10": MADI_1_Out[10]
   }
   bus Vox_4 {
-    output: MADI_1_Out[11]
-    output: MADI_1_Out[12]
+    output "MADI_1_Out 11": MADI_1_Out[11]
+    output "MADI_1_Out 12": MADI_1_Out[12]
   }
   bus Vox_5 {
-    output: MADI_1_Out[13]
-    output: MADI_1_Out[14]
+    output "MADI_1_Out 13": MADI_1_Out[13]
+    output "MADI_1_Out 14": MADI_1_Out[14]
   }
   bus Vox_6 {
-    output: MADI_1_Out[15]
-    output: MADI_1_Out[16]
+    output "MADI_1_Out 15": MADI_1_Out[15]
+    output "MADI_1_Out 16": MADI_1_Out[16]
   }
   bus MD {
-    output: MADI_1_Out[29]
-    output: MADI_1_Out[30]
+    output "MADI_1_Out 29": MADI_1_Out[29]
+    output "MADI_1_Out 30": MADI_1_Out[30]
   }
   bus Cue {
-    output: Line[1]
-    output: Line[2]
+    output "Line 1": Line[1]
+    output "Line 2": Line[2]
   }
   bus DSL_MONS {
-    output: MADI_2_Out[21]
+    output "MADI_2_Out 21": MADI_2_Out[21]
   }
   bus DSC_MONS {
-    output: MADI_2_Out[22]
+    output "MADI_2_Out 22": MADI_2_Out[22]
   }
   bus DSR_MONS {
-    output: MADI_2_Out[23]
+    output "MADI_2_Out 23": MADI_2_Out[23]
   }
   bus MONS_SPR_1_ {
-    output: MADI_2_Out[24]
+    output "MADI_2_Out 24": MADI_2_Out[24]
   }
   bus MONS_SPR_2 {
-    output: MADI_2_Out[25]
+    output "MADI_2_Out 25": MADI_2_Out[25]
   }
   bus MON_CUE_WEDGE {
-    output: Line[3]
+    output "Line 3": Line[3]
   }
   bus ClicLink {
-    output: MADI_2_Out[27]
+    output "MADI_2_Out 27": MADI_2_Out[27]
   }
   bus MD_CUELink {
-    output: MADI_2_Out[28]
+    output "MADI_2_Out 28": MADI_2_Out[28]
   }
 }
 instance _3d2e735b_edff_4034_b1e4_a2c41eab7d72 is Audinate_AVIO_AO2
