@@ -291,6 +291,25 @@ pub fn set_slot(
 }
 
 /// Add a bus to an instance from JSON. Returns `{"ok":true}` or `{"error":"..."}`.
+///
+/// `bus_json` must be a JSON object matching:
+/// ```json
+/// {
+///   "name": "Link_1",
+///   "label": null,
+///   "inputs": [{"instance": null, "port": "Fader", "index": {"elements": [{"type": "Single", "value": 1}]}}],
+///   "outputs": [
+///     {
+///       "label": "Link 1-L",
+///       "destinations": [{"instance": null, "port": "MADI_1_Out", "index": {"elements": [{"type": "Single", "value": 1}]}}],
+///       "span": {"start": 0, "end": 0}
+///     }
+///   ],
+///   "span": {"start": 0, "end": 0}
+/// }
+/// ```
+/// An unrouted output has `"destinations": []`.
+/// `"label"` on the bus itself is an optional display name; pass `null` if not needed.
 #[wasm_bindgen]
 pub fn add_bus(handle: u32, instance: &str, bus_json: &str) -> String {
     let bus: patchlang::ast::BusEntry = match serde_json::from_str(bus_json) {
@@ -597,6 +616,25 @@ pub fn clear_routes(handle: u32, instance: &str) -> String {
 
 /// Update a bus on an instance (full replacement by name).
 /// Returns `{"ok":true}` or `{"error":"..."}`.
+///
+/// `bus_json` must be a JSON object matching:
+/// ```json
+/// {
+///   "name": "Link_1",
+///   "label": null,
+///   "inputs": [{"instance": null, "port": "Fader", "index": {"elements": [{"type": "Single", "value": 1}]}}],
+///   "outputs": [
+///     {
+///       "label": "Link 1-L",
+///       "destinations": [{"instance": null, "port": "MADI_1_Out", "index": {"elements": [{"type": "Single", "value": 1}]}}],
+///       "span": {"start": 0, "end": 0}
+///     }
+///   ],
+///   "span": {"start": 0, "end": 0}
+/// }
+/// ```
+/// An unrouted output has `"destinations": []`.
+/// `"label"` on the bus itself is an optional display name; pass `null` if not needed.
 #[wasm_bindgen]
 pub fn update_bus(handle: u32, instance: &str, bus_name: &str, bus_json: &str) -> String {
     let bus: patchlang::ast::BusEntry = match serde_json::from_str(bus_json) {
