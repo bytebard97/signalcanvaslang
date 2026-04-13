@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use crate::ast::{
-    BusEntry, ConnectDecl, FlagDecl, IndexElement, IndexSpec, InstanceDecl,
+    BusEntry, BusOutput, ConnectDecl, FlagDecl, IndexElement, IndexSpec, InstanceDecl,
     KeyValue, KvValue, PortDef, PortDirection, PortRef, RangeSpec, RingDecl,
     SignalDecl, SlotDef, Statement, StreamDecl, TemplateDecl,
 };
@@ -474,10 +474,14 @@ fn add_bus_to_instance() {
             port: "Dante_In".to_string(),
             index: Some(IndexSpec { elements: vec![IndexElement::Single { value: 1 }] }),
         }],
-        outputs: vec![PortRef {
-            instance: None,
-            port: "Dante_Out".to_string(),
-            index: Some(IndexSpec { elements: vec![IndexElement::Single { value: 1 }] }),
+        outputs: vec![BusOutput {
+            label: "PA Out".to_string(),
+            destinations: vec![PortRef {
+                instance: None,
+                port: "Dante_Out".to_string(),
+                index: Some(IndexSpec { elements: vec![IndexElement::Single { value: 1 }] }),
+            }],
+            span: default_span(),
         }],
         span: default_span(),
     };

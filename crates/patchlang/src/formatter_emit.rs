@@ -440,17 +440,28 @@ fn emit_bus_entry(out: &mut String, bus: &BusEntry, indent: &str) {
     out.push_str(&bus.name);
     out.push_str(" {\n");
     let inner = format!("{indent}{INDENT}");
+    if let Some(label) = &bus.label {
+        out.push_str(&inner);
+        out.push_str("label: \"");
+        out.push_str(label);
+        out.push_str("\"\n");
+    }
     for input in &bus.inputs {
         out.push_str(&inner);
         out.push_str("input: ");
         emit_port_ref(out, input);
         out.push('\n');
     }
+    // Task 2 will update this to emit `output "Label": Port` once the parser
+    // also understands the new syntax. For now, emit old-style `output: Port`
+    // to keep roundtrip tests green.
     for output in &bus.outputs {
-        out.push_str(&inner);
-        out.push_str("output: ");
-        emit_port_ref(out, output);
-        out.push('\n');
+        for dest in &output.destinations {
+            out.push_str(&inner);
+            out.push_str("output: ");
+            emit_port_ref(out, dest);
+            out.push('\n');
+        }
     }
     out.push_str(indent);
     out.push_str("}\n");

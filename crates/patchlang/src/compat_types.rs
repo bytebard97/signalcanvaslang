@@ -254,12 +254,19 @@ pub struct TsRouteDecl {
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct TsBusOutput {
+    pub label: String,
+    pub destinations: Vec<TsPortRef>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TsBusDecl {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
     pub inputs: Vec<TsPortRef>,
-    pub outputs: Vec<TsPortRef>,
+    pub outputs: Vec<TsBusOutput>,
 }
 
 #[derive(Debug, Clone, Serialize)]

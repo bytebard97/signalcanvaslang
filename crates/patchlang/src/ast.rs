@@ -277,13 +277,23 @@ pub struct RouteEntry {
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[ts(export)]
+pub struct BusOutput {
+    /// User-defined name for this output, e.g. "Link 1-L". Required, non-empty.
+    pub label: String,
+    /// Where this output is routed. Empty = declared but unrouted.
+    pub destinations: Vec<PortRef>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 pub struct BusEntry {
     pub name: String,
     /// Human-readable display name. May contain characters invalid in identifiers
     /// (e.g. `"SPOTIFY>FOH"`). The `name` field remains the stable cross-reference key.
     pub label: Option<String>,
     pub inputs: Vec<PortRef>,
-    pub outputs: Vec<PortRef>,
+    pub outputs: Vec<BusOutput>,
     pub span: Span,
 }
 
