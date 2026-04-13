@@ -7,7 +7,7 @@
 //! Slot checks (S02, S12, S13) are in `slots.rs`.
 //! Meta info hints (M-I01, M-I03, M-I04) are in `meta.rs`.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::ast::{
     ConnectDecl, IndexElement, PatchProgram, PortRef, Statement,
@@ -394,6 +394,29 @@ fn check_bus_port_refs(
                     }
                     // Unrouted outputs (destinations empty) skip S05 validation.
                 }
+
+                // C-new: Duplicate bus output label warning.
+                let mut seen_labels: HashSet<&str> = HashSet::new();
+                for output in &bus.outputs {
+                    if !output.label.is_empty() && !seen_labels.insert(output.label.as_str()) {
+                        diags.push(Diagnostic {
+                            severity: Severity::Warning,
+                            layer: LAYER.clone(),
+                            message: format!(
+                                "Duplicate bus output label \"{}\" in bus '{}'",
+                                output.label, bus.name
+                            ),
+                            span: Some(output.span.clone()),
+                            source: None,
+                            target: None,
+                            fix: Some(format!(
+                                "Rename one of the outputs with label \"{}\"",
+                                output.label
+                            )),
+                        });
+                    }
+                }
+
                 for input in &bus.inputs {
                     match resolve_effective_port(&inst.name, &input.port, ctx) {
                         None => emit_missing_port_diagnostic(
