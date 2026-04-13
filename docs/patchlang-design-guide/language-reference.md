@@ -281,7 +281,8 @@ instance FOH_Console is CL5(mic_count: 48) @version(">=4.0") {
   route Dante_In[1] -> Fader[1]
   bus Main_LR {
     input: Fader[1..8]
-    output: Matrix_Out[1..2]
+    output "Main L": Matrix_Out[1]
+    output "Main R": Matrix_Out[2]
   }
   slot MY_Slot[1]: MY16_AUD
 }
@@ -616,20 +617,35 @@ route-entry = "route" port-ref-or-local "->" port-ref-or-local ;
 ### Bus Entry (inside instance body)
 
 ```ebnf
-bus-entry      = "bus" identifier "{" [ bus-label ] { bus-port-entry } "}" ;
-bus-label      = "label" ":" string-literal ;
-bus-port-entry = ( "input" | "output" | "in" | "out" ) ":" port-ref-or-local ;
+bus-entry        = "bus" identifier "{" [ bus-label ] { bus-port-entry } "}" ;
+bus-label        = "label" ":" string-literal ;
+bus-port-entry   = bus-input-entry | bus-output-entry ;
+bus-input-entry  = ( "input" | "in" ) ":" port-ref-or-local ;
+bus-output-entry = ( "output" | "out" ) string-literal
+                   [ ":" port-ref-or-local { "," port-ref-or-local } ] ;
 ```
 
 The optional `label` property stores a human-readable display name that may contain characters
 invalid in PatchLang identifiers (e.g. `>`, `-`). The identifier is the stable cross-reference
 key; `label` is display-only and does not affect routing, DRC, or signal tracing.
 
+Bus outputs require a quoted label — the user-defined name for the signal this output carries (e.g. `"Link 1-L"`, `"IEM Mix 1"`). The label must be non-empty. The `:` and port reference are optional: omitting them declares an unrouted output that exists in the bus manager but has not yet been cabled. Multiple destinations can be comma-separated for outputs that route to more than one port simultaneously.
+
 ```
 bus Main_LR {
   label: "SPOTIFY>FOH"
   input: Fader[1..8]
-  output: Matrix_Out[1..2]
+  output "Main L": Matrix_Out[1]
+  output "Main R": Matrix_Out[2]
+}
+```
+
+```
+bus Link_1 {
+  input: Fader[1..8]
+  output "Link 1-L": MADI_1_Out[1]              # labeled, single destination
+  output "Link 1-R": MADI_1_Out[2], Dante[5]    # labeled, multiple destinations
+  output "Link 1-C"                              # labeled, unrouted (not yet cabled)
 }
 ```
 
