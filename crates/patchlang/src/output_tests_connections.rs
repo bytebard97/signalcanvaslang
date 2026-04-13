@@ -92,7 +92,7 @@ fn instance_with_buses() {
         instance Console is Mixer {
             bus Main_LR {
                 input: Fader[1]
-                output: Matrix_Out[1]
+                output "Mix": Matrix_Out[1]
             }
         }
     "#;
@@ -110,6 +110,7 @@ fn instance_with_buses() {
     let outputs = buses[0]["outputs"].as_array().expect("outputs must be an array");
     assert!(!outputs.is_empty(), "outputs should not be empty");
     // outputs[0] is now TsBusOutput { label, destinations }
+    assert_eq!(outputs[0]["label"], "Mix");
     assert_eq!(outputs[0]["destinations"][0]["port"], "Matrix_Out");
 }
 
@@ -543,7 +544,7 @@ fn auto_rejected_in_bus() {
         instance Console is T {
             bus MyBus {
                 input: In[auto]
-                output: Out[1]
+                output "Test": Out[1]
             }
         }
     "#;

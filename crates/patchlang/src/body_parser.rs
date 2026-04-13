@@ -112,7 +112,7 @@ impl<'a> Parser<'a> {
         RouteEntry { source, target, span }
     }
 
-    /// Parse `bus Name { [label: "..."] in/input: Port  out/output: Port }`.
+    /// Parse `bus Name { [label: "..."] in/input: Port  output "Label" [: Port {, Port}] }`.
     pub(crate) fn parse_bus_entry(&mut self) -> BusEntry {
         let start = self.current_span().start;
         self.advance(); // consume 'bus'
@@ -142,30 +142,90 @@ impl<'a> Parser<'a> {
                 }
                 _ => { self.advance(); continue; }
             };
-            self.expect(&Token::Colon);
-            let port = self.parse_port_ref();
             if direction == "input" {
+                self.expect(&Token::Colon);
+                let port = self.parse_port_ref();
                 inputs.push(port);
             } else {
-                // Temporary stub: Task 2 replaces this with proper "Label": Port syntax.
-                let label = port.port.clone();
+                // New syntax: output "Label" [: Port {, Port}]
+                // Require a string literal label.
+                let entry_start = self.current_span().start;
+                let output_label = if let Some(Token::StringLiteral(s)) = self.peek().cloned() {
+                    self.advance();
+                    if s.is_empty() {
+                        let span = self.span_from(entry_start);
+                        self.errors.push(ParseError {
+                            message: "Bus output label must not be empty".to_string(),
+                            span,
+                            hint: Some("Provide a name: output \"Link 1-L\": Port[1]".to_string()),
+                        });
+                        // Skip to next entry
+                        while !matches!(self.peek(), None | Some(Token::RBrace))
+                            && !self.at_end()
+                        {
+                            self.advance();
+                        }
+                        continue;
+                    } else {
+                        s
+                    }
+                } else {
+                    // No string literal — old `output: Port` syntax or garbage.
+                    let span = self.span_from(entry_start);
+                    self.errors.push(ParseError {
+                        message: "Bus output requires a quoted label: output \"Name\": Port"
+                            .to_string(),
+                        span,
+                        hint: Some(
+                            "Example: output \"Link 1-L\": MADI_Out[1]".to_string(),
+                        ),
+                    });
+                    // Skip to next entry
+                    while !matches!(self.peek(), None | Some(Token::RBrace))
+                        && !self.at_end()
+                    {
+                        self.advance();
+                    }
+                    continue;
+                };
+
+                // Optional: colon + one or more comma-separated port refs
+                let mut destinations: Vec<PortRef> = Vec::new();
+                if self.peek() == Some(&Token::Colon) {
+                    self.advance(); // consume ':'
+                    let port = self.parse_port_ref();
+                    let dest_span = self.span_from(start);
+                    reject_auto_in_index(&port.index, &dest_span, &mut self.errors, "bus");
+                    destinations.push(port);
+                    // Additional destinations separated by commas
+                    while self.peek() == Some(&Token::Comma) {
+                        self.advance(); // consume ','
+                        let port = self.parse_port_ref();
+                        let dest_span = self.span_from(start);
+                        reject_auto_in_index(
+                            &port.index,
+                            &dest_span,
+                            &mut self.errors,
+                            "bus",
+                        );
+                        destinations.push(port);
+                    }
+                }
+
+                let span = self.span_from(start);
                 outputs.push(BusOutput {
-                    label,
-                    destinations: vec![port],
-                    span: self.span_from(start),
+                    label: output_label,
+                    destinations,
+                    span,
                 });
             }
         }
         self.expect(&Token::RBrace);
         let span = self.span_from(start);
-        // A01: [auto] not valid in bus declarations
+        // A01: [auto] not valid in bus declarations (inputs checked here;
+        // output destinations are checked inline above during parsing)
         for input in &inputs {
             reject_auto_in_index(&input.index, &span, &mut self.errors, "bus");
-        }
-        for output in &outputs {
-            for dest in &output.destinations {
-                reject_auto_in_index(&dest.index, &span, &mut self.errors, "bus");
-            }
         }
         BusEntry { name, label, inputs, outputs, span }
     }

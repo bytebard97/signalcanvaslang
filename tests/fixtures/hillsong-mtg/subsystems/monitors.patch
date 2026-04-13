@@ -21,132 +21,132 @@ template Monitor_System {
     route MADI_5[10] -> MADI_2[2]
     route MADI_4[16] -> MADI_2[3]
     bus Drums {
-      output: MADI_3[1]
-      output: MADI_3[2]
+      output "MADI_3 1": MADI_3[1]
+      output "MADI_3 2": MADI_3[2]
     }
     bus Bass {
-      output: MADI_3[3]
-      output: MADI_3[4]
+      output "MADI_3 3": MADI_3[3]
+      output "MADI_3 4": MADI_3[4]
     }
     bus Gtr_1 {
       label: "Gtr 1"
-      output: MADI_1[17]
-      output: MADI_1[18]
+      output "MADI_1 17": MADI_1[17]
+      output "MADI_1 18": MADI_1[18]
     }
     bus Gtr_2 {
       label: "Gtr 2"
-      output: MADI_1[19]
-      output: MADI_1[20]
+      output "MADI_1 19": MADI_1[19]
+      output "MADI_1 20": MADI_1[20]
     }
     bus Keys_1 {
       label: "Keys 1"
-      output: MADI_3[5]
-      output: MADI_3[6]
+      output "MADI_3 5": MADI_3[5]
+      output "MADI_3 6": MADI_3[6]
     }
     bus Keys_2 {
       label: "Keys 2"
-      output: MADI_3[7]
-      output: MADI_3[8]
+      output "MADI_3 7": MADI_3[7]
+      output "MADI_3 8": MADI_3[8]
     }
     bus Spare_1 {
       label: "Spare 1"
-      output: MADI_1[21]
-      output: MADI_1[22]
+      output "MADI_1 21": MADI_1[21]
+      output "MADI_1 22": MADI_1[22]
     }
     bus Spare_2 {
       label: "Spare 2"
-      output: MADI_1[23]
-      output: MADI_1[24]
+      output "MADI_1 23": MADI_1[23]
+      output "MADI_1 24": MADI_1[24]
     }
     bus Spare_3 {
       label: "Spare 3"
-      output: MADI_1[25]
-      output: MADI_1[26]
+      output "MADI_1 25": MADI_1[25]
+      output "MADI_1 26": MADI_1[26]
     }
     bus Spare_4 {
       label: "Spare 4"
-      output: MADI_1[27]
-      output: MADI_1[28]
+      output "MADI_1 27": MADI_1[27]
+      output "MADI_1 28": MADI_1[28]
     }
     bus WL_1 {
       label: "WL 1"
-      output: MADI_1[1]
-      output: MADI_1[2]
+      output "MADI_1 1": MADI_1[1]
+      output "MADI_1 2": MADI_1[2]
     }
     bus WL_2 {
       label: "WL 2"
-      output: MADI_1[3]
-      output: MADI_1[4]
+      output "MADI_1 3": MADI_1[3]
+      output "MADI_1 4": MADI_1[4]
     }
     bus Vox_1 {
       label: "Vox 1"
-      output: MADI_1[5]
-      output: MADI_1[6]
+      output "MADI_1 5": MADI_1[5]
+      output "MADI_1 6": MADI_1[6]
     }
     bus Vox_2 {
       label: "Vox 2"
-      output: MADI_1[7]
-      output: MADI_1[8]
+      output "MADI_1 7": MADI_1[7]
+      output "MADI_1 8": MADI_1[8]
     }
     bus Vox_3 {
       label: "Vox 3"
-      output: MADI_1[9]
-      output: MADI_1[10]
+      output "MADI_1 9": MADI_1[9]
+      output "MADI_1 10": MADI_1[10]
     }
     bus Vox_4 {
       label: "Vox 4"
-      output: MADI_1[11]
-      output: MADI_1[12]
+      output "MADI_1 11": MADI_1[11]
+      output "MADI_1 12": MADI_1[12]
     }
     bus Vox_5 {
       label: "Vox 5"
-      output: MADI_1[13]
-      output: MADI_1[14]
+      output "MADI_1 13": MADI_1[13]
+      output "MADI_1 14": MADI_1[14]
     }
     bus Vox_6 {
       label: "Vox 6"
-      output: MADI_1[15]
-      output: MADI_1[16]
+      output "MADI_1 15": MADI_1[15]
+      output "MADI_1 16": MADI_1[16]
     }
     bus MD {
-      output: MADI_1[29]
-      output: MADI_1[30]
+      output "MADI_1 29": MADI_1[29]
+      output "MADI_1 30": MADI_1[30]
     }
     bus Cue {
-      output: Line[1]
-      output: Line[2]
+      output "Line 1": Line[1]
+      output "Line 2": Line[2]
     }
     bus DSL_MONS {
       label: "DSL MONS"
-      output: MADI_2[21]
+      output "MADI_2 21": MADI_2[21]
     }
     bus DSC_MONS {
       label: "DSC MONS"
-      output: MADI_2[22]
+      output "MADI_2 22": MADI_2[22]
     }
     bus DSR_MONS {
       label: "DSR MONS"
-      output: MADI_2[23]
+      output "MADI_2 23": MADI_2[23]
     }
     bus MONS_SPR_1_ {
       label: "MONS SPR 1. "
-      output: MADI_2[24]
+      output "MADI_2 24": MADI_2[24]
     }
     bus MONS_SPR_2 {
       label: "MONS SPR 2"
-      output: MADI_2[25]
+      output "MADI_2 25": MADI_2[25]
     }
     bus MON_CUE_WEDGE {
       label: "MON CUE WEDGE"
-      output: Line[3]
+      output "Line 3": Line[3]
     }
     bus ClicLink {
       label: "Clic>Link"
-      output: MADI_2[27]
+      output "MADI_2 27": MADI_2[27]
     }
     bus MD_CUELink {
       label: "MD/CUE>Link"
-      output: MADI_2[28]
+      output "MADI_2 28": MADI_2[28]
     }
   }
 

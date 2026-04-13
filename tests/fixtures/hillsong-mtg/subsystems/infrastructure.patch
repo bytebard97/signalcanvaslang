@@ -21,66 +21,66 @@ template Infrastructure_System {
   instance Ultrix is ULTRIX_FR2 {
     bus Link_1 {
       label: "Link 1"
-      output: MADI_1[1], MADI_2[1]
-      output: MADI_1[2], MADI_2[2]
-      output: MADI_1[3], MADI_2[3]
-      output: MADI_1[4], MADI_2[4]
-      output: MADI_1[5], MADI_2[5]
-      output: MADI_1[6], MADI_2[6]
-      output: MADI_1[7], MADI_2[7]
-      output: MADI_1[8], MADI_2[8]
+      output "MADI_1 1": MADI_1[1], MADI_2[1]
+      output "MADI_1 2": MADI_1[2], MADI_2[2]
+      output "MADI_1 3": MADI_1[3], MADI_2[3]
+      output "MADI_1 4": MADI_1[4], MADI_2[4]
+      output "MADI_1 5": MADI_1[5], MADI_2[5]
+      output "MADI_1 6": MADI_1[6], MADI_2[6]
+      output "MADI_1 7": MADI_1[7], MADI_2[7]
+      output "MADI_1 8": MADI_1[8], MADI_2[8]
     }
     bus Link_2 {
       label: "Link 2"
-      output: MADI_1[9], MADI_2[9]
-      output: MADI_1[10], MADI_2[10]
-      output: MADI_1[11], MADI_2[11]
-      output: MADI_1[12], MADI_2[12]
-      output: MADI_1[13], MADI_2[13]
-      output: MADI_1[14], MADI_2[14]
-      output: MADI_1[15], MADI_2[15]
-      output: MADI_1[16], MADI_2[16]
+      output "MADI_1 9": MADI_1[9], MADI_2[9]
+      output "MADI_1 10": MADI_1[10], MADI_2[10]
+      output "MADI_1 11": MADI_1[11], MADI_2[11]
+      output "MADI_1 12": MADI_1[12], MADI_2[12]
+      output "MADI_1 13": MADI_1[13], MADI_2[13]
+      output "MADI_1 14": MADI_1[14], MADI_2[14]
+      output "MADI_1 15": MADI_1[15], MADI_2[15]
+      output "MADI_1 16": MADI_1[16], MADI_2[16]
     }
     bus VID_PB_1 {
       label: "VID PB 1"
-      output: MADI_1[17], MADI_2[17]
-      output: MADI_1[18], MADI_2[18]
-      output: MADI_1[19], MADI_2[19]
-      output: MADI_1[20], MADI_2[20]
-      output: MADI_1[21], MADI_2[21]
-      output: MADI_1[22], MADI_2[22]
-      output: MADI_1[23], MADI_2[23]
-      output: MADI_1[24], MADI_2[24]
+      output "MADI_1 17": MADI_1[17], MADI_2[17]
+      output "MADI_1 18": MADI_1[18], MADI_2[18]
+      output "MADI_1 19": MADI_1[19], MADI_2[19]
+      output "MADI_1 20": MADI_1[20], MADI_2[20]
+      output "MADI_1 21": MADI_1[21], MADI_2[21]
+      output "MADI_1 22": MADI_1[22], MADI_2[22]
+      output "MADI_1 23": MADI_1[23], MADI_2[23]
+      output "MADI_1 24": MADI_1[24], MADI_2[24]
     }
     bus VID_PB_2 {
       label: "VID PB 2"
-      output: MADI_1[25], MADI_2[25]
-      output: MADI_1[26], MADI_2[26]
-      output: MADI_1[27], MADI_2[27]
-      output: MADI_1[28], MADI_2[28]
-      output: MADI_1[29], MADI_2[29]
-      output: MADI_1[30], MADI_2[30]
-      output: MADI_1[31], MADI_2[31]
-      output: MADI_1[32], MADI_2[32]
+      output "MADI_1 25": MADI_1[25], MADI_2[25]
+      output "MADI_1 26": MADI_1[26], MADI_2[26]
+      output "MADI_1 27": MADI_1[27], MADI_2[27]
+      output "MADI_1 28": MADI_1[28], MADI_2[28]
+      output "MADI_1 29": MADI_1[29], MADI_2[29]
+      output "MADI_1 30": MADI_1[30], MADI_2[30]
+      output "MADI_1 31": MADI_1[31], MADI_2[31]
+      output "MADI_1 32": MADI_1[32], MADI_2[32]
     }
     bus QLAB_ {
       label: "QLAB "
-      output: MADI_2[49]
-      output: MADI_2[50]
-      output: MADI_2[51]
-      output: MADI_2[52]
-      output: MADI_2[53]
-      output: MADI_2[54]
-      output: MADI_2[55]
-      output: MADI_2[56]
-      output: MADI_2[57]
-      output: MADI_2[58]
-      output: MADI_2[59]
-      output: MADI_2[60]
-      output: MADI_2[61]
-      output: MADI_2[62]
-      output: MADI_2[63]
-      output: MADI_2[64]
+      output "MADI_2 49": MADI_2[49]
+      output "MADI_2 50": MADI_2[50]
+      output "MADI_2 51": MADI_2[51]
+      output "MADI_2 52": MADI_2[52]
+      output "MADI_2 53": MADI_2[53]
+      output "MADI_2 54": MADI_2[54]
+      output "MADI_2 55": MADI_2[55]
+      output "MADI_2 56": MADI_2[56]
+      output "MADI_2 57": MADI_2[57]
+      output "MADI_2 58": MADI_2[58]
+      output "MADI_2 59": MADI_2[59]
+      output "MADI_2 60": MADI_2[60]
+      output "MADI_2 61": MADI_2[61]
+      output "MADI_2 62": MADI_2[62]
+      output "MADI_2 63": MADI_2[63]
+      output "MADI_2 64": MADI_2[64]
     }
   }
 
@@ -149,35 +149,35 @@ template Infrastructure_System {
     route QLAN[1] -> DANTE[41]
     bus Shouts__MD_Conf {
       label: "Shouts > MD Conf"
-      output: QLAN[1]
+      output "QLAN 1": QLAN[1]
     }
     bus Shouts__Show_Conf {
       label: "Shouts > Show Conf"
       input: DANTE[1]
-      output: QLAN[2]
+      output "QLAN 2": QLAN[2]
     }
     bus Shouts__Audio_Conf {
       label: "Shouts > Audio Conf"
-      output: QLAN[3]
+      output "QLAN 3": QLAN[3]
     }
     bus PGM__Comms_ {
       label: "PGM > Comms "
-      output: QLAN[4]
+      output "QLAN 4": QLAN[4]
     }
     bus Vid_Solo__Comms {
       label: "Vid Solo > Comms"
-      output: QLAN[6]
+      output "QLAN 6": QLAN[6]
     }
     bus MONS_IEM {
       label: ">MONS IEM"
       input: QLAN[2], QLAN[3]
-      output: DANTE[42]
+      output "DANTE 42": DANTE[42]
     }
     bus SpotifyFOH {
       label: "Spotify>FOH"
       input: DANTE[1], DANTE[2]
-      output: DANTE[25]
-      output: DANTE[26]
+      output "DANTE 25": DANTE[25]
+      output "DANTE 26": DANTE[26]
     }
   }
 

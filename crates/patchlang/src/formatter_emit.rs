@@ -452,16 +452,21 @@ fn emit_bus_entry(out: &mut String, bus: &BusEntry, indent: &str) {
         emit_port_ref(out, input);
         out.push('\n');
     }
-    // Task 2 will update this to emit `output "Label": Port` once the parser
-    // also understands the new syntax. For now, emit old-style `output: Port`
-    // to keep roundtrip tests green.
     for output in &bus.outputs {
-        for dest in &output.destinations {
-            out.push_str(&inner);
-            out.push_str("output: ");
-            emit_port_ref(out, dest);
-            out.push('\n');
+        out.push_str(&inner);
+        out.push_str("output \"");
+        out.push_str(&output.label);
+        out.push('"');
+        if !output.destinations.is_empty() {
+            out.push_str(": ");
+            for (i, dest) in output.destinations.iter().enumerate() {
+                if i > 0 {
+                    out.push_str(", ");
+                }
+                emit_port_ref(out, dest);
+            }
         }
+        out.push('\n');
     }
     out.push_str(indent);
     out.push_str("}\n");
