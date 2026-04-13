@@ -526,6 +526,55 @@ fn bus_label_preserves_special_characters() {
     assert_eq!(instance.buses[0].label.as_deref(), Some("IEM>WORSHIP-LEAD"));
 }
 
+// ── TsBusOutput JSON shape ─────────────────────────────────────────
+
+#[test]
+fn compat_bus_output_json_shape() {
+    let src = r#"
+        instance Mixer is CL5 {
+          bus Main_LR {
+            input: Fader[1]
+            output "Mix L": Matrix_Out[1]
+            output "Unrouted"
+          }
+        }
+    "#;
+    let result = crate::parse(src);
+    assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
+    let json = serde_json::to_value(crate::to_ts_result(&result)).unwrap();
+    let outputs = &json["program"]["statements"][0]["buses"][0]["outputs"];
+    let arr = outputs.as_array().expect("outputs should be an array");
+    assert_eq!(arr.len(), 2);
+
+    // First output: routed — has label and non-empty destinations
+    assert_eq!(arr[0]["label"], "Mix L");
+    let dests0 = arr[0]["destinations"].as_array().expect("destinations should be an array");
+    assert_eq!(dests0.len(), 1);
+    assert_eq!(dests0[0]["port"], "Matrix_Out");
+
+    // Second output: unrouted — has label and empty destinations
+    assert_eq!(arr[1]["label"], "Unrouted");
+    let dests1 = arr[1]["destinations"].as_array().expect("destinations should be an array");
+    assert!(dests1.is_empty(), "unrouted output should have empty destinations");
+}
+
+#[test]
+fn compat_bus_display_label_in_json() {
+    let src = r#"
+        instance Mixer is CL5 {
+          bus PQMM {
+            label: "PQ>MM"
+            input: Fader[1]
+          }
+        }
+    "#;
+    let result = crate::parse(src);
+    assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
+    let json = serde_json::to_value(crate::to_ts_result(&result)).unwrap();
+    let bus = &json["program"]["statements"][0]["buses"][0];
+    assert_eq!(bus["label"], "PQ>MM");
+}
+
 // ── Span stripping ─────────────────────────────────────────────────
 
 #[test]
