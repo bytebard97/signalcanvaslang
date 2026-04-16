@@ -13,6 +13,22 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONTENT_HEIGHT="500in"
+
+# Parse optional flags
+while [[ "$1" == --* ]]; do
+    case "$1" in
+        --content-height)
+            CONTENT_HEIGHT="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+    esac
+done
+
 INPUT="${1:-$SCRIPT_DIR/patchlang-design-guide}"
 OUTPUT="${2:-$SCRIPT_DIR/patchlang-v026-spec.pdf}"
 TMPDIR="$(mktemp -d)"
@@ -139,7 +155,7 @@ cat > "$HTML_FILE" << 'HTMLHEAD'
   background: var(--bg);
 }
 @page content {
-  size: 8.5in 500in;
+  size: 8.5in CONTENT_HEIGHT_PLACEHOLDER;
   margin: 0.6in;
   background: var(--bg);
 }
@@ -536,6 +552,9 @@ hr {
 </head>
 <body>
 HTMLHEAD
+
+# Replace content height placeholder with actual value
+sed -i '' "s/CONTENT_HEIGHT_PLACEHOLDER/${CONTENT_HEIGHT}/" "$HTML_FILE"
 
 # Write title page
 cat >> "$HTML_FILE" << TITLEPAGE
