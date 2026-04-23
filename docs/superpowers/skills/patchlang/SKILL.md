@@ -1,7 +1,7 @@
 ---
 name: patchlang
 description: >
-  PatchLang v0.2.5 language reference for writing, editing, and migrating .patch files.
+  PatchLang v0.2.8 language reference for writing, editing, and migrating .patch files.
   Use this skill whenever you are writing or editing a .patch file, converting a hardware
   datasheet into PatchLang, updating legacy PatchLang syntax to the current version, or
   generating templates/instances/connections for SignalCanvas. Also use it when the user
@@ -9,7 +9,7 @@ description: >
   they don't say "PatchLang" explicitly.
 ---
 
-# PatchLang v0.2.5
+# PatchLang v0.2.8
 
 You are writing **PatchLang v0.2.5**. The language describes broadcast/AV signal flow:
 templates define device types, instances are physical devices, and connections are cables.
@@ -80,6 +80,22 @@ The bridge target is where the signal is *going*, not where it comes from.
 Cards are regular templates with `meta { kind: "card", fits: "SlotFormat" }`.
 There is no `card` declaration syntax.
 
+The `kind` field classifies a template's role. Valid values:
+
+| Kind | Meaning |
+|------|---------|
+| `device` | Physical hardware (default when `kind` is absent) |
+| `card` | Expansion card — requires `fits` |
+| `fixed-converter` | Deterministic routing device (stagebox, bridge) |
+| `stage-core` | Passive XLR loom/snake |
+| `mic-di` | Single microphone or DI box |
+| `mic-splitter` | Multi-way analogue signal splitter |
+| `rf-system` | Wireless mic receiver, IEM transmitter |
+| `system` | Logical grouping of devices (room, rack, subsystem) |
+| `venue` | Top-level facility or building |
+
+`device_type` is a deprecated alias for `kind` — the compiler accepts it but emits an M-I02 warning. Use `kind` in all new files.
+
 **6. Slot assignments use bare identifiers, not quoted strings.**
 ```
 slot MY_Slot[1]: MY16_AUD       # correct
@@ -136,6 +152,8 @@ template TemplateName {
     manufacturer: "Acme"
     model: "Model_X"
     category: "Console"         # Camera | Stagebox | Console | Router | IEM | Sync | etc.
+    kind: "device"              # see kind table above; omit for plain hardware
+    dante_chipset: "Brooklyn_II"  # optional: Ultimo | Broadway | Brooklyn_II | Brooklyn_3 | HC
   }
   ports {
     PortName[1..N]: direction(Connector) [attr1, attr2]
@@ -184,6 +202,7 @@ instance DeviceName is TemplateName {
   slot SlotName[1]: CardTemplateName
   route Port_In[1] -> Port_Out[1]
   bus Main_LR {
+    label: "SPOTIFY>FOH"        # optional display name — use when bus name is not human-readable
     input: Fader[1..8]
     output: Matrix_Out[1..2]
   }
@@ -329,6 +348,7 @@ These patterns appear in pre-v0.2.0 files. Update them when you encounter them.
 
 | Old (legacy) | New (v0.2.5) |
 |---|---|
+| `meta { device_type: "card" }` | `meta { kind: "card" }` — `device_type` is deprecated (M-I02) |
 | `Dante_io[1..32]: io(etherCON) [Dante]` | Two lines: `Dante_In[1..32]: in(...)` + `Dante_Out[1..32]: out(...)` |
 | Single `connect A.Dante -> B.Dante` | Two connects: forward path + return path |
 | `bridge A.Dante_io -> B.Dante_io` | `bridge A.Mic_In -> A.Dante_Pri_Out` (inside template, directional) |
@@ -364,6 +384,7 @@ Full error code table:
 | S13 | Structural | Warning | Card `fits` but no slot uses that format | Verify slot format name |
 | S14 | Structural | Warning | Vector port referenced without index | Add `[1..N]` or `[auto]` |
 | S15 | Structural | **Error** | Range size mismatch on `connect` | Fix channel counts; `@suppress(structural)` only for intentional partial connect |
+| S16 | Structural | Error | Card port name collision — card port conflicts with template port or another card's port | Rename the conflicting port; not suppressible |
 | M01 | Mechanical | Error | Connector mismatch (XLR → BNC) | `@suppress(mechanical)` if intentional |
 | E01 | Electrical | Error | Level mismatch — may damage equipment | Check levels |
 | E02 | Electrical | Warning | Level mismatch — may need a pad | Add pad or `@suppress(electrical)` |
@@ -377,14 +398,23 @@ Full error code table:
 | C02 | Convention | Warning | Duplicate connection (same source-target pair) | Remove duplicate |
 | C03 | Convention | Info | Template declared with zero ports | Intentional or add ports |
 | C04 | Convention | Info | Bus declared with zero outputs | Add outputs |
+| C05 | Convention | Info | Redundancy terminates at AES67 boundary — Primary port only | Informational; no action required |
+| F01 | Flow | Warning | Flow slot exhaustion — stream count exceeds Dante chipset limit | Reduce stream count or use a higher-capacity chipset |
+| F02 | Flow | Info | AES67 stream exceeds 8 channels — hardware auto-splits into multiple flows | Informational |
+| F03 | Flow | Error | Multicast prefix mismatch between AES67 devices — silent audio failure | Align multicast prefixes across devices |
 | A01 | Auto | Error | `[auto]` used in `route` or `bus` | Use explicit index |
 | A02 | Auto | Error | Both sides of connection use `[auto]` | Fix one side to explicit range |
 | A03 | Auto | Error | Scalar port or cannot infer count | Add explicit range |
 | A04 | Auto | Error | Auto-assignment overflowed port range | Reduce channels or expand port range |
 | A05 | Auto | Error | No contiguous block available (fragmented) | Reorder explicit assignments |
-| M-I01 | Meta | Info | Unknown `kind` value | Check meta spec |
+| M-I01 | Meta | Info | Unknown `kind` value | Check kind table above |
+| M-I02 | Meta | Info | Deprecated `device_type` used — migrate to `kind` | Run `scripts/migrate-device-type-to-kind.py` or rename manually |
+| M-I03 | Meta | Info | Unknown `rf_subtype` value | Check meta spec |
+| M-I04 | Meta | Info | `rf_band` set but `kind` is not `rf-system` | Add `kind: "rf-system"` or remove `rf_band` |
 | M-I05 | Meta | Warning | `rf_min_channels` must be positive | Fix RF channel count |
 | M-I06 | Meta | Warning | `rf_max_channels` < `rf_min_channels` | Fix RF channel range |
+| M-I07 | Meta | Info | Unknown `dante_chipset` value | Check chipset values: `Ultimo`, `Broadway`, `Brooklyn_II`, `Brooklyn_3`, `HC` |
+| M-I08 | Meta | Warning | Ultimo chipset does not support AES67 RTP flows | Use Brooklyn_II or higher for AES67 |
 
 #### Suppression layers
 
