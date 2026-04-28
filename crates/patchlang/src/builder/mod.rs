@@ -4,6 +4,7 @@
 //! use `PatchProgramBuilder` to add/remove/reorder statements with eager
 //! validation and cascade tracking.
 
+pub mod canvas_emit;
 pub mod canvas_input;
 pub mod error;
 mod config;
@@ -13,6 +14,8 @@ mod routing;
 mod signals;
 mod templates;
 pub(crate) mod validate;
+
+pub use canvas_emit::emit_from_canvas_input;
 
 pub use error::{BuilderError, CascadeResult};
 
