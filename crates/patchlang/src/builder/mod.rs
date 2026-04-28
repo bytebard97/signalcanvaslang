@@ -4,6 +4,7 @@
 //! use `PatchProgramBuilder` to add/remove/reorder statements with eager
 //! validation and cascade tracking.
 
+pub mod canvas_input;
 pub mod error;
 mod config;
 mod connections;
