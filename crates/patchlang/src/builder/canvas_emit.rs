@@ -134,15 +134,22 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
             })
             .collect();
 
+        let (from_port_name, from_idx) = parse_port_ref(&conn.from_port_id);
+        let (to_port_name, to_idx) = parse_port_ref(&conn.to_port_id);
+
         let source = PortRef {
             instance: Some(conn.from_instance_name.clone()),
-            port: sanitize_id(&conn.from_port_id),
-            index: None,
+            port: sanitize_id(&from_port_name),
+            index: from_idx.map(|i| IndexSpec {
+                elements: vec![IndexElement::Single { value: i }],
+            }),
         };
         let target = PortRef {
             instance: Some(conn.to_instance_name.clone()),
-            port: sanitize_id(&conn.to_port_id),
-            index: None,
+            port: sanitize_id(&to_port_name),
+            index: to_idx.map(|i| IndexSpec {
+                elements: vec![IndexElement::Single { value: i }],
+            }),
         };
 
         // Connect validation may fail (port not found, direction mismatch).
@@ -598,6 +605,24 @@ fn emit_streams_for(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/// Parse `"PortName[N]"` into `(port_name, Some(N))`, or a bare
+/// `"PortName"` into `("PortName", None)`.
+///
+/// This is used to extract the trailing channel index from a port ID before
+/// sanitizing the name so that `SDI_Out[1]` becomes port `SDI_Out` with
+/// index `1` rather than the garbled `SDI_Out_1_`.
+fn parse_port_ref(port_id: &str) -> (String, Option<u32>) {
+    if let Some(bracket_pos) = port_id.rfind('[') {
+        let port_name = &port_id[..bracket_pos];
+        let rest = &port_id[bracket_pos + 1..];
+        let index_str = rest.trim_end_matches(']');
+        if let Ok(idx) = index_str.parse::<u32>() {
+            return (port_name.to_string(), Some(idx));
+        }
+    }
+    (port_id.to_string(), None)
+}
 
 /// Coerce an arbitrary string into a valid PatchLang identifier
 /// (`[a-zA-Z_][a-zA-Z0-9_]*`).
