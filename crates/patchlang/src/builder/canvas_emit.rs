@@ -189,7 +189,10 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
         if inst.is_ring_container {
             continue;
         }
-        for (iface_id, labels) in &inst.channel_labels {
+        let mut label_entries: Vec<(&String, &Vec<ChannelLabelEmitInput>)> =
+            inst.channel_labels.iter().collect();
+        label_entries.sort_by_key(|(k, _)| *k);
+        for (iface_id, labels) in label_entries {
             if labels.is_empty() {
                 continue;
             }
@@ -511,24 +514,37 @@ fn build_bridges(
         let source_port = directional_port_name(from_iface, PortSide::Input);
         let target_port = directional_port_name(to_iface, PortSide::Output);
 
+        // When both source and target start at channel 1, the TypeScript
+        // emitter omits the index entirely (full-width rangeless bridge).
+        let src_index = if rule.from_channel == 1 {
+            None
+        } else {
+            Some(IndexSpec {
+                elements: vec![IndexElement::Single {
+                    value: rule.from_channel,
+                }],
+            })
+        };
+        let tgt_index = if rule.to_channel == 1 {
+            None
+        } else {
+            Some(IndexSpec {
+                elements: vec![IndexElement::Single {
+                    value: rule.to_channel,
+                }],
+            })
+        };
+
         bridges.push(BridgeDecl {
             source: PortRef {
                 instance: None,
                 port: source_port,
-                index: Some(IndexSpec {
-                    elements: vec![IndexElement::Single {
-                        value: rule.from_channel,
-                    }],
-                }),
+                index: src_index,
             },
             target: PortRef {
                 instance: None,
                 port: target_port,
-                index: Some(IndexSpec {
-                    elements: vec![IndexElement::Single {
-                        value: rule.to_channel,
-                    }],
-                }),
+                index: tgt_index,
             },
             span: builder_span(),
         });
