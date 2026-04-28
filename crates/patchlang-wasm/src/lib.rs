@@ -923,3 +923,19 @@ pub fn compile_project_to_graph(files_json: &str, entry: &str) -> String {
     };
     patchlang::compile_project_to_graph_from_sources(&files, entry)
 }
+
+/// Emit PatchLang source from a canvas state bundle (JSON).
+/// `input_json` must deserialize to `CanvasEmitInput`.
+/// Returns canonical PatchLang text on success, `{"error":"..."}` on failure.
+#[wasm_bindgen]
+pub fn emit_from_canvas_input(input_json: &str) -> String {
+    let input: patchlang::builder::canvas_input::CanvasEmitInput =
+        match serde_json::from_str(input_json) {
+            Ok(v) => v,
+            Err(e) => return json_err(&format!("JSON parse error: {e}")),
+        };
+    match patchlang::builder::emit_from_canvas_input(input) {
+        Ok(patch) => patch,
+        Err(e) => json_err(&e.to_string()),
+    }
+}
