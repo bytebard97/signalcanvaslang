@@ -6,6 +6,8 @@
 
 pub mod canvas_emit;
 pub mod canvas_input;
+pub mod canvas_load;
+pub mod canvas_output;
 pub mod error;
 mod config;
 mod connections;
@@ -16,6 +18,7 @@ mod templates;
 pub(crate) mod validate;
 
 pub use canvas_emit::emit_from_canvas_input;
+pub use canvas_load::load_from_patch;
 
 pub use error::{BuilderError, CascadeResult};
 
