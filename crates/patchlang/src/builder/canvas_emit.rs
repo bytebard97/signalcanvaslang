@@ -233,10 +233,13 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
             // Resolve the interface so we can pick the correct directional
             // port name (channel-based io interfaces split into _In/_Out;
             // labels conventionally hang off the input side).
-            let Some(iface) = inst.interfaces.iter().find(|i| &i.id == iface_id) else {
-                continue;
+            // If the interface isn't found by ID, the key itself may be a
+            // pre-resolved slot-qualified port name from the TypeScript assembler.
+            let port_name = if let Some(iface) = inst.interfaces.iter().find(|i| &i.id == iface_id) {
+                directional_port_name(iface, PortSide::Input)
+            } else {
+                sanitize_id(iface_id)
             };
-            let port_name = directional_port_name(iface, PortSide::Input);
 
             for label in labels {
                 let mut props: HashMap<String, String> = HashMap::new();
