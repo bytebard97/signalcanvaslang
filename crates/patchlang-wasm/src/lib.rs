@@ -939,3 +939,13 @@ pub fn emit_from_canvas_input(input_json: &str) -> String {
         Err(e) => json_err(&e.to_string()),
     }
 }
+
+/// Parse PatchLang source text and return `CanvasLoadOutput` as JSON.
+/// Returns `{"error":"..."}` on parse/logic failure.
+#[wasm_bindgen]
+pub fn load_from_patch(patch_source: &str, layout_json: &str) -> String {
+    match patchlang::builder::load_from_patch(patch_source, layout_json) {
+        Ok(output) => serde_json::to_string(&output).unwrap_or_else(|e| json_err(&e.to_string())),
+        Err(e) => json_err(&e.to_string()),
+    }
+}
