@@ -39,7 +39,10 @@ impl PatchProgramBuilder {
     ) -> Result<(), BuilderError> {
         validate::require_instance(&self.program, instance)?;
 
-        let kvs: Vec<KeyValue> = properties
+        // Sort by key for deterministic output (HashMap iteration is unordered).
+        let mut sorted: Vec<(String, String)> = properties.into_iter().collect();
+        sorted.sort_by(|a, b| a.0.cmp(&b.0));
+        let kvs: Vec<KeyValue> = sorted
             .into_iter()
             .map(|(k, v)| KeyValue {
                 key: k,
