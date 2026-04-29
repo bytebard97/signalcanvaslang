@@ -29,17 +29,30 @@ pub struct InstanceEmitInput {
     pub rf_min_channels: Option<u32>,
     pub rf_max_channels: Option<u32>,
     pub rf_band: Option<String>,
+    pub rf_active_channels: Option<u32>,
+    pub iem_modes: Option<String>,
     pub interfaces: Vec<InterfaceEmitInput>,
     pub card_slot_groups: Vec<CardSlotGroupEmitInput>,
     pub installed_cards: Vec<InstalledCardEmitInput>,
     /// Map from interface id → list of channel labels.
     pub channel_labels: HashMap<String, Vec<ChannelLabelEmitInput>>,
     pub route_rules: Vec<RouteRuleEmitInput>,
+    /// Per-instance route entries (emitted inside instance body as `route A[n] -> B[m]`)
+    pub instance_routes: Vec<RouteRuleEmitInput>,
     pub internal_buses: Vec<BusEmitInput>,
     pub tx_streams: Vec<StreamEmitInput>,
     pub rx_streams: Vec<StreamEmitInput>,
     pub is_ring_container: bool,
     pub ring_protocol: Option<String>,
+    /// For ring container instances: ordered list of member {instance, port} pairs.
+    pub ring_members: Vec<RingMemberEmitInput>,
+}
+
+#[derive(Debug, Deserialize, TS)]
+#[ts(export)]
+pub struct RingMemberEmitInput {
+    pub member_name: String,
+    pub port_name: String,
 }
 
 #[derive(Debug, Deserialize, TS)]
@@ -79,6 +92,10 @@ pub struct ChannelLabelEmitInput {
     pub channel_index: u32,
     pub label: String,
     pub phantom: bool,
+    pub propagated: bool,
+    pub source_type: Option<String>,
+    pub capsule: Option<String>,
+    pub rf_band: Option<String>,
 }
 
 #[derive(Debug, Deserialize, TS)]
@@ -94,10 +111,22 @@ pub struct RouteRuleEmitInput {
 #[ts(export)]
 pub struct BusEmitInput {
     pub label: String,
+    /// Human-readable name when it differs from the sanitized identifier, e.g. "PQ>MM"
+    pub display_name: Option<String>,
     pub input_interface: String,
     pub input_channels: Vec<u32>,
     pub output_interface: String,
     pub output_channels: Vec<u32>,
+    /// Named outputs (e.g. [{name: "Main Output", interface: "Matrix_Out", channels: [1, 2]}])
+    pub named_outputs: Vec<BusOutputEmitInput>,
+}
+
+#[derive(Debug, Deserialize, TS)]
+#[ts(export)]
+pub struct BusOutputEmitInput {
+    pub name: String,
+    pub interface: String,
+    pub channels: Vec<u32>,
 }
 
 #[derive(Debug, Deserialize, TS)]
