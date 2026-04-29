@@ -40,16 +40,20 @@ fn make_simple_instance(
         rf_min_channels: None,
         rf_max_channels: None,
         rf_band: None,
+        rf_active_channels: None,
+        iem_modes: None,
         interfaces: ifaces,
         card_slot_groups: vec![],
         installed_cards: vec![],
         channel_labels: HashMap::new(),
         route_rules: vec![],
+        instance_routes: vec![],
         internal_buses: vec![],
         tx_streams: vec![],
         rx_streams: vec![],
         is_ring_container: false,
         ring_protocol: None,
+        ring_members: vec![],
     }
 }
 
@@ -90,11 +94,15 @@ fn canvas_emit_input_deserializes_instance_with_interfaces() {
             "installed_cards": [],
             "channel_labels": {},
             "route_rules": [],
+            "instance_routes": [],
             "internal_buses": [],
             "tx_streams": [],
             "rx_streams": [],
             "is_ring_container": false,
-            "ring_protocol": null
+            "ring_protocol": null,
+            "ring_members": [],
+            "rf_active_channels": null,
+            "iem_modes": null
         }],
         "connections": [],
         "manufacturer_cards": []
@@ -213,11 +221,19 @@ fn emit_channel_labels_appear_in_config_block() {
                 channel_index: 1,
                 label: "Lead Vocal".into(),
                 phantom: true,
+                propagated: false,
+                source_type: None,
+                capsule: None,
+                rf_band: None,
             },
             ChannelLabelEmitInput {
                 channel_index: 2,
                 label: "Kick Drum".into(),
                 phantom: false,
+                propagated: false,
+                source_type: None,
+                capsule: None,
+                rf_band: None,
             },
         ],
     );
