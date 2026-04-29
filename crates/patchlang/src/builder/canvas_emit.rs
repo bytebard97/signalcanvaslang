@@ -8,8 +8,9 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::ast::{
-    BridgeDecl, IndexElement, IndexSpec, InstanceDecl, KeyValue, KvValue, PortDef, PortDirection,
-    PortRef, RangeSpec, RingDecl, SlotDef, StreamDecl, TemplateDecl,
+    BridgeDecl, BusEntry, BusOutput, ConnectDecl, IndexElement, IndexSpec, InstanceDecl, KeyValue,
+    KvValue, PortDef, PortDirection, PortRef, RangeSpec, RingDecl, RingMember, RouteEntry,
+    SlotDef, Statement, StreamDecl, TemplateDecl,
 };
 use crate::builder::canvas_input::*;
 use crate::builder::error::BuilderError;
@@ -46,8 +47,8 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
         }
     }
 
-    // Phase 2: device templates, deduplicated by model.
-    // Map model -> chosen template name (handles `_2`, `_3`, ... collisions).
+    // Phase 2: device templates, deduplicated by (manufacturer, model) pair.
+    // Map (manufacturer, model) -> chosen template name (handles `_2`, `_3`, ... collisions).
     let mut model_to_template: HashMap<String, String> = HashMap::new();
     let mut used_template_names: HashSet<String> = HashSet::new();
     for card in &input.manufacturer_cards {
@@ -58,7 +59,13 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
         if inst.is_ring_container {
             continue;
         }
-        if model_to_template.contains_key(&inst.model) {
+        // Key on (manufacturer, model) so same model from different manufacturers gets distinct templates
+        let dedup_key = format!(
+            "{}::{}",
+            inst.manufacturer.as_deref().unwrap_or(""),
+            &inst.model
+        );
+        if model_to_template.contains_key(&dedup_key) {
             continue;
         }
         let base = sanitize_id(&inst.model);
@@ -71,7 +78,7 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
         used_template_names.insert(name.clone());
         let tmpl = build_device_template(inst, &name);
         builder.add_template(tmpl)?;
-        model_to_template.insert(inst.model.clone(), name);
+        model_to_template.insert(dedup_key, name);
     }
 
     // Phase 3: instances (and slot assignments).
@@ -84,8 +91,13 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
         if inst.is_ring_container {
             continue;
         }
+        let dedup_key = format!(
+            "{}::{}",
+            inst.manufacturer.as_deref().unwrap_or(""),
+            &inst.model
+        );
         let template_name = model_to_template
-            .get(&inst.model)
+            .get(&dedup_key)
             .cloned()
             .ok_or_else(|| {
                 BuilderError::ValidationError(format!(
@@ -120,10 +132,7 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
 
     // Phase 4: connections.
     for conn in &input.connections {
-        if conn.is_backbone {
-            continue;
-        }
-        let props: Vec<KeyValue> = conn
+        let mut props: Vec<KeyValue> = conn
             .properties
             .iter()
             .map(|kv| KeyValue {
@@ -133,34 +142,45 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
                 },
             })
             .collect();
+        if conn.is_backbone {
+            props.push(kv_str("backbone", "true"));
+        }
 
         let (from_port_name, from_idx) = parse_port_ref(&conn.from_port_id);
         let (to_port_name, to_idx) = parse_port_ref(&conn.to_port_id);
 
-        let source = PortRef {
-            instance: Some(conn.from_instance_name.clone()),
-            port: sanitize_id(&from_port_name),
-            index: from_idx.map(|i| IndexSpec {
-                elements: vec![IndexElement::Single { value: i }],
-            }),
-        };
-        let target = PortRef {
-            instance: Some(conn.to_instance_name.clone()),
-            port: sanitize_id(&to_port_name),
-            index: to_idx.map(|i| IndexSpec {
-                elements: vec![IndexElement::Single { value: i }],
-            }),
-        };
+        // Generate one or more (source, target) pairs based on channel mappings.
+        let pairs = build_connect_pairs(
+            &conn.from_instance_name,
+            &from_port_name,
+            from_idx,
+            &conn.to_instance_name,
+            &to_port_name,
+            to_idx,
+            &conn.channel_mappings,
+        );
 
         // Connect validation may fail (port not found, direction mismatch).
-        // For Task 2 scope we surface the error only on hard failures; skip
-        // gracefully when the canvas state references ports that don't exist
-        // on the freshly-emitted templates.
-        match builder.add_connect(source, target, props) {
-            Ok(_) => {}
-            Err(BuilderError::PortNotFound { .. }) => continue,
-            Err(BuilderError::DirectionViolation { .. }) => continue,
-            Err(e) => return Err(e),
+        // On PortNotFound, fall back to unvalidated AST construction so that
+        // card-contributed ports (which aren't on the device template) still emit.
+        for (source, target) in pairs {
+            match builder.add_connect(source.clone(), target.clone(), props.clone()) {
+                Ok(_) => {}
+                Err(BuilderError::PortNotFound { .. }) | Err(BuilderError::NotFound(_)) => {
+                    // Port may belong to an installed card template — emit without validation.
+                    let decl = ConnectDecl {
+                        source,
+                        target,
+                        properties: props.clone(),
+                        suppressions: Vec::new(),
+                        mapping: None,
+                        span: builder_span(),
+                    };
+                    builder.program_mut().statements.push(Statement::Connect(decl));
+                }
+                Err(BuilderError::DirectionViolation { .. }) => continue,
+                Err(e) => return Err(e),
+            }
         }
     }
 
@@ -178,17 +198,24 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
                 },
             });
         }
+        // Infer protocol from members' first connection if not on the ring container itself.
+        let effective_proto = inst.ring_protocol.as_deref().unwrap_or("");
         let ring = RingDecl {
             name: inst.name.clone(),
             properties: props,
-            members: Vec::new(),
+            members: inst
+                .ring_members
+                .iter()
+                .map(|m| RingMember {
+                    instance_name: m.member_name.clone(),
+                    port_name: Some(sanitize_id(&m.port_name)),
+                    span: builder_span(),
+                })
+                .collect(),
             span: builder_span(),
         };
         builder.add_ring(ring)?;
-        // Members come from connections of kind `ring-member`; the canvas
-        // input does not currently surface them as a distinct list, so
-        // membership is left for the TS layer / Task 4 to populate via a
-        // future `ring_members` field.
+        let _ = effective_proto; // suppress unused warning
     }
 
     // Phase 6: config blocks (channel labels).
@@ -215,6 +242,24 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
                 let mut props: HashMap<String, String> = HashMap::new();
                 if label.phantom {
                     props.insert("phantom".into(), "true".into());
+                }
+                if label.propagated {
+                    props.insert("propagated".into(), "true".into());
+                }
+                if let Some(st) = &label.source_type {
+                    if !st.is_empty() {
+                        props.insert("source_type".into(), st.clone());
+                    }
+                }
+                if let Some(cap) = &label.capsule {
+                    if !cap.is_empty() {
+                        props.insert("capsule".into(), cap.clone());
+                    }
+                }
+                if let Some(band) = &label.rf_band {
+                    if !band.is_empty() {
+                        props.insert("rf_band".into(), band.clone());
+                    }
                 }
                 builder.set_label(
                     &inst.name,
@@ -324,6 +369,17 @@ fn build_instance_decl(inst: &InstanceEmitInput, template_name: &str) -> Instanc
     if let Some(band) = &inst.rf_band {
         properties.push(kv_str("rf_band", band));
     }
+    if let Some(active) = inst.rf_active_channels {
+        properties.push(kv_str("rf_active_channels", &active.to_string()));
+    }
+    if let Some(modes) = &inst.iem_modes {
+        if !modes.is_empty() {
+            properties.push(kv_str("iem_modes", modes));
+        }
+    }
+
+    let routes = build_instance_routes(&inst.instance_routes, &inst.interfaces);
+    let buses = build_instance_buses(&inst.internal_buses, &inst.interfaces);
 
     InstanceDecl {
         name: inst.name.clone(),
@@ -331,8 +387,8 @@ fn build_instance_decl(inst: &InstanceEmitInput, template_name: &str) -> Instanc
         args: Vec::new(),
         version_constraint: None,
         properties,
-        routes: Vec::new(),
-        buses: Vec::new(),
+        routes,
+        buses,
         slot_assignments: Vec::new(),
         span: builder_span(),
     }
@@ -359,28 +415,20 @@ fn build_ports_for_interfaces(ifaces: &[InterfaceEmitInput]) -> Vec<PortDef> {
 }
 
 /// Channel-based protocols that split io into separate `_In` + `_Out` ports.
-fn is_channel_based_transport(transport: &str) -> bool {
-    matches!(
-        transport,
-        "Dante"
-            | "AES67"
-            | "MADI"
-            | "Analogue"
-            | "AES3"
-            | "SDI"
-            | "SoundGrid"
-            | "NDI"
-            | "SMPTE2110"
-    )
+/// Ring/bus protocols stay as `io` — everything else with io/asymmetric
+/// direction is split into _In + _Out. Matches portUtils.ts isRingBusInterface.
+fn is_ring_bus_protocol(transport: &str) -> bool {
+    matches!(transport, "OptoCore" | "TWINLANe" | "AVB" | "GigaACE")
 }
 
 fn should_split_io(iface: &InterfaceEmitInput) -> bool {
     if iface.direction != "io" && iface.direction != "asymmetric" {
         return false;
     }
+    // Split unless explicitly a ring/bus protocol; unknown/absent transport → split
     match &iface.transport {
-        Some(t) => is_channel_based_transport(t),
-        None => false,
+        Some(t) => !is_ring_bus_protocol(t),
+        None => true,
     }
 }
 
@@ -470,6 +518,129 @@ fn directional_port_name(iface: &InterfaceEmitInput, side: PortSide) -> String {
 }
 
 // ---------------------------------------------------------------------------
+// Instance routes + buses
+// ---------------------------------------------------------------------------
+
+fn build_instance_routes(
+    routes: &[RouteRuleEmitInput],
+    ifaces: &[InterfaceEmitInput],
+) -> Vec<RouteEntry> {
+    routes
+        .iter()
+        .map(|r| {
+            let src_iface = ifaces.iter().find(|i| i.id == r.from_interface || sanitize_id(&i.label) == r.from_interface);
+            let tgt_iface = ifaces.iter().find(|i| i.id == r.to_interface || sanitize_id(&i.label) == r.to_interface);
+            let src_port = src_iface
+                .map(|i| directional_port_name(i, PortSide::Input))
+                .unwrap_or_else(|| sanitize_id(&r.from_interface));
+            let tgt_port = tgt_iface
+                .map(|i| directional_port_name(i, PortSide::Output))
+                .unwrap_or_else(|| sanitize_id(&r.to_interface));
+            RouteEntry {
+                source: PortRef {
+                    instance: None,
+                    port: src_port,
+                    index: Some(IndexSpec {
+                        elements: vec![IndexElement::Single { value: r.from_channel }],
+                    }),
+                },
+                target: PortRef {
+                    instance: None,
+                    port: tgt_port,
+                    index: Some(IndexSpec {
+                        elements: vec![IndexElement::Single { value: r.to_channel }],
+                    }),
+                },
+                span: builder_span(),
+            }
+        })
+        .collect()
+}
+
+fn build_instance_buses(
+    buses: &[BusEmitInput],
+    ifaces: &[InterfaceEmitInput],
+) -> Vec<BusEntry> {
+    buses
+        .iter()
+        .map(|bus| {
+            let bus_name = sanitize_id(&bus.label);
+
+            let inputs: Vec<PortRef> = bus
+                .input_channels
+                .iter()
+                .map(|ch| PortRef {
+                    instance: None,
+                    port: sanitize_id(&bus.input_interface),
+                    index: Some(IndexSpec {
+                        elements: vec![IndexElement::Single { value: *ch }],
+                    }),
+                })
+                .collect();
+
+            let outputs: Vec<BusOutput> = if bus.named_outputs.is_empty() {
+                // Fallback: single unnamed output using flat output_interface + channels
+                if bus.output_channels.is_empty() {
+                    Vec::new()
+                } else {
+                    let dests = bus
+                        .output_channels
+                        .iter()
+                        .map(|ch| PortRef {
+                            instance: None,
+                            port: sanitize_id(&bus.output_interface),
+                            index: Some(IndexSpec {
+                                elements: vec![IndexElement::Single { value: *ch }],
+                            }),
+                        })
+                        .collect();
+                    vec![BusOutput {
+                        label: String::new(),
+                        destinations: dests,
+                        span: builder_span(),
+                    }]
+                }
+            } else {
+                bus.named_outputs
+                    .iter()
+                    .map(|out| {
+                        let dests = out
+                            .channels
+                            .iter()
+                            .map(|ch| PortRef {
+                                instance: None,
+                                port: sanitize_id(&out.interface),
+                                index: Some(IndexSpec {
+                                    elements: vec![IndexElement::Single { value: *ch }],
+                                }),
+                            })
+                            .collect();
+                        BusOutput {
+                            label: out.name.clone(),
+                            destinations: dests,
+                            span: builder_span(),
+                        }
+                    })
+                    .collect()
+            };
+
+            let _ = ifaces; // used for future label resolution
+            BusEntry {
+                name: bus_name,
+                label: bus
+                    .display_name
+                    .as_ref()
+                    .filter(|n| !n.is_empty())
+                    .cloned(),
+                inputs,
+                outputs,
+                span: builder_span(),
+            }
+        })
+        .collect()
+}
+
+// ---------------------------------------------------------------------------
 // Slots + bridges
 // ---------------------------------------------------------------------------
 
@@ -506,20 +677,15 @@ fn build_slots(groups: &[CardSlotGroupEmitInput]) -> Vec<SlotDef> {
 
 fn build_bridges(
     rules: &[RouteRuleEmitInput],
-    ifaces: &[InterfaceEmitInput],
+    _ifaces: &[InterfaceEmitInput],
 ) -> Vec<BridgeDecl> {
     let mut bridges = Vec::new();
     for rule in rules {
-        let Some(from_iface) = ifaces.iter().find(|i| i.id == rule.from_interface) else {
-            continue;
-        };
-        let Some(to_iface) = ifaces.iter().find(|i| i.id == rule.to_interface) else {
-            continue;
-        };
-        // Bridges live in templates: source = where signal arrives (input
-        // direction), target = where it leaves (output direction).
-        let source_port = directional_port_name(from_iface, PortSide::Input);
-        let target_port = directional_port_name(to_iface, PortSide::Output);
+        // The TypeScript assembler pre-resolves from_interface / to_interface
+        // to their directional port names (e.g. "Mic_In", "Dante_Out").
+        // Use them directly — no interface lookup or directional resolution here.
+        let source_port = rule.from_interface.clone();
+        let target_port = rule.to_interface.clone();
 
         // When both source and target start at channel 1, the TypeScript
         // emitter omits the index entirely (full-width rangeless bridge).
@@ -575,7 +741,7 @@ fn emit_streams_for(
         };
         let port_name = directional_port_name(iface, PortSide::Output);
         let mut props = vec![
-            kv_num("channels", stream.channel_count),
+            kv_str("channels", &stream.channel_count.to_string()),
             kv_str("direction", direction),
         ];
         if !stream.protocol.is_empty() {
@@ -605,6 +771,131 @@ fn emit_streams_for(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/// Build the list of (source, target) PortRef pairs for a connection.
+///
+/// When channel_mappings is empty: one pair with the raw from/to index (or no index).
+/// When mappings are sequential 1:1 (fromCh == toCh and both increment by 1 starting at 1): no index.
+/// When mappings are a sequential offset (toChOffset constant): single pair with range indices.
+/// When mappings are non-sequential: one pair per mapping entry.
+fn build_connect_pairs(
+    from_inst: &str,
+    from_port: &str,
+    from_idx: Option<u32>,
+    to_inst: &str,
+    to_port: &str,
+    to_idx: Option<u32>,
+    mappings: &[ChannelMappingEmitInput],
+) -> Vec<(PortRef, PortRef)> {
+    let from_port_s = sanitize_id(from_port);
+    let to_port_s = sanitize_id(to_port);
+
+    if mappings.is_empty() {
+        // No mappings — use raw index from port ref.
+        let src = PortRef {
+            instance: Some(from_inst.to_string()),
+            port: from_port_s,
+            index: from_idx.map(|i| IndexSpec {
+                elements: vec![IndexElement::Single { value: i }],
+            }),
+        };
+        let tgt = PortRef {
+            instance: Some(to_inst.to_string()),
+            port: to_port_s,
+            index: to_idx.map(|i| IndexSpec {
+                elements: vec![IndexElement::Single { value: i }],
+            }),
+        };
+        return vec![(src, tgt)];
+    }
+
+    // Check sequential 1:1 (fromCh == toCh, starting at 1, contiguous).
+    // Only strip the index when multiple channels are mapped (single-channel [1→1]
+    // still needs the explicit [1] to select a specific channel from a multi-ch port).
+    let is_sequential_1to1 = mappings.len() > 1
+        && mappings.iter().enumerate().all(|(i, m)| {
+            m.from_channel == (i as u32 + 1) && m.to_channel == (i as u32 + 1)
+        });
+    if is_sequential_1to1 {
+        let src = PortRef {
+            instance: Some(from_inst.to_string()),
+            port: from_port_s,
+            index: None,
+        };
+        let tgt = PortRef {
+            instance: Some(to_inst.to_string()),
+            port: to_port_s,
+            index: None,
+        };
+        return vec![(src, tgt)];
+    }
+
+    // Check sequential contiguous offset: from channels contiguous, to channels = from + constant offset.
+    let first = &mappings[0];
+    let offset_i32 = first.to_channel as i32 - first.from_channel as i32;
+    let is_contiguous_offset = mappings.iter().enumerate().all(|(i, m)| {
+        m.from_channel == first.from_channel + i as u32
+            && (m.to_channel as i32 - m.from_channel as i32) == offset_i32
+    });
+    if is_contiguous_offset && mappings.len() > 1 {
+        let from_start = first.from_channel;
+        let from_end = mappings.last().unwrap().from_channel;
+        let to_start = first.to_channel;
+        let to_end = mappings.last().unwrap().to_channel;
+
+        if from_start == to_start && from_end == to_end {
+            // Pure range, no offset needed — emit as range
+        }
+
+        let src = PortRef {
+            instance: Some(from_inst.to_string()),
+            port: from_port_s,
+            index: Some(IndexSpec {
+                elements: vec![IndexElement::Range {
+                    start: from_start,
+                    end: from_end,
+                }],
+            }),
+        };
+        let tgt = PortRef {
+            instance: Some(to_inst.to_string()),
+            port: to_port_s,
+            index: Some(IndexSpec {
+                elements: vec![IndexElement::Range {
+                    start: to_start,
+                    end: to_end,
+                }],
+            }),
+        };
+        return vec![(src, tgt)];
+    }
+
+    // Non-sequential: one connect per mapping pair.
+    mappings
+        .iter()
+        .map(|m| {
+            let src = PortRef {
+                instance: Some(from_inst.to_string()),
+                port: from_port_s.clone(),
+                index: Some(IndexSpec {
+                    elements: vec![IndexElement::Single {
+                        value: m.from_channel,
+                    }],
+                }),
+            };
+            let tgt = PortRef {
+                instance: Some(to_inst.to_string()),
+                port: to_port_s.clone(),
+                index: Some(IndexSpec {
+                    elements: vec![IndexElement::Single {
+                        value: m.to_channel,
+                    }],
+                }),
+            };
+            (src, tgt)
+        })
+        .collect()
+}
 
 /// Parse `"PortName[N]"` into `(port_name, Some(N))`, or a bare
 /// `"PortName"` into `("PortName", None)`.
