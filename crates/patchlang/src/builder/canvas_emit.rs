@@ -626,22 +626,24 @@ fn parse_port_ref(port_id: &str) -> (String, Option<u32>) {
 
 /// Coerce an arbitrary string into a valid PatchLang identifier
 /// (`[a-zA-Z_][a-zA-Z0-9_]*`).
+/// Matches TypeScript `sanitizeIdentifier` behavior exactly:
+/// - Replace invalid chars with underscore (keep alphanumeric and underscore)
+/// - If starts with a digit, prefix with underscore
+/// - Never strip leading underscores
 fn sanitize_id(s: &str) -> String {
-    let replaced: String = s
-        .chars()
-        .map(|c| {
-            if c.is_ascii_alphanumeric() || c == '_' {
-                c
-            } else {
-                '_'
-            }
-        })
-        .collect();
-    let trimmed = replaced.trim_start_matches(|c: char| c.is_ascii_digit());
-    if trimmed.is_empty() {
-        "Device".to_string()
+    if s.is_empty() {
+        return "Device".to_string();
+    }
+    // Replace invalid chars with underscore (keep alphanumeric and underscore)
+    let r: String = s.chars().map(|c| if c.is_alphanumeric() || c == '_' { c } else { '_' }).collect();
+    if r.is_empty() {
+        return "Device".to_string();
+    }
+    // If starts with a digit, prefix with underscore (matches TS sanitizeIdentifier behavior)
+    if r.chars().next().map(|c| c.is_ascii_digit()).unwrap_or(false) {
+        format!("_{}", r)
     } else {
-        trimmed.to_string()
+        r
     }
 }
 
