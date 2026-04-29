@@ -5,7 +5,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use ts_rs::TS;
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct CanvasEmitInput {
     pub instances: Vec<InstanceEmitInput>,
@@ -13,7 +13,7 @@ pub struct CanvasEmitInput {
     pub manufacturer_cards: Vec<CardEmitInput>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct InstanceEmitInput {
     /// Pre-resolved human-readable name (TypeScript does UUID → name mapping).
@@ -48,14 +48,14 @@ pub struct InstanceEmitInput {
     pub ring_members: Vec<RingMemberEmitInput>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct RingMemberEmitInput {
     pub member_name: String,
     pub port_name: String,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct InterfaceEmitInput {
     pub id: String,
@@ -68,7 +68,7 @@ pub struct InterfaceEmitInput {
     pub attributes: Vec<String>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct CardSlotGroupEmitInput {
     pub label: String,
@@ -78,7 +78,7 @@ pub struct CardSlotGroupEmitInput {
     pub channel_count: u32,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct InstalledCardEmitInput {
     pub slot_label: String,
@@ -86,7 +86,7 @@ pub struct InstalledCardEmitInput {
     pub card_template_name: String,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct ChannelLabelEmitInput {
     pub channel_index: u32,
@@ -98,7 +98,7 @@ pub struct ChannelLabelEmitInput {
     pub rf_band: Option<String>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct RouteRuleEmitInput {
     pub from_interface: String,
@@ -107,7 +107,7 @@ pub struct RouteRuleEmitInput {
     pub to_channel: u32,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct BusEmitInput {
     pub label: String,
@@ -121,7 +121,7 @@ pub struct BusEmitInput {
     pub named_outputs: Vec<BusOutputEmitInput>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct BusOutputEmitInput {
     pub name: String,
@@ -129,7 +129,7 @@ pub struct BusOutputEmitInput {
     pub channels: Vec<u32>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct StreamEmitInput {
     pub label: String,
@@ -138,7 +138,7 @@ pub struct StreamEmitInput {
     pub interface_id: String,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct ConnectionEmitInput {
     pub from_instance_name: String,
@@ -150,7 +150,7 @@ pub struct ConnectionEmitInput {
     pub properties: Vec<KvEmitInput>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct ChannelMappingEmitInput {
     pub from_channel: u32,
@@ -159,14 +159,14 @@ pub struct ChannelMappingEmitInput {
     pub mapping_type: String,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct KvEmitInput {
     pub key: String,
     pub value: String,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Clone, Deserialize, TS)]
 #[ts(export)]
 pub struct CardEmitInput {
     pub template_name: String,
