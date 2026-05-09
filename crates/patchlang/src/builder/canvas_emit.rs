@@ -105,7 +105,7 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
                     inst.name, inst.model
                 ))
             })?;
-        let decl = build_instance_decl(inst, &template_name);
+        let decl = build_instance_decl(inst, &template_name, &input.manufacturer_cards);
         builder.add_instance(decl)?;
 
         // Slot assignments (best-effort — skip if card template missing).
@@ -233,9 +233,14 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
             // Resolve the interface so we can pick the correct directional
             // port name (channel-based io interfaces split into _In/_Out;
             // labels conventionally hang off the input side).
-            // If the interface isn't found by ID, the key itself may be a
-            // pre-resolved slot-qualified port name from the TypeScript assembler.
-            let port_name = if let Some(iface) = inst.interfaces.iter().find(|i| &i.id == iface_id) {
+            // Search chassis interfaces first, then fall back to installed card interfaces.
+            let iface = find_interface(
+                iface_id,
+                &inst.interfaces,
+                &inst.installed_cards,
+                &input.manufacturer_cards,
+            );
+            let port_name = if let Some(iface) = iface {
                 directional_port_name(iface, PortSide::Input)
             } else {
                 sanitize_id(iface_id)
@@ -364,7 +369,7 @@ fn build_device_template(inst: &InstanceEmitInput, name: &str) -> TemplateDecl {
     }
 }
 
-fn build_instance_decl(inst: &InstanceEmitInput, template_name: &str) -> InstanceDecl {
+fn build_instance_decl(inst: &InstanceEmitInput, template_name: &str, manufacturer_cards: &[CardEmitInput]) -> InstanceDecl {
     let mut properties: Vec<KeyValue> = Vec::new();
     if let Some(loc) = &inst.location {
         properties.push(kv_str("location", loc));
@@ -381,7 +386,7 @@ fn build_instance_decl(inst: &InstanceEmitInput, template_name: &str) -> Instanc
         }
     }
 
-    let routes = build_instance_routes(&inst.instance_routes, &inst.interfaces);
+    let routes = build_instance_routes(&inst.instance_routes, &inst.interfaces, &inst.installed_cards, manufacturer_cards);
     let buses = build_instance_buses(&inst.internal_buses, &inst.interfaces);
 
     InstanceDecl {
@@ -527,12 +532,14 @@ fn directional_port_name(iface: &InterfaceEmitInput, side: PortSide) -> String {
 fn build_instance_routes(
     routes: &[RouteRuleEmitInput],
     ifaces: &[InterfaceEmitInput],
+    installed_cards: &[InstalledCardEmitInput],
+    manufacturer_cards: &[CardEmitInput],
 ) -> Vec<RouteEntry> {
     routes
         .iter()
         .map(|r| {
-            let src_iface = ifaces.iter().find(|i| i.id == r.from_interface || sanitize_id(&i.label) == r.from_interface);
-            let tgt_iface = ifaces.iter().find(|i| i.id == r.to_interface || sanitize_id(&i.label) == r.to_interface);
+            let src_iface = find_interface(&r.from_interface, ifaces, installed_cards, manufacturer_cards);
+            let tgt_iface = find_interface(&r.to_interface, ifaces, installed_cards, manufacturer_cards);
             let src_port = src_iface
                 .map(|i| directional_port_name(i, PortSide::Input))
                 .unwrap_or_else(|| sanitize_id(&r.from_interface));
@@ -742,18 +749,12 @@ fn emit_streams_for(
     for stream in streams {
         // Search chassis interfaces first, then fall back to installed card interfaces.
         // Card ports flat-merge into the instance namespace (spec §card-slot).
-        let iface = inst
-            .interfaces
-            .iter()
-            .find(|i| i.id == stream.interface_id)
-            .or_else(|| {
-                inst.installed_cards.iter().find_map(|installed| {
-                    manufacturer_cards
-                        .iter()
-                        .find(|c| c.template_name == installed.card_template_name)
-                        .and_then(|c| c.interfaces.iter().find(|i| i.id == stream.interface_id))
-                })
-            });
+        let iface = find_interface(
+            &stream.interface_id,
+            &inst.interfaces,
+            &inst.installed_cards,
+            manufacturer_cards,
+        );
         let Some(iface) = iface else {
             continue;
         };
@@ -789,6 +790,27 @@ fn emit_streams_for(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/// Search chassis interfaces first, then fall back to installed card interfaces.
+/// Used by emit_streams_for and build_instance_routes.
+fn find_interface<'a>(
+    interface_id: &str,
+    chassis_ifaces: &'a [InterfaceEmitInput],
+    installed_cards: &'a [InstalledCardEmitInput],
+    manufacturer_cards: &'a [CardEmitInput],
+) -> Option<&'a InterfaceEmitInput> {
+    chassis_ifaces
+        .iter()
+        .find(|i| i.id == interface_id)
+        .or_else(|| {
+            installed_cards.iter().find_map(|installed| {
+                manufacturer_cards
+                    .iter()
+                    .find(|c| c.template_name == installed.card_template_name)
+                    .and_then(|c| c.interfaces.iter().find(|i| i.id == interface_id))
+            })
+        })
+}
 
 /// Build the list of (source, target) PortRef pairs for a connection.
 ///

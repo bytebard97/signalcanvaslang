@@ -272,6 +272,82 @@ fn emit_channel_labels_appear_in_config_block() {
 }
 
 #[test]
+fn emit_channel_label_on_card_slot_port() {
+    // Riedel Artist 64 with AES67-108 G2 card in slot 1.
+    // Label on card's AES67[1] = "Main Mix L".
+    // Bug: emit only searches chassis interfaces, falls through to sanitize_id,
+    // then builder.set_label() throws PortNotFound and aborts the entire emit.
+    let card = CardEmitInput {
+        template_name: "AES67_108_G2".into(),
+        manufacturer: Some("Riedel".into()),
+        model: "AES67-108 G2".into(),
+        fits: "Artist_Slot".into(),
+        interfaces: vec![make_interface(
+            "card_aes67",
+            "AES67",
+            "io",
+            Some("AES67"),
+            64,
+            vec![],
+        )],
+    };
+    let mut inst = make_simple_instance(
+        "Artist_64",
+        "Artist64",
+        "Riedel",
+        vec![make_interface(
+            "mgmt",
+            "Mgmt",
+            "io",
+            Some("Ethernet_Mgmt"),
+            0,
+            vec![],
+        )],
+    );
+    inst.installed_cards = vec![InstalledCardEmitInput {
+        slot_label: "Card_Slot".into(),
+        slot_index: 1,
+        card_template_name: "AES67_108_G2".into(),
+    }];
+    let mut labels = HashMap::new();
+    labels.insert(
+        "card_aes67".into(),
+        vec![ChannelLabelEmitInput {
+            channel_index: 1,
+            label: "Main Mix L".into(),
+            phantom: false,
+            propagated: false,
+            source_type: None,
+            capsule: None,
+            rf_band: None,
+        }],
+    );
+    inst.channel_labels = labels;
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![card],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("config Artist_64"),
+        "config block must be emitted:\n{patch}"
+    );
+    assert!(
+        patch.contains("Main Mix L"),
+        "label text must appear:\n{patch}"
+    );
+    assert!(
+        patch.contains("label AES67_In[1]: \"Main Mix L\""),
+        "label must use correct directional port name from card interface:\n{patch}"
+    );
+    assert!(
+        !patch.contains("card_aes67"),
+        "label must NOT emit raw interface id as port name:\n{patch}"
+    );
+}
+
+#[test]
 fn emit_connection_between_instances() {
     let iface_out = make_interface("d_out", "Dante_Pri", "io", Some("Dante"), 32, vec![]);
     let iface_in = make_interface("d_in", "Dante_Pri", "io", Some("Dante"), 32, vec![]);
@@ -413,5 +489,65 @@ fn emit_stream_on_card_slot_port_is_not_dropped() {
     assert!(
         patch.contains("stream Artist_AES67_TX"),
         "AES67 stream on card-slot port must not be silently dropped:\n{patch}"
+    );
+}
+
+#[test]
+fn emit_instance_route_via_card_slot_port() {
+    // Riedel Artist 64 with AES67-108 G2 card in slot 1.
+    // Route from card's AES67_Out[1] to chassis Mgmt[1].
+    // Bug: build_instance_routes only searches inst.interfaces (chassis)
+    // and emits wrong port name for card-slot interfaces.
+    let card = CardEmitInput {
+        template_name: "AES67_108_G2".into(),
+        manufacturer: Some("Riedel".into()),
+        model: "AES67-108 G2".into(),
+        fits: "Artist_Slot".into(),
+        interfaces: vec![make_interface(
+            "card_aes67_out",
+            "AES67_Out",
+            "out",
+            Some("AES67"),
+            64,
+            vec![],
+        )],
+    };
+    let mut inst = make_simple_instance(
+        "Artist_64",
+        "Artist64",
+        "Riedel",
+        vec![make_interface(
+            "mgmt",
+            "Mgmt",
+            "io",
+            Some("Ethernet_Mgmt"),
+            0,
+            vec![],
+        )],
+    );
+    inst.installed_cards = vec![InstalledCardEmitInput {
+        slot_label: "Card_Slot".into(),
+        slot_index: 1,
+        card_template_name: "AES67_108_G2".into(),
+    }];
+    inst.instance_routes = vec![RouteRuleEmitInput {
+        from_interface: "card_aes67_out".into(),
+        from_channel: 1,
+        to_interface: "mgmt".into(),
+        to_channel: 1,
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![card],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("route AES67_Out[1] -> Mgmt_Out[1]"),
+        "route on card-slot port must use correct directional port name, got:\n{patch}"
+    );
+    assert!(
+        !patch.contains("route card_aes67_out"),
+        "route must NOT emit raw interface id as port name:\n{patch}"
     );
 }
