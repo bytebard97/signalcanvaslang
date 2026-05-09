@@ -638,3 +638,131 @@ fn emit_tx_stream_uses_output_port_name() {
         "TX stream must NOT reference the _In port:\n{patch}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Card-slot coverage: connections, buses, bridges
+// ---------------------------------------------------------------------------
+
+fn make_aes67_card() -> CardEmitInput {
+    CardEmitInput {
+        template_name: "AES67_108_G2".into(),
+        manufacturer: Some("Riedel".into()),
+        model: "AES67-108 G2".into(),
+        fits: "Artist_Slot".into(),
+        interfaces: vec![make_interface(
+            "card_aes67_out",
+            "AES67_Out",
+            "out",
+            Some("AES67"),
+            64,
+            vec![],
+        )],
+    }
+}
+
+fn make_artist_with_card() -> InstanceEmitInput {
+    let mut inst = make_simple_instance("Artist_64", "Artist64", "Riedel", vec![]);
+    inst.installed_cards = vec![InstalledCardEmitInput {
+        slot_label: "Card_Slot".into(),
+        slot_index: 1,
+        card_template_name: "AES67_108_G2".into(),
+    }];
+    inst
+}
+
+/// A connection from a card-slot port falls back to unvalidated AST construction
+/// because the port isn't on the device template. Verify the connect statement
+/// is still emitted with the correct port names.
+#[test]
+fn emit_connection_from_card_slot_port_is_not_dropped() {
+    let dst_inst = make_simple_instance(
+        "FOH_Console",
+        "CL5",
+        "Yamaha",
+        vec![make_interface("dante_in", "Dante_Pri", "io", Some("Dante"), 64, vec![])],
+    );
+    let input = CanvasEmitInput {
+        instances: vec![make_artist_with_card(), dst_inst],
+        connections: vec![ConnectionEmitInput {
+            from_instance_name: "Artist_64".into(),
+            to_instance_name: "FOH_Console".into(),
+            // TypeScript pre-resolves card port to directional name
+            from_port_id: "AES67_Out".into(),
+            to_port_id: "Dante_Pri_In".into(),
+            is_backbone: false,
+            channel_mappings: vec![],
+            properties: vec![],
+        }],
+        manufacturer_cards: vec![make_aes67_card()],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("connect Artist_64.AES67_Out -> FOH_Console.Dante_Pri_In"),
+        "connection from card-slot port must be emitted via fallback path:\n{patch}"
+    );
+}
+
+/// A bus whose input interface is on an installed card must emit using the
+/// pre-resolved port name (TypeScript resolves card interface IDs before
+/// sending to the emitter).
+#[test]
+fn emit_bus_with_card_slot_input_port() {
+    let mut inst = make_artist_with_card();
+    inst.internal_buses = vec![BusEmitInput {
+        label: "Card_Mix".into(),
+        display_name: None,
+        // TypeScript pre-resolves the card interface ID to its port name
+        input_interface: "AES67_Out".into(),
+        input_channels: vec![1, 2],
+        output_interface: "AES67_Out".into(),
+        output_channels: vec![3, 4],
+        named_outputs: vec![],
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![make_aes67_card()],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("bus Card_Mix"),
+        "bus on card-slot port must be emitted:\n{patch}"
+    );
+    assert!(
+        patch.contains("AES67_Out[1]"),
+        "bus must reference the resolved card port name:\n{patch}"
+    );
+    assert!(
+        !patch.contains("card_aes67_out"),
+        "bus must NOT use raw card interface id:\n{patch}"
+    );
+}
+
+/// A template bridge (route_rule) where the source port is on an installed card
+/// must emit the correct directional port name. TypeScript pre-resolves card
+/// interface IDs to directional names before calling the emitter.
+#[test]
+fn emit_bridge_with_card_slot_source_port() {
+    let mut inst = make_artist_with_card();
+    inst.route_rules = vec![RouteRuleEmitInput {
+        // TypeScript pre-resolves card interface to directional port name
+        from_interface: "AES67_Out".into(),
+        from_channel: 1,
+        to_interface: "AES67_Out".into(),
+        to_channel: 2,
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![make_aes67_card()],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("bridge AES67_Out -> AES67_Out[2]"),
+        "bridge with card-slot port must be emitted:\n{patch}"
+    );
+    assert!(
+        !patch.contains("card_aes67_out"),
+        "bridge must NOT use raw card interface id:\n{patch}"
+    );
+}
