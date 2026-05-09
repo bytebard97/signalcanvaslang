@@ -126,43 +126,51 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
         }
     }
 
-    // Build stream lookup by port name: instance_name → Vec<(port_name, StreamOutput)>
+    // Build stream lookup by port name: instance_name → Vec<StreamOutput>
     let mut stream_map: HashMap<String, Vec<StreamOutput>> = HashMap::new();
     for stream in &streams_raw {
-        if let Some(source) = &stream.source {
-            if let Some(inst_name) = &source.instance {
-                let protocol = stream.properties.iter().find(|kv| kv.key == "protocol")
-                    .and_then(|kv| if let KvValue::Str { value } = &kv.value { Some(value.clone()) } else { None })
-                    .unwrap_or_default();
-                let channel_count = stream.properties.iter().find(|kv| kv.key == "channels")
-                    .and_then(|kv| match &kv.value {
-                        KvValue::Num { value } => Some(*value),
-                        KvValue::Str { value } => value.parse().ok(),
-                        _ => None,
-                    }).unwrap_or(0);
-                let direction = stream.properties.iter().find(|kv| kv.key == "direction")
-                    .and_then(|kv| if let KvValue::Str { value } = &kv.value { Some(value.clone()) } else { None })
-                    .unwrap_or_default();
-                stream_map.entry(inst_name.clone()).or_default().push(StreamOutput {
-                    label: stream.name.clone(),
-                    protocol,
-                    channel_count,
-                    port_name: source.port.clone(),
-                    direction,
-                });
-            }
-        }
+        let source = stream.source.as_ref().ok_or_else(|| {
+            BuilderError::ValidationError(format!(
+                "stream '{}' has no source — every stream must declare 'source: Instance.Port'",
+                stream.name
+            ))
+        })?;
+        let inst_name = source.instance.as_ref().ok_or_else(|| {
+            BuilderError::ValidationError(format!(
+                "stream '{}' source has no instance qualifier — use 'source: InstanceName.PortName'",
+                stream.name
+            ))
+        })?;
+        let protocol = stream.properties.iter().find(|kv| kv.key == "protocol")
+            .and_then(|kv| if let KvValue::Str { value } = &kv.value { Some(value.clone()) } else { None })
+            .unwrap_or_default();
+        let channel_count = stream.properties.iter().find(|kv| kv.key == "channels")
+            .and_then(|kv| match &kv.value {
+                KvValue::Num { value } => Some(*value),
+                KvValue::Str { value } => value.parse().ok(),
+                _ => None,
+            }).unwrap_or(0);
+        let direction = stream.properties.iter().find(|kv| kv.key == "direction")
+            .and_then(|kv| if let KvValue::Str { value } = &kv.value { Some(value.clone()) } else { None })
+            .unwrap_or_default();
+        stream_map.entry(inst_name.clone()).or_default().push(StreamOutput {
+            label: stream.name.clone(),
+            protocol,
+            channel_count,
+            port_name: source.port.clone(),
+            direction,
+        });
     }
 
     // Build instance outputs (in parse order)
     let mut instances: Vec<InstanceLoadOutput> = Vec::new();
     for inst in &instances_raw {
-        let tmpl = match device_templates.get(&inst.template_name)
+        let tmpl = device_templates.get(&inst.template_name)
             .or_else(|| card_templates_map.get(&inst.template_name))
-        {
-            Some(t) => t,
-            None => continue, // unknown template — skip
-        };
+            .ok_or_else(|| BuilderError::ValidationError(format!(
+                "instance '{}' references unknown template '{}'",
+                inst.name, inst.template_name
+            )))?;
 
         let props = kv_map(&inst.properties);
         let manufacturer = meta_str(tmpl, "manufacturer");
