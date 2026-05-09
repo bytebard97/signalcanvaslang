@@ -280,8 +280,8 @@ pub fn emit_from_canvas_input(input: CanvasEmitInput) -> Result<String, BuilderE
         if inst.is_ring_container {
             continue;
         }
-        emit_streams_for(&mut builder, inst, &inst.tx_streams, "tx")?;
-        emit_streams_for(&mut builder, inst, &inst.rx_streams, "rx")?;
+        emit_streams_for(&mut builder, inst, &input.manufacturer_cards, &inst.tx_streams, "tx")?;
+        emit_streams_for(&mut builder, inst, &input.manufacturer_cards, &inst.rx_streams, "rx")?;
     }
 
     Ok(builder.format())
@@ -735,11 +735,26 @@ fn build_bridges(
 fn emit_streams_for(
     builder: &mut PatchProgramBuilder,
     inst: &InstanceEmitInput,
+    manufacturer_cards: &[CardEmitInput],
     streams: &[StreamEmitInput],
     direction: &str,
 ) -> Result<(), BuilderError> {
     for stream in streams {
-        let Some(iface) = inst.interfaces.iter().find(|i| i.id == stream.interface_id) else {
+        // Search chassis interfaces first, then fall back to installed card interfaces.
+        // Card ports flat-merge into the instance namespace (spec §card-slot).
+        let iface = inst
+            .interfaces
+            .iter()
+            .find(|i| i.id == stream.interface_id)
+            .or_else(|| {
+                inst.installed_cards.iter().find_map(|installed| {
+                    manufacturer_cards
+                        .iter()
+                        .find(|c| c.template_name == installed.card_template_name)
+                        .and_then(|c| c.interfaces.iter().find(|i| i.id == stream.interface_id))
+                })
+            });
+        let Some(iface) = iface else {
             continue;
         };
         let port_name = directional_port_name(iface, PortSide::Output);
