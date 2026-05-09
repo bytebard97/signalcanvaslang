@@ -758,7 +758,8 @@ fn emit_streams_for(
         let Some(iface) = iface else {
             continue;
         };
-        let port_name = directional_port_name(iface, PortSide::Output);
+        let side = if direction == "rx" { PortSide::Input } else { PortSide::Output };
+        let port_name = directional_port_name(iface, side);
         let mut props = vec![
             kv_str("channels", &stream.channel_count.to_string()),
             kv_str("direction", direction),
