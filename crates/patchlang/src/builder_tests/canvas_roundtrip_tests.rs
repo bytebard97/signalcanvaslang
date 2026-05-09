@@ -551,3 +551,90 @@ fn emit_instance_route_via_card_slot_port() {
         "route must NOT emit raw interface id as port name:\n{patch}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// RX stream port direction
+// ---------------------------------------------------------------------------
+
+/// TX streams (data leaving the device) must reference the _Out port.
+/// RX streams (data arriving at the device) must reference the _In port.
+/// Bug: emit_streams_for used PortSide::Output for both, so RX streams were
+/// emitted with the wrong port name (e.g. `source: FOH.Dante_Pri_Out`
+/// instead of `source: FOH.Dante_Pri_In`).
+#[test]
+fn emit_rx_stream_uses_input_port_name() {
+    let mut inst = make_simple_instance(
+        "FOH_Console",
+        "CL5",
+        "Yamaha",
+        vec![make_interface(
+            "dante_pri",
+            "Dante_Pri",
+            "io",
+            Some("Dante"),
+            72,
+            vec!["primary"],
+        )],
+    );
+    inst.rx_streams = vec![StreamEmitInput {
+        label: "FOH_Dante_RX".into(),
+        protocol: "Dante".into(),
+        channel_count: 72,
+        interface_id: "dante_pri".into(),
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("stream FOH_Dante_RX"),
+        "RX stream must be emitted:\n{patch}"
+    );
+    assert!(
+        patch.contains("source: FOH_Console.Dante_Pri_In"),
+        "RX stream must reference the _In port:\n{patch}"
+    );
+    assert!(
+        !patch.contains("source: FOH_Console.Dante_Pri_Out"),
+        "RX stream must NOT reference the _Out port:\n{patch}"
+    );
+}
+
+#[test]
+fn emit_tx_stream_uses_output_port_name() {
+    let mut inst = make_simple_instance(
+        "Stage_Left",
+        "Rio3224",
+        "Yamaha",
+        vec![make_interface(
+            "dante_pri",
+            "Dante_Pri",
+            "io",
+            Some("Dante"),
+            32,
+            vec!["primary"],
+        )],
+    );
+    inst.tx_streams = vec![StreamEmitInput {
+        label: "SL_Dante_TX".into(),
+        protocol: "Dante".into(),
+        channel_count: 32,
+        interface_id: "dante_pri".into(),
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("source: Stage_Left.Dante_Pri_Out"),
+        "TX stream must reference the _Out port:\n{patch}"
+    );
+    assert!(
+        !patch.contains("source: Stage_Left.Dante_Pri_In"),
+        "TX stream must NOT reference the _In port:\n{patch}"
+    );
+}
