@@ -323,3 +323,95 @@ fn emit_deduplicates_templates_for_same_model() {
         "should emit both instances:\n{patch}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Stream emit — chassis and card-slot ports
+// ---------------------------------------------------------------------------
+
+#[test]
+fn emit_stream_on_chassis_port_is_included() {
+    let mut inst = make_simple_instance(
+        "Stage_Left",
+        "Rio3224",
+        "Yamaha",
+        vec![make_interface(
+            "dante_pri",
+            "Dante_Pri",
+            "io",
+            Some("Dante"),
+            32,
+            vec!["primary"],
+        )],
+    );
+    inst.tx_streams = vec![StreamEmitInput {
+        label: "SL_Dante_TX".into(),
+        protocol: "Dante".into(),
+        channel_count: 32,
+        interface_id: "dante_pri".into(),
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("stream SL_Dante_TX"),
+        "stream on chassis port must be emitted:\n{patch}"
+    );
+}
+
+#[test]
+fn emit_stream_on_card_slot_port_is_not_dropped() {
+    // Riedel Artist 64 with an AES67-108 G2 card in slot 1.
+    // The stream's interface_id points to the card's interface, not the chassis.
+    // Bug: emit_streams_for only searches inst.interfaces and silently drops the stream.
+    let card = CardEmitInput {
+        template_name: "AES67_108_G2".into(),
+        manufacturer: Some("Riedel".into()),
+        model: "AES67-108 G2".into(),
+        fits: "Artist_Slot".into(),
+        interfaces: vec![make_interface(
+            "card_aes67_out",
+            "AES67_Out",
+            "out",
+            Some("AES67"),
+            64,
+            vec![],
+        )],
+    };
+    let mut inst = make_simple_instance(
+        "Artist_64",
+        "Artist64",
+        "Riedel",
+        vec![make_interface(
+            "mgmt",
+            "Mgmt",
+            "io",
+            Some("Ethernet_Mgmt"),
+            0,
+            vec![],
+        )],
+    );
+    inst.installed_cards = vec![InstalledCardEmitInput {
+        slot_label: "Card_Slot".into(),
+        slot_index: 1,
+        card_template_name: "AES67_108_G2".into(),
+    }];
+    inst.tx_streams = vec![StreamEmitInput {
+        label: "Artist_AES67_TX".into(),
+        protocol: "AES67".into(),
+        channel_count: 64,
+        interface_id: "card_aes67_out".into(),
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![card],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("stream Artist_AES67_TX"),
+        "AES67 stream on card-slot port must not be silently dropped:\n{patch}"
+    );
+}
