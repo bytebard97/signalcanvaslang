@@ -4,6 +4,7 @@ import type { CardSlotGroupEmitInput } from "./CardSlotGroupEmitInput";
 import type { ChannelLabelEmitInput } from "./ChannelLabelEmitInput";
 import type { InstalledCardEmitInput } from "./InstalledCardEmitInput";
 import type { InterfaceEmitInput } from "./InterfaceEmitInput";
+import type { RingMemberEmitInput } from "./RingMemberEmitInput";
 import type { RouteRuleEmitInput } from "./RouteRuleEmitInput";
 import type { StreamEmitInput } from "./StreamEmitInput";
 
@@ -11,8 +12,16 @@ export type InstanceEmitInput = {
 /**
  * Pre-resolved human-readable name (TypeScript does UUID → name mapping).
  */
-name: string, device_type: string, manufacturer: string | null, model: string, category: string | null, kind: string | null, location: string | null, dante_chipset: string | null, rf_subtype: string | null, rf_min_channels: number | null, rf_max_channels: number | null, rf_band: string | null, interfaces: Array<InterfaceEmitInput>, card_slot_groups: Array<CardSlotGroupEmitInput>, installed_cards: Array<InstalledCardEmitInput>, 
+name: string, device_type: string, manufacturer: string | null, model: string, category: string | null, kind: string | null, location: string | null, dante_chipset: string | null, rf_subtype: string | null, rf_min_channels: number | null, rf_max_channels: number | null, rf_band: string | null, rf_active_channels: number | null, iem_modes: string | null, interfaces: Array<InterfaceEmitInput>, card_slot_groups: Array<CardSlotGroupEmitInput>, installed_cards: Array<InstalledCardEmitInput>, 
 /**
  * Map from interface id → list of channel labels.
  */
-channel_labels: { [key in string]?: Array<ChannelLabelEmitInput> }, route_rules: Array<RouteRuleEmitInput>, internal_buses: Array<BusEmitInput>, tx_streams: Array<StreamEmitInput>, rx_streams: Array<StreamEmitInput>, is_ring_container: boolean, ring_protocol: string | null, };
+channel_labels: { [key in string]?: Array<ChannelLabelEmitInput> }, route_rules: Array<RouteRuleEmitInput>, 
+/**
+ * Per-instance route entries (emitted inside instance body as `route A[n] -> B[m]`)
+ */
+instance_routes: Array<RouteRuleEmitInput>, internal_buses: Array<BusEmitInput>, tx_streams: Array<StreamEmitInput>, rx_streams: Array<StreamEmitInput>, is_ring_container: boolean, ring_protocol: string | null, 
+/**
+ * For ring container instances: ordered list of member {instance, port} pairs.
+ */
+ring_members: Array<RingMemberEmitInput>, };

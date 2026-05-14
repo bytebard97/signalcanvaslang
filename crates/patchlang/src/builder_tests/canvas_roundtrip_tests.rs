@@ -766,3 +766,99 @@ fn emit_bridge_with_card_slot_source_port() {
         "bridge must NOT use raw card interface id:\n{patch}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Bus output — named outputs without wired destinations
+// ---------------------------------------------------------------------------
+
+/// A bus with named outputs that have no wired destination (empty interface)
+/// must emit `output "Name"` with no port reference — not `output "Name": Unknown`.
+/// Bug: build_instance_buses created PortRefs pointing to sanitize_id("") even
+/// when the output had no destination, producing junk port references on reload.
+#[test]
+fn emit_bus_named_output_without_destination_omits_port_ref() {
+    let mut inst = make_simple_instance(
+        "ULTRIX_FR2",
+        "ULTRIX_FR2",
+        "Ross",
+        vec![make_interface("madi_out", "MADI_1_Out", "out", None, 64, vec![])],
+    );
+    inst.internal_buses = vec![BusEmitInput {
+        label: "Link_1".into(),
+        display_name: None,
+        input_interface: "madi_out".into(),
+        input_channels: vec![1, 2],
+        // No destination — output declared but unrouted
+        output_interface: "".into(),
+        output_channels: vec![],
+        named_outputs: vec![
+            BusOutputEmitInput { name: "Link 1-L".into(), interface: "".into(), channels: vec![] },
+            BusOutputEmitInput { name: "Link 1-R".into(), interface: "".into(), channels: vec![] },
+        ],
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(patch.contains("bus Link_1"), "bus must be emitted:\n{patch}");
+    assert!(
+        patch.contains("output \"Link 1-L\""),
+        "named output must be emitted:\n{patch}"
+    );
+    assert!(
+        patch.contains("output \"Link 1-R\""),
+        "named output must be emitted:\n{patch}"
+    );
+    assert!(
+        !patch.contains("Unknown") && !patch.contains(": _") && !patch.contains(": ["),
+        "unrouted output must NOT emit a destination port ref:\n{patch}"
+    );
+}
+
+/// A bus with named outputs that DO have a wired destination must still emit
+/// the destination port reference correctly.
+#[test]
+fn emit_bus_named_output_with_destination_includes_port_ref() {
+    let mut inst = make_simple_instance(
+        "ULTRIX_FR2",
+        "ULTRIX_FR2",
+        "Ross",
+        vec![make_interface("madi_out", "MADI_1_Out", "out", None, 64, vec![])],
+    );
+    inst.internal_buses = vec![BusEmitInput {
+        label: "Link_1".into(),
+        display_name: None,
+        input_interface: "madi_out".into(),
+        input_channels: vec![1, 2],
+        output_interface: "".into(),
+        output_channels: vec![],
+        named_outputs: vec![
+            BusOutputEmitInput {
+                name: "Link 1-L".into(),
+                interface: "MADI_1_Out".into(),
+                channels: vec![1],
+            },
+            BusOutputEmitInput {
+                name: "Link 1-R".into(),
+                interface: "MADI_1_Out".into(),
+                channels: vec![2],
+            },
+        ],
+    }];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("output \"Link 1-L\": MADI_1_Out[1]"),
+        "routed output must include port ref:\n{patch}"
+    );
+    assert!(
+        patch.contains("output \"Link 1-R\": MADI_1_Out[2]"),
+        "routed output must include port ref:\n{patch}"
+    );
+}

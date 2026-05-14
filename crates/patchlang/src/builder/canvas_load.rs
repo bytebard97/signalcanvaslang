@@ -222,26 +222,57 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
             }
         }).collect();
 
+        // Collect declared port names for this template. Slot-qualified port
+        // names (e.g. "AES67_Out__Client_1") are also valid — TypeScript writes
+        // them when a bus targets a card-slot port. We recognise them by the
+        // "__" separator convention rather than building a full card-port set.
+        let valid_port_names: std::collections::HashSet<&str> =
+            tmpl.ports.iter().map(|p| p.name.as_str()).collect();
+
+        let is_valid_port = |name: &str| -> bool {
+            valid_port_names.contains(name) || name.contains("__")
+        };
+
         // Internal buses
         let internal_buses: Vec<BusOutput> = inst.buses.iter().map(|bus| {
             let display_name = bus.label.clone().filter(|n| !n.is_empty());
-            let first_input = bus.inputs.first();
+
+            // Input port: blank out if the port name is a garbage sentinel.
+            let first_input = bus.inputs.iter()
+                .find(|p| is_valid_port(&p.port));
             let input_port = first_input.map(|p| p.port.clone()).unwrap_or_default();
             let input_channels: Vec<u32> = bus.inputs.iter()
+                .filter(|p| is_valid_port(&p.port))
                 .map(|p| extract_single_index(&p.index).unwrap_or(1))
                 .collect();
-            let named_outputs: Vec<BusNamedOutput> = bus.outputs.iter().map(|out| {
-                let first_dest = out.destinations.first();
-                let output_port = first_dest.map(|p| p.port.clone()).unwrap_or_default();
-                let output_channels: Vec<u32> = out.destinations.iter()
+
+            let named_outputs: Vec<BusNamedOutput> = bus.outputs.iter().filter_map(|out| {
+                // Keep only destinations with a valid port name. Old saves may
+                // contain "Unknown" or "Device" as garbage sentinels.
+                let real_dests: Vec<_> = out.destinations.iter()
+                    .filter(|p| is_valid_port(&p.port))
+                    .collect();
+
+                // If the output had destinations in the file but all were garbage,
+                // drop the entry entirely (phantom from old TS code). Legitimately
+                // unrouted outputs have no destinations at all and are preserved.
+                if !out.destinations.is_empty() && real_dests.is_empty() {
+                    return None;
+                }
+
+                let output_port = real_dests.first()
+                    .map(|p| p.port.clone())
+                    .unwrap_or_default();
+                let output_channels: Vec<u32> = real_dests.iter()
                     .map(|p| extract_single_index(&p.index).unwrap_or(1))
                     .collect();
-                BusNamedOutput {
+                Some(BusNamedOutput {
                     name: out.label.clone(),
                     output_port,
                     output_channels,
-                }
+                })
             }).collect();
+
             BusOutput {
                 name: bus.name.clone(),
                 display_name,
