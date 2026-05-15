@@ -1,0 +1,4721 @@
+template M_DL_DANTE128_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-DANTE128-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    Dante_In[1..128]: in(RJ45) [Dante]
+    Dante_Out[1..128]: out(RJ45) [Dante]
+  }
+}
+
+template M_DL_DANTE64_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-DANTE64-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template M_DL_SMADI_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-SMADI-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    MADI_BNC_In[1..128]: in(BNC_75) [MADI]
+    MADI_BNC_Out[1..128]: out(BNC_75) [MADI]
+    MADI_SFP_In[1..128]: in(SFP) [MADI]
+    MADI_SFP_Out[1..128]: out(SFP) [MADI]
+  }
+}
+
+template M_DL_GACE_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-GACE-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    GigACE_In[1..128]: in(etherCON) [GigACE]
+    GigACE_Out[1..128]: out(etherCON) [GigACE]
+  }
+}
+
+template M_DL_GOPT_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-GOPT-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    fibreACE_In[1..128]: in(LC_Fiber) [fibreACE]
+    fibreACE_Out[1..128]: out(LC_Fiber) [fibreACE]
+  }
+}
+
+template M_DL_DXLINK_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-DXLINK-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    DXLink_In[1..128]: in(RJ45) [DXLink]
+    DXLink_Out[1..128]: out(RJ45) [DXLink]
+  }
+}
+
+template M_DL_WAVES3_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-WAVES3-A"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    SoundGrid_In[1..128]: in(RJ45) [SoundGrid]
+    SoundGrid_Out[1..128]: out(RJ45) [SoundGrid]
+  }
+}
+
+template M_DL_AES {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-AES"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    AES_Out[1..10]: out(XLR) [AES3]
+  }
+}
+
+template M_DL_ADAPT {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-DL-ADAPT"
+    kind: "card"
+    fits: "IO_Port_Card"
+  }
+  ports {
+    Legacy_IO_In[1..8]: in [iLive_Legacy]
+    Legacy_IO_Out[1..8]: out [iLive_Legacy]
+  }
+}
+
+template M_SQ_DANT64_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-SQ-DANT64-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template M_SQ_DANT32_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-SQ-DANT32-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    Dante_In[1..32]: in(RJ45) [Dante]
+    Dante_Out[1..32]: out(RJ45) [Dante]
+  }
+}
+
+template M_SQ_WAVES3_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-SQ-WAVES3-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    SoundGrid_In[1..64]: in(RJ45) [SoundGrid]
+    SoundGrid_Out[1..64]: out(RJ45) [SoundGrid]
+  }
+}
+
+template M_SQ_MADI_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-SQ-MADI-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template M_SQ_SLINK_A {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "M-SQ-SLINK-A"
+    kind: "card"
+    fits: "SQ_Option_Card"
+  }
+  ports {
+    SLink_In[1..128]: in(RJ45) [SLink]
+    SLink_Out[1..128]: out(RJ45) [SLink]
+  }
+}
+
+template ME_U_Digital {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "ME-U Digital Card"
+    kind: "card"
+    fits: "ME_U_Card"
+  }
+  ports {
+    Digital_In[1..40]: in(RJ45) [dSNAKE, SLink]
+  }
+}
+
+template ME_U_Dante {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "ME-U M-Dante Card"
+    kind: "card"
+    fits: "ME_U_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+  }
+}
+
+template ME_U_MADI {
+  meta {
+    manufacturer: "Allen and Heath"
+    model: "ME-U M-MADI Card"
+    kind: "card"
+    fits: "ME_U_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+  }
+}
+
+template SRI_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "SRI-192"
+    kind: "card"
+    fits: "S6L_Stage_Card"
+  }
+  ports {
+    Mic_In[1..8]: in(XLR) [Analogue, mic_level]
+  }
+}
+
+template SRO_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "SRO-192"
+    kind: "card"
+    fits: "S6L_Stage_Card"
+  }
+  ports {
+    Line_Out[1..8]: out(XLR) [Analogue, line_level]
+  }
+}
+
+template DSI_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "DSI-192"
+    kind: "card"
+    fits: "S6L_Stage_Card"
+  }
+  ports {
+    AES_In[1..8]: in(XLR) [AES3]
+  }
+}
+
+template DSO_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "DSO-192"
+    kind: "card"
+    fits: "S6L_Stage_Card"
+  }
+  ports {
+    AES_Out[1..8]: out(XLR) [AES3]
+  }
+}
+
+template DNT_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "DNT-192"
+    kind: "card"
+    fits: "S6L_Stage_Card"
+  }
+  ports {
+    Dante_In[1..16]: in(RJ45) [Dante]
+    Dante_Out[1..16]: out(RJ45) [Dante]
+  }
+}
+
+template VENUE_Snake_Card {
+  meta {
+    manufacturer: "Avid"
+    model: "VENUE Snake Card"
+    kind: "card"
+    fits: "VENUE_Snake_Slot"
+  }
+  ports {
+    MADI_In: in(BNC_75) [MADI, redundant]
+    MADI_Out: out(BNC_75) [MADI, redundant]
+  }
+}
+
+template IOx {
+  meta {
+    manufacturer: "Avid"
+    model: "IOx"
+    kind: "card"
+    fits: "VENUE_FOH_Option"
+  }
+  ports {
+    Line_In[1..8]: in(TRS_14) [Analogue]
+    Line_Out[1..8]: out(TRS_14) [Analogue]
+    AES_In[1..8]: in(XLR) [AES3]
+    AES_Out[1..8]: out(XLR) [AES3]
+  }
+}
+
+template FWx {
+  meta {
+    manufacturer: "Avid"
+    model: "FWx"
+    kind: "card"
+    fits: "VENUE_FOH_Option"
+  }
+  ports {
+    USB_In[1..32]: in(USB) [USB]
+    USB_Out[1..32]: out(USB) [USB]
+  }
+}
+
+template HDx_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "HDx-192"
+    kind: "card"
+    fits: "VENUE_FOH_Option"
+  }
+}
+
+template VENUE_MADI_FOH {
+  meta {
+    manufacturer: "Avid"
+    model: "VENUE MADI (FOH)"
+    kind: "card"
+    fits: "VENUE_FOH_Option"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template AVB_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "AVB-192"
+    kind: "card"
+    fits: "VENUE_Option_Card"
+  }
+  ports {
+    AVB: io(RJ45) [AVB]
+  }
+}
+
+template MLN_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "MLN-192"
+    kind: "card"
+    fits: "VENUE_Option_Card"
+  }
+  ports {
+    Milan_In[1..128]: in(RJ45) [Milan]
+    Milan_Out[1..128]: out(RJ45) [Milan]
+  }
+}
+
+template HDX_192 {
+  meta {
+    manufacturer: "Avid"
+    model: "HDX-192"
+    kind: "card"
+    fits: "VENUE_Option_Card"
+  }
+  ports {
+    DigiLink_In[1..64]: in(MiniDIN_8) [DigiLink]
+    DigiLink_Out[1..64]: out(MiniDIN_8) [DigiLink]
+  }
+}
+
+template VENUE_MADI {
+  meta {
+    manufacturer: "Avid"
+    model: "VENUE MADI"
+    kind: "card"
+    fits: "VENUE_Option_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template DNT_192_Engine {
+  meta {
+    manufacturer: "Avid"
+    model: "DNT-192 (Engine)"
+    kind: "card"
+    fits: "VENUE_Option_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template WING_DANTE {
+  meta {
+    manufacturer: "Behringer"
+    model: "WING-DANTE"
+    kind: "card"
+    fits: "Wing_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template WING_LIVE {
+  meta {
+    manufacturer: "Behringer"
+    model: "WING-LIVE"
+    kind: "card"
+    fits: "Wing_Card"
+  }
+  ports {
+    USB_In[1..64]: in(USB) [USB_Audio]
+    USB_Out[1..64]: out(USB) [USB_Audio]
+  }
+}
+
+template DN32_DANTE {
+  meta {
+    manufacturer: "Klark Teknik"
+    model: "DN32-DANTE"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    Dante_In[1..32]: in(RJ45) [Dante]
+    Dante_Out[1..32]: out(RJ45) [Dante]
+  }
+}
+
+template X_DANTE {
+  meta {
+    manufacturer: "Behringer"
+    model: "X-DANTE"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    Dante_In[1..32]: in(RJ45) [Dante]
+    Dante_Out[1..32]: out(RJ45) [Dante]
+  }
+}
+
+template DN32_USB {
+  meta {
+    manufacturer: "Klark Teknik"
+    model: "DN32-USB"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    USB_In[1..32]: in(USB) [USB_Audio]
+    USB_Out[1..32]: out(USB) [USB_Audio]
+  }
+}
+
+template X_USB {
+  meta {
+    manufacturer: "Behringer"
+    model: "X-USB"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    USB_In[1..32]: in(USB) [USB_Audio]
+    USB_Out[1..32]: out(USB) [USB_Audio]
+  }
+}
+
+template DN32_ADAT {
+  meta {
+    manufacturer: "Klark Teknik"
+    model: "DN32-ADAT"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    ADAT_In[1..32]: in(LC_Fiber) [ADAT]
+    ADAT_Out[1..32]: out(LC_Fiber) [ADAT]
+  }
+}
+
+template X_ADAT {
+  meta {
+    manufacturer: "Behringer"
+    model: "X-ADAT"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    ADAT_In[1..32]: in(LC_Fiber) [ADAT]
+    ADAT_Out[1..32]: out(LC_Fiber) [ADAT]
+  }
+}
+
+template DN32_MADI {
+  meta {
+    manufacturer: "Klark Teknik"
+    model: "DN32-MADI"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    MADI_Coax_In[1..32]: in(BNC_75) [MADI]
+    MADI_Coax_Out[1..32]: out(BNC_75) [MADI]
+    MADI_Opt_In[1..32]: in(SC_Fiber) [MADI]
+    MADI_Opt_Out[1..32]: out(SC_Fiber) [MADI]
+  }
+}
+
+template X_MADI {
+  meta {
+    manufacturer: "Behringer"
+    model: "X-MADI"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    MADI_Coax_In[1..32]: in(BNC_75) [MADI]
+    MADI_Coax_Out[1..32]: out(BNC_75) [MADI]
+    MADI_Opt_In[1..32]: in(SC_Fiber) [MADI]
+    MADI_Opt_Out[1..32]: out(SC_Fiber) [MADI]
+  }
+}
+
+template DN32_WSG {
+  meta {
+    manufacturer: "Klark Teknik"
+    model: "DN32-WSG"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    SoundGrid_In[1..32]: in(RJ45) [SoundGrid]
+    SoundGrid_Out[1..32]: out(RJ45) [SoundGrid]
+  }
+}
+
+template DN32_LIVE {
+  meta {
+    manufacturer: "Klark Teknik"
+    model: "DN32-LIVE"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    USB_In[1..32]: in(USB) [USB_Audio]
+    USB_Out[1..32]: out(USB) [USB_Audio]
+  }
+}
+
+template X_LIVE {
+  meta {
+    manufacturer: "Behringer"
+    model: "X-LIVE"
+    kind: "card"
+    fits: "X32_Card"
+  }
+  ports {
+    USB_In[1..32]: in(USB) [USB_Audio]
+    USB_Out[1..32]: out(USB) [USB_Audio]
+  }
+}
+
+template HLI_2W2 {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "HLI-2W2"
+    kind: "card"
+    fits: "HLI_Module"
+  }
+  ports {
+    Partyline_In[1..2]: in(XLR) [Analogue]
+    Partyline_Out[1..2]: out(XLR) [Analogue]
+  }
+}
+
+template HLI_4W2 {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "HLI-4W2"
+    kind: "card"
+    fits: "HLI_Module"
+  }
+  ports {
+    FourWire_In[1..2]: in(RJ45) [Analogue]
+    FourWire_Out[1..2]: out(RJ45) [Analogue]
+  }
+}
+
+template HLI_ET2 {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "HLI-ET2"
+    kind: "card"
+    fits: "HLI_Module"
+  }
+  ports {
+    Network_In: in(RJ45)
+    Network_Out: out(RJ45)
+  }
+}
+
+template HLI_FBS {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "HLI-FBS"
+    kind: "card"
+    fits: "HLI_Module"
+  }
+  ports {
+    Fiber_In: in(SFP)
+    Fiber_Out: out(SFP)
+  }
+}
+
+template MVX_A16_HX {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "MVX-A16-HX"
+    kind: "card"
+    fits: "HX_Card"
+  }
+  ports {
+    Station_In[1..16]: in(RJ45) [Analogue]
+    Station_Out[1..16]: out(RJ45) [Analogue]
+  }
+}
+
+template E_IPA_HX {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "E-IPA-HX"
+    kind: "card"
+    fits: "HX_Card"
+  }
+  ports {
+    LAN_In[1..4]: in(RJ45) [AES67]
+    LAN_Out[1..4]: out(RJ45) [AES67]
+    LAN_SFP_In[1..2]: in(SFP) [AES67]
+    LAN_SFP_Out[1..2]: out(SFP) [AES67]
+  }
+}
+
+template E_DANTE64_HX {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "E-DANTE64-HX"
+    kind: "card"
+    fits: "HX_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante, redundant]
+    Dante_Out[1..64]: out(RJ45) [Dante, redundant]
+  }
+}
+
+template E_MADI64_HX {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "E-MADI64-HX"
+    kind: "card"
+    fits: "HX_Card"
+  }
+  ports {
+    MADI_BNC_In[1..64]: in(BNC_75) [MADI]
+    MADI_BNC_Out[1..64]: out(BNC_75) [MADI]
+    MADI_SFP_In[1..64]: in(SFP) [MADI]
+    MADI_SFP_Out[1..64]: out(SFP) [MADI]
+    WC_In_In: in(BNC_75) [WordClock]
+    WC_In_Out: out(BNC_75) [WordClock]
+  }
+}
+
+template E_FIB_HX {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "E-FIB-HX"
+    kind: "card"
+    fits: "HX_Card"
+  }
+  ports {
+    Fiber_A_In: in(SFP)
+    Fiber_A_Out: out(SFP)
+    Fiber_B_In: in(SFP)
+    Fiber_B_Out: out(SFP)
+  }
+}
+
+template E_QUE_HX {
+  meta {
+    manufacturer: "Clear-Com"
+    model: "E-QUE-HX"
+    kind: "card"
+    fits: "HX_Card"
+  }
+  ports {
+    TCVR_In[1..8]: in(RJ45)
+    TCVR_Out[1..8]: out(RJ45)
+  }
+}
+
+template DMI_DANTE64 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-DANTE64@96"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template DMI_WAVES {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-WAVES"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    SoundGrid_In[1..64]: in(RJ45) [SoundGrid]
+    SoundGrid_Out[1..64]: out(RJ45) [SoundGrid]
+  }
+}
+
+template DMI_MADI_B {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-MADI-B"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template DMI_MADI_C {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-MADI-C"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(RJ45) [MADI]
+    MADI_Out[1..64]: out(RJ45) [MADI]
+  }
+}
+
+template DMI_AES {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-AES"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    AES_In[1..16]: in(DB25) [AES3]
+    AES_Out[1..16]: out(DB25) [AES3]
+  }
+}
+
+template DMI_ADC {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-ADC"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Analog_In[1..16]: in(DB25) [Analogue]
+  }
+}
+
+template DMI_DAC {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-DAC"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Analog_Out[1..16]: out(DB25) [Analogue]
+  }
+}
+
+template DMI_MIC {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-MIC"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Mic_In[1..8]: in(DB25) [Analogue]
+  }
+}
+
+template DMI_KLANG {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-KLANG"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+}
+
+template DMI_AMM {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-AMM"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    AutoMix_In[1..64]: in [AutoMix]
+    AutoMix_Out[1..64]: out [AutoMix]
+  }
+}
+
+template DMI_ME {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-ME"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    ME_Out[1..40]: out(RJ45) [ME_Personal_Mixing]
+  }
+}
+
+template DMI_A3232 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-A3232"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    StageRack_In[1..64]: in(RJ45) [DiGiCo_proprietary]
+    StageRack_Out[1..64]: out(RJ45) [DiGiCo_proprietary]
+  }
+}
+
+template DMI_OPTO {
+  meta {
+    manufacturer: "Optocore"
+    model: "DMI-OPTO"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Optocore_A: io(LC_Fiber) [OptoCore]
+  }
+}
+
+template DMI_AVB {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-AVB"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    AVB: io(RJ45) [AVB]
+  }
+}
+
+template DMI_HYDRA2 {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "DMI-HYDRA 2"
+    kind: "card"
+    fits: "DMI_Card"
+  }
+  ports {
+    Hydra_In: in(LC_Fiber) [Hydra2]
+    Hydra_Out: out(LC_Fiber) [Hydra2]
+  }
+}
+
+template SD_Rack_Mic_Input {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack Mic/Line Input"
+    kind: "card"
+    fits: "SD_Rack_Input_Card"
+  }
+  ports {
+    Mic_In[1..8]: in(XLR) [Analogue]
+  }
+}
+
+template SD_Rack_Analog_Output {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack Analogue Output"
+    kind: "card"
+    fits: "SD_Rack_Output_Card"
+  }
+  ports {
+    Analog_Out[1..8]: out(XLR) [Analogue]
+  }
+}
+
+template SD_Rack_AES_Input {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack AES/EBU Input"
+    kind: "card"
+    fits: "SD_Rack_Input_Card"
+  }
+  ports {
+    AES_In[1..8]: in(XLR) [AES3]
+  }
+}
+
+template SD_Rack_AES_Output {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack AES/EBU Output"
+    kind: "card"
+    fits: "SD_Rack_Output_Card"
+  }
+  ports {
+    AES_Out[1..8]: out(XLR) [AES3]
+  }
+}
+
+template SD_Rack_AES_BNC_Input {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack AES/EBU BNC Input"
+    kind: "card"
+    fits: "SD_Rack_Input_Card"
+  }
+  ports {
+    AES_In[1..4]: in(BNC_75) [AES3]
+  }
+}
+
+template SD_Rack_AES_BNC_Output {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack AES/EBU BNC Output"
+    kind: "card"
+    fits: "SD_Rack_Output_Card"
+  }
+  ports {
+    AES_Out[1..4]: out(BNC_75) [AES3]
+  }
+}
+
+template SD_Rack_ADAT_Input {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack ADAT Input"
+    kind: "card"
+    fits: "SD_Rack_Input_Card"
+  }
+  ports {
+    ADAT_In[1..8]: in(LC_Fiber) [ADAT]
+  }
+}
+
+template SD_Rack_ADAT_Output {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack ADAT Output"
+    kind: "card"
+    fits: "SD_Rack_Output_Card"
+  }
+  ports {
+    ADAT_Out[1..8]: out(LC_Fiber) [ADAT]
+  }
+}
+
+template SD_Rack_Dante_Input {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack Dante Input"
+    kind: "card"
+    fits: "SD_Rack_Input_Card"
+  }
+  ports {
+    Dante_In[1..8]: in(RJ45) [Dante]
+  }
+}
+
+template SD_Rack_Dante_Output {
+  meta {
+    manufacturer: "DiGiCo"
+    model: "SD-Rack Dante Output"
+    kind: "card"
+    fits: "SD_Rack_Output_Card"
+  }
+  ports {
+    Dante_Out[1..8]: out(RJ45) [Dante]
+  }
+}
+
+template Prodigy_A_Dante {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "A-Module Dante"
+    kind: "card"
+    fits: "Prodigy_A_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante, redundant]
+    Dante_Out[1..64]: out(RJ45) [Dante, redundant]
+  }
+}
+
+template Prodigy_A_Ravenna {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "A-Module RAVENNA"
+    kind: "card"
+    fits: "Prodigy_A_Card"
+  }
+  ports {
+    AES67_In[1..128]: in(RJ45) [AES67, redundant]
+    AES67_Out[1..128]: out(RJ45) [AES67, redundant]
+  }
+}
+
+template Prodigy_A_SoundGrid {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "A-Module SoundGrid"
+    kind: "card"
+    fits: "Prodigy_A_Card"
+  }
+  ports {
+    SoundGrid_In[1..128]: in(RJ45) [SoundGrid, redundant]
+    SoundGrid_Out[1..128]: out(RJ45) [SoundGrid, redundant]
+  }
+}
+
+template Prodigy_A_AVB {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "A-Module AVB"
+    kind: "card"
+    fits: "Prodigy_A_Card"
+  }
+  ports {
+    AVB_Pri: io(RJ45) [AVB]
+    AVB_Sec: io(RJ45) [AVB]
+  }
+}
+
+template Prodigy_A_MADI {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "A-Module MADI"
+    kind: "card"
+    fits: "Prodigy_A_Card"
+  }
+  ports {
+    MADI_A_In[1..64]: in(SFP) [MADI]
+    MADI_A_Out[1..64]: out(SFP) [MADI]
+    MADI_B_In[1..64]: in(SFP) [MADI]
+    MADI_B_Out[1..64]: out(SFP) [MADI]
+  }
+}
+
+template Prodigy_A_USB {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "USB.IO"
+    kind: "card"
+    fits: "Prodigy_A_Card"
+  }
+  ports {
+    USB_In[1..18]: in(USB) [Device_Audio]
+    USB_Out[1..18]: out(USB) [Device_Audio]
+  }
+}
+
+template Prodigy_B_MADI_BNC {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "B-Module MADI BNC"
+    kind: "card"
+    fits: "Prodigy_B_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template Prodigy_B_MADI_Optical {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "B-Module MADI Optical"
+    kind: "card"
+    fits: "Prodigy_B_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(SC_Fiber) [MADI]
+    MADI_Out[1..64]: out(SC_Fiber) [MADI]
+  }
+}
+
+template Prodigy_B_MADI_SFP {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "B-Module MADI SFP"
+    kind: "card"
+    fits: "Prodigy_B_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(SFP) [MADI]
+    MADI_Out[1..64]: out(SFP) [MADI]
+  }
+}
+
+template Prodigy_C_ML {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "C-Module M/L"
+    kind: "card"
+    fits: "Prodigy_C_Card"
+  }
+  ports {
+    Mic_In[1..8]: in(DB25) [Analogue]
+    Line_Out[1..8]: out(DB25) [Analogue]
+  }
+}
+
+template Prodigy_C_AES {
+  meta {
+    manufacturer: "Direct Out Technologies"
+    model: "C-Module AES"
+    kind: "card"
+    fits: "Prodigy_C_Card"
+  }
+  ports {
+    AES_In[1..8]: in(DB25) [AES3]
+    AES_Out[1..8]: out(DB25) [AES3]
+  }
+}
+
+template CIML4 {
+  meta {
+    manufacturer: "QSC"
+    model: "CIML4"
+    kind: "card"
+    fits: "QSYS_Card"
+  }
+  ports {
+    Mic_In[1..4]: in(Euroblock) [Analogue]
+  }
+}
+
+template COL4 {
+  meta {
+    manufacturer: "QSC"
+    model: "COL4"
+    kind: "card"
+    fits: "QSYS_Card"
+  }
+  ports {
+    Line_Out[1..4]: out(Euroblock) [Analogue]
+  }
+}
+
+template CAES4 {
+  meta {
+    manufacturer: "QSC"
+    model: "CAES4"
+    kind: "card"
+    fits: "QSYS_Card"
+  }
+  ports {
+    AES_In[1..4]: in(Euroblock) [AES3]
+    AES_Out[1..4]: out(Euroblock) [AES3]
+  }
+}
+
+template CDN64 {
+  meta {
+    manufacturer: "QSC"
+    model: "CDN64"
+    kind: "card"
+    fits: "QSYS_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante, redundant]
+    Dante_Out[1..64]: out(RJ45) [Dante, redundant]
+  }
+}
+
+template CAT_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "CAT-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    Panel_In[1..8]: in(RJ45) [Artist_Panel]
+    Panel_Out[1..8]: out(RJ45) [Artist_Panel]
+  }
+}
+
+template COAX_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "COAX-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    Panel_In[1..8]: in(BNC_75) [Artist_Panel]
+    Panel_Out[1..8]: out(BNC_75) [Artist_Panel]
+  }
+}
+
+template AIO_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "AIO-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(DB25) [Analogue]
+    Analog_Out[1..8]: out(DB25) [Analogue]
+  }
+}
+
+template AIO_109_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "AIO-109 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(DB25) [Analogue]
+    Analog_Out[1..8]: out(DB25) [Analogue]
+  }
+}
+
+template AES_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "AES-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    AES_In[1..8]: in(RJ45) [AES3]
+    AES_Out[1..8]: out(RJ45) [AES3]
+  }
+}
+
+template MADI_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "MADI-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template Dante_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "Dante-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    Dante_In[1..8]: in(RJ45) [Dante, redundant]
+    Dante_Out[1..8]: out(RJ45) [Dante, redundant]
+  }
+}
+
+template AES67_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "AES67-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    AES67_In[1..8]: in(RJ45) [AES67]
+    AES67_Out[1..8]: out(RJ45) [AES67]
+  }
+}
+
+template AVB_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "AVB-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    AVB: io(RJ45) [AVB]
+  }
+}
+
+template VOIP_108_G2 {
+  meta {
+    manufacturer: "Riedel"
+    model: "VOIP-108 G2"
+    kind: "card"
+    fits: "Artist_G2_Card"
+  }
+  ports {
+    VoIP_In[1..8]: in(RJ45) [VoIP]
+    VoIP_Out[1..8]: out(RJ45) [VoIP]
+  }
+}
+
+template UIC_128_AES67 {
+  meta {
+    manufacturer: "Riedel"
+    model: "UIC-128-II (AES67)"
+    kind: "card"
+    fits: "Artist_UIC"
+  }
+  ports {
+    AES67_In[1..128]: in(RJ45) [AES67]
+    AES67_Out[1..128]: out(RJ45) [AES67]
+  }
+}
+
+template UIC_128_MADI {
+  meta {
+    manufacturer: "Riedel"
+    model: "UIC-128-II (MADI)"
+    kind: "card"
+    fits: "Artist_UIC"
+  }
+  ports {
+    MADI_In[1..64]: in(SFP) [MADI]
+    MADI_Out[1..64]: out(SFP) [MADI]
+  }
+}
+
+template UIC_128_Dante {
+  meta {
+    manufacturer: "Riedel"
+    model: "UIC-128-II (Dante)"
+    kind: "card"
+    fits: "Artist_UIC"
+  }
+  ports {
+    Dante_In[1..128]: in(RJ45) [Dante, redundant]
+    Dante_Out[1..128]: out(RJ45) [Dante, redundant]
+  }
+}
+
+template UIC_128_Fiber {
+  meta {
+    manufacturer: "Riedel"
+    model: "UIC-128-II (Fiber)"
+    kind: "card"
+    fits: "Artist_UIC"
+  }
+  ports {
+    Artist_Net_In: in(SFP) [Artist_Net]
+    Artist_Net_Out: out(SFP) [Artist_Net]
+  }
+}
+
+template D21m_Line_In {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2425SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Line_In[1..8]: in(DB25) [Analogue]
+  }
+}
+
+template D21m_Line_Out {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2424SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Line_Out[1..8]: out(DB25) [Analogue]
+  }
+}
+
+template D21m_Mic_In {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2423SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Mic_In[1..4]: in(DB25) [Analogue]
+  }
+}
+
+template D21m_AES {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2422SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    AES_In[1..16]: in(DB25) [AES3, SRC]
+    AES_Out[1..16]: out(DB25) [AES3]
+  }
+}
+
+template D21m_3G_SDI {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "3G SDI Card"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    SDI_In[1..16]: in(BNC_75) [SDI_3G]
+    SDI_Out[1..16]: out(BNC_75) [SDI_3G]
+  }
+}
+
+template D21m_Dolby_E {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2553SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Dolby_Decode[1..2]: in [Dolby_E]
+  }
+}
+
+template D21m_ADAT {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2360SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    ADAT_In[1..16]: in(LC_Fiber) [ADAT]
+    ADAT_Out[1..16]: out(LC_Fiber) [ADAT]
+  }
+}
+
+template D21m_TDIF {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "RS2564SP"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    TDIF_In[1..16]: in(DB25) [TDIF]
+    TDIF_Out[1..16]: out(DB25) [TDIF]
+  }
+}
+
+template D21m_Dante {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "DANTE CARD"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+    Ref_In: in(BNC_75) [WordClock]
+  }
+}
+
+template D21m_MADI_Optical {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "MADI Optical"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(SC_Fiber) [MADI]
+    MADI_Out[1..64]: out(SC_Fiber) [MADI]
+  }
+}
+
+template D21m_MADI_Cat5 {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "MADI Cat5"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(RJ45) [MADI]
+    MADI_Out[1..64]: out(RJ45) [MADI]
+  }
+}
+
+template D21m_BLU_link {
+  meta {
+    manufacturer: "BSS"
+    model: "BLU link CARD"
+    kind: "card"
+    fits: "D21m_Card"
+  }
+  ports {
+    BLU_In[1..32]: in(RJ45) [BLU_link]
+    BLU_Out[1..32]: out(RJ45) [BLU_link]
+  }
+}
+
+template Si_MADI_USB {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "MADI-USB Combo"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    USB_IO_In[1..32]: in(USB) [USB_Audio]
+    USB_IO_Out[1..32]: out(USB) [USB_Audio]
+    MADI_IO_In[1..32]: in(RJ45) [MADI]
+    MADI_IO_Out[1..32]: out(RJ45) [MADI]
+  }
+}
+
+template Si_Multi_Digital {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "Multi Digital"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    USB_IO_In[1..32]: in(USB) [USB_Audio]
+    USB_IO_Out[1..32]: out(USB) [USB_Audio]
+    FireWire_IO_In[1..32]: in(USB) [FireWire_Audio]
+    FireWire_IO_Out[1..32]: out(USB) [FireWire_Audio]
+    ADAT_In[1..8]: in(LC_Fiber) [ADAT]
+    ADAT_Out[1..8]: out(LC_Fiber) [ADAT]
+  }
+}
+
+template Si_Dante {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "Dante Card"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante]
+    Dante_Out[1..64]: out(RJ45) [Dante]
+  }
+}
+
+template Si_AVIOM {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "AVIOM A-NET 16"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    ANet_Out[1..16]: out(RJ45) [ANet]
+  }
+}
+
+template Si_CobraNet {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "CobraNet"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    CobraNet_In[1..32]: in(RJ45) [CobraNet]
+    CobraNet_Out[1..32]: out(RJ45) [CobraNet]
+  }
+}
+
+template Si_AES_XLR {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "AES/EBU (XLR)"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    AES_In[1..4]: in(XLR) [AES3]
+    AES_Out[1..4]: out(XLR) [AES3]
+  }
+}
+
+template Si_AES_Dsub {
+  meta {
+    manufacturer: "Soundcraft"
+    model: "AES/EBU (D-Type)"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    AES_In[1..8]: in(DB25) [AES3]
+    AES_Out[1..8]: out(DB25) [AES3]
+  }
+}
+
+template Si_BLU_link {
+  meta {
+    manufacturer: "BSS"
+    model: "BLU link"
+    kind: "card"
+    fits: "Si_Option_Card"
+  }
+  ports {
+    BLU_In[1..32]: in(RJ45) [BLU_link]
+    BLU_Out[1..32]: out(RJ45) [BLU_link]
+  }
+}
+
+template HY256_TL {
+  meta {
+    manufacturer: "Yamaha"
+    model: "HY256-TL"
+    kind: "card"
+    fits: "HY_Card"
+  }
+  ports {
+    TWINLANe_A: io(LC_Fiber) [TWINLANe]
+    TWINLANe_B: io(LC_Fiber) [TWINLANe]
+  }
+}
+
+template HY256_TL_SMF {
+  meta {
+    manufacturer: "Yamaha"
+    model: "HY256-TL-SMF"
+    kind: "card"
+    fits: "HY_Card"
+  }
+  ports {
+    TWINLANe_A: io(LC_Fiber) [TWINLANe]
+    TWINLANe_B: io(LC_Fiber) [TWINLANe]
+  }
+}
+
+template HY144_D {
+  meta {
+    manufacturer: "Yamaha"
+    model: "HY144-D"
+    kind: "card"
+    fits: "HY_Card"
+  }
+  ports {
+    Dante_In[1..144]: in(etherCON) [Dante]
+    Dante_Out[1..144]: out(etherCON) [Dante]
+  }
+}
+
+template HY144_D_SRC {
+  meta {
+    manufacturer: "Yamaha"
+    model: "HY144-D-SRC"
+    kind: "card"
+    fits: "HY_Card"
+  }
+  ports {
+    Dante_In[1..144]: in(etherCON) [Dante, SRC]
+    Dante_Out[1..144]: out(etherCON) [Dante, SRC]
+  }
+}
+
+template HY128_MD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "HY128-MD"
+    kind: "card"
+    fits: "HY_Card"
+  }
+  ports {
+    MADI_A_In[1..64]: in(BNC_75) [MADI]
+    MADI_A_Out[1..64]: out(BNC_75) [MADI]
+    MADI_B_In[1..64]: in(BNC_75) [MADI]
+    MADI_B_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template LMY2_MLAB {
+  meta {
+    manufacturer: "Yamaha"
+    model: "LMY2-MLAB"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Mic_In[1..2]: in(XLR) [Analogue]
+  }
+}
+
+template LMY4_MLF {
+  meta {
+    manufacturer: "Yamaha"
+    model: "LMY4-MLF"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Mic_In[1..4]: in(XLR) [Analogue]
+  }
+}
+
+template LMY4_AD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "LMY4-AD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Line_In[1..4]: in(XLR) [Analogue]
+  }
+}
+
+template LMY4_DA {
+  meta {
+    manufacturer: "Yamaha"
+    model: "LMY4-DA"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Line_Out[1..4]: out(XLR) [Analogue]
+  }
+}
+
+template MY8_AD96 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AD96"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(DB25) [Analogue]
+  }
+}
+
+template MY8_DA96 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-DA96"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_Out[1..8]: out(DB25) [Analogue]
+  }
+}
+
+template MY8_AD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Analog_In[1..8]: in(DB25) [Analogue]
+  }
+}
+
+template MY4_AD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY4-AD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Mic_In[1..4]: in(XLR) [Analogue]
+  }
+}
+
+template MY4_DA {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY4-DA"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Line_Out[1..4]: out(XLR) [Analogue]
+  }
+}
+
+template MY8_AE {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AE"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(DB25) [AES3]
+    AES_Out[1..8]: out(DB25) [AES3]
+  }
+}
+
+template MY8_AE96 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AE96"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(DB25) [AES3]
+    AES_Out[1..8]: out(DB25) [AES3]
+  }
+}
+
+template MY8_AE96S {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AE96S"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(DB25) [AES3, SRC]
+    AES_Out[1..8]: out(DB25) [AES3]
+  }
+}
+
+template MY16_AE {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-AE"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    AES_In[1..16]: in(DB25) [AES3]
+    AES_Out[1..16]: out(DB25) [AES3]
+  }
+}
+
+template MY8_AT {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY8-AT"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    ADAT_In[1..8]: in(LC_Fiber) [ADAT]
+    ADAT_Out[1..8]: out(LC_Fiber) [ADAT]
+  }
+}
+
+template MY16_AT {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-AT"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    ADAT_In[1..16]: in(LC_Fiber) [ADAT]
+    ADAT_Out[1..16]: out(LC_Fiber) [ADAT]
+  }
+}
+
+template MY16_MD64 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-MD64"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    MADI_Coax_In[1..16]: in(BNC_75) [MADI]
+    MADI_Coax_Out[1..16]: out(BNC_75) [MADI]
+    MADI_Opt_In[1..16]: in(LC_Fiber) [MADI]
+    MADI_Opt_Out[1..16]: out(LC_Fiber) [MADI]
+  }
+}
+
+template MY16_AUD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-AUD"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Dante_In[1..16]: in(RJ45) [Dante]
+    Dante_Out[1..16]: out(RJ45) [Dante]
+  }
+}
+
+template MY16_AUD2 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "MY16-AUD2"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Dante_In[1..16]: in(RJ45) [Dante]
+    Dante_Out[1..16]: out(RJ45) [Dante]
+  }
+}
+
+template DANTE_MY16_AUD2 {
+  meta {
+    manufacturer: "Audinate"
+    model: "DANTE-MY16-AUD2"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Dante_In[1..16]: in(RJ45) [Dante]
+    Dante_Out[1..16]: out(RJ45) [Dante]
+  }
+}
+
+template WSG_Y16 {
+  meta {
+    manufacturer: "Waves"
+    model: "WSG-Y16"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    SoundGrid_In[1..16]: in(RJ45) [SoundGrid]
+    SoundGrid_Out[1..16]: out(RJ45) [SoundGrid]
+  }
+}
+
+template DD4MY {
+  meta {
+    manufacturer: "Optocore"
+    model: "DD4MY"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Optocore_In[1..16]: in(LC_Fiber) [Optocore]
+    Optocore_Out[1..16]: out(LC_Fiber) [Optocore]
+  }
+}
+
+template A16II_Y1 {
+  meta {
+    manufacturer: "Aviom"
+    model: "A-16II Y1"
+    kind: "card"
+    fits: "MY_Card"
+  }
+  ports {
+    Monitor_Out[1..16]: out(RJ45) [Dante]
+  }
+}
+
+template NY64_D {
+  meta {
+    manufacturer: "Yamaha"
+    model: "NY64-D"
+    kind: "card"
+    fits: "NY_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante, redundant]
+    Dante_Out[1..64]: out(RJ45) [Dante, redundant]
+  }
+}
+
+template PY64_D {
+  meta {
+    manufacturer: "Yamaha"
+    model: "PY64-D"
+    kind: "card"
+    fits: "PY_Card"
+  }
+  ports {
+    Dante_In[1..64]: in(RJ45) [Dante, redundant]
+    Dante_Out[1..64]: out(RJ45) [Dante, redundant]
+  }
+}
+
+template PY64_MD {
+  meta {
+    manufacturer: "Yamaha"
+    model: "PY64-MD"
+    kind: "card"
+    fits: "PY_Card"
+  }
+  ports {
+    MADI_In[1..64]: in(BNC_75) [MADI]
+    MADI_Out[1..64]: out(BNC_75) [MADI]
+  }
+}
+
+template PY8_AE {
+  meta {
+    manufacturer: "Yamaha"
+    model: "PY8-AE"
+    kind: "card"
+    fits: "PY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(DB25) [AES3]
+    AES_Out[1..8]: out(DB25) [AES3]
+  }
+}
+
+template RY16_ML_SILK {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RY16-ML-SILK"
+    kind: "card"
+    fits: "RY_Card"
+  }
+  ports {
+    Mic_In[1..16]: in(XLR) [Analogue]
+  }
+}
+
+template RY16_AE {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RY16-AE"
+    kind: "card"
+    fits: "RY_Card"
+  }
+  ports {
+    AES_In[1..8]: in(DB25) [AES3]
+    AES_Out[1..8]: out(DB25) [AES3]
+  }
+}
+
+template RY16_DA {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RY16-DA"
+    kind: "card"
+    fits: "RY_Card"
+  }
+  ports {
+    Analog_Out[1..16]: out(DB25) [Analogue]
+  }
+}
+
+template RY16_ML {
+  meta {
+    manufacturer: "Yamaha"
+    model: "RY16-ML"
+    kind: "card"
+    fits: "RY_Card"
+  }
+  ports {
+    Mic_In[1..16]: in(XLR) [Analogue]
+  }
+}
+
+template SRI_AI8 {
+  meta {
+    manufacturer: "AVID"
+    model: "SRI-AI8"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    XLR[1..8]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template SR_D08 {
+  meta {
+    manufacturer: "AVID"
+    model: "SR-D08"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    AES3_Output[1..8]: out(XLR) [AES3, flexible]
+  }
+}
+
+template SR_D08_2 {
+  meta {
+    manufacturer: "AVID"
+    model: "SR-D08"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    AES3_Output[1..8]: out(XLR) [Analogue, flexible]
+  }
+}
+
+template VSR_AI8 {
+  meta {
+    manufacturer: "AVID"
+    model: "VSR-AI8"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    Mic_Line_Input[1..8]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template VSR_A08 {
+  meta {
+    manufacturer: "AVID"
+    model: "VSR-A08"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    Line_Out[1..8]: out(XLR) [Analogue, flexible]
+  }
+}
+
+template VSR_DO8 {
+  meta {
+    manufacturer: "AVID"
+    model: "VSR-DO8"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    AES3[1..8]: out(XLR) [AES3, flexible]
+  }
+}
+
+template Venue_Snake_Card {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue Snake Card"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    From_SR[1..48]: in(BNC_75) [MADI, flexible]
+    to_SR[1..48]: out(BNC_75) [MADI, flexible]
+  }
+}
+
+template DANTE_128 {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "DANTE 128"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    DANTE_In[1..128]: in(RJ45_etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..128]: out(RJ45_etherCON) [Dante, flexible, redundant]
+  }
+}
+
+template WAVES3 {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "WAVES3"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    SoundGrid_In[1..128]: in(RJ45_etherCON) [SoundGrid, flexible]
+    SoundGrid_Out[1..128]: out(RJ45_etherCON) [SoundGrid, flexible]
+  }
+}
+
+template VSR_DI8 {
+  meta {
+    manufacturer: "AVID"
+    model: "VSR-DI8"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    XLR[1..8]: in(XLR) [AES3, flexible]
+  }
+}
+
+template HDX_Card {
+  meta {
+    manufacturer: "AVID"
+    model: "HDX Card"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    USB_In[1..64]: in(USB)
+    USB_Out[1..64]: out(USB)
+  }
+}
+
+template USB {
+  meta {
+    manufacturer: "AVID"
+    model: "USB"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    USB_In[1..32]: in(USB) [Device_Audio, flexible, redundant]
+    USB_Out[1..32]: out(USB) [Device_Audio, flexible, redundant]
+  }
+}
+
+template MADI {
+  meta {
+    manufacturer: "AVID"
+    model: "MADI"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    MADI_In[1..48]: in(BNC_75) [MADI, flexible]
+    MADI_Out[1..48]: out(BNC_75) [MADI, flexible]
+    Word_Clock_In: in(BNC_75) [WordClock, flexible]
+    Word_Clock_Out: out(BNC_75) [WordClock, flexible]
+  }
+}
+
+template ME_U_dSNAKE {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "ME-U dSNAKE Card"
+    kind: "card"
+    fits: "ME_U_Card"
+  }
+  ports {
+    dSNAKE_In[1..40]: in(RJ45) [dSNAKE]
+    dSNAKE_Out[1..40]: out(RJ45) [dSNAKE]
+  }
+}
+
+template ME_U_SLink {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "ME-U SLink Card"
+    kind: "card"
+    fits: "ME_U_Card"
+  }
+  ports {
+    SLink_In[1..128]: in(RJ45) [SLink]
+    SLink_Out[1..128]: out(RJ45) [SLink]
+  }
+}
+
+template LMY2_MLF {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "LMY2-MLF"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    Mic_Line_Input[1..2]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template LMY4_ML4 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "LMY4-ML4"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    Mic_Line_Inputs[1..4]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template LMY4_AD_Custom {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "LMY4-AD (Custom)"
+    kind: "card"
+    fits: "LMY_In_Card"
+  }
+  ports {
+    Line_In[1..4]: in(XLR) [Analogue]
+  }
+}
+
+template WSG_PY64 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "WSG-PY64"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    Waves_SoundGrid_In[1..64]: in(RJ45___etherCON) [SoundGrid, flexible, redundant]
+    Waves_SoundGrid_Out[1..64]: out(RJ45___etherCON) [SoundGrid, flexible, redundant]
+  }
+}
+
+template MY16_AUDv1 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "MY16-AUDv1"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    RJ45___etherCON_In[1..16]: in(RJ45___etherCON) [Dante, flexible]
+    RJ45___etherCON_Out[1..16]: out(RJ45___etherCON) [Dante, flexible]
+  }
+}
+
+template Venue_Rack_IO {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue Rack IO"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    BNC[1..64]: out(BNC_75) [MADI, flexible, redundant]
+  }
+}
+
+template Cat_108_G2 {
+  meta {
+    manufacturer: "RIEDEL"
+    model: "Cat-108 G2"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    RJ45___etherCON_In[1..8]: in(RJ45___etherCON) [AES3, flexible]
+    RJ45___etherCON_Out[1..8]: out(RJ45___etherCON) [AES3, flexible]
+  }
+}
+
+template SR_AI8 {
+  meta {
+    manufacturer: "AVID"
+    model: "SR-AI8"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    Mic_Line_Input[1..8]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template SR_DI8 {
+  meta {
+    manufacturer: "AVID"
+    model: "SR-DI8"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    AES3_Input[1..8]: in(XLR) [AES3, flexible]
+  }
+}
+
+template SRAO8 {
+  meta {
+    manufacturer: "AVID"
+    model: "SRAO8"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    Line_Out[1..8]: out(XLR) [Analogue, flexible]
+  }
+}
+
+template SRD08 {
+  meta {
+    manufacturer: "AVID"
+    model: "SRD08"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    XLR[1..8]: out(XLR) [AES3, flexible]
+  }
+}
+
+template CDM64 {
+  meta {
+    manufacturer: "QSYS"
+    model: "CDM64"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    DANTE_In[1..64]: in(RJ45___etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..64]: out(RJ45___etherCON) [Dante, flexible, redundant]
+  }
+}
+
+template AH_MADI_Card {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "A&H MADI Card"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    MADI_1_In[1..64]: in(BNC_75) [MADI, flexible]
+    MADI_1_Out[1..64]: out(BNC_75) [MADI, flexible]
+    MADI_2_In[1..64]: in(BNC_75) [MADI, flexible]
+    MADI_2_Out[1..64]: out(BNC_75) [MADI, flexible]
+  }
+}
+
+template AH_DANTE_Card {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "A&H DANTE Card"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    DANTE_In[1..128]: in(RJ45___etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..128]: out(RJ45___etherCON) [Dante, flexible, redundant]
+  }
+}
+
+template AH_WAVES_Card {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "A&H WAVES Card"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    WAVES_In[1..128]: in(RJ45___etherCON) [Dante, flexible, redundant]
+    WAVES_Out[1..128]: out(RJ45___etherCON) [Dante, flexible, redundant]
+  }
+}
+
+template GigACE_Card {
+  meta {
+    manufacturer: "ALLEN AND HEATH"
+    model: "GigACE Card"
+    kind: "card"
+    fits: ""
+  }
+  ports {
+    GigACE_In[1..128]: in(RJ45___etherCON) [GigACE, flexible, redundant]
+    GigACE_Out[1..128]: out(RJ45___etherCON) [GigACE, flexible, redundant]
+  }
+}
+
+template _80_ch_3_way_Splitter {
+  meta {
+    model: "80-ch 3-way Splitter"
+    kind: "mic-splitter"
+  }
+  ports {
+    Inputs[1..80]: in(XLR)
+    Output_A[1..80]: out(XLR)
+    Output_B[1..80]: out(XLR)
+    Output_C[1..80]: out(XLR)
+  }
+  bridge Inputs -> Output_A
+  bridge Inputs -> Output_B
+  bridge Inputs -> Output_C
+}
+
+template _16_0_XLR {
+  meta {
+    model: "16×0 XLR"
+    kind: "stage-core"
+  }
+  ports {
+    Stage_Box_Inputs[1..16]: in(XLR) [Analogue]
+    Inputs_to_Patch[1..16]: out(XLR) [Analogue]
+    Returns_from_Patch: in(XLR) [Analogue]
+    Stage_Box_Outputs: out(XLR) [Analogue]
+  }
+}
+
+template _12_4_XLR {
+  meta {
+    model: "12×4 XLR"
+    kind: "stage-core"
+  }
+  ports {
+    Stage_Box_Inputs[1..12]: in(XLR) [Analogue]
+    Inputs_to_Patch[1..12]: out(XLR) [Analogue]
+    Returns_from_Patch[1..4]: in(XLR) [Analogue]
+    Stage_Box_Outputs[1..4]: out(XLR) [Analogue]
+  }
+}
+
+template TIO_1608_D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "TIO 1608-D"
+    kind: "fixed-converter"
+  }
+  ports {
+    Mic_Line_Input[1..16]: in(XLR) [Analogue, flexible]
+    Line_Output[1..8]: out(XLR) [Analogue, flexible]
+    DANTE_In[1..8]: in(RJ45___etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..8]: out(RJ45___etherCON) [Dante, flexible, redundant]
+  }
+  bridge Mic_Line_Input -> DANTE_Out
+  bridge DANTE_In -> Line_Output
+}
+
+template ANDIAMO_v1 {
+  meta {
+    manufacturer: "DOTEC"
+    model: "ANDIAMO v1"
+    kind: "fixed-converter"
+  }
+  ports {
+    Analogue_Inputs[1..32]: in(DB25) [Analogue, flexible]
+    Analogue_Outputs[1..32]: out(DB25) [Analogue, flexible]
+    MADI_In[1..32]: in(SC_Fiber) [MADI, flexible]
+    MADI_Out[1..32]: out(SC_Fiber) [MADI, flexible]
+    Word_Clock_Input: in(BNC_75) [WordClock, flexible]
+    Word_Clock_Output: out(BNC_75) [WordClock, flexible]
+  }
+  bridge Analogue_Inputs -> MADI_Out
+  bridge MADI_In -> Analogue_Outputs
+}
+
+template ULTRIX_FR2 {
+  meta {
+    manufacturer: "ROSS"
+    model: "ULTRIX FR2"
+  }
+  ports {
+    MADI_1_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    MADI_1_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+    MADI_2_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    MADI_2_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+    SDI_In[1..72]: in(SDI_BNC) [SDI, flexible]
+    SDI_Out[1..72]: out(SDI_BNC) [SDI, flexible]
+  }
+}
+
+template ExBox_MD {
+  meta {
+    manufacturer: "DOTEC"
+    model: "ExBox.MD"
+  }
+  ports {
+    DANTE_In[1..64]: in(RJ45___etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..64]: out(RJ45___etherCON) [Dante, flexible, redundant]
+    SC_MADI_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    SC_MADI_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+    SFP_MADI_In[1..64]: in(SFP) [MADI, flexible]
+    SFP_MADI_Out[1..64]: out(SFP) [MADI, flexible]
+    Word_Clock: in(BNC_75) [WordClock, flexible]
+  }
+}
+
+template RMIO64_D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "RMIO64-D"
+    kind: "fixed-converter"
+  }
+  ports {
+    DANTE_In[1..64]: in(RJ45___etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..64]: out(RJ45___etherCON) [Dante, flexible, redundant]
+    SC_MADI_In[1..64]: in(SC_Fiber) [MADI, flexible]
+    SC_MADI_Out[1..64]: out(SC_Fiber) [MADI, flexible]
+  }
+  bridge DANTE_In -> SC_MADI_Out
+  bridge SC_MADI_In -> DANTE_Out
+}
+
+template Live_Professor_PC_w__PCIE_DANTE_Card {
+  meta {
+    manufacturer: "GENERIC"
+    model: "Live Professor PC w/ PCIE DANTE Card"
+  }
+  ports {
+    DANTE_In[1..128]: in(RJ45_etherCON) [Dante, redundant]
+    DANTE_Out[1..128]: out(RJ45_etherCON) [Dante, redundant]
+  }
+}
+
+template DVS_Computer {
+  meta {
+    manufacturer: "GENERIC"
+    model: "DVS Computer"
+    kind: "processor"
+  }
+  ports {
+    DVS_DANTE[1..64]: out(RJ45_etherCON) [Dante]
+  }
+}
+
+template Core_250i {
+  meta {
+    manufacturer: "QSYS"
+    model: "Core 250i"
+  }
+  ports {
+    QLAN_In[1..64]: in(RJ45___etherCON) [AES67, flexible, redundant]
+    QLAN_Out[1..64]: out(RJ45___etherCON) [AES67, flexible, redundant]
+  }
+  slot Type2[1..8]: Device
+}
+
+template R08D {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "R08D"
+    kind: "fixed-converter"
+  }
+  ports {
+    DANTE[1..8]: in(RJ45___etherCON) [Dante, flexible, redundant]
+    XLR[1..8]: out(XLR) [Analogue, flexible]
+  }
+  bridge DANTE -> XLR
+}
+
+template Mono_Mic_DI {
+  meta {
+    model: "Mono Mic/DI"
+    kind: "mic-di"
+  }
+  ports {
+    XLR_Out: out(XLR) [Analogue]
+  }
+}
+
+template AVIO_AO2 {
+  meta {
+    manufacturer: "AUDINATE"
+    model: "AVIO-AO2"
+    kind: "fixed-converter"
+  }
+  ports {
+    DANTE[1..2]: in(RJ45_etherCON) [Dante, flexible]
+    Line_Out[1..2]: out(XLR) [Analogue, flexible]
+  }
+  bridge DANTE -> Line_Out
+}
+
+template AD4Q {
+  meta {
+    manufacturer: "SHURE"
+    model: "AD4Q"
+    kind: "rf-system"
+    rf_subtype: "radio-mic"
+    rf_min_channels: 4
+    rf_max_channels: 4
+    rf_band: "K54"
+  }
+  ports {
+    XLR_Out[1..4]: out(XLR) [Analogue, AES3]
+    TRS[1..4]: out(TRS_3) [Analogue, flexible]
+    DANTE_In[1..4]: in(RJ45_etherCON) [Dante]
+    DANTE_Out[1..4]: out(RJ45_etherCON) [Dante]
+  }
+  bridge Antenna_A -> Analog_Out
+  bridge Antenna_A -> Dante_Pri_Out
+}
+
+template QLXD4 {
+  meta {
+    manufacturer: "SHURE"
+    model: "QLXD4"
+    kind: "rf-system"
+    rf_subtype: "radio-mic"
+    rf_min_channels: 1
+    rf_max_channels: 1
+  }
+  ports {
+    Line_Out: out(XLR) [Analogue, flexible]
+  }
+}
+
+template PSM1000 {
+  meta {
+    manufacturer: "SHURE"
+    model: "PSM1000"
+    kind: "rf-system"
+    rf_subtype: "iem"
+    rf_min_channels: 2
+    rf_max_channels: 2
+  }
+  ports {
+    Input[1..4]: in(XLR) [Analogue]
+  }
+}
+
+template RNHP {
+  meta {
+    manufacturer: "NEVE"
+    model: "RNHP"
+    kind: "fixed-converter"
+  }
+  ports {
+    Line_In[1..2]: in(XLR) [Analogue, flexible]
+  }
+}
+
+template Venue_Stage_Rack {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue Stage Rack"
+    kind: "fixed-converter"
+  }
+  ports {
+    MADI_In[1..48]: in(BNC_75) [MADI, flexible, redundant]
+    MADI_Out[1..48]: out(BNC_75) [MADI, flexible, redundant]
+  }
+  bridge Venue_Input_Slot -> MADI_Out
+  bridge Venue_Input_Slot -> MADI_Out[9]
+  bridge Venue_Input_Slot -> MADI_Out[17]
+  bridge Venue_Input_Slot -> MADI_Out[25]
+  bridge Venue_Input_Slot -> MADI_Out[33]
+  bridge Venue_Input_Slot -> MADI_Out[41]
+  bridge MADI_In -> Venue_Output_Slot
+  bridge MADI_In[9] -> Venue_Output_Slot
+  bridge MADI_In[17] -> Venue_Output_Slot
+  bridge MADI_In[25] -> Venue_Output_Slot
+  bridge MADI_In[33] -> Venue_Output_Slot
+  bridge MADI_In[41] -> Venue_Output_Slot
+  slot Venue_Input_Slot[1..6]: Venue_Input_Slot
+  slot Venue_Output_Slot[1..6]: Venue_Output_Slot
+}
+
+template Venue_FOH_Rack {
+  meta {
+    manufacturer: "AVID"
+    model: "Venue FOH Rack"
+  }
+  ports {
+    AES_In[1..2]: in(XLR) [AES3, flexible]
+    AES_Out[1..2]: out(XLR) [AES3, flexible]
+    LINE_In[1..8]: in(TRS_14)
+    LINE_Out[1..8]: out(TRS_14)
+    Talkback: in(XLR) [Analogue, flexible]
+    Monitor[1..2]: out(TRS_14) [Analogue, flexible, redundant]
+    _2_Track_In[1..2]: in(TRS_14) [Analogue, flexible, redundant]
+  }
+  slot Expansion[1..3]: Device
+  slot Snake[1..2]: Device
+}
+
+template QL_1 {
+  meta {
+    manufacturer: "YAMAHA"
+    model: "QL-1"
+  }
+  ports {
+    DANTE_In[1..32]: in(RJ45_etherCON) [Dante, flexible, redundant]
+    DANTE_Out[1..32]: out(RJ45_etherCON) [Dante, flexible, redundant]
+    Mic_Line_Inputs[1..16]: in(XLR) [Analogue, flexible]
+    Line_Outputs[1..8]: out(XLR) [Analogue, flexible]
+    AES_Out[1..2]: out(XLR) [AES3, flexible]
+  }
+  slot MY: MY
+}
+
+template Mic {
+  meta {
+    model: "Mic"
+    kind: "mic-di"
+  }
+  ports {
+    XLR_Out[1..2]: out
+  }
+}
+
+template Artist_64 {
+  meta {
+    manufacturer: "RIEDEL"
+    model: "Artist 64"
+  }
+  slot Client[1..8]: Device
+}
+
+template PM50S {
+  meta {
+    manufacturer: "ROLLS"
+    model: "PM50S"
+    kind: "fixed-converter"
+  }
+  ports {
+    Mic_Input: in(XLR) [Analogue, flexible]
+    Mic_Loop_Out: out(XLR) [Analogue, flexible]
+    Line_Mix_Input[1..2]: in(TRS_14) [Analogue, flexible]
+  }
+  bridge Mic_Input -> Mic_Loop_Out
+}
+
+template DSP1D {
+  meta {
+    manufacturer: "Yamaha"
+    model: "DSP1D"
+    category: "DSP Engine"
+    kind: "processor"
+  }
+  ports {
+    Console_Network_In: in(RJ45) [Console_Link, console_link]
+    Console_Network_Out: out(RJ45) [Console_Link, console_link]
+    Input_Unit_1_In[1..32]: in [PM1D_Bus]
+    Input_Unit_2_In[1..32]: in [PM1D_Bus]
+    Input_Unit_3_In[1..32]: in [PM1D_Bus]
+    Input_Unit_4_In[1..32]: in [PM1D_Bus]
+    Input_Unit_5_In[1..32]: in [PM1D_Bus]
+    Output_Unit_1_Out[1..32]: out [PM1D_Bus]
+    Output_Unit_2_Out[1..32]: out [PM1D_Bus]
+    Output_Unit_3_Out[1..32]: out [PM1D_Bus]
+    Output_Unit_4_Out[1..32]: out [PM1D_Bus]
+    Output_Unit_5_Out[1..32]: out [PM1D_Bus]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+}
+
+template CS1D {
+  meta {
+    manufacturer: "Yamaha"
+    model: "CS1D"
+    category: "Console"
+    kind: "processor"
+  }
+  ports {
+    Console_Network_In: in(RJ45) [Console_Link, console_link]
+    Console_Network_Out: out(RJ45) [Console_Link, console_link]
+    Monitor_Out[1..2]: out(XLR) [Analogue]
+    Cue_Out[1..2]: out(XLR) [Analogue]
+    Two_Track_Analog_In[1..2]: in(XLR) [Analogue]
+    Two_Track_Digital_In[1..2]: in(XLR) [AES3]
+    Stereo_Digital_Out[1..2]: out(XLR) [AES3]
+    Talkback_In: in(XLR) [Analogue]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+}
+
+template AI8 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "AI8"
+    category: "Stagebox"
+    kind: "fixed-converter"
+  }
+  ports {
+    PM1D_Bus_Out[1..32]: out [PM1D_Bus]
+  }
+  bridge LMY_In_Slot -> PM1D_Bus_Out
+  bridge LMY_In_Slot -> PM1D_Bus_Out[5]
+  bridge LMY_In_Slot -> PM1D_Bus_Out[9]
+  bridge LMY_In_Slot -> PM1D_Bus_Out[13]
+  bridge LMY_In_Slot -> PM1D_Bus_Out[17]
+  bridge LMY_In_Slot -> PM1D_Bus_Out[21]
+  bridge LMY_In_Slot -> PM1D_Bus_Out[25]
+  bridge LMY_In_Slot -> PM1D_Bus_Out[29]
+  slot LMY_In_Slot[1..8]: MY_Card {
+    direction: "in"
+    channels: 4
+  }
+}
+
+template DIO8 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "DIO8"
+    category: "Stagebox"
+    kind: "fixed-converter"
+  }
+  ports {
+    PM1D_Bus_A_In[1..32]: in [PM1D_Bus]
+    PM1D_Bus_A_Out[1..32]: out [PM1D_Bus]
+    PM1D_Bus_B_In[1..32]: in [PM1D_Bus]
+    PM1D_Bus_B_Out[1..32]: out [PM1D_Bus]
+    WordClock_In: in(BNC_75) [WordClock]
+    WordClock_Out: out(BNC_75) [WordClock]
+  }
+  bridge MY_Slot -> PM1D_Bus_A_Out
+  bridge MY_Slot -> PM1D_Bus_A_Out[9]
+  bridge MY_Slot -> PM1D_Bus_A_Out[17]
+  bridge MY_Slot -> PM1D_Bus_A_Out[25]
+  bridge PM1D_Bus_A_In -> MY_Slot
+  bridge PM1D_Bus_A_In[9] -> MY_Slot
+  bridge PM1D_Bus_A_In[17] -> MY_Slot
+  bridge PM1D_Bus_A_In[25] -> MY_Slot
+  bridge MY_Slot -> PM1D_Bus_B_Out
+  bridge MY_Slot -> PM1D_Bus_B_Out[9]
+  bridge MY_Slot -> PM1D_Bus_B_Out[17]
+  bridge MY_Slot -> PM1D_Bus_B_Out[25]
+  bridge PM1D_Bus_B_In -> MY_Slot
+  bridge PM1D_Bus_B_In[9] -> MY_Slot
+  bridge PM1D_Bus_B_In[17] -> MY_Slot
+  bridge PM1D_Bus_B_In[25] -> MY_Slot
+  slot MY_Slot[1..8]: MY_Card {
+    channels: 8
+  }
+}
+
+template AO8 {
+  meta {
+    manufacturer: "Yamaha"
+    model: "AO8"
+    category: "Stagebox"
+    kind: "fixed-converter"
+  }
+  ports {
+    PM1D_Bus_In[1..32]: in [PM1D_Bus]
+  }
+  bridge PM1D_Bus_In -> LMY_Out_Slot
+  bridge PM1D_Bus_In[5] -> LMY_Out_Slot
+  bridge PM1D_Bus_In[9] -> LMY_Out_Slot
+  bridge PM1D_Bus_In[13] -> LMY_Out_Slot
+  bridge PM1D_Bus_In[17] -> LMY_Out_Slot
+  bridge PM1D_Bus_In[21] -> LMY_Out_Slot
+  bridge PM1D_Bus_In[25] -> LMY_Out_Slot
+  bridge PM1D_Bus_In[29] -> LMY_Out_Slot
+  slot LMY_Out_Slot[1..8]: MY_Card {
+    direction: "out"
+    channels: 4
+  }
+}
+
+instance Auditorium_Mic_Splits is _80_ch_3_way_Splitter {
+  location: "Auditorium Mic Splits"
+}
+
+instance Drums is _16_0_XLR {
+  location: "Drums"
+}
+
+instance Bass is _12_4_XLR {
+  location: "Bass"
+}
+
+instance USC is _12_4_XLR {
+  location: "USC"
+}
+
+instance Keys_1_1 is _12_4_XLR {
+  location: "Keys 1"
+}
+
+instance Aud_Patch_TIO is TIO_1608_D {
+  location: "Aud Patch TIO"
+}
+
+instance Analogue_MADIVIDEO is ANDIAMO_v1 {
+  location: "Analogue/MADI<>VIDEO"
+}
+
+instance ULTRIX_FR2 is ULTRIX_FR2 {
+  bus L1_RX {
+    input: pl__ULTRIX_FR2__MADI_1_In[1]
+    output "L1_RX_PGM-L": pl__ULTRIX_FR2__MADI_2_Out[1], pl__ULTRIX_FR2__MADI_2_Out[1]
+    output "L1_RX_PGM-R": pl__ULTRIX_FR2__MADI_2_Out[2], pl__ULTRIX_FR2__MADI_2_Out[2]
+    output "L1_RX_Band-L": pl__ULTRIX_FR2__MADI_2_Out[3], pl__ULTRIX_FR2__MADI_2_Out[3]
+    output "L1_RX_Band-R": pl__ULTRIX_FR2__MADI_2_Out[4], pl__ULTRIX_FR2__MADI_2_Out[4]
+    output "L1_RX_Vox": pl__ULTRIX_FR2__MADI_2_Out[5], pl__ULTRIX_FR2__MADI_2_Out[5]
+    output "L1_RX_MC": pl__ULTRIX_FR2__MADI_2_Out[6], pl__ULTRIX_FR2__MADI_2_Out[6]
+    output "L1_RX_Clic": pl__ULTRIX_FR2__MADI_2_Out[7], pl__ULTRIX_FR2__MADI_2_Out[7]
+    output "L1_RX_Cue": pl__ULTRIX_FR2__MADI_2_Out[8], pl__ULTRIX_FR2__MADI_2_Out[8]
+  }
+  bus L2_RX {
+    output "L2_RX_PGM-L": pl__ULTRIX_FR2__MADI_2_Out[9], pl__ULTRIX_FR2__MADI_2_Out[9]
+    output "L2_RX_PGM-R": pl__ULTRIX_FR2__MADI_2_Out[10], pl__ULTRIX_FR2__MADI_2_Out[10]
+    output "L2_RX_Band_L": pl__ULTRIX_FR2__MADI_2_Out[11], pl__ULTRIX_FR2__MADI_2_Out[11]
+    output "L2_RX_Band-R": pl__ULTRIX_FR2__MADI_2_Out[12], pl__ULTRIX_FR2__MADI_2_Out[12]
+    output "L2_RX_Vox": pl__ULTRIX_FR2__MADI_2_Out[13], pl__ULTRIX_FR2__MADI_2_Out[13]
+    output "L2_RX_MC": pl__ULTRIX_FR2__MADI_2_Out[14], pl__ULTRIX_FR2__MADI_2_Out[14]
+    output "L2_RX_Clic": pl__ULTRIX_FR2__MADI_2_Out[15], pl__ULTRIX_FR2__MADI_2_Out[15]
+    output "L2_RX_Cue": pl__ULTRIX_FR2__MADI_2_Out[16], pl__ULTRIX_FR2__MADI_2_Out[16]
+  }
+  bus PB_1 {
+    output "PB_1-01": pl__ULTRIX_FR2__MADI_2_Out[17], pl__ULTRIX_FR2__MADI_2_Out[17]
+    output "PB_1-02": pl__ULTRIX_FR2__MADI_2_Out[18], pl__ULTRIX_FR2__MADI_2_Out[18]
+    output "PB_1-03": pl__ULTRIX_FR2__MADI_2_Out[19], pl__ULTRIX_FR2__MADI_2_Out[19]
+    output "PB_1-04": pl__ULTRIX_FR2__MADI_2_Out[20], pl__ULTRIX_FR2__MADI_2_Out[20]
+    output "PB_1-05": pl__ULTRIX_FR2__MADI_2_Out[21], pl__ULTRIX_FR2__MADI_2_Out[21]
+    output "PB_1-06": pl__ULTRIX_FR2__MADI_2_Out[22], pl__ULTRIX_FR2__MADI_2_Out[22]
+    output "PB_1-07": pl__ULTRIX_FR2__MADI_2_Out[23], pl__ULTRIX_FR2__MADI_2_Out[23]
+    output "PB_1-08": pl__ULTRIX_FR2__MADI_2_Out[24], pl__ULTRIX_FR2__MADI_2_Out[24]
+  }
+  bus PB_2 {
+    output "PB_2-01": pl__ULTRIX_FR2__MADI_2_Out[25], pl__ULTRIX_FR2__MADI_2_Out[25]
+    output "PB_2-02": pl__ULTRIX_FR2__MADI_2_Out[26], pl__ULTRIX_FR2__MADI_2_Out[26]
+    output "PB_2-03": pl__ULTRIX_FR2__MADI_2_Out[27], pl__ULTRIX_FR2__MADI_2_Out[27]
+    output "PB_2-04": pl__ULTRIX_FR2__MADI_2_Out[28], pl__ULTRIX_FR2__MADI_2_Out[28]
+    output "PB_2-05": pl__ULTRIX_FR2__MADI_2_Out[29], pl__ULTRIX_FR2__MADI_2_Out[29]
+    output "PB_2-06": pl__ULTRIX_FR2__MADI_2_Out[30], pl__ULTRIX_FR2__MADI_2_Out[30]
+    output "PB_2-07": pl__ULTRIX_FR2__MADI_2_Out[31], pl__ULTRIX_FR2__MADI_2_Out[31]
+    output "PB_2-08": pl__ULTRIX_FR2__MADI_2_Out[32], pl__ULTRIX_FR2__MADI_2_Out[32]
+  }
+  bus QLAB {
+    output "QLAB_01": pl__ULTRIX_FR2__MADI_1_Out[49]
+    output "QLAB_02": pl__ULTRIX_FR2__MADI_1_Out[50]
+    output "QLAB_03": pl__ULTRIX_FR2__MADI_1_Out[51]
+    output "QLAB_04": pl__ULTRIX_FR2__MADI_1_Out[52]
+    output "QLAB_05": pl__ULTRIX_FR2__MADI_1_Out[53]
+    output "QLAB_06": pl__ULTRIX_FR2__MADI_1_Out[54]
+    output "QLAB-07": pl__ULTRIX_FR2__MADI_1_Out[55]
+    output "QLAB_08": pl__ULTRIX_FR2__MADI_1_Out[56]
+    output "QLAB_09": pl__ULTRIX_FR2__MADI_1_Out[57]
+    output "QLAB_10": pl__ULTRIX_FR2__MADI_1_Out[58]
+    output "QLAB_11": pl__ULTRIX_FR2__MADI_1_Out[59]
+    output "QLAB_12": pl__ULTRIX_FR2__MADI_1_Out[60]
+    output "QLAB_3": pl__ULTRIX_FR2__MADI_1_Out[61]
+    output "QLAB_14": pl__ULTRIX_FR2__MADI_1_Out[62]
+    output "QLAB_15": pl__ULTRIX_FR2__MADI_1_Out[63]
+    output "QLAB_16": pl__ULTRIX_FR2__MADI_1_Out[64]
+  }
+}
+
+instance ExBox_MD is ExBox_MD
+
+instance Analogue_MADILP is ANDIAMO_v1 {
+  location: "Analogue/MADI<>LP"
+}
+
+instance RMIO64_D is RMIO64_D
+
+instance Live_Professor_PC_w_PCIE_DANTE_Card is Live_Professor_PC_w__PCIE_DANTE_Card
+
+instance Ableton_Laptop is DVS_Computer {
+  location: "Ableton Laptop"
+}
+
+instance AUD_Q_SYS_Core is Core_250i {
+  location: "AUD Q-SYS Core"
+  bus Shouts__MD_Conf {
+    output "Shouts _to_MD Conf": Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1]
+  }
+  bus Shouts__Show_Conf {
+    input: Unknown[1]
+    output "Shouts>Show Conf": Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2]
+  }
+  bus Shouts__Audio_Conf {
+    output "Shouts >Audio Conf": Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3]
+  }
+  bus PGM__Comms {
+    output "PGM>Comms": Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4]
+  }
+  bus Vid_Solo__Comms {
+    output "Vid Solo  Comms": Unknown[6], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5]
+  }
+  bus MONS_IEM {
+    output "Comms>MONSs_EM": Unknown[42], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6]
+  }
+  bus SpotifyFOH_ {
+    output "Spotify>FOH-L": Unknown[25], Unknown[25]
+    output "Spotify>FOH-R": Unknown[26], Unknown[26]
+  }
+  slot Type2[7]: CDN64
+}
+
+instance R08D_1 is R08D
+
+instance R08D_2 is R08D
+
+instance Ambience_SL is Mono_Mic_DI {
+  location: "Ambience SL"
+}
+
+instance Ambience_SR is Mono_Mic_DI {
+  location: "Ambience SR"
+}
+
+instance Auditorium_Spotify is DVS_Computer {
+  location: "Auditorium Spotify"
+}
+
+instance AVIO_AO2 is AVIO_AO2
+
+instance Vox_1_4 is AD4Q {
+  location: "Vox 1-4"
+  rf_band: "K54"
+}
+
+instance Vox_5_6_WL1_2 is AD4Q {
+  location: "Vox 5-6/WL1-2"
+  rf_band: "K54"
+}
+
+instance MCs is AD4Q {
+  location: "MCs"
+  rf_band: "K54"
+}
+
+instance Beltpacks is AD4Q {
+  location: "Beltpacks"
+  rf_band: "K54"
+}
+
+instance MD_Talk is QLXD4 {
+  location: "MD Talk"
+}
+
+instance Keys_2 is _12_4_XLR {
+  location: "Keys 2"
+}
+
+instance P10T_01 is PSM1000 {
+  location: "P10T-01"
+}
+
+instance P10T_02 is PSM1000 {
+  location: "P10T-02"
+}
+
+instance P10T_03 is PSM1000 {
+  location: "P10T-03"
+}
+
+instance P10T_04 is PSM1000 {
+  location: "P10T-04"
+}
+
+instance P10T_05 is PSM1000 {
+  location: "P10T-05"
+}
+
+instance P10T_06 is PSM1000 {
+  location: "P10T-06"
+}
+
+instance P10T_07 is PSM1000 {
+  location: "P10T-07"
+}
+
+instance P10T_08 is PSM1000 {
+  location: "P10T-08"
+}
+
+instance DRUMS is RNHP {
+  location: "DRUMS"
+}
+
+instance BASS is RNHP {
+  location: "BASS"
+}
+
+instance KEYS_2_1 is RNHP {
+  location: "KEYS 1"
+}
+
+instance KEYS_2_2 is RNHP {
+  location: "KEYS 2"
+}
+
+instance FOH_Talkback is Mono_Mic_DI {
+  location: "FOH Talkback"
+}
+
+instance MON_Talkback is Mono_Mic_DI {
+  location: "MON Talkback"
+}
+
+instance Venue_Stage_Rack_2 is Venue_Stage_Rack {
+  location: "FOH-SR-2"
+  slot Venue_Input_Slot[1]: VSR_AI8
+  slot Venue_Input_Slot[2]: VSR_AI8
+  slot Venue_Input_Slot[3]: VSR_AI8
+  slot Venue_Input_Slot[4]: VSR_AI8
+  slot Venue_Input_Slot[5]: VSR_AI8
+  slot Venue_Input_Slot[6]: VSR_AI8
+  slot Venue_Output_Slot[1]: VSR_A08
+  slot Venue_Output_Slot[2]: VSR_A08
+}
+
+instance Venue_FOH_Rack is Venue_FOH_Rack {
+  location: "FOH ENGINE"
+  bus PQ_PGM {
+    output "PQ_PGM-L": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[1]
+    output "PQ_PGM-R": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[2]
+  }
+  bus PQ_Links {
+    output "PQ_Links-L": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[3]
+    output "PQ_Links-R": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[4]
+  }
+  bus PQ_PBs {
+    output "PQ_PBs-L": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[5]
+    output "PQ_PBs-R": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[6]
+  }
+  bus Live_Music {
+    output "Live_Music-L": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[7]
+    output "Live_Music-R": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[8]
+  }
+  bus PA {
+    output "PA-L": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[9]
+    output "PA-R": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[10]
+  }
+  bus Floor_Subs {
+    label: "Floor Subs"
+    output "Floor Subs": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[11]
+  }
+  bus Front_Fill {
+    label: "Front Fill"
+    output "Front Fill": slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[12]
+  }
+  bus PQ_MixMinus {
+    output "PQ_MixMinus-L": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[3]
+    output "PQ_MixMinus-R": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[4]
+  }
+  bus PQ_Band {
+    output "PQ_Band-L": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[5]
+    output "PQ_Band-R": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[6]
+  }
+  bus PQ_Vox {
+    output "PQ_Vox": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[7]
+  }
+  bus PQ_MC {
+    output "PQ_MC": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[8]
+  }
+  bus HI_LVL_IEM {
+    label: "HI LVL >IEM"
+    output "HI LVL >IEM": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[10]
+  }
+  bus HI_LVLWEDGE_ {
+    label: "HI LVL>WEDGE "
+    output "HI LVL>WEDGE ": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[11]
+  }
+  bus SMAART_REF {
+    output "SMAART_REF": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[12]
+  }
+  bus VoxVerbLP {
+    label: "VoxVerb>LP"
+    output "VoxVerb>LP": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[13]
+  }
+  bus DrumVerbLP {
+    label: "DrumVerb>LP"
+    output "DrumVerb>LP": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[14]
+  }
+  bus SnareVerbLP {
+    label: "SnareVerb>LP"
+    output "SnareVerb>LP": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[15]
+  }
+  bus SpareLP {
+    label: "Spare>LP"
+    output "Spare>LP": slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[16]
+  }
+  bus _ {
+    output "Output_1"
+  }
+  slot Snake[1]: VENUE_Snake_Card
+  slot Snake[2]: VENUE_Snake_Card
+}
+
+instance FOH_AUX_Console is QL_1 {
+  location: "FOH - AUX Console"
+  bus EnsembleFOH {
+    label: "Ensemble>FOH"
+    input: DANTE_In[1]
+    input: DANTE_In[2]
+    input: DANTE_In[3]
+    input: DANTE_In[4]
+    input: DANTE_In[5]
+    input: DANTE_In[6]
+    input: DANTE_In[7]
+    input: DANTE_In[8]
+    input: DANTE_In[9]
+    input: DANTE_In[10]
+    input: DANTE_In[11]
+    input: DANTE_In[12]
+    input: DANTE_In[13]
+    input: DANTE_In[14]
+    input: DANTE_In[15]
+    input: DANTE_In[16]
+    output "Ensemble>FOH-L-L": DANTE_Out[1]
+    output "Ensemble>FOH-R-R": DANTE_Out[2]
+  }
+  bus EnsembleMON {
+    label: "Ensemble>MON"
+    input: DANTE_In[4]
+    input: DANTE_In[5]
+    input: DANTE_In[6]
+    input: DANTE_In[7]
+    input: DANTE_In[8]
+    input: DANTE_In[9]
+    input: DANTE_In[10]
+    input: DANTE_In[11]
+    input: DANTE_In[12]
+    input: DANTE_In[13]
+    input: DANTE_In[14]
+    input: DANTE_In[15]
+    input: DANTE_In[16]
+    input: DANTE_In[1]
+    input: DANTE_In[2]
+    input: DANTE_In[3]
+    output "Ensemble>MON-L": DANTE_Out[3]
+    output "Ensemble>MON-R": DANTE_Out[4]
+  }
+  bus _ {
+    output "Output"
+  }
+}
+
+instance Ensemble is TIO_1608_D {
+  location: "Ensemble"
+}
+
+instance Ensemble_Mics_1 is Mic {
+  location: "Ensemble Mics 1"
+}
+
+instance Ensemble_Mics_2 is Mic {
+  location: "Ensemble Mics 2"
+}
+
+instance Ensemble_Mics_3 is Mic {
+  location: "Ensemble Mics 3"
+}
+
+instance Ensemble_Mics_4 is Mic {
+  location: "Ensemble Mics 4"
+}
+
+instance Ensemble_Mics_5 is Mic {
+  location: "Ensemble Mics 5"
+}
+
+instance Ensemble_Mics_6 is Mic {
+  location: "Ensemble Mics 6"
+}
+
+instance Ensemble_Mics_7 is Mic {
+  location: "Ensemble Mics 7"
+}
+
+instance Ensemble_Mics_8 is Mic {
+  location: "Ensemble Mics 8"
+}
+
+instance Ensemble_Mics_9 is Mic {
+  location: "Ensemble Mics 9"
+}
+
+instance Ensemble_Mics_10 is Mic {
+  location: "Ensemble Mics 10"
+}
+
+instance Ensemble_Mics_11 is Mic {
+  location: "Ensemble Mics 11"
+}
+
+instance Ensemble_Mics_12 is Mic {
+  location: "Ensemble Mics 12"
+}
+
+instance Ensemble_Mics_13 is Mic {
+  location: "Ensemble Mics 13"
+}
+
+instance Ensemble_Mics_14 is Mic {
+  location: "Ensemble Mics 14"
+}
+
+instance Ensemble_Mics_15 is Mic {
+  location: "Ensemble Mics 15"
+}
+
+instance Ensemble_Mics_16 is Mic {
+  location: "Ensemble Mics 16"
+}
+
+instance Artist_64 is Artist_64 {
+  location: "Comms Frame"
+  bus Comms_talk_to_MD {
+    label: "Comms talk to MD"
+    output "Comms talk to MD": Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1], Unknown[1]
+  }
+  bus Comms_Show_Conf {
+    label: "Comms Show Conf"
+    output "Comms Show Conf": Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2], Unknown[2]
+  }
+  bus Comms_Audio_Conf {
+    label: "Comms Audio Conf"
+    output "Comms Audio Conf": Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3], Unknown[3]
+  }
+  bus Comms_Stage_Announce {
+    label: "Comms Stage Announce"
+    output "Comms Stage Announce": Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4], Unknown[4]
+  }
+  bus Comms_BOH_Page {
+    label: "Comms BOH Page"
+    output "Comms BOH Page": Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5], Unknown[5]
+  }
+  bus Comms_Cam_Director {
+    label: "Comms Cam Director"
+    output "Comms Cam Director": Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6], Unknown[6]
+  }
+  bus Comms_talk_to_VC {
+    label: "Comms talk to VC"
+    output "Comms talk to VC": Unknown[7], Unknown[7], Unknown[7], Unknown[7], Unknown[7], Unknown[7], Unknown[7], Unknown[7], Unknown[7], Unknown[7]
+  }
+  bus Bus_7 {
+    label: "Bus 7"
+    output "Bus 7": Unknown[8]
+  }
+  slot Client[1]: AES67_108_G2
+}
+
+instance TIO_1608_D is TIO_1608_D
+
+instance TRANSLATION_Mics_1 is Mic {
+  location: "TRANSLATION Mics 1"
+}
+
+instance TRANSLATION_Mics_2 is Mic {
+  location: "TRANSLATION Mics 2"
+}
+
+instance TRANSLATION_Mics_3 is Mic {
+  location: "TRANSLATION Mics 3"
+}
+
+instance TRANSLATION_Mics_4 is Mic {
+  location: "TRANSLATION Mics 4"
+}
+
+instance TRANSLATION_Mics_5 is Mic {
+  location: "TRANSLATION Mics 5"
+}
+
+instance TRANSLATION_Mics_6 is Mic {
+  location: "TRANSLATION Mics 6"
+}
+
+instance Translates_Headphone_Amp_01 is PM50S {
+  location: "Translations Language 2 Headphone Amp"
+}
+
+instance Translates_Headphone_Amp_02 is PM50S {
+  location: "Translations Language 3 Headphone Amp"
+}
+
+instance Translates_Headphone_Amp_03 is PM50S {
+  location: "Translations Language 4 Headphone Amp"
+}
+
+instance Translates_Headphone_Amp_04 is PM50S {
+  location: "Translations Language 5 Headphone Amp"
+}
+
+instance Translates_Headphone_Amp_05 is PM50S {
+  location: "Translations Language 6 Headphone Amp"
+}
+
+instance Translates_Headphone_Amp_06 is PM50S {
+  location: "Translations Language 7 Headphone Amp"
+}
+
+instance Translates_Headphone_Amp_07 is PM50S {
+  location: "Translations Language 8 Headphone Amp"
+}
+
+instance TRANSLATION_Mics_7 is Mic {
+  location: "TRANSLATION Mics 7"
+}
+
+instance SR_1 is Venue_Stage_Rack {
+  location: "FOH SR 1"
+  slot Venue_Input_Slot[1]: VSR_AI8
+  slot Venue_Input_Slot[2]: VSR_AI8
+  slot Venue_Input_Slot[3]: VSR_AI8
+  slot Venue_Input_Slot[4]: VSR_AI8
+  slot Venue_Input_Slot[5]: VSR_AI8
+  slot Venue_Input_Slot[6]: VSR_AI8
+  slot Venue_Output_Slot[1]: VSR_A08
+}
+
+instance DSP1D is DSP1D {
+  location: "MON ENGINE"
+}
+
+instance CS1D is CS1D {
+  location: "MON Surface"
+  bus Drums {
+    output "Drums-L"
+    output "Drums-R"
+  }
+  bus Bass {
+    output "Bass-L"
+    output "Bass-R"
+  }
+  bus Guitar_1 {
+    label: "Guitar 1"
+    output "Guitar 1-L": pl__DSP1D__Output_Unit_1_Out[17]
+    output "Guitar 1-R": pl__DSP1D__Output_Unit_1_Out[18]
+  }
+  bus Guitar_2 {
+    label: "Guitar 2"
+    output "Guitar 2-L": pl__DSP1D__Output_Unit_1_Out[19]
+    output "Guitar 2-R": pl__DSP1D__Output_Unit_1_Out[20]
+  }
+  bus Keys_1 {
+    label: "Keys 1"
+    output "Keys 1-L"
+    output "Keys 1-R"
+  }
+  bus Keys_2 {
+    label: "Keys 2"
+    output "Keys 2-L"
+    output "Keys 2-R"
+  }
+  bus WL_1 {
+    label: "WL 1"
+    output "WL 1-L": pl__DSP1D__Output_Unit_1_Out[1]
+    output "WL 1-R": pl__DSP1D__Output_Unit_1_Out[2]
+  }
+  bus WL_2 {
+    label: "WL 2"
+    output "WL 2-L": pl__DSP1D__Output_Unit_1_Out[3]
+    output "WL 2-R": pl__DSP1D__Output_Unit_1_Out[4]
+  }
+  bus Vox_1 {
+    label: "Vox 1"
+    output "Vox 1-L": pl__DSP1D__Output_Unit_1_Out[5]
+    output "Vox 1-R": pl__DSP1D__Output_Unit_1_Out[6]
+  }
+  bus Vox_2 {
+    label: "Vox 2"
+    output "Vox 2-L": pl__DSP1D__Output_Unit_1_Out[7]
+    output "Vox 2-R": pl__DSP1D__Output_Unit_1_Out[8]
+  }
+  bus Vox_3 {
+    label: "Vox 3"
+    output "Vox 3-L": pl__DSP1D__Output_Unit_1_Out[9]
+    output "Vox 3-R": pl__DSP1D__Output_Unit_1_Out[10]
+  }
+  bus Vox_4 {
+    label: "Vox 4"
+    output "Vox 4-L": pl__DSP1D__Output_Unit_1_Out[11]
+    output "Vox 4-R": pl__DSP1D__Output_Unit_1_Out[12]
+  }
+  bus Vox_5 {
+    label: "Vox 5"
+    output "Vox 5-L": pl__DSP1D__Output_Unit_1_Out[13]
+    output "Vox 5-R": pl__DSP1D__Output_Unit_1_Out[14]
+  }
+  bus Vox_6 {
+    label: "Vox 6"
+    output "Vox 6-L": pl__DSP1D__Output_Unit_1_Out[15]
+    output "Vox 6-R": pl__DSP1D__Output_Unit_1_Out[16]
+  }
+  bus Spare_1 {
+    label: "Spare 1"
+    output "Spare 1-L": pl__DSP1D__Output_Unit_1_Out[21]
+    output "Spare 1-R": pl__DSP1D__Output_Unit_1_Out[22]
+  }
+  bus Spare_2 {
+    label: "Spare 2"
+    output "Spare 2-L": pl__DSP1D__Output_Unit_1_Out[23]
+    output "Spare 2-R": pl__DSP1D__Output_Unit_1_Out[24]
+  }
+  bus Spare_3 {
+    label: "Spare 3"
+    output "Spare 3-L": pl__DSP1D__Output_Unit_1_Out[25]
+    output "Spare 3-R": pl__DSP1D__Output_Unit_1_Out[26]
+  }
+  bus Spare_4 {
+    label: "Spare 4"
+    output "Spare 4-L": pl__DSP1D__Output_Unit_1_Out[27]
+    output "Spare 4-R": pl__DSP1D__Output_Unit_1_Out[28]
+  }
+  bus MD {
+    output "MD-L": pl__DSP1D__Output_Unit_1_Out[29]
+    output "MD-R": pl__DSP1D__Output_Unit_1_Out[30]
+  }
+  bus ENG_Cue {
+    label: "ENG Cue"
+    output "ENG Cue-L": Cue_Out[1]
+    output "ENG Cue-R": Cue_Out[2]
+  }
+  bus Clic_Mix {
+    label: "Clic Mix"
+    output "Clic Mix"
+  }
+  bus Cue_Mix {
+    label: "Cue Mix"
+    output "Cue Mix"
+  }
+  bus DSL_MONS {
+    label: "DSL MONS"
+    output "DSL MONS"
+  }
+  bus DSC_MONS {
+    label: "DSC MONS"
+    output "DSC MONS"
+  }
+  bus DSR_MONS {
+    label: "DSR MONS"
+    output "DSR MONS"
+  }
+  bus SPR_1_MONS {
+    label: "SPR 1 MONS"
+    output "SPR 1 MONS"
+  }
+  bus SPR_2_MONS {
+    label: "SPR 2 MONS"
+    output "SPR 2 MONS"
+  }
+  bus ENG_Cue_Wedge {
+    label: "ENG Cue Wedge"
+    output "ENG Cue Wedge"
+  }
+}
+
+instance AI8_2 is AI8 {
+  location: "UNIT 1"
+  slot LMY_In_Slot[1]: LMY2_MLAB
+  slot LMY_In_Slot[2]: LMY2_MLAB
+  slot LMY_In_Slot[3]: LMY2_MLAB
+  slot LMY_In_Slot[4]: LMY2_MLAB
+  slot LMY_In_Slot[5]: LMY2_MLAB
+  slot LMY_In_Slot[6]: LMY2_MLAB
+  slot LMY_In_Slot[7]: LMY2_MLAB
+  slot LMY_In_Slot[8]: LMY2_MLAB
+}
+
+instance AI8_3 is AI8 {
+  location: "UNIT 2"
+  slot LMY_In_Slot[1]: LMY2_MLAB
+  slot LMY_In_Slot[2]: LMY2_MLAB
+  slot LMY_In_Slot[3]: LMY2_MLAB
+  slot LMY_In_Slot[4]: LMY4_MLF
+  slot LMY_In_Slot[5]: LMY4_MLF
+  slot LMY_In_Slot[6]: LMY4_MLF
+  slot LMY_In_Slot[7]: LMY4_MLF
+  slot LMY_In_Slot[8]: LMY4_MLF
+}
+
+instance AI8_4 is AI8 {
+  location: "UNIT 3"
+  slot LMY_In_Slot[1]: LMY4_MLF
+  slot LMY_In_Slot[2]: LMY2_MLAB
+  slot LMY_In_Slot[3]: LMY2_MLAB
+  slot LMY_In_Slot[4]: LMY2_MLAB
+  slot LMY_In_Slot[5]: LMY2_MLAB
+  slot LMY_In_Slot[6]: LMY4_MLF
+  slot LMY_In_Slot[7]: LMY4_MLF
+  slot LMY_In_Slot[8]: LMY4_MLF
+}
+
+instance AI8_5 is AI8 {
+  location: "UNIT 5"
+  slot LMY_In_Slot[1]: LMY2_MLAB
+  slot LMY_In_Slot[2]: LMY2_MLAB
+  slot LMY_In_Slot[3]: LMY2_MLAB
+  slot LMY_In_Slot[4]: LMY2_MLAB
+  slot LMY_In_Slot[5]: LMY2_MLAB
+  slot LMY_In_Slot[6]: LMY2_MLAB
+  slot LMY_In_Slot[7]: LMY2_MLAB
+  slot LMY_In_Slot[8]: LMY2_MLAB
+}
+
+instance AI8_6 is AI8 {
+  location: "UNIT 4"
+  slot LMY_In_Slot[1]: LMY4_MLF
+  slot LMY_In_Slot[2]: LMY4_MLF
+  slot LMY_In_Slot[3]: LMY4_MLF
+  slot LMY_In_Slot[4]: LMY4_MLF
+  slot LMY_In_Slot[5]: LMY4_MLF
+  slot LMY_In_Slot[6]: LMY2_MLAB
+  slot LMY_In_Slot[7]: LMY2_MLAB
+  slot LMY_In_Slot[8]: LMY2_MLAB
+}
+
+instance DIO8 is DIO8 {
+  location: "Output Unit 1"
+  slot MY_Slot[1]: MY8_DA96
+  slot MY_Slot[2]: MY8_DA96
+  slot MY_Slot[3]: MY8_DA96
+  slot MY_Slot[4]: MY8_DA96
+}
+
+instance AO8 is AO8 {
+  location: "Output Unit 2"
+  slot LMY_Out_Slot[1]: LMY4_DA
+  slot LMY_Out_Slot[2]: LMY4_DA
+  slot LMY_Out_Slot[3]: LMY4_DA
+  slot LMY_Out_Slot[4]: LMY4_DA
+  slot LMY_Out_Slot[5]: LMY4_DA
+  slot LMY_Out_Slot[6]: LMY4_DA
+  slot LMY_Out_Slot[7]: LMY4_DA
+  slot LMY_Out_Slot[8]: LMY4_DA
+}
+
+instance AO8_2 is AO8 {
+  location: "Output Unit 3"
+  slot LMY_Out_Slot[1]: LMY4_DA
+  slot LMY_Out_Slot[2]: LMY4_DA
+  slot LMY_Out_Slot[3]: LMY4_DA
+  slot LMY_Out_Slot[4]: LMY4_DA
+  slot LMY_Out_Slot[5]: LMY4_DA
+  slot LMY_Out_Slot[6]: LMY4_DA
+  slot LMY_Out_Slot[7]: LMY4_DA
+  slot LMY_Out_Slot[8]: LMY4_DA
+}
+
+connect RMIO64_D.SC_MADI_Out -> Analogue_MADILP.MADI_In
+
+connect Analogue_MADILP.MADI_Out -> RMIO64_D.SC_MADI_In
+
+connect Live_Professor_PC_w_PCIE_DANTE_Card.DANTE_Out -> RMIO64_D.DANTE_In
+
+connect RMIO64_D.DANTE_Out -> Live_Professor_PC_w_PCIE_DANTE_Card.DANTE_In
+
+connect Ableton_Laptop.DVS_DANTE -> Aud_Patch_TIO.DANTE_In
+
+connect Bass.Stage_Box_Outputs -> DRUMS.Line_In
+
+connect Bass.Stage_Box_Outputs -> BASS.Line_In
+
+connect Analogue_MADIVIDEO.MADI_Out -> ULTRIX_FR2.MADI_2_In
+
+connect ULTRIX_FR2.MADI_1_Out -> ExBox_MD.SC_MADI_In
+
+connect ExBox_MD.SC_MADI_Out -> ULTRIX_FR2.MADI_1_In
+
+connect Drums.Inputs_to_Patch[1] -> Auditorium_Mic_Splits.Inputs[1]
+
+connect Drums.Inputs_to_Patch[14] -> Auditorium_Mic_Splits.Inputs[20]
+
+connect Drums.Inputs_to_Patch[12] -> Auditorium_Mic_Splits.Inputs[32]
+
+connect Drums.Inputs_to_Patch[13] -> Auditorium_Mic_Splits.Inputs[33]
+
+connect Drums.Inputs_to_Patch[2] -> Auditorium_Mic_Splits.Inputs[2]
+
+connect Drums.Inputs_to_Patch[3] -> Auditorium_Mic_Splits.Inputs[3]
+
+connect Drums.Inputs_to_Patch[4] -> Auditorium_Mic_Splits.Inputs[4]
+
+connect Drums.Inputs_to_Patch[5] -> Auditorium_Mic_Splits.Inputs[5]
+
+connect Drums.Inputs_to_Patch[6] -> Auditorium_Mic_Splits.Inputs[6]
+
+connect Drums.Inputs_to_Patch[7] -> Auditorium_Mic_Splits.Inputs[7]
+
+connect Drums.Inputs_to_Patch[8] -> Auditorium_Mic_Splits.Inputs[8]
+
+connect Drums.Inputs_to_Patch[10] -> Auditorium_Mic_Splits.Inputs[9]
+
+connect Drums.Inputs_to_Patch[11] -> Auditorium_Mic_Splits.Inputs[10]
+
+connect Drums.Inputs_to_Patch[15] -> Auditorium_Mic_Splits.Inputs[15]
+
+connect Drums.Inputs_to_Patch[16] -> Auditorium_Mic_Splits.Inputs[16]
+
+connect Bass.Inputs_to_Patch[1] -> Auditorium_Mic_Splits.Inputs[11]
+
+connect Bass.Inputs_to_Patch[2] -> Auditorium_Mic_Splits.Inputs[12]
+
+connect Bass.Inputs_to_Patch[3] -> Auditorium_Mic_Splits.Inputs[13]
+
+connect Bass.Inputs_to_Patch[4] -> Auditorium_Mic_Splits.Inputs[14]
+
+connect Bass.Inputs_to_Patch[9] -> Auditorium_Mic_Splits.Inputs[29]
+
+connect Bass.Inputs_to_Patch[10] -> Auditorium_Mic_Splits.Inputs[30]
+
+connect Bass.Inputs_to_Patch[11] -> Auditorium_Mic_Splits.Inputs[31]
+
+connect Keys_1_1.Inputs_to_Patch[5] -> Auditorium_Mic_Splits.Inputs[17]
+
+connect Keys_1_1.Inputs_to_Patch[7] -> Auditorium_Mic_Splits.Inputs[21]
+
+connect Keys_1_1.Inputs_to_Patch[5] -> Auditorium_Mic_Splits.Inputs[18]
+
+connect Keys_1_1.Inputs_to_Patch[6] -> Auditorium_Mic_Splits.Inputs[19]
+
+connect Keys_1_1.Inputs_to_Patch[1] -> Auditorium_Mic_Splits.Inputs[22]
+
+connect Keys_1_1.Inputs_to_Patch[2] -> Auditorium_Mic_Splits.Inputs[23]
+
+connect Keys_1_1.Inputs_to_Patch[3] -> Auditorium_Mic_Splits.Inputs[24]
+
+connect Keys_1_1.Inputs_to_Patch[4] -> Auditorium_Mic_Splits.Inputs[25]
+
+connect Keys_2.Inputs_to_Patch[2..4] -> Auditorium_Mic_Splits.Inputs[26..28]
+
+connect USC.Inputs_to_Patch[5] -> Auditorium_Mic_Splits.Inputs[34]
+
+connect USC.Inputs_to_Patch[6] -> Auditorium_Mic_Splits.Inputs[35]
+
+connect USC.Inputs_to_Patch[7] -> Auditorium_Mic_Splits.Inputs[36]
+
+connect USC.Inputs_to_Patch[8] -> Auditorium_Mic_Splits.Inputs[37]
+
+connect USC.Inputs_to_Patch[12] -> Auditorium_Mic_Splits.Inputs[38]
+
+connect Aud_Patch_TIO.Line_Output[1..2] -> Auditorium_Mic_Splits.Inputs[39..40]
+
+connect Vox_1_4.XLR_Out[1..4] -> Auditorium_Mic_Splits.Inputs[41..44]
+
+connect Vox_5_6_WL1_2.XLR_Out[1..4] -> Auditorium_Mic_Splits.Inputs[45..48]
+
+connect MCs.XLR_Out[1..4] -> Auditorium_Mic_Splits.Inputs[49..52]
+
+connect Beltpacks.XLR_Out[1..4] -> Auditorium_Mic_Splits.Inputs[53..56]
+
+connect ULTRIX_FR2.MADI_2_Out -> Analogue_MADIVIDEO.MADI_In
+
+connect Ensemble.DANTE_Out -> FOH_AUX_Console.DANTE_In
+
+connect FOH_AUX_Console.DANTE_Out -> Ensemble.DANTE_In
+
+connect Ensemble_Mics_1.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_2.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_3.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_4.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_5.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_6.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_7.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_8.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_9.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_10.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_11.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_12.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_13.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_14.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_15.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble_Mics_16.XLR_Out[1] -> Ensemble.Mic_Line_Input[1]
+
+connect Ensemble.Line_Output[1..2] -> Auditorium_Mic_Splits.Inputs[57..58]
+
+connect Analogue_MADIVIDEO.Analogue_Outputs[1..6] -> Auditorium_Mic_Splits.Inputs[65..70]
+
+connect TRANSLATION_Mics_1.XLR_Out[1] -> Translates_Headphone_Amp_01.Mic_Input[1]
+
+connect TRANSLATION_Mics_2.XLR_Out[1] -> Translates_Headphone_Amp_02.Mic_Input[1]
+
+connect TRANSLATION_Mics_3.XLR_Out[1] -> Translates_Headphone_Amp_03.Mic_Input[1]
+
+connect TRANSLATION_Mics_4.XLR_Out[1] -> Translates_Headphone_Amp_04.Mic_Input[1]
+
+connect TRANSLATION_Mics_5.XLR_Out[1] -> Translates_Headphone_Amp_05.Mic_Input[1]
+
+connect TRANSLATION_Mics_6.XLR_Out[1] -> Translates_Headphone_Amp_06.Mic_Input[1]
+
+connect Translates_Headphone_Amp_01.Mic_Loop_Out[1] -> TIO_1608_D.Mic_Line_Input[1]
+
+connect Translates_Headphone_Amp_02.Mic_Loop_Out[1] -> TIO_1608_D.Mic_Line_Input[1]
+
+connect Translates_Headphone_Amp_03.Mic_Loop_Out[1] -> TIO_1608_D.Mic_Line_Input[1]
+
+connect Translates_Headphone_Amp_04.Mic_Loop_Out[1] -> TIO_1608_D.Mic_Line_Input[1]
+
+connect Translates_Headphone_Amp_05.Mic_Loop_Out[1] -> TIO_1608_D.Mic_Line_Input[1]
+
+connect Translates_Headphone_Amp_06.Mic_Loop_Out[1] -> TIO_1608_D.Mic_Line_Input[1]
+
+connect Translates_Headphone_Amp_07.Mic_Loop_Out[1] -> TIO_1608_D.Mic_Line_Input[1]
+
+connect TRANSLATION_Mics_7.XLR_Out[1] -> Translates_Headphone_Amp_07.Mic_Input[1]
+
+connect FOH_Talkback.XLR_Out[1] -> Aud_Patch_TIO.Mic_Line_Input[1]
+
+connect MON_Talkback.XLR_Out[1] -> Aud_Patch_TIO.Mic_Line_Input[1]
+
+connect Keys_1_1.Stage_Box_Outputs -> KEYS_2_1.Line_In
+
+connect Keys_2.Stage_Box_Outputs -> KEYS_2_2.Line_In
+
+connect CS1D.Console_Network_Out -> DSP1D.Console_Network_In {
+  backbone: "true"
+}
+
+connect DSP1D.Console_Network_Out -> CS1D.Console_Network_In {
+  backbone: "true"
+}
+
+connect Auditorium_Mic_Splits.Output_B[23..26] -> AI8_3.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_4"
+}
+
+connect Auditorium_Mic_Splits.Output_B[27..30] -> AI8_3.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_5"
+}
+
+connect Auditorium_Mic_Splits.Output_B[31..34] -> AI8_3.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_6"
+}
+
+connect Auditorium_Mic_Splits.Output_B[35..38] -> AI8_3.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_7"
+}
+
+connect Auditorium_Mic_Splits.Output_B[39..42] -> AI8_3.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_8"
+}
+
+connect Auditorium_Mic_Splits.Output_B[43..46] -> AI8_4.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_1"
+}
+
+connect Auditorium_Mic_Splits.Output_B[55..58] -> AI8_4.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_6"
+}
+
+connect Auditorium_Mic_Splits.Output_B[59..62] -> AI8_4.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_7"
+}
+
+connect Auditorium_Mic_Splits.Output_B[63..66] -> AI8_4.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_8"
+}
+
+connect Auditorium_Mic_Splits.Output_B[67..70] -> AI8_6.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_1"
+}
+
+connect Auditorium_Mic_Splits.Output_B[71..74] -> AI8_6.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_2"
+}
+
+connect Auditorium_Mic_Splits.Output_B[75..78] -> AI8_6.Mic_In[1..4] {
+  to_slot: "LMY_In_Slot_3"
+}
+
+connect Auditorium_Mic_Splits.Output_B[79..80] -> AI8_6.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_4"
+}
+
+connect AI8_2.PM1D_Bus_Out -> DSP1D.Input_Unit_1_In
+
+connect AI8_3.PM1D_Bus_Out -> DSP1D.Input_Unit_2_In
+
+connect AI8_4.PM1D_Bus_Out -> DSP1D.Input_Unit_3_In
+
+connect AI8_6.PM1D_Bus_Out -> DSP1D.Input_Unit_4_In
+
+connect AI8_5.PM1D_Bus_Out -> DSP1D.Input_Unit_5_In
+
+connect DSP1D.Output_Unit_1_Out -> DIO8.PM1D_Bus_A_In
+
+connect DSP1D.Output_Unit_2_Out -> AO8.PM1D_Bus_In
+
+connect DSP1D.Output_Unit_3_Out -> AO8_2.PM1D_Bus_In
+
+connect DIO8.Analog_Out -> P10T_01.Input {
+  from_slot: "MY_Slot_1"
+}
+
+connect DIO8.Analog_Out[5..8] -> P10T_02.Input[1..4] {
+  from_slot: "MY_Slot_1"
+}
+
+connect DIO8.Analog_Out -> P10T_03.Input {
+  from_slot: "MY_Slot_2"
+}
+
+connect DIO8.Analog_Out[5..8] -> P10T_04.Input[1..4] {
+  from_slot: "MY_Slot_2"
+}
+
+connect DIO8.Analog_Out -> P10T_05.Input {
+  from_slot: "MY_Slot_3"
+}
+
+connect DIO8.Analog_Out[5..8] -> P10T_06.Input[1..4] {
+  from_slot: "MY_Slot_3"
+}
+
+connect DIO8.Analog_Out -> P10T_07.Input {
+  from_slot: "MY_Slot_4"
+}
+
+connect DIO8.Analog_Out[5..8] -> P10T_08.Input[1..4] {
+  from_slot: "MY_Slot_4"
+}
+
+connect Artist_64.AES67_Out -> AUD_Q_SYS_Core.QLAN_In {
+  from_slot: "Client_1"
+}
+
+connect AUD_Q_SYS_Core.QLAN_Out -> Artist_64.AES67_In {
+  to_slot: "Client_1"
+}
+
+connect Auditorium_Mic_Splits.Output_A -> SR_1.Mic_Line_Input {
+  to_slot: "Venue_Input_Slot_1"
+}
+
+connect Auditorium_Mic_Splits.Output_A[9..16] -> SR_1.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_2"
+}
+
+connect Auditorium_Mic_Splits.Output_A[17..24] -> SR_1.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_3"
+}
+
+connect Auditorium_Mic_Splits.Output_A[25..32] -> SR_1.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_4"
+}
+
+connect Auditorium_Mic_Splits.Output_A[33..40] -> SR_1.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_5"
+}
+
+connect Auditorium_Mic_Splits.Output_A[41..48] -> SR_1.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_6"
+}
+
+connect Auditorium_Mic_Splits.Output_A[49..56] -> Venue_Stage_Rack_2.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_1"
+}
+
+connect Auditorium_Mic_Splits.Output_A[57..64] -> Venue_Stage_Rack_2.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_2"
+}
+
+connect Auditorium_Mic_Splits.Output_A[65..72] -> Venue_Stage_Rack_2.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_3"
+}
+
+connect Auditorium_Mic_Splits.Output_A[73..80] -> Venue_Stage_Rack_2.Mic_Line_Input[1..8] {
+  to_slot: "Venue_Input_Slot_4"
+}
+
+connect Venue_FOH_Rack.MADI_Out[1] -> SR_1.MADI_In[1] {
+  from_slot: "Snake_1"
+}
+
+connect SR_1.MADI_Out[1] -> Venue_FOH_Rack.MADI_In[1] {
+  to_slot: "Snake_1"
+}
+
+connect Venue_FOH_Rack.MADI_Out[1] -> Venue_Stage_Rack_2.MADI_In[1] {
+  from_slot: "Snake_2"
+}
+
+connect Venue_Stage_Rack_2.MADI_Out[1] -> Venue_FOH_Rack.MADI_In[1] {
+  to_slot: "Snake_2"
+}
+
+connect Auditorium_Mic_Splits.Output_B -> AI8_2.Mic_In {
+  to_slot: "LMY_In_Slot_1"
+}
+
+connect Auditorium_Mic_Splits.Output_B[3..4] -> AI8_2.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_2"
+}
+
+connect Auditorium_Mic_Splits.Output_B[5..6] -> AI8_2.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_3"
+}
+
+connect Auditorium_Mic_Splits.Output_B[7..8] -> AI8_2.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_4"
+}
+
+connect Auditorium_Mic_Splits.Output_B[9..10] -> AI8_2.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_5"
+}
+
+connect Auditorium_Mic_Splits.Output_B[11..12] -> AI8_2.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_6"
+}
+
+connect Auditorium_Mic_Splits.Output_B[13..14] -> AI8_2.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_7"
+}
+
+connect Auditorium_Mic_Splits.Output_B[15..16] -> AI8_2.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_8"
+}
+
+connect Auditorium_Mic_Splits.Output_B[17..18] -> AI8_3.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_1"
+}
+
+connect Auditorium_Mic_Splits.Output_B[19..20] -> AI8_3.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_2"
+}
+
+connect Auditorium_Mic_Splits.Output_B[21..22] -> AI8_3.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_3"
+}
+
+connect Auditorium_Mic_Splits.Output_B[47..48] -> AI8_4.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_2"
+}
+
+connect Auditorium_Mic_Splits.Output_B[49..50] -> AI8_4.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_3"
+}
+
+connect Auditorium_Mic_Splits.Output_B[51..52] -> AI8_4.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_4"
+}
+
+connect Auditorium_Mic_Splits.Output_B[53..54] -> AI8_4.Mic_In[1..2] {
+  to_slot: "LMY_In_Slot_5"
+}
+
+connect Ambience_SL.XLR_Out[1] -> AI8_5.Mic_In[1] {
+  to_slot: "LMY_In_Slot_4"
+}
+
+connect Ambience_SR.XLR_Out[1] -> AI8_5.Mic_In[2] {
+  to_slot: "LMY_In_Slot_4"
+}
+
+stream AUD_Q_SYS_Core_To_Comms {
+  source: AUD_Q_SYS_Core.QLAN_Out
+  channels: "8"
+  direction: "tx"
+  protocol: "AES67"
+}
+
+stream AUD_Q_SYS_Core_From_Comms {
+  source: AUD_Q_SYS_Core.QLAN_In
+  channels: "8"
+  direction: "rx"
+  protocol: "AES67"
+}
+
+stream Artist_64_To_QSYS {
+  source: Artist_64.AES67_Out
+  channels: "8"
+  direction: "tx"
+  protocol: "AES67"
+}
+
+stream Artist_64_From_QSYS {
+  source: Artist_64.AES67_In
+  channels: "8"
+  direction: "rx"
+  protocol: "AES67"
+}
+
+config Auditorium_Mic_Splits {
+  label Inputs[60]: "Spare 6"
+  label Inputs[61]: "Spare 7"
+  label Inputs[62]: "Spare 8"
+}
+
+config Drums {
+  label Stage_Box_Inputs[1]: "Kick In" {
+    phantom: "true"
+    source_type: "Beta 91"
+  }
+  label Stage_Box_Inputs[2]: "Kick Out" {
+    source_type: "D6"
+  }
+  label Stage_Box_Inputs[3]: "Snare Top" {
+    source_type: "SM57"
+  }
+  label Stage_Box_Inputs[4]: "Snare Bottom" {
+    source_type: "SM57"
+  }
+  label Stage_Box_Inputs[5]: "Hats" {
+    phantom: "true"
+    source_type: "e914"
+  }
+  label Stage_Box_Inputs[6]: "Tom 1" {
+    source_type: "e904"
+  }
+  label Stage_Box_Inputs[7]: "Tom 2" {
+    source_type: "e604"
+  }
+  label Stage_Box_Inputs[8]: "Tom 3" {
+    source_type: "e604"
+  }
+  label Stage_Box_Inputs[10]: "OH SR" {
+    phantom: "true"
+    source_type: "c214"
+  }
+  label Stage_Box_Inputs[11]: "OH SL" {
+    phantom: "true"
+    source_type: "c214"
+  }
+  label Stage_Box_Inputs[12]: "Tom 2 Trigger" {
+    source_type: "VTK"
+  }
+  label Stage_Box_Inputs[13]: "Tom 3 Trigger" {
+    source_type: "VTK"
+  }
+  label Stage_Box_Inputs[14]: "AC 1" {
+    source_type: "J48"
+  }
+  label Stage_Box_Inputs[15]: "Gtr 1 L"
+  label Stage_Box_Inputs[16]: "Gtr 1 R"
+}
+
+config Bass {
+  label Stage_Box_Inputs[1]: "Pad L" {
+    source_type: "ProD2"
+  }
+  label Stage_Box_Inputs[2]: "Pad R"
+  label Stage_Box_Inputs[3]: "Bass" {
+    phantom: "true"
+    source_type: "J48"
+  }
+  label Stage_Box_Inputs[4]: "Bass Synth" {
+    phantom: "true"
+    source_type: "J48"
+  }
+  label Stage_Box_Inputs[5]: "Drum Clic" {
+    phantom: "true"
+    source_type: "Pro48"
+  }
+  label Stage_Box_Inputs[6]: "Drum TB" {
+    source_type: "e835s"
+  }
+  label Stage_Box_Inputs[9]: "Kick Trigger" {
+    source_type: "RTK"
+  }
+  label Stage_Box_Inputs[10]: "Snare Trigger" {
+    source_type: "RTK"
+  }
+  label Stage_Box_Inputs[11]: "Tom 1 Trigger" {
+    source_type: "RTK"
+  }
+}
+
+config USC {
+  label Stage_Box_Inputs[1]: "Ensemble (FOH) L"
+  label Stage_Box_Inputs[2]: "Ensemble (FOH) R"
+  label Stage_Box_Inputs[3]: "Ensembe (MON) L"
+  label Stage_Box_Inputs[4]: "Ensembe (MON) R"
+  label Stage_Box_Inputs[5]: "Spare 1"
+  label Stage_Box_Inputs[6]: "Spare 2"
+  label Stage_Box_Inputs[7]: "Spare 3"
+  label Stage_Box_Inputs[8]: "Spare 4"
+  label Stage_Box_Inputs[12]: "Cello" {
+    phantom: "true"
+    source_type: "J48"
+  }
+}
+
+config Keys_1_1 {
+  label Stage_Box_Inputs[1]: "Keys 1 L" {
+    source_type: "JDI ST"
+  }
+  label Stage_Box_Inputs[2]: "Keys 1 R"
+  label Stage_Box_Inputs[3]: "Mac 1 L" {
+    source_type: "JDI ST"
+  }
+  label Stage_Box_Inputs[4]: "Mac 1 R"
+  label Stage_Box_Inputs[5]: "Gtr 2 L"
+  label Stage_Box_Inputs[6]: "Gtr 2 R"
+  label Stage_Box_Inputs[7]: "AC 2" {
+    phantom: "true"
+    source_type: "J48"
+  }
+}
+
+config ULTRIX_FR2 {
+  label pl__ULTRIX_FR2__MADI_1_Out[49]: "QLAB_01"
+  label pl__ULTRIX_FR2__MADI_1_Out[50]: "QLAB_02"
+  label pl__ULTRIX_FR2__MADI_1_Out[51]: "QLAB_03"
+  label pl__ULTRIX_FR2__MADI_1_Out[52]: "QLAB_04"
+  label pl__ULTRIX_FR2__MADI_1_Out[53]: "QLAB_05"
+  label pl__ULTRIX_FR2__MADI_1_Out[54]: "QLAB_06"
+  label pl__ULTRIX_FR2__MADI_1_Out[55]: "QLAB-07"
+  label pl__ULTRIX_FR2__MADI_1_Out[56]: "QLAB_08"
+  label pl__ULTRIX_FR2__MADI_1_Out[57]: "QLAB_09"
+  label pl__ULTRIX_FR2__MADI_1_Out[58]: "QLAB_10"
+  label pl__ULTRIX_FR2__MADI_1_Out[59]: "QLAB_11"
+  label pl__ULTRIX_FR2__MADI_1_Out[60]: "QLAB_12"
+  label pl__ULTRIX_FR2__MADI_1_Out[61]: "QLAB_3"
+  label pl__ULTRIX_FR2__MADI_1_Out[62]: "QLAB_14"
+  label pl__ULTRIX_FR2__MADI_1_Out[63]: "QLAB_15"
+  label pl__ULTRIX_FR2__MADI_1_Out[64]: "QLAB_16"
+  label pl__ULTRIX_FR2__MADI_2_Out[1]: "L1_RX_PGM-L"
+  label pl__ULTRIX_FR2__MADI_2_Out[2]: "L1_RX_PGM-R"
+  label pl__ULTRIX_FR2__MADI_2_Out[3]: "L1_RX_Band-L"
+  label pl__ULTRIX_FR2__MADI_2_Out[4]: "L1_RX_Band-R"
+  label pl__ULTRIX_FR2__MADI_2_Out[5]: "L1_RX_Vox"
+  label pl__ULTRIX_FR2__MADI_2_Out[6]: "L1_RX_MC"
+  label pl__ULTRIX_FR2__MADI_2_Out[7]: "L1_RX_Clic"
+  label pl__ULTRIX_FR2__MADI_2_Out[8]: "L1_RX_Cue"
+  label pl__ULTRIX_FR2__MADI_2_Out[9]: "L2_RX_PGM-L"
+  label pl__ULTRIX_FR2__MADI_2_Out[10]: "L2_RX_PGM-R"
+  label pl__ULTRIX_FR2__MADI_2_Out[11]: "L2_RX_Band_L"
+  label pl__ULTRIX_FR2__MADI_2_Out[12]: "L2_RX_Band-R"
+  label pl__ULTRIX_FR2__MADI_2_Out[13]: "L2_RX_Vox"
+  label pl__ULTRIX_FR2__MADI_2_Out[14]: "L2_RX_MC"
+  label pl__ULTRIX_FR2__MADI_2_Out[15]: "L2_RX_Clic"
+  label pl__ULTRIX_FR2__MADI_2_Out[16]: "L2_RX_Cue"
+  label pl__ULTRIX_FR2__MADI_2_Out[17]: "PB_1-01"
+  label pl__ULTRIX_FR2__MADI_2_Out[18]: "PB_1-02"
+  label pl__ULTRIX_FR2__MADI_2_Out[19]: "PB_1-03"
+  label pl__ULTRIX_FR2__MADI_2_Out[20]: "PB_1-04"
+  label pl__ULTRIX_FR2__MADI_2_Out[21]: "PB_1-05"
+  label pl__ULTRIX_FR2__MADI_2_Out[22]: "PB_1-06"
+  label pl__ULTRIX_FR2__MADI_2_Out[23]: "PB_1-07"
+  label pl__ULTRIX_FR2__MADI_2_Out[24]: "PB_1-08"
+  label pl__ULTRIX_FR2__MADI_2_Out[25]: "PB_2-01"
+  label pl__ULTRIX_FR2__MADI_2_Out[26]: "PB_2-02"
+  label pl__ULTRIX_FR2__MADI_2_Out[27]: "PB_2-03"
+  label pl__ULTRIX_FR2__MADI_2_Out[28]: "PB_2-04"
+  label pl__ULTRIX_FR2__MADI_2_Out[29]: "PB_2-05"
+  label pl__ULTRIX_FR2__MADI_2_Out[30]: "PB_2-06"
+  label pl__ULTRIX_FR2__MADI_2_Out[31]: "PB_2-07"
+  label pl__ULTRIX_FR2__MADI_2_Out[32]: "PB_2-08"
+}
+
+config Ableton_Laptop {
+  label DVS_DANTE[1]: "Trax L"
+  label DVS_DANTE[2]: "Trax R"
+  label DVS_DANTE[3]: "Trax Clic"
+  label DVS_DANTE[4]: "Trax Cue"
+  label DVS_DANTE[16]: "Trax LTC"
+}
+
+config AUD_Q_SYS_Core {
+  label Unknown[1]: "Shouts _to_MD Conf"
+  label Unknown[2]: "Shouts>Show Conf"
+  label Unknown[3]: "Shouts >Audio Conf"
+  label Unknown[4]: "PGM>Comms"
+  label Unknown[5]: "Vid Solo  Comms"
+  label Unknown[6]: "Comms>MONSs_EM"
+  label Unknown[25]: "Spotify>FOH-L"
+  label Unknown[26]: "Spotify>FOH-R"
+  label Unknown[42]: "Comms>MONSs_EM"
+}
+
+config Ambience_SL {
+  label XLR_Out[1]: "Ambience SL" {
+    phantom: "true"
+    source_type: "BP-4073"
+  }
+}
+
+config Ambience_SR {
+  label XLR_Out[1]: "Ambience SR" {
+    phantom: "true"
+    source_type: "BP4073"
+  }
+}
+
+config Auditorium_Spotify {
+  label DVS_DANTE[1]: "FOH Spotify L"
+  label DVS_DANTE[2]: "FOH Spotify R"
+}
+
+config Vox_1_4 {
+  label XLR_Out[1]: "Vox 1" {
+    capsule: "B58"
+    source_type: "AD2"
+  }
+  label XLR_Out[2]: "Vox 2" {
+    capsule: "B58"
+    source_type: "AD2"
+  }
+  label XLR_Out[3]: "Vox 3" {
+    capsule: "B58"
+    source_type: "AD2"
+  }
+  label XLR_Out[4]: "Vox 4" {
+    capsule: "B58"
+    source_type: "AD2"
+  }
+}
+
+config Vox_5_6_WL1_2 {
+  label XLR_Out[1]: "Vox 5" {
+    capsule: "B58"
+    source_type: "AD2"
+  }
+  label XLR_Out[2]: "Vox 6" {
+    capsule: "B58"
+    source_type: "AD2"
+  }
+  label XLR_Out[3]: "WL 1" {
+    capsule: "2012"
+    source_type: "AD2"
+  }
+  label XLR_Out[4]: "WL 1" {
+    capsule: "2012"
+    source_type: "AD2"
+  }
+}
+
+config MCs {
+  label XLR_Out[1]: "MC 1" {
+    capsule: "KSM9"
+    source_type: "AD2"
+  }
+  label XLR_Out[2]: "MC 2" {
+    capsule: "KSM9"
+    source_type: "AD2"
+  }
+  label XLR_Out[3]: "MC 3" {
+    capsule: "KSM9"
+    source_type: "AD2"
+  }
+  label XLR_Out[4]: "MC 4" {
+    capsule: "KSM9"
+    source_type: "AD2"
+  }
+}
+
+config Beltpacks {
+  label XLR_Out[1]: "H'Set" {
+    capsule: "4066"
+    source_type: "AD1"
+  }
+  label XLR_Out[2]: "AC 2" {
+    source_type: "AD1"
+  }
+  label XLR_Out[3]: "Strings 1" {
+    capsule: "4099"
+    source_type: "AD1"
+  }
+  label XLR_Out[4]: "Strings 2" {
+    capsule: "4099"
+    source_type: "AD1"
+  }
+}
+
+config MD_Talk {
+  label Line_Out[1]: "MD Talk" {
+    source_type: "ULXD2-B58"
+  }
+}
+
+config Keys_2 {
+  label Stage_Box_Inputs[1]: "Keys 2 L" {
+    source_type: "JDI St"
+  }
+  label Stage_Box_Inputs[2]: "Keys 2 R"
+  label Stage_Box_Inputs[3]: "Mac 2 L" {
+    source_type: "JDI St"
+  }
+  label Stage_Box_Inputs[4]: "Mac 2 R"
+}
+
+config FOH_Talkback {
+  label XLR_Out[1]: "FOH Talkback"
+}
+
+config MON_Talkback {
+  label XLR_Out[1]: "MON Talkback"
+}
+
+config Venue_FOH_Rack {
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[1]: "PQ_PGM-L"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[2]: "PQ_PGM-R"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[3]: "PQ_Links-L"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[4]: "PQ_Links-R"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[5]: "PQ_PBs-L"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[6]: "PQ_PBs-R"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[7]: "Live_Music-L"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[8]: "Live_Music-R"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[9]: "PA-L"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[10]: "PA-R"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[11]: "Floor Subs"
+  label slot__Snake__1__1__pl__Venue_Snake_Card__to_SR[12]: "Front Fill"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[3]: "PQ_MixMinus-L"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[4]: "PQ_MixMinus-R"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[5]: "PQ_Band-L"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[6]: "PQ_Band-R"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[7]: "PQ_Vox"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[8]: "PQ_MC"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[10]: "HI LVL >IEM"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[11]: "HI LVL>WEDGE "
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[12]: "SMAART_REF"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[13]: "VoxVerb>LP"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[14]: "DrumVerb>LP"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[15]: "SnareVerb>LP"
+  label slot__Snake__1__2__pl__Venue_Snake_Card__to_SR[16]: "Spare>LP"
+}
+
+config FOH_AUX_Console {
+  label DANTE_Out[1]: "Ensemble>FOH-L-L"
+  label DANTE_Out[2]: "Ensemble>FOH-R-R"
+  label DANTE_Out[3]: "Ensemble>MON-L"
+  label DANTE_Out[4]: "Ensemble>MON-R"
+}
+
+config Ensemble_Mics_1 {
+  label XLR_Out[1]: "Ensemble Mics 1" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_2 {
+  label XLR_Out[1]: "Ensemble Mics 2" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_3 {
+  label XLR_Out[1]: "Ensemble Mics 3" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_4 {
+  label XLR_Out[1]: "Ensemble Mics 4" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_5 {
+  label XLR_Out[1]: "Ensemble Mics 5" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_6 {
+  label XLR_Out[1]: "Ensemble Mics 6" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_7 {
+  label XLR_Out[1]: "Ensemble Mics 7" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_8 {
+  label XLR_Out[1]: "Ensemble Mics 8" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_9 {
+  label XLR_Out[1]: "Ensemble Mics 9" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_10 {
+  label XLR_Out[1]: "Ensemble Mics 10" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_11 {
+  label XLR_Out[1]: "Ensemble Mics 11" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_12 {
+  label XLR_Out[1]: "Ensemble Mics 12" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_13 {
+  label XLR_Out[1]: "Ensemble Mics 13" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_14 {
+  label XLR_Out[1]: "Ensemble Mics 14" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_15 {
+  label XLR_Out[1]: "Ensemble Mics 15" {
+    source_type: "e835"
+  }
+}
+
+config Ensemble_Mics_16 {
+  label XLR_Out[1]: "Ensemble Mics 16" {
+    source_type: "e835"
+  }
+}
+
+config Artist_64 {
+  label Unknown[1]: "Comms talk to MD"
+  label Unknown[2]: "Comms Show Conf"
+  label Unknown[3]: "Comms Audio Conf"
+  label Unknown[4]: "Comms Stage Announce"
+  label Unknown[5]: "Comms BOH Page"
+  label Unknown[6]: "Comms Cam Director"
+  label Unknown[7]: "Comms talk to VC"
+  label Unknown[8]: "Bus 7"
+}
+
+config TRANSLATION_Mics_1 {
+  label XLR_Out[1]: "Translaton Mic 2" {
+    source_type: "DT109"
+  }
+}
+
+config TRANSLATION_Mics_2 {
+  label XLR_Out[1]: "Translaton Mic 3" {
+    source_type: "DT109"
+  }
+}
+
+config TRANSLATION_Mics_3 {
+  label XLR_Out[1]: "Translaton Mic 4" {
+    source_type: "DT109"
+  }
+}
+
+config TRANSLATION_Mics_4 {
+  label XLR_Out[1]: "Translaton Mic 5" {
+    source_type: "DT109"
+  }
+}
+
+config TRANSLATION_Mics_5 {
+  label XLR_Out[1]: "Translaton Mic 6" {
+    source_type: "DT109"
+  }
+}
+
+config TRANSLATION_Mics_6 {
+  label XLR_Out[1]: "Translaton Mic 7" {
+    source_type: "DT109"
+  }
+}
+
+config TRANSLATION_Mics_7 {
+  label XLR_Out[1]: "Translaton Mic 8" {
+    source_type: "DT109"
+  }
+}
+
+config CS1D {
+  label Cue_Out[1]: "ENG Cue-L"
+  label Cue_Out[2]: "ENG Cue-R"
+  label pl__DSP1D__Output_Unit_1_Out[1]: "WL 1-L"
+  label pl__DSP1D__Output_Unit_1_Out[2]: "WL 1-R"
+  label pl__DSP1D__Output_Unit_1_Out[3]: "WL 2-L"
+  label pl__DSP1D__Output_Unit_1_Out[4]: "WL 2-R"
+  label pl__DSP1D__Output_Unit_1_Out[5]: "Vox 1-L"
+  label pl__DSP1D__Output_Unit_1_Out[6]: "Vox 1-R"
+  label pl__DSP1D__Output_Unit_1_Out[7]: "Vox 2-L"
+  label pl__DSP1D__Output_Unit_1_Out[8]: "Vox 2-R"
+  label pl__DSP1D__Output_Unit_1_Out[9]: "Vox 3-L"
+  label pl__DSP1D__Output_Unit_1_Out[10]: "Vox 3-R"
+  label pl__DSP1D__Output_Unit_1_Out[11]: "Vox 4-L"
+  label pl__DSP1D__Output_Unit_1_Out[12]: "Vox 4-R"
+  label pl__DSP1D__Output_Unit_1_Out[13]: "Vox 5-L"
+  label pl__DSP1D__Output_Unit_1_Out[14]: "Vox 5-R"
+  label pl__DSP1D__Output_Unit_1_Out[15]: "Vox 6-L"
+  label pl__DSP1D__Output_Unit_1_Out[16]: "Vox 6-R"
+  label pl__DSP1D__Output_Unit_1_Out[17]: "Guitar 1-L"
+  label pl__DSP1D__Output_Unit_1_Out[18]: "Guitar 1-R"
+  label pl__DSP1D__Output_Unit_1_Out[19]: "Guitar 2-L"
+  label pl__DSP1D__Output_Unit_1_Out[20]: "Guitar 2-R"
+  label pl__DSP1D__Output_Unit_1_Out[21]: "Spare 1-L"
+  label pl__DSP1D__Output_Unit_1_Out[22]: "Spare 1-R"
+  label pl__DSP1D__Output_Unit_1_Out[23]: "Spare 2-L"
+  label pl__DSP1D__Output_Unit_1_Out[24]: "Spare 2-R"
+  label pl__DSP1D__Output_Unit_1_Out[25]: "Spare 3-L"
+  label pl__DSP1D__Output_Unit_1_Out[26]: "Spare 3-R"
+  label pl__DSP1D__Output_Unit_1_Out[27]: "Spare 4-L"
+  label pl__DSP1D__Output_Unit_1_Out[28]: "Spare 4-R"
+  label pl__DSP1D__Output_Unit_1_Out[29]: "MD-L"
+  label pl__DSP1D__Output_Unit_1_Out[30]: "MD-R"
+}

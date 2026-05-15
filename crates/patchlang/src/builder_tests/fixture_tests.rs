@@ -117,3 +117,45 @@ fn fixture_hillsong_mtg() {
     let source = include_str!("../../../../tests/fixtures/examples/hillsong-mtg.patch");
     roundtrip_fixture(source);
 }
+
+// ---------------------------------------------------------------------------
+// Real-world project fixtures (contributed by Reid)
+// ---------------------------------------------------------------------------
+
+/// Reid's Profile PM1D / QSC / Riedel project. Contains 34 "Unknown" port refs
+/// in bus outputs written by old TypeScript code. load_from_patch must return
+/// zero Unknown output_port strings — all garbage destinations must be dropped.
+#[test]
+fn fixture_pm1d_qsys_riedel_no_unknown_bus_ports() {
+    use crate::builder::canvas_load::load_from_patch;
+
+    let source = include_str!("../../../../tests/fixtures/hillsong-mtg/pm1d_qsys_riedel.patch");
+    let loaded = load_from_patch(source, "").expect("load must succeed");
+
+    let mut violations: Vec<String> = Vec::new();
+    for inst in &loaded.instances {
+        for bus in &inst.internal_buses {
+            if bus.input_port == "Unknown" || bus.input_port == "Device" {
+                violations.push(format!(
+                    "{}.{}: input_port = {:?}",
+                    inst.name, bus.name, bus.input_port
+                ));
+            }
+            for out in &bus.named_outputs {
+                if out.output_port == "Unknown" || out.output_port == "Device" {
+                    violations.push(format!(
+                        "{}.{} output {:?}: output_port = {:?}",
+                        inst.name, bus.name, out.name, out.output_port
+                    ));
+                }
+            }
+        }
+    }
+
+    assert!(
+        violations.is_empty(),
+        "garbage port refs survived load_from_patch ({} violations):\n{}",
+        violations.len(),
+        violations.join("\n")
+    );
+}
