@@ -768,6 +768,87 @@ fn emit_bridge_with_card_slot_source_port() {
 }
 
 // ---------------------------------------------------------------------------
+// Backbone connections (D012)
+// ---------------------------------------------------------------------------
+
+/// A connection with `is_backbone: true` must emit `backbone: true` in the
+/// connect body so Signal Trace can treat the pair as a transparent unit.
+/// GigaACE is a ring/bus protocol — ports stay as `io` (no _In/_Out split).
+#[test]
+fn emit_backbone_connection_includes_backbone_property() {
+    let iface = make_interface("gc", "GigaACE_Pri", "io", Some("GigaACE"), 0, vec![]);
+    let iface2 = make_interface("gc", "GigaACE_Pri", "io", Some("GigaACE"), 0, vec![]);
+    let input = CanvasEmitInput {
+        instances: vec![
+            make_simple_instance("S7000", "S7000", "Allen_Heath", vec![iface]),
+            make_simple_instance("DM64", "DM64", "Allen_Heath", vec![iface2]),
+        ],
+        connections: vec![ConnectionEmitInput {
+            from_instance_name: "S7000".into(),
+            to_instance_name: "DM64".into(),
+            from_port_id: "GigaACE_Pri".into(),
+            to_port_id: "GigaACE_Pri".into(),
+            is_backbone: true,
+            channel_mappings: vec![],
+            properties: vec![KvEmitInput {
+                key: "cable".into(),
+                value: "GigaACE_Pri".into(),
+            }],
+        }],
+        manufacturer_cards: vec![],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("connect S7000.GigaACE_Pri -> DM64.GigaACE_Pri"),
+        "backbone connect statement must be emitted:\n{patch}"
+    );
+    assert!(
+        patch.contains("backbone: \"true\""),
+        "backbone property must appear in connect body:\n{patch}"
+    );
+}
+
+/// Full roundtrip: emit a backbone connection → parse → load → assert
+/// `is_backbone` survives the round trip.
+#[test]
+fn backbone_connection_roundtrips_is_backbone_flag() {
+    use crate::builder::canvas_load::load_from_patch;
+
+    let iface = make_interface("gc", "GigaACE_Pri", "io", Some("GigaACE"), 0, vec![]);
+    let iface2 = make_interface("gc", "GigaACE_Pri", "io", Some("GigaACE"), 0, vec![]);
+    let emit_input = CanvasEmitInput {
+        instances: vec![
+            make_simple_instance("S7000", "S7000", "Allen_Heath", vec![iface]),
+            make_simple_instance("DM64",  "DM64",  "Allen_Heath", vec![iface2]),
+        ],
+        connections: vec![ConnectionEmitInput {
+            from_instance_name: "S7000".into(),
+            to_instance_name:   "DM64".into(),
+            from_port_id: "GigaACE_Pri".into(),
+            to_port_id:   "GigaACE_Pri".into(),
+            is_backbone: true,
+            channel_mappings: vec![],
+            properties: vec![],
+        }],
+        manufacturer_cards: vec![],
+    };
+
+    let patch = emit_from_canvas_input(emit_input).unwrap();
+    let loaded = load_from_patch(&patch, "{}").expect("patch must parse and load");
+
+    let conn = loaded
+        .connections
+        .iter()
+        .find(|c| c.from_instance == "S7000" && c.to_instance == "DM64")
+        .expect("backbone connection must survive roundtrip");
+
+    assert!(
+        conn.is_backbone,
+        "is_backbone must be true after roundtrip; loaded connection: {conn:?}"
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Bus output — named outputs without wired destinations
 // ---------------------------------------------------------------------------
 
