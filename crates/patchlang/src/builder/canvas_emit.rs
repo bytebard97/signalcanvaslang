@@ -816,9 +816,15 @@ fn find_interface<'a>(
 /// Build the list of (source, target) PortRef pairs for a connection.
 ///
 /// When channel_mappings is empty: one pair with the raw from/to index (or no index).
-/// When mappings are sequential 1:1 (fromCh == toCh and both increment by 1 starting at 1): no index.
-/// When mappings are a sequential offset (toChOffset constant): single pair with range indices.
-/// When mappings are non-sequential: one pair per mapping entry.
+/// When mappings are contiguous on the source side with a constant from→to offset
+/// (this covers sequential 1:1 starting at 1, and any other run-of-N case):
+/// single pair with explicit range indices (`Port[start..end]`). The previous
+/// "sequential 1:1 from 1 → no index" shortcut was removed because it conflated
+/// partial patches (e.g. 2 of an 8-channel port) with full-width 1:1 patches,
+/// and the loader's `min(fromCount, toCount)` fallback re-inflated the partial
+/// case on reload.
+/// When mappings are non-contiguous OR a single entry: one pair per mapping
+/// entry, each with a single-index port ref (`Port[N]`).
 fn build_connect_pairs(
     from_inst: &str,
     from_port: &str,
@@ -850,28 +856,12 @@ fn build_connect_pairs(
         return vec![(src, tgt)];
     }
 
-    // Check sequential 1:1 (fromCh == toCh, starting at 1, contiguous).
-    // Only strip the index when multiple channels are mapped (single-channel [1→1]
-    // still needs the explicit [1] to select a specific channel from a multi-ch port).
-    let is_sequential_1to1 = mappings.len() > 1
-        && mappings.iter().enumerate().all(|(i, m)| {
-            m.from_channel == (i as u32 + 1) && m.to_channel == (i as u32 + 1)
-        });
-    if is_sequential_1to1 {
-        let src = PortRef {
-            instance: Some(from_inst.to_string()),
-            port: from_port_s,
-            index: None,
-        };
-        let tgt = PortRef {
-            instance: Some(to_inst.to_string()),
-            port: to_port_s,
-            index: None,
-        };
-        return vec![(src, tgt)];
-    }
-
     // Check sequential contiguous offset: from channels contiguous, to channels = from + constant offset.
+    // Sequential 1:1 starting at 1 (e.g. [1→1, 2→2, ...]) is also handled here as
+    // offset==0 — it falls through to the range case below and emits explicit
+    // ranges (Port[1..N]). The previous "is_sequential_1to1 -> drop index" shortcut
+    // was incorrect for partial patches: the loader's min(fromCount, toCount)
+    // fallback would re-inflate a partial 2-channel patch to the full port width.
     let first = &mappings[0];
     let offset_i32 = first.to_channel as i32 - first.from_channel as i32;
     let is_contiguous_offset = mappings.iter().enumerate().all(|(i, m)| {
@@ -883,10 +873,6 @@ fn build_connect_pairs(
         let from_end = mappings.last().unwrap().from_channel;
         let to_start = first.to_channel;
         let to_end = mappings.last().unwrap().to_channel;
-
-        if from_start == to_start && from_end == to_end {
-            // Pure range, no offset needed — emit as range
-        }
 
         let src = PortRef {
             instance: Some(from_inst.to_string()),
