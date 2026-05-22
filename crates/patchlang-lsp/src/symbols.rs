@@ -155,6 +155,16 @@ pub fn extract_symbols(source: &str, program: &PatchProgram) -> Vec<DocumentSymb
                     &bg.span,
                 ));
             }
+            Statement::Network(n) => {
+                let detail = Some(format!("{} members", n.members.len()));
+                symbols.push(make_symbol(
+                    source,
+                    &n.name,
+                    detail,
+                    SymbolKind::NAMESPACE,
+                    &n.span,
+                ));
+            }
             Statement::Error(_) => {}
         }
     }

@@ -30,6 +30,7 @@ pub enum TsStatement {
     Config(TsConfigDecl),
     Use(TsUseDecl),
     Ring(TsRingDecl),
+    Network(TsNetworkDecl),
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -294,6 +295,25 @@ pub struct TsRingDecl {
     pub name: String,
     pub properties: BTreeMap<String, String>,
     pub members: Vec<TsRingMember>,
+}
+
+/// The kind of network member reference.
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
+pub enum TsNetworkMember {
+    DeviceLevel { instance: String },
+    PortGroup { instance: String, port_group: String },
+    SlotRef { instance: String, index: u32 },
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TsNetworkDecl {
+    #[serde(rename = "type")]
+    pub type_tag: &'static str,
+    pub name: String,
+    pub properties: BTreeMap<String, String>,
+    pub members: Vec<TsNetworkMember>,
 }
 
 #[derive(Debug, Clone, Serialize)]

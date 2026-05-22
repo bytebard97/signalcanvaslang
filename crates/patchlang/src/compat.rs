@@ -100,6 +100,7 @@ fn convert_statement(stmt: &ast::Statement, lookup: &AutoLookup) -> Option<TsSta
         ast::Statement::Config(c) => Some(TsStatement::Config(convert_config(c))),
         ast::Statement::Use(u) => Some(TsStatement::Use(convert_use(u))),
         ast::Statement::Ring(r) => Some(TsStatement::Ring(convert_ring(r))),
+        ast::Statement::Network(n) => Some(TsStatement::Network(convert_network(n))),
         ast::Statement::Error(_) => None, // Error nodes are dropped in TS output
     }
 }
@@ -299,6 +300,35 @@ pub(crate) fn convert_ring_member(m: &ast::RingMember) -> TsRingMember {
     TsRingMember {
         instance_name: m.instance_name.clone(),
         port_name: m.port_name.clone(),
+    }
+}
+
+pub(crate) fn convert_network(n: &ast::NetworkDecl) -> TsNetworkDecl {
+    TsNetworkDecl {
+        type_tag: "Network",
+        name: n.name.clone(),
+        properties: kv_to_string_record(&n.properties),
+        members: n.members.iter().map(convert_network_member).collect(),
+    }
+}
+
+pub(crate) fn convert_network_member(m: &ast::NetworkMember) -> TsNetworkMember {
+    match m {
+        ast::NetworkMember::DeviceLevel { instance, .. } => {
+            TsNetworkMember::DeviceLevel { instance: instance.clone() }
+        }
+        ast::NetworkMember::PortGroup { instance, port_group, .. } => {
+            TsNetworkMember::PortGroup {
+                instance: instance.clone(),
+                port_group: port_group.clone(),
+            }
+        }
+        ast::NetworkMember::SlotRef { instance, index, .. } => {
+            TsNetworkMember::SlotRef {
+                instance: instance.clone(),
+                index: *index,
+            }
+        }
     }
 }
 

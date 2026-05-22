@@ -27,6 +27,7 @@ pub enum Statement {
     Config(ConfigDecl),
     Use(UseDecl),
     Ring(RingDecl),
+    Network(NetworkDecl),
     /// Placeholder for recovered error regions.
     Error(Span),
 }
@@ -320,5 +321,45 @@ pub struct RingDecl {
     pub name: String,
     pub properties: Vec<KeyValue>,
     pub members: Vec<RingMember>,
+    pub span: Span,
+}
+
+/// A member of a `network` block.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(tag = "kind")]
+pub enum NetworkMember {
+    /// Device-level membership: just the instance name (e.g. `member SL_StageBox`).
+    DeviceLevel { instance: String, span: Span },
+    /// Port-group membership: `member Instance.PortGroup`.
+    PortGroup { instance: String, port_group: String, span: Span },
+    /// Slot reference: `member Instance.slot[N]`.
+    SlotRef { instance: String, index: u32, span: Span },
+}
+
+impl NetworkMember {
+    pub fn instance_name(&self) -> &str {
+        match self {
+            NetworkMember::DeviceLevel { instance, .. } => instance,
+            NetworkMember::PortGroup { instance, .. } => instance,
+            NetworkMember::SlotRef { instance, .. } => instance,
+        }
+    }
+
+    pub fn span(&self) -> &Span {
+        match self {
+            NetworkMember::DeviceLevel { span, .. } => span,
+            NetworkMember::PortGroup { span, .. } => span,
+            NetworkMember::SlotRef { span, .. } => span,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct NetworkDecl {
+    pub name: String,
+    pub properties: Vec<KeyValue>,
+    pub members: Vec<NetworkMember>,
     pub span: Span,
 }

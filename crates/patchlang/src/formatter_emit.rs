@@ -386,6 +386,40 @@ pub(crate) fn emit_ring(out: &mut String, r: &RingDecl, indent: &str) {
     out.push_str("}\n");
 }
 
+pub(crate) fn emit_network(out: &mut String, n: &NetworkDecl, indent: &str) {
+    out.push_str(indent);
+    out.push_str("network ");
+    out.push_str(&n.name);
+    out.push_str(" {\n");
+    let inner = format!("{indent}{INDENT}");
+    for kv in &n.properties {
+        emit_key_value(out, kv, &inner);
+    }
+    for member in &n.members {
+        out.push_str(&inner);
+        out.push_str("member ");
+        match member {
+            NetworkMember::DeviceLevel { instance, .. } => {
+                out.push_str(instance);
+            }
+            NetworkMember::PortGroup { instance, port_group, .. } => {
+                out.push_str(instance);
+                out.push('.');
+                out.push_str(port_group);
+            }
+            NetworkMember::SlotRef { instance, index, .. } => {
+                out.push_str(instance);
+                out.push_str(".slot[");
+                out.push_str(&index.to_string());
+                out.push(']');
+            }
+        }
+        out.push('\n');
+    }
+    out.push_str(indent);
+    out.push_str("}\n");
+}
+
 pub(crate) fn emit_slot_def(out: &mut String, s: &SlotDef, indent: &str) {
     out.push_str(indent);
     out.push_str("slot ");
