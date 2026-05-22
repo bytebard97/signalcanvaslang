@@ -378,3 +378,148 @@ mod ring_topology {
             "single matching port should resolve without error: {:?}", ring_errors);
     }
 }
+
+#[cfg(test)]
+mod network_topology {
+    use crate::builder::LibraryContext;
+    use crate::drc::{self, DRCLayer, Severity};
+    use crate::parser::parse;
+
+    fn check(source: &str) -> Vec<crate::drc::Diagnostic> {
+        let result = parse(source);
+        drc::run_all(&result.program, &LibraryContext::empty())
+    }
+
+    // ── Parse tests ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn parse_device_level_and_port_group_members() {
+        let result = parse(r#"
+            template Dev { ports { Dante_Pri: io } }
+            instance SL_StageBox is Dev
+            instance SR_StageBox is Dev
+            instance FOH_Console is Dev
+            network Auditorium_Dante {
+                protocol: "Dante"
+                member SL_StageBox
+                member SR_StageBox.Dante_Pri
+            }
+        "#);
+        assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
+        let network_count = result.program.statements.iter()
+            .filter(|s| matches!(s, crate::ast::Statement::Network(_)))
+            .count();
+        assert_eq!(network_count, 1, "expected 1 network statement");
+
+        if let Some(crate::ast::Statement::Network(n)) = result.program.statements.iter()
+            .find(|s| matches!(s, crate::ast::Statement::Network(_)))
+        {
+            assert_eq!(n.name, "Auditorium_Dante");
+            assert_eq!(n.members.len(), 2);
+            assert!(matches!(&n.members[0], crate::ast::NetworkMember::DeviceLevel { instance, .. } if instance == "SL_StageBox"));
+            assert!(matches!(&n.members[1], crate::ast::NetworkMember::PortGroup { instance, port_group, .. } if instance == "SR_StageBox" && port_group == "Dante_Pri"));
+        }
+    }
+
+    #[test]
+    fn parse_slot_reference_member() {
+        let result = parse(r#"
+            template Console { ports { MY_Slot: io } }
+            instance FOH_Console is Console
+            network Studio_AVB {
+                protocol: "AVB"
+                member FOH_Console.slot[1]
+            }
+        "#);
+        assert!(result.errors.is_empty(), "parse errors: {:?}", result.errors);
+
+        if let Some(crate::ast::Statement::Network(n)) = result.program.statements.iter()
+            .find(|s| matches!(s, crate::ast::Statement::Network(_)))
+        {
+            assert_eq!(n.members.len(), 1);
+            assert!(matches!(&n.members[0], crate::ast::NetworkMember::SlotRef { instance, index, .. } if instance == "FOH_Console" && *index == 1));
+        }
+    }
+
+    // ── DRC tests ────────────────────────────────────────────────────────────
+
+    #[test]
+    fn n01_member_references_unknown_instance() {
+        let diags = check(r#"
+            template Dev { ports { Dante_Pri: io } }
+            network Dante_Net {
+                protocol: "Dante"
+                member GhostBox
+            }
+        "#);
+        let network_errors: Vec<_> = diags.iter()
+            .filter(|d| d.layer == DRCLayer::Network && d.severity == Severity::Error)
+            .collect();
+        assert!(network_errors.iter().any(|d| d.message.contains("GhostBox")),
+            "expected N01 error about unknown instance 'GhostBox': {:?}", network_errors);
+    }
+
+    #[test]
+    fn n01_valid_member_no_error() {
+        let diags = check(r#"
+            template Dev { ports { Dante_Pri: io } }
+            instance SL_StageBox is Dev
+            network Dante_Net {
+                protocol: "Dante"
+                member SL_StageBox
+            }
+        "#);
+        let network_errors: Vec<_> = diags.iter()
+            .filter(|d| d.layer == DRCLayer::Network && d.severity == Severity::Error)
+            .collect();
+        assert!(network_errors.is_empty(),
+            "should not produce network error for valid member: {:?}", network_errors);
+    }
+
+    #[test]
+    fn n01_port_group_member_unknown_instance() {
+        let diags = check(r#"
+            network Dante_Net {
+                protocol: "Dante"
+                member GhostBox.Dante_Pri
+            }
+        "#);
+        let network_errors: Vec<_> = diags.iter()
+            .filter(|d| d.layer == DRCLayer::Network && d.severity == Severity::Error)
+            .collect();
+        assert!(network_errors.iter().any(|d| d.message.contains("GhostBox")),
+            "expected N01 error for port-group member with unknown instance: {:?}", network_errors);
+    }
+
+    #[test]
+    fn n01_slot_ref_unknown_instance() {
+        let diags = check(r#"
+            network Dante_Net {
+                protocol: "Dante"
+                member GhostBox.slot[1]
+            }
+        "#);
+        let network_errors: Vec<_> = diags.iter()
+            .filter(|d| d.layer == DRCLayer::Network && d.severity == Severity::Error)
+            .collect();
+        assert!(network_errors.iter().any(|d| d.message.contains("GhostBox")),
+            "expected N01 error for slot-ref member with unknown instance: {:?}", network_errors);
+    }
+
+    // ── Formatter roundtrip test ─────────────────────────────────────────────
+
+    #[test]
+    fn formatter_roundtrip() {
+        let source = r#"template Dev{ports{Dante_Pri:io}}instance SL is Dev
+instance SR is Dev
+network Studio{protocol:"Dante" member SL member SR.Dante_Pri}"#;
+        let formatted = crate::formatter::format_source(source).expect("format must succeed");
+        assert!(formatted.contains("network Studio {"), "got:\n{formatted}");
+        assert!(formatted.contains("  protocol: \"Dante\""), "got:\n{formatted}");
+        assert!(formatted.contains("  member SL"), "got:\n{formatted}");
+        assert!(formatted.contains("  member SR.Dante_Pri"), "got:\n{formatted}");
+        // Verify roundtrip: re-format the already-formatted output
+        let reformatted = crate::formatter::format_source(&formatted).expect("re-format must succeed");
+        assert_eq!(formatted, reformatted, "formatter output is not stable");
+    }
+}

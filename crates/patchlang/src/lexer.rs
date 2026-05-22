@@ -57,6 +57,8 @@ pub enum Token {
     Label,
     #[token("ring")]
     Ring,
+    #[token("network")]
+    Network,
     #[token("member")]
     Member,
 

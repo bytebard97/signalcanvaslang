@@ -69,6 +69,7 @@ fn set_file_index(stmt: &mut Statement, file_index: u16) {
         Statement::Config(c) => c.span.file = Some(file_index),
         Statement::Use(u) => u.span.file = Some(file_index),
         Statement::Ring(r) => r.span.file = Some(file_index),
+        Statement::Network(n) => n.span.file = Some(file_index),
         Statement::Error(span) => span.file = Some(file_index),
     }
 }

@@ -26,6 +26,7 @@ const RECOVERY_TOKENS: &[Token] = &[
     Token::Config,
     Token::Use,
     Token::Ring,
+    Token::Network,
 ];
 
 pub(crate) struct Parser<'a> {
@@ -158,7 +159,7 @@ impl<'a> Parser<'a> {
                     self.errors.push(ParseError {
                         message: "unexpected token, expected a statement".to_string(),
                         span: span.clone(),
-                        hint: Some("statements start with: template, instance, connect, bridge, signal, flag, stream, config, use, ring".to_string()),
+                        hint: Some("statements start with: template, instance, connect, bridge, signal, flag, stream, config, use, ring, network".to_string()),
                     });
                     statements.push(Statement::Error(span));
                 }
@@ -181,6 +182,7 @@ impl<'a> Parser<'a> {
             Token::Config => Some(Statement::Config(self.parse_config())),
             Token::Use => Some(Statement::Use(self.parse_use())),
             Token::Ring => Some(Statement::Ring(self.parse_ring())),
+            Token::Network => Some(Statement::Network(self.parse_network())),
             _ => None,
         }
     }
@@ -469,6 +471,85 @@ impl<'a> Parser<'a> {
             instance_name,
             port_name,
             span: self.span_from(start),
+        }
+    }
+
+    // ── Network ─────────────────────────────────────────────
+
+    /// Parse `network Name { protocol: "Dante"  member Inst  member Inst.PortGroup  member Inst.slot[N] }`
+    fn parse_network(&mut self) -> NetworkDecl {
+        let start = self.current_span().start;
+        self.advance(); // consume 'network'
+        let name = self.expect_identifier().unwrap_or_default();
+
+        let mut properties = Vec::new();
+        let mut members = Vec::new();
+
+        if self.expect(&Token::LBrace) {
+            while !self.at_end() && self.peek() != Some(&Token::RBrace) {
+                if self.peek() == Some(&Token::Member) {
+                    members.push(self.parse_network_member());
+                } else if self.is_property_key() {
+                    properties.push(self.parse_key_value_full());
+                } else {
+                    self.advance(); // skip unknown token, avoid infinite loop
+                }
+            }
+            self.expect(&Token::RBrace);
+        }
+
+        NetworkDecl {
+            name,
+            properties,
+            members,
+            span: self.span_from(start),
+        }
+    }
+
+    /// Parse `member Inst`, `member Inst.PortGroup`, or `member Inst.slot[N]`
+    fn parse_network_member(&mut self) -> NetworkMember {
+        let start = self.current_span().start;
+        self.advance(); // consume 'member'
+        let instance = self.expect_identifier().unwrap_or_default();
+
+        if self.peek() == Some(&Token::Dot) {
+            self.advance(); // consume '.'
+
+            if self.peek() == Some(&Token::Slot) {
+                self.advance(); // consume 'slot'
+                self.expect(&Token::LBracket);
+                let index = if let Some(&Token::Number(n)) = self.peek() {
+                    let n = n;
+                    self.advance();
+                    n
+                } else {
+                    let span = self.current_span();
+                    self.errors.push(ParseError {
+                        message: "expected slot index number".to_string(),
+                        span,
+                        hint: Some("Use: member Instance.slot[1]".to_string()),
+                    });
+                    0
+                };
+                self.expect(&Token::RBracket);
+                NetworkMember::SlotRef {
+                    instance,
+                    index,
+                    span: self.span_from(start),
+                }
+            } else {
+                let port_group = self.expect_identifier().unwrap_or_default();
+                NetworkMember::PortGroup {
+                    instance,
+                    port_group,
+                    span: self.span_from(start),
+                }
+            }
+        } else {
+            NetworkMember::DeviceLevel {
+                instance,
+                span: self.span_from(start),
+            }
         }
     }
 

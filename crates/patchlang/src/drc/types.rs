@@ -15,6 +15,7 @@ pub enum DRCLayer {
     Logical,
     Temporal,
     Ring,
+    Network,
     Flow,
     Convention,
 }

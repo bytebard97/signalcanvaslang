@@ -172,6 +172,7 @@ impl PatchProgramBuilder {
                 Statement::Flag(_) => flags.push(stmt.clone()),
                 Statement::Config(_) => configs.push(stmt.clone()),
                 Statement::Ring(_) => rings.push(stmt.clone()),
+                Statement::Network(_) => {} // network blocks are declarative-only; no ordering needed
                 Statement::Error(_) => {} // drop error nodes
             }
         }

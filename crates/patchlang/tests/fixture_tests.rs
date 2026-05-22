@@ -36,6 +36,7 @@ struct StatementCounts {
     configs: usize,
     uses: usize,
     rings: usize,
+    networks: usize,
     errors: usize,
 }
 
@@ -53,6 +54,7 @@ fn count_statements(statements: &[Statement]) -> StatementCounts {
         configs: 0,
         uses: 0,
         rings: 0,
+        networks: 0,
         errors: 0,
     };
     for stmt in statements {
@@ -69,6 +71,7 @@ fn count_statements(statements: &[Statement]) -> StatementCounts {
             Statement::Config(_) => counts.configs += 1,
             Statement::Use(_) => counts.uses += 1,
             Statement::Ring(_) => counts.rings += 1,
+            Statement::Network(_) => counts.networks += 1,
             Statement::Error(_) => counts.errors += 1,
         }
     }

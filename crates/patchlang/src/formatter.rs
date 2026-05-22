@@ -47,6 +47,7 @@ fn emit_statement(out: &mut String, stmt: &Statement, indent: &str) {
         Statement::Config(c) => formatter_emit::emit_config(out, c, indent),
         Statement::Use(u) => formatter_emit::emit_use(out, u, indent),
         Statement::Ring(r) => formatter_emit::emit_ring(out, r, indent),
+        Statement::Network(n) => formatter_emit::emit_network(out, n, indent),
         Statement::Error(_) => {} // skip error recovery nodes
     }
 }

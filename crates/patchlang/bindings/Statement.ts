@@ -6,6 +6,7 @@ import type { ConnectDecl } from "./ConnectDecl";
 import type { FlagDecl } from "./FlagDecl";
 import type { InstanceDecl } from "./InstanceDecl";
 import type { LinkGroupDecl } from "./LinkGroupDecl";
+import type { NetworkDecl } from "./NetworkDecl";
 import type { RingDecl } from "./RingDecl";
 import type { SignalDecl } from "./SignalDecl";
 import type { Span } from "./Span";
@@ -16,4 +17,4 @@ import type { UseDecl } from "./UseDecl";
 /**
  * A top-level statement.
  */
-export type Statement = { "type": "Template" } & TemplateDecl | { "type": "Instance" } & InstanceDecl | { "type": "Connect" } & ConnectDecl | { "type": "Bridge" } & BridgeDecl | { "type": "BridgeGroup" } & BridgeGroupDecl | { "type": "LinkGroup" } & LinkGroupDecl | { "type": "Signal" } & SignalDecl | { "type": "Flag" } & FlagDecl | { "type": "Stream" } & StreamDecl | { "type": "Config" } & ConfigDecl | { "type": "Use" } & UseDecl | { "type": "Ring" } & RingDecl | { "type": "Error" } & Span;
+export type Statement = { "type": "Template" } & TemplateDecl | { "type": "Instance" } & InstanceDecl | { "type": "Connect" } & ConnectDecl | { "type": "Bridge" } & BridgeDecl | { "type": "BridgeGroup" } & BridgeGroupDecl | { "type": "LinkGroup" } & LinkGroupDecl | { "type": "Signal" } & SignalDecl | { "type": "Flag" } & FlagDecl | { "type": "Stream" } & StreamDecl | { "type": "Config" } & ConfigDecl | { "type": "Use" } & UseDecl | { "type": "Ring" } & RingDecl | { "type": "Network" } & NetworkDecl | { "type": "Error" } & Span;

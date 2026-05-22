@@ -7,6 +7,7 @@ pub mod helpers;
 pub mod logical;
 pub mod mechanical;
 pub mod meta;
+pub mod network;
 pub mod ring;
 pub mod slots;
 pub mod structural;
@@ -39,6 +40,7 @@ pub fn run_all(program: &PatchProgram, library: &LibraryContext) -> Vec<Diagnost
     diags.extend(logical::check(program, &ctx));
     diags.extend(temporal::check(program, &ctx));
     diags.extend(ring::check(program, &ctx));
+    diags.extend(network::check(program, &ctx));
     diags.extend(flow::check(program, &ctx));
     diags.extend(convention::check(program, &ctx));
     diags
