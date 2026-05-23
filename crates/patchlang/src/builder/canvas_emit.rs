@@ -538,17 +538,21 @@ fn build_instance_routes(
     routes
         .iter()
         .filter_map(|r| {
-            let src_iface = find_interface(&r.from_interface, ifaces, installed_cards, manufacturer_cards);
-            let tgt_iface = find_interface(&r.to_interface, ifaces, installed_cards, manufacturer_cards);
-            // Drop routes whose endpoints can't be resolved — unresolvable interfaces
-            // indicate RF sentinel ports (__rf_receive__, __rf_transmit__) or stale
-            // interface IDs that no longer exist in the template. Emitting them would
-            // produce unresolvable port references that always fail DRC.
-            if src_iface.is_none() || tgt_iface.is_none() {
+            // Drop RF sentinel ports (__rf_receive__, __rf_transmit__) — these are virtual
+            // ports used by old frontend versions to represent wireless signal paths. They
+            // have no physical port in the template. Design decision: RF routing is out of
+            // scope; the emitter drops these rather than emitting unresolvable route refs.
+            if is_rf_sentinel(&r.from_interface) || is_rf_sentinel(&r.to_interface) {
                 return None;
             }
-            let src_port = directional_port_name(src_iface.unwrap(), PortSide::Input);
-            let tgt_port = directional_port_name(tgt_iface.unwrap(), PortSide::Output);
+            let src_iface = find_interface(&r.from_interface, ifaces, installed_cards, manufacturer_cards);
+            let tgt_iface = find_interface(&r.to_interface, ifaces, installed_cards, manufacturer_cards);
+            let src_port = src_iface
+                .map(|i| directional_port_name(i, PortSide::Input))
+                .unwrap_or_else(|| sanitize_id(&r.from_interface));
+            let tgt_port = tgt_iface
+                .map(|i| directional_port_name(i, PortSide::Output))
+                .unwrap_or_else(|| sanitize_id(&r.to_interface));
             Some(RouteEntry {
                 source: PortRef {
                     instance: None,
@@ -568,6 +572,13 @@ fn build_instance_routes(
             })
         })
         .collect()
+}
+
+/// Returns true if the interface_id is an RF sentinel port (__rf_receive__, __rf_transmit__).
+/// These are virtual ports emitted by older frontend versions to represent wireless paths.
+/// They have no physical port in any template and must be dropped on emit.
+fn is_rf_sentinel(interface_id: &str) -> bool {
+    interface_id.starts_with("__") && interface_id.ends_with("__")
 }
 
 fn build_instance_buses(
