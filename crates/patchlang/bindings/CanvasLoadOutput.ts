@@ -2,6 +2,7 @@
 import type { CardTemplateOutput } from "./CardTemplateOutput";
 import type { ConnectionLoadOutput } from "./ConnectionLoadOutput";
 import type { InstanceLoadOutput } from "./InstanceLoadOutput";
+import type { NetworkLoadOutput } from "./NetworkLoadOutput";
 import type { RingLoadOutput } from "./RingLoadOutput";
 
-export type CanvasLoadOutput = { instances: Array<InstanceLoadOutput>, connections: Array<ConnectionLoadOutput>, card_templates: Array<CardTemplateOutput>, rings: Array<RingLoadOutput>, };
+export type CanvasLoadOutput = { instances: Array<InstanceLoadOutput>, connections: Array<ConnectionLoadOutput>, card_templates: Array<CardTemplateOutput>, rings: Array<RingLoadOutput>, networks: Array<NetworkLoadOutput>, };

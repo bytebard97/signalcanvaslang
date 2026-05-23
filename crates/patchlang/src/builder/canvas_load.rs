@@ -8,7 +8,7 @@
 use std::collections::HashMap;
 
 use crate::ast::{
-    IndexElement, KvValue, PortDirection, Statement,
+    IndexElement, KvValue, NetworkMember, PortDirection, Statement,
 };
 use crate::builder::canvas_output::*;
 use crate::builder::error::BuilderError;
@@ -33,6 +33,7 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
     let mut card_template_order: Vec<String> = Vec::new();
     let mut card_templates_map: HashMap<String, crate::ast::TemplateDecl> = HashMap::new();
     let mut rings_out: Vec<RingLoadOutput> = Vec::new();
+    let mut networks_out: Vec<NetworkLoadOutput> = Vec::new();
     let mut connections_raw: Vec<crate::ast::ConnectDecl> = Vec::new();
     let mut configs: Vec<crate::ast::ConfigDecl> = Vec::new();
     let mut streams_raw: Vec<crate::ast::StreamDecl> = Vec::new();
@@ -69,6 +70,37 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
                     members: r.members.iter().map(|m| RingMemberOutput {
                         instance_name: m.instance_name.clone(),
                         port_name: m.port_name.clone(),
+                    }).collect(),
+                });
+            }
+            Statement::Network(n) => {
+                networks_out.push(NetworkLoadOutput {
+                    name: n.name.clone(),
+                    protocol: n.properties.iter().find(|kv| kv.key == "protocol").and_then(|kv| {
+                        if let KvValue::Str { value } = &kv.value { Some(value.clone()) } else { None }
+                    }),
+                    label: n.properties.iter().find(|kv| kv.key == "label").and_then(|kv| {
+                        if let KvValue::Str { value } = &kv.value { Some(value.clone()) } else { None }
+                    }),
+                    members: n.members.iter().map(|m| match m {
+                        NetworkMember::DeviceLevel { instance, .. } => NetworkMemberLoadOutput {
+                            member_type: "device_level".to_string(),
+                            instance_name: instance.clone(),
+                            port_group: None,
+                            slot_index: None,
+                        },
+                        NetworkMember::PortGroup { instance, port_group, .. } => NetworkMemberLoadOutput {
+                            member_type: "port_group".to_string(),
+                            instance_name: instance.clone(),
+                            port_group: Some(port_group.clone()),
+                            slot_index: None,
+                        },
+                        NetworkMember::SlotRef { instance, index, .. } => NetworkMemberLoadOutput {
+                            member_type: "slot_ref".to_string(),
+                            instance_name: instance.clone(),
+                            port_group: None,
+                            slot_index: Some(*index),
+                        },
                     }).collect(),
                 });
             }
@@ -367,6 +399,7 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
         connections,
         card_templates,
         rings: rings_out,
+        networks: networks_out,
     })
 }
 
