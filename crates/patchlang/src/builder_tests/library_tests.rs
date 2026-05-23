@@ -556,11 +556,14 @@ fn bench_compile_program_to_graph_hillsong() {
         patch_files.len(),
     );
 
-    // Threshold is generous to pass in debug builds; release builds are ~5x faster.
-    assert!(
-        avg_ms < 50.0,
-        "average compile_program_to_graph time should be < 50ms, got {avg_ms:.3}ms"
-    );
+    // Skip timing assertion on CI — GitHub Actions runners are slower and variable.
+    // The assertion is a local regression guard; correctness is covered by other tests.
+    if std::env::var("CI").is_err() {
+        assert!(
+            avg_ms < 50.0,
+            "average compile_program_to_graph time should be < 50ms, got {avg_ms:.3}ms"
+        );
+    }
 }
 
 /// Recursively collect all `.patch` files under a directory.
