@@ -505,3 +505,39 @@ fn full_idempotency_deterministic() {
         assert_eq!(first_patch, second_patch, "idempotency failed for n={n}");
     }
 }
+
+#[test]
+fn load_from_patch_exposes_network_declarations() {
+    let patch = r#"
+template Box {
+  meta { manufacturer: "Yamaha", model: "Rio3224", category: "Stagebox" }
+  ports {
+    Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]
+    Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
+    Mic_In[1..32]: in(XLR)
+  }
+}
+
+instance SL is Box
+instance SR is Box
+
+network Auditorium_Dante {
+  protocol: "Dante"
+  label: "Main fabric"
+  member SL.Dante_Pri
+  member SR
+}
+"#;
+    let output = load_from_patch(patch, "{}").expect("load should succeed");
+    assert_eq!(output.networks.len(), 1, "expected 1 network in output");
+    let net = &output.networks[0];
+    assert_eq!(net.name, "Auditorium_Dante");
+    assert_eq!(net.protocol.as_deref(), Some("Dante"));
+    assert_eq!(net.label.as_deref(), Some("Main fabric"));
+    assert_eq!(net.members.len(), 2);
+    assert_eq!(net.members[0].instance_name, "SL");
+    assert_eq!(net.members[0].member_type, "port_group");
+    assert_eq!(net.members[0].port_group.as_deref(), Some("Dante_Pri"));
+    assert_eq!(net.members[1].instance_name, "SR");
+    assert_eq!(net.members[1].member_type, "device_level");
+}
