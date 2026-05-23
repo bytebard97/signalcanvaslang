@@ -756,6 +756,9 @@ fn emit_streams_for(
             manufacturer_cards,
         );
         let Some(iface) = iface else {
+            // Interface not resolved — skip this stream rather than emitting a broken decl.
+            // Legitimate when the frontend sends a compound card-slot ID that pre-dates
+            // the rfind("__") fix; should not occur after the fix ships.
             continue;
         };
         let side = if direction == "rx" { PortSide::Input } else { PortSide::Output };
@@ -794,6 +797,11 @@ fn emit_streams_for(
 
 /// Search chassis interfaces first, then fall back to installed card interfaces.
 /// Used by emit_streams_for and build_instance_routes.
+///
+/// Card-slot compound IDs are formed by the frontend as `{slotId}__{cardIfaceId}`
+/// (e.g. `slot::Client::0__1__pl::AES67_108_G2::AES67_Out`). Card interface IDs
+/// never contain `__` (they use `::` only), so stripping everything up to and
+/// including the last `__` recovers the card-relative ID for lookup.
 fn find_interface<'a>(
     interface_id: &str,
     chassis_ifaces: &'a [InterfaceEmitInput],
@@ -804,11 +812,18 @@ fn find_interface<'a>(
         .iter()
         .find(|i| i.id == interface_id)
         .or_else(|| {
+            // Strip slot prefix from compound card-slot IDs (`{slotId}__{cardIfaceId}`).
+            // Chassis IDs never contain `__`, so this is safe and unambiguous.
+            let card_iface_id = interface_id
+                .rfind("__")
+                .map(|pos| &interface_id[pos + 2..])
+                .unwrap_or(interface_id);
+
             installed_cards.iter().find_map(|installed| {
                 manufacturer_cards
                     .iter()
                     .find(|c| c.template_name == installed.card_template_name)
-                    .and_then(|c| c.interfaces.iter().find(|i| i.id == interface_id))
+                    .and_then(|c| c.interfaces.iter().find(|i| i.id == card_iface_id))
             })
         })
 }

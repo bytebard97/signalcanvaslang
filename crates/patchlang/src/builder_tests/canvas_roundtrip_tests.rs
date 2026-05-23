@@ -943,3 +943,65 @@ fn emit_bus_named_output_with_destination_includes_port_ref() {
         "routed output must include port ref:\n{patch}"
     );
 }
+
+/// Card-slot AES67 streams use compound interface IDs (`{slotId}__{cardIfaceId}`)
+/// that must survive the emit→parse roundtrip. Before the fix, `find_interface`
+/// did an exact match against card-relative IDs and silently dropped card-slot streams.
+#[test]
+fn emit_card_slot_stream_survives_roundtrip() {
+    // Card template that contributes an AES67 interface.
+    let card = CardEmitInput {
+        template_name: "AES67_108_G2".into(),
+        manufacturer: Some("Riedel".into()),
+        model: "AES67-108 G2".into(),
+        fits: "Artist_64".into(),
+        interfaces: vec![make_interface(
+            "pl::AES67_108_G2::AES67_Out",
+            "AES67 Out",
+            "out",
+            Some("AES67"),
+            8,
+            vec![],
+        )],
+    };
+
+    // Device chassis has no AES67 interface of its own.
+    let mut inst = make_simple_instance(
+        "Artist_64",
+        "Artist 64",
+        "Riedel",
+        vec![make_interface("pl::Artist_64::MADI_Out", "MADI Out", "out", Some("MADI"), 64, vec![])],
+    );
+    inst.installed_cards = vec![InstalledCardEmitInput {
+        slot_label: "Client".into(),
+        slot_index: 1,
+        card_template_name: "AES67_108_G2".into(),
+    }];
+    // Compound ID: `{slotGroupId}__{slotIndex}__{cardIfaceId}`.
+    // The slotGroupId is `slot::Client::0`, so the full slot ID is `slot::Client::0__1`.
+    inst.tx_streams = vec![StreamEmitInput {
+        label: "Artist_64_to_QSYS".into(),
+        protocol: "AES67".into(),
+        channel_count: 8,
+        interface_id: "slot::Client::0__1__pl::AES67_108_G2::AES67_Out".into(),
+    }];
+
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![card],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        patch.contains("stream Artist_64_to_QSYS"),
+        "card-slot AES67 stream must be emitted; got:\n{patch}"
+    );
+    assert!(
+        patch.contains("protocol: \"AES67\""),
+        "emitted stream must declare protocol:\n{patch}"
+    );
+    assert!(
+        patch.contains("channels: \"8\""),
+        "emitted stream must declare channel count:\n{patch}"
+    );
+}
