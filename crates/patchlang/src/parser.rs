@@ -519,7 +519,6 @@ impl<'a> Parser<'a> {
                 self.advance(); // consume 'slot'
                 self.expect(&Token::LBracket);
                 let index = if let Some(&Token::Number(n)) = self.peek() {
-                    let n = n;
                     self.advance();
                     n
                 } else {
