@@ -611,13 +611,16 @@ fn test_fixture_hillsong_mtg_multi_file() {
             }
         }
     }
-    // The hillsong-mtg fixture has port name mismatches in some connects
-    // (e.g., "MADI" instead of "MADI_Out"). These are fixture data issues,
-    // not compiler bugs. The TS reference implementation has the same broken refs.
-    // We verify the compiler produces a reasonable graph and track improvement.
     eprintln!(
         "hillsong-mtg: {broken_refs}/{total_edges} broken edge→port refs ({:.1}%)",
         if total_edges > 0 { (broken_refs as f64 / total_edges as f64) * 100.0 } else { 0.0 }
+    );
+    // As of v0.2.13, all 1731 edge→port references resolve correctly.
+    // If this fails, a compiler regression has broken port name resolution — check
+    // card port flattening in build_effective_port_map() and directional naming.
+    assert_eq!(
+        broken_refs, 0,
+        "hillsong-mtg should have 0 broken edge→port refs; got {broken_refs}/{total_edges}"
     );
     assert!(
         total_edges > 500,
