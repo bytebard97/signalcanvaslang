@@ -12,6 +12,7 @@ pub struct CanvasLoadOutput {
     pub connections: Vec<ConnectionLoadOutput>,
     pub card_templates: Vec<CardTemplateOutput>,
     pub rings: Vec<RingLoadOutput>,
+    pub networks: Vec<NetworkLoadOutput>,
 }
 
 #[derive(Debug, Serialize, TS)]
@@ -171,4 +172,22 @@ pub struct RingLoadOutput {
 pub struct RingMemberOutput {
     pub instance_name: String,
     pub port_name: Option<String>,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[ts(export)]
+pub struct NetworkLoadOutput {
+    pub name: String,
+    pub protocol: Option<String>,
+    pub label: Option<String>,
+    pub members: Vec<NetworkMemberLoadOutput>,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[ts(export)]
+pub struct NetworkMemberLoadOutput {
+    pub member_type: String,
+    pub instance_name: String,
+    pub port_group: Option<String>,
+    pub slot_index: Option<u32>,
 }
