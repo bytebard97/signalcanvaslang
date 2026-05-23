@@ -1,5 +1,14 @@
 ## Revision History
 
+### v0.2.12 — 2026-05-22 (network construct)
+
+- **`network` top-level construct added.** Declares L2 switched-fabric domain membership for Dante, SoundGrid, AVB, Milan, and AES67 protocols. Parallel to `ring` but unordered — any member can reach any other member.
+- **Three member forms:** device-level (`member Device`), port-group (`member Device.Dante_Pri`), slot reference (`member Device.MY_Slot[1]`).
+- **DRC rule N01:** validates that referenced instances exist. No port-group validation in v1 — declarative only.
+- **Formatter roundtrip:** all three member forms serialize canonically.
+- **TypeScript bindings:** `NetworkDecl.ts` + `NetworkMember.ts` exported via ts-rs.
+- **Resolves:** issue #163 (network construct for Cluster Provider B).
+
 ### v0.2.8 — 2026-04-06 (builder API)
 
 - **PatchProgram Builder API implemented.** Rust-native AST builder replaces the frontend's TypeScript emitter for programmatic program construction. Mutations are eagerly validated (structural + direction checks at build time). Full spec: `docs/specs/ast-builder-api.md`.

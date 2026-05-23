@@ -549,6 +549,45 @@ ring OptoCore_Ring {
 }
 ```
 
+### Network Declaration
+
+Declares L2 switched-fabric domain membership for channel-based protocols. Unlike `ring`, members are unordered — any member can reach any other member.
+
+```ebnf
+network-decl  = "network" identifier "{" { network-entry } "}" ;
+network-entry = "member" port-group-ref | key-value-pair ;
+port-group-ref = identifier                               # device-level
+               | identifier "." identifier               # port-group (e.g. Dante_Pri)
+               | identifier "." "slot" "[" index "]" ;   # card in slot
+```
+
+**Key-value pairs:** `protocol` (required — `"Dante"`, `"SoundGrid"`, `"AVB"`, `"Milan"`, `"AES67"`), `label`, `vlan`.
+
+**Semantics:**
+- Port-group level: `FOH.Dante_Pri` covers both `Dante_Pri_In` and `Dante_Pri_Out`
+- Slot reference: `FOH.MY_Slot[1]` — all ports on the card in slot 1 (clean multi-homed expression)
+- No compiler validation in v1 — cross-network connects are valid PatchLang; the UI layer uses membership data to warn
+
+```
+network Auditorium_Dante {
+  protocol: "Dante"
+  member SL_StageBox.Dante_Pri
+  member SR_StageBox.Dante_Pri
+  member FOH_Console.MY_Slot[1]
+}
+
+network Secondary_Hall_Dante {
+  protocol: "Dante"
+  label: "Secondary hall — separate fabric"
+  member Hall_Stagebox.Dante_Pri
+  member FOH_Console.MY_Slot[2]
+}
+```
+
+**vs `ring`:** Use `ring` for physical bus topology where member order matters (OptoCore, TWINLANe, GigaACE). Use `network` for switched fabrics where membership matters but order does not (Dante, SoundGrid, AVB). AVB devices may declare both — `ring` for the physical topology, `network` for the L2 domain.
+
+**DRC rules:** N01 (unknown instance reference).
+
 ### Slot Definition (inside templates)
 
 ```ebnf
