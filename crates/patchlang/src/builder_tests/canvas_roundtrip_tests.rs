@@ -1005,3 +1005,42 @@ fn emit_card_slot_stream_survives_roundtrip() {
         "emitted stream must declare channel count:\n{patch}"
     );
 }
+
+#[test]
+fn unresolvable_instance_routes_are_dropped() {
+    // RF sentinel ports (__rf_receive__, __rf_transmit__) have no corresponding
+    // interface in the template. The emitter must drop them silently instead of
+    // emitting broken route declarations that always fail DRC.
+    let iface = make_interface("pl::AD4Q::XLR_Out", "XLR Out", "out", None, 4, vec!["Analogue"]);
+    let mut inst = make_simple_instance("Vox_1", "AD4Q", "Shure", vec![iface]);
+    inst.instance_routes = vec![
+        // RF sentinel → real port: unresolvable, must be dropped
+        RouteRuleEmitInput {
+            from_interface: "__rf_receive__".into(),
+            from_channel: 1,
+            to_interface: "pl::AD4Q::XLR_Out".into(),
+            to_channel: 1,
+        },
+        // Both unresolvable: must be dropped
+        RouteRuleEmitInput {
+            from_interface: "pl::PSM1000::Input".into(),
+            from_channel: 1,
+            to_interface: "__rf_transmit__".into(),
+            to_channel: 1,
+        },
+    ];
+    let input = CanvasEmitInput {
+        instances: vec![inst],
+        connections: vec![],
+        manufacturer_cards: vec![],
+    };
+    let patch = emit_from_canvas_input(input).unwrap();
+    assert!(
+        !patch.contains("route"),
+        "unresolvable RF sentinel routes must not be emitted; got:\n{patch}"
+    );
+    assert!(
+        !patch.contains("__rf_receive__") && !patch.contains("__rf_transmit__"),
+        "RF sentinel port names must not appear in emitted patch:\n{patch}"
+    );
+}

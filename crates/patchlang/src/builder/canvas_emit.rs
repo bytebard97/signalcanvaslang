@@ -537,16 +537,19 @@ fn build_instance_routes(
 ) -> Vec<RouteEntry> {
     routes
         .iter()
-        .map(|r| {
+        .filter_map(|r| {
             let src_iface = find_interface(&r.from_interface, ifaces, installed_cards, manufacturer_cards);
             let tgt_iface = find_interface(&r.to_interface, ifaces, installed_cards, manufacturer_cards);
-            let src_port = src_iface
-                .map(|i| directional_port_name(i, PortSide::Input))
-                .unwrap_or_else(|| sanitize_id(&r.from_interface));
-            let tgt_port = tgt_iface
-                .map(|i| directional_port_name(i, PortSide::Output))
-                .unwrap_or_else(|| sanitize_id(&r.to_interface));
-            RouteEntry {
+            // Drop routes whose endpoints can't be resolved — unresolvable interfaces
+            // indicate RF sentinel ports (__rf_receive__, __rf_transmit__) or stale
+            // interface IDs that no longer exist in the template. Emitting them would
+            // produce unresolvable port references that always fail DRC.
+            if src_iface.is_none() || tgt_iface.is_none() {
+                return None;
+            }
+            let src_port = directional_port_name(src_iface.unwrap(), PortSide::Input);
+            let tgt_port = directional_port_name(tgt_iface.unwrap(), PortSide::Output);
+            Some(RouteEntry {
                 source: PortRef {
                     instance: None,
                     port: src_port,
@@ -562,7 +565,7 @@ fn build_instance_routes(
                     }),
                 },
                 span: builder_span(),
-            }
+            })
         })
         .collect()
 }
