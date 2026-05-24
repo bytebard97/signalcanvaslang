@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  # ── Python wheels ──────────────────────────────────────────────────────────
+  python-wheels:
+    name: Python wheel (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64
+          - os: macos-latest
+            target: aarch64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: >-
+            --release
+            --manifest-path crates/patchlang-python/Cargo.toml
+            --out dist
+          manylinux: auto
+          target: ${{ matrix.target }}
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: dist/
+
+  # ── WASM packages ─────────────────────────────────────────────────────────
+  wasm:
+    name: WASM packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + wasm32 target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-wasm-
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM (web, nodejs, bundler)
+        run: |
+          wasm-pack build crates/patchlang-wasm --target web     --out-dir ../../pkg-web     --release
+          wasm-pack build crates/patchlang-wasm --target nodejs  --out-dir ../../pkg-node    --release
+          wasm-pack build crates/patchlang-wasm --target bundler --out-dir ../../pkg-bundler --release
+
+      - name: Package WASM artifacts
+        run: |
+          tar -czf patchlang-pkg-${{ github.ref_name }}.tar.gz pkg-web/ pkg-node/ pkg-bundler/
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm
+          path: |
+            patchlang-pkg-*.tar.gz
+            pkg-web/patchlang_wasm_bg.wasm
+
+  # ── GitHub Release ────────────────────────────────────────────────────────
+  release:
+    name: Publish release
+    needs: [python-wheels, wasm]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist/
+
+      - name: List artifacts
+        run: find dist/ -type f | sort
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**
+          generate_release_notes: true
