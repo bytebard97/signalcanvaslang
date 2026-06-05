@@ -691,6 +691,18 @@ bus Link_1 {
 This is the same identifier-vs-display-name separation used by `config` port labels.
 The JSON output omits `label` when it is not set (backward-compatible).
 
+Both inputs and outputs accept the fully-qualified `Instance.Port` form when the signal crosses to a different device — for example, an Avantis bus routing through a GX4816 expansion unit:
+
+```
+bus Drums {
+  input: AES_In[1]
+  output "Drums-L": GX4816.DX_2_Out[1]
+  output "Drums-R": GX4816.DX_2_Out[2]
+}
+```
+
+Cross-device refs are passed through without S05 validation — the port belongs to the target device's template, not the owning instance's.
+
 ---
 
 ## Common Productions
