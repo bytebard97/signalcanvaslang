@@ -367,6 +367,76 @@ instance Mixer is CL5 {
     );
 }
 
+// ── Test 13d: S05 must NOT fire on cross-device bus destinations ──────────────
+//
+// A bus output (or input) that references a port on a different device uses the
+// qualified `Instance.Port[n]` form. The DRC must skip S05 for these — it
+// cannot validate the port against the owning instance's template because the
+// port belongs to the other device.
+//
+// This test is RED today: S05 fires on `GX4816.DX_2_Out[1]` because the check
+// passes only `dest.port` to resolve_effective_port, ignoring `dest.instance`.
+
+#[test]
+fn drc_s05_skips_cross_device_bus_output() {
+    let source = r#"
+template GX4816 {
+  ports { DX_2_Out[1..4]: out }
+}
+template Avantis {
+  ports { AES_In[1..16]: in }
+}
+instance GX4816 is GX4816 {}
+instance Avantis is Avantis {
+  bus Drums {
+    input: AES_In[1]
+    output "Drums-L": GX4816.DX_2_Out[1]
+  }
+}
+"#;
+    let diags = get_diagnostics(source);
+    let s05_errors: Vec<_> = diags
+        .iter()
+        .filter(|d| {
+            d["message"].as_str().unwrap_or("").contains("Bus output")
+        })
+        .collect();
+    assert!(
+        s05_errors.is_empty(),
+        "S05 must not fire on cross-device bus output 'GX4816.DX_2_Out[1]', got: {s05_errors:#?}"
+    );
+}
+
+#[test]
+fn drc_s05_skips_cross_device_bus_input() {
+    let source = r#"
+template GX4816 {
+  ports { DX_2_In[1..4]: in }
+}
+template Avantis {
+  ports { AES_Out[1..16]: out }
+}
+instance GX4816 is GX4816 {}
+instance Avantis is Avantis {
+  bus Monitor {
+    input: GX4816.DX_2_In[1]
+    output "Mon-L": AES_Out[1]
+  }
+}
+"#;
+    let diags = get_diagnostics(source);
+    let s05_input_errors: Vec<_> = diags
+        .iter()
+        .filter(|d| {
+            d["message"].as_str().unwrap_or("").contains("Bus input")
+        })
+        .collect();
+    assert!(
+        s05_input_errors.is_empty(),
+        "S05 must not fire on cross-device bus input 'GX4816.DX_2_In[1]', got: {s05_input_errors:#?}"
+    );
+}
+
 // ── Test 13: Diagnostics JSON shape — all required fields present ─────────────
 
 #[test]

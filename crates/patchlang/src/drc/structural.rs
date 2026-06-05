@@ -379,6 +379,9 @@ fn check_bus_port_refs(
             for bus in &inst.buses {
                 for output in &bus.outputs {
                     for dest in &output.destinations {
+                        if dest.instance.is_some() {
+                            continue; // cross-device ref — validated by target instance
+                        }
                         match resolve_effective_port(&inst.name, &dest.port, ctx) {
                             None => emit_missing_port_diagnostic(
                                 &dest.port,
@@ -418,6 +421,9 @@ fn check_bus_port_refs(
                 }
 
                 for input in &bus.inputs {
+                    if input.instance.is_some() {
+                        continue; // cross-device ref — validated by target instance
+                    }
                     match resolve_effective_port(&inst.name, &input.port, ctx) {
                         None => emit_missing_port_diagnostic(
                             &input.port,
