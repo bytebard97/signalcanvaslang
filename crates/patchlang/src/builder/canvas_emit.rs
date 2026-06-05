@@ -632,7 +632,7 @@ fn build_instance_buses(
                             .channels
                             .iter()
                             .map(|ch| PortRef {
-                                instance: None,
+                                instance: out.instance.clone(),
                                 port: sanitize_id(&out.interface),
                                 index: Some(IndexSpec {
                                     elements: vec![IndexElement::Single { value: *ch }],

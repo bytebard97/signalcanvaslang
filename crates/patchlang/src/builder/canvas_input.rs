@@ -125,6 +125,8 @@ pub struct BusEmitInput {
 #[ts(export)]
 pub struct BusOutputEmitInput {
     pub name: String,
+    #[serde(default)]
+    pub instance: Option<String>,
     pub interface: String,
     pub channels: Vec<u32>,
 }

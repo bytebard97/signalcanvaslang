@@ -261,8 +261,13 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
         let valid_port_names: std::collections::HashSet<&str> =
             tmpl.ports.iter().map(|p| p.name.as_str()).collect();
 
-        let is_valid_port = |name: &str| -> bool {
-            valid_port_names.contains(name) || name.contains("__")
+        // A PortRef is valid if it's a cross-device reference (instance is Some),
+        // or if the port name matches a declared template port, or if it's a
+        // slot-qualified port name (contains "__") written by TypeScript.
+        let is_valid_port = |p: &crate::ast::PortRef| -> bool {
+            p.instance.is_some()
+                || valid_port_names.contains(p.port.as_str())
+                || p.port.contains("__")
         };
 
         // Internal buses
@@ -271,10 +276,10 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
 
             // Input port: blank out if the port name is a garbage sentinel.
             let first_input = bus.inputs.iter()
-                .find(|p| is_valid_port(&p.port));
+                .find(|p| is_valid_port(p));
             let input_port = first_input.map(|p| p.port.clone()).unwrap_or_default();
             let input_channels: Vec<u32> = bus.inputs.iter()
-                .filter(|p| is_valid_port(&p.port))
+                .filter(|p| is_valid_port(p))
                 .map(|p| extract_single_index(&p.index).unwrap_or(1))
                 .collect();
 
@@ -282,7 +287,7 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
                 // Keep only destinations with a valid port name. Old saves may
                 // contain "Unknown" or "Device" as garbage sentinels.
                 let real_dests: Vec<_> = out.destinations.iter()
-                    .filter(|p| is_valid_port(&p.port))
+                    .filter(|p| is_valid_port(p))
                     .collect();
 
                 // If the output had destinations in the file but all were garbage,
@@ -300,6 +305,7 @@ pub fn load_from_patch(patch_source: &str, _layout_json: &str) -> Result<CanvasL
                     .collect();
                 Some(BusNamedOutput {
                     name: out.label.clone(),
+                    output_instance: real_dests.first().and_then(|p| p.instance.clone()),
                     output_port,
                     output_channels,
                 })
