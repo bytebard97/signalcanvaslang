@@ -19,3 +19,4 @@ packages/*/node_modules/
 /.playwright-mcp
 docs/*.pdf
 
+/claude-sessions
