@@ -873,8 +873,8 @@ fn emit_bus_named_output_without_destination_omits_port_ref() {
         output_interface: "".into(),
         output_channels: vec![],
         named_outputs: vec![
-            BusOutputEmitInput { name: "Link 1-L".into(), interface: "".into(), channels: vec![] },
-            BusOutputEmitInput { name: "Link 1-R".into(), interface: "".into(), channels: vec![] },
+            BusOutputEmitInput { instance: None, name: "Link 1-L".into(), interface: "".into(), channels: vec![] },
+            BusOutputEmitInput { instance: None, name: "Link 1-R".into(), interface: "".into(), channels: vec![] },
         ],
     }];
     let input = CanvasEmitInput {
@@ -916,12 +916,12 @@ fn emit_bus_named_output_with_destination_includes_port_ref() {
         output_interface: "".into(),
         output_channels: vec![],
         named_outputs: vec![
-            BusOutputEmitInput {
+            BusOutputEmitInput { instance: None,
                 name: "Link 1-L".into(),
                 interface: "MADI_1_Out".into(),
                 channels: vec![1],
             },
-            BusOutputEmitInput {
+            BusOutputEmitInput { instance: None,
                 name: "Link 1-R".into(),
                 interface: "MADI_1_Out".into(),
                 channels: vec![2],

@@ -113,6 +113,8 @@ pub struct BusOutput {
 #[ts(export)]
 pub struct BusNamedOutput {
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_instance: Option<String>,
     pub output_port: String,
     pub output_channels: Vec<u32>,
 }
