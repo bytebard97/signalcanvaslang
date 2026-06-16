@@ -19,10 +19,6 @@ template DM64 {
     Dante_Pri_In[1..128]:  in(etherCON)  [Dante, primary]
     Dante_Pri_Out[1..128]: out(etherCON) [Dante, primary]
 
-    # Dante Secondary — redundant network (etherCON)
-    Dante_Sec_In[1..128]:  in(etherCON)  [Dante, secondary, redundant]
-    Dante_Sec_Out[1..128]: out(etherCON) [Dante, secondary, redundant]
-
     # GigaACE — proprietary A&H ring (SFP)
     GigaACE_Pri_A: io(SFP) [GigaACE, primary]
     GigaACE_Pri_B: io(SFP) [GigaACE, primary]

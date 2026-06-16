@@ -26,10 +26,6 @@ template RedNetA16R {
     Dante_Pri_In[1..64]:  in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..64]: out(etherCON) [Dante, primary]
 
-    # Dante Secondary — 64ch in/out over etherCON (redundant)
-    Dante_Sec_In[1..64]:  in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..64]: out(etherCON) [Dante, secondary]
-
     # Word Clock sync
     WordClock_In:  in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]

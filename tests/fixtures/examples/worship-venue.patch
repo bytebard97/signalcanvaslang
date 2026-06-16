@@ -16,8 +16,6 @@ template Rio3224 {
   ports {
     Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..32]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR)
     Line_Out[1..16]: out(XLR)
   }
@@ -34,8 +32,6 @@ template CL5 {
   ports {
     Dante_Pri_In[1..72]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..24]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..72]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..24]: out(etherCON) [Dante, secondary]
     Mix_Bus[1..24]: out
   }
 }
@@ -78,39 +74,24 @@ instance Dante_Switch is GigabitSwitch {
 
 connect Stage_Left.Dante_Pri_Out -> Dante_Switch.Port[1] {
   cable: "Cat6a_SL_Pri"
+  redundant_cable: "Cat6a_SL_Sec"
   length: "30m"
 }
 connect Dante_Switch.Port[1] -> Stage_Left.Dante_Pri_In
 
-connect Stage_Left.Dante_Sec_Out -> Dante_Switch.Port[2] {
-  cable: "Cat6a_SL_Sec"
-  length: "30m"
-}
-connect Dante_Switch.Port[2] -> Stage_Left.Dante_Sec_In
-
 connect Stage_Right.Dante_Pri_Out -> Dante_Switch.Port[3] {
   cable: "Cat6a_SR_Pri"
+  redundant_cable: "Cat6a_SR_Sec"
   length: "25m"
 }
 connect Dante_Switch.Port[3] -> Stage_Right.Dante_Pri_In
 
-connect Stage_Right.Dante_Sec_Out -> Dante_Switch.Port[4] {
-  cable: "Cat6a_SR_Sec"
-  length: "25m"
-}
-connect Dante_Switch.Port[4] -> Stage_Right.Dante_Sec_In
-
 connect Dante_Switch.Port[5] -> FOH_Console.Dante_Pri_In {
   cable: "Cat6a_FOH_Pri"
+  redundant_cable: "Cat6a_FOH_Sec"
   length: "3m"
 }
 connect FOH_Console.Dante_Pri_Out -> Dante_Switch.Port[5]
-
-connect Dante_Switch.Port[6] -> FOH_Console.Dante_Sec_In {
-  cable: "Cat6a_FOH_Sec"
-  length: "3m"
-}
-connect FOH_Console.Dante_Sec_Out -> Dante_Switch.Port[6]
 
 # --- Bridges (logical signal mapping) -------------------------
 

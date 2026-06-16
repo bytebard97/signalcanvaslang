@@ -194,27 +194,17 @@ connect Audio_SW_FOH.SFP[1] -> Audio_SW_Stage.SFP[1] {
 
 connect Wireless_Rack_1.Dante_Pri_Out[1] -> Audio_SW_Stage.Port[1] {
   cable: "Cat6a_WR1_Pri"
+  redundant_cable: "Cat6a_WR1_Sec"
   length: "8m"
 }
 connect Audio_SW_Stage.Port[1] -> Wireless_Rack_1.Dante_Pri_In[1]
 
-connect Wireless_Rack_1.Dante_Sec_Out[1] -> Audio_SW_Stage.Port[2] {
-  cable: "Cat6a_WR1_Sec"
-  length: "8m"
-}
-connect Audio_SW_Stage.Port[2] -> Wireless_Rack_1.Dante_Sec_In[1]
-
 connect Wireless_Rack_2.Dante_Pri_Out[1] -> Audio_SW_Stage.Port[3] {
   cable: "Cat6a_WR2_Pri"
+  redundant_cable: "Cat6a_WR2_Sec"
   length: "12m"
 }
 connect Audio_SW_Stage.Port[3] -> Wireless_Rack_2.Dante_Pri_In[1]
-
-connect Wireless_Rack_2.Dante_Sec_Out[1] -> Audio_SW_Stage.Port[4] {
-  cable: "Cat6a_WR2_Sec"
-  length: "12m"
-}
-connect Audio_SW_Stage.Port[4] -> Wireless_Rack_2.Dante_Sec_In[1]
 
 # --- Amplifier Feeds (AES from FOH Console) ------------------
 

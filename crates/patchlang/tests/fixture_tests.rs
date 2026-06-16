@@ -139,7 +139,7 @@ fn worship_venue_statement_counts() {
 
     assert_eq!(counts.templates, 3, "expected 3 templates");
     assert_eq!(counts.instances, 4, "expected 4 instances");
-    assert_eq!(counts.connects, 12, "expected 12 connects (two per bidirectional cable)");
+    assert_eq!(counts.connects, 6, "expected 6 connects (one per direction, 3 device pairs)");
     assert_eq!(counts.bridges, 2, "expected 2 bridges");
     assert_eq!(counts.signals, 4, "expected 4 signals");
     assert_eq!(counts.errors, 0, "expected 0 error nodes");

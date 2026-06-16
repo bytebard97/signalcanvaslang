@@ -125,8 +125,6 @@ template Rio3224(mic_count: 32) @version("2.0") {
   ports {
     Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..32]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR)
     Line_Out[1..16]: out(XLR)
   }
@@ -647,7 +645,7 @@ connect FOH.MicIn[1] -> Amp.Input   // MicIn comes from the card
 **Collision rules:**
 - If a card port name duplicates a template port name, the template port takes precedence and an **S16** error is emitted.
 - If two different cards on the same instance declare the same port name, an **S16** error is emitted.
-- Internal routing (`route`, `bus`) only checks the template's own ports — card ports cannot be targets of internal routing.
+- Internal routing (`route`, `bus`) checks the instance's *effective* port namespace — both template-declared ports and card-provided ports from slot assignments. See D015.
 
 ### Route Entry (inside instance body)
 
@@ -795,8 +793,8 @@ The compiler runs DRC checks after parsing and auto-resolution. Diagnostics have
 | S01 | Structural | Error | Instance references unknown template |
 | S02 | Structural | Error | Slot assignment references unknown card template |
 | S03 | Structural | Error | Connect references unknown port on instance |
-| S04 | Structural | Error | Route references unknown port on template |
-| S05 | Structural | Error | Bus references unknown port on template |
+| S04 | Structural | Error | Route references unknown port on instance (effective ports: template + card) |
+| S05 | Structural | Error | Bus references unknown port on instance (effective ports: template + card) |
 | S06 | Structural | Error | Channel index out of declared range |
 | S07 | Structural | Error | Config block references unknown instance |
 | S08 | Structural | Error | Signal origin references unknown instance |

@@ -31,18 +31,9 @@ These two keywords are semantically distinct and must remain so. The distinction
 
 ### IO Direction Model
 
-Channel-based protocols (Dante, MADI, AES67, SDI, Analogue, AES3, SoundGrid, NDI, SMPTE2110) get **two explicit port lines** — one `in`, one `out`. This allows asymmetric channel counts (e.g., CL5 receives 72 Dante channels, sends 24).
+See [Port Direction Model](language-reference.md#port-direction-model) in the Language Reference for the canonical table and rules.
 
-`io` is reserved for ring/bus protocols (OptoCore, TWINLANe, AVB/Milan, GigaACE) and management ports (Ethernet_Mgmt).
-
-WordClock uses **split `in`/`out`** — not `io`. Every WordClock-capable device has separate physical 75Ω BNC connectors for input and output. The `io` classification was incorrect. Devices that are clock masters declare only `WordClock_Out`; clock slaves declare only `WordClock_In`; devices that can be either declare both.
-
-| Direction | Protocols |
-|-----------|-----------|
-| **Two lines** (`in` + `out`) | Dante, AES67, MADI, Analogue, AES3, SDI, SoundGrid, NDI, SMPTE2110 |
-| **Two lines** (`in` + `out`) | WordClock (BNC_75) — always directional, separate physical connectors |
-| **`io`** (ring/bus) | OptoCore, TWINLANe, AVB/Milan, GigaACE |
-| **`io`** (management) | Ethernet_Mgmt |
+Summary: channel-based protocols (`in` + `out`), ring/bus protocols and management ports (`io`). WordClock always uses split `in`/`out` — never `io`.
 
 **Backward compatibility:** The parser accepts `io` for any protocol (legacy files). The emitter must produce split `in`/`out` for channel protocols.
 

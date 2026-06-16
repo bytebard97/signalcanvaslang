@@ -437,6 +437,13 @@ stream Ceiling_AES67 {
 
 ---
 
+### D014 — (Record Not Found)
+**~2026-04-04** | **Lost**
+
+This entry is missing from the decision log. D013 (AES67 Interop, 2026-04-03) and D015 (S04/S05 Effective Ports, 2026-04-05) are adjacent — D014 was likely discussed in that window but the entry was not recorded. If the decision is recovered from session history, replace this placeholder with the full record.
+
+---
+
 ### D015 — S04/S05 Route and Bus Checks Must Use Effective Ports
 **2026-04-05** | **Decided**
 
@@ -521,3 +528,24 @@ AST: `BusEntry.outputs` changes from `Vec<PortRef>` to `Vec<BusOutput>` where `B
 
 **Spec:** `docs/superpowers/specs/2026-04-13-bus-named-outputs-design.md`
 **Ticket:** ByteBard97/SignalCanvasLang#9
+
+---
+
+### D018 — IT Infrastructure Scope: Deferred, Not Foreclosed
+**2026-06-16** | **Decided**
+
+**Question:** Should PatchLang model IT network infrastructure — Ethernet switches, VLANs, port membership — to enable path-diversity DRC (e.g., verifying that primary and secondary Dante paths traverse separate physical switches)?
+
+**Decision:** Out of scope for now. The existing `network` construct (D011 precedent: metadata over keywords) is the right shape if scope expands, but no switch/VLAN model is added at this time.
+
+**Rejected alternative:** A thin `infrastructure` layer with switch templates and port membership — enabling the SMPTE 2022-7 path-diversity check (redundant paths through separate physical switches). Deferred to a future opt-in annotation on `connect` if/when the product pushes seriously into broadcast/ST 2110 workflows.
+
+**Rationale:**
+1. **Product persona.** SignalCanvas targets AV engineers, not IT/network engineers. Dante and IP audio protocols are modeled as logical virtual networks (D001) — adding switch topology would expand scope into NetBox territory and attract a different user profile.
+2. **The specific DRC benefit is narrow.** The one high-value check enabled by IT modeling (verifying ST 2022-7 path diversity) can be captured later as a thin, opt-in `path_diversity: true` annotation on primary `connect` statements — no switch model required. Adding it only if/when broadcast deployments demand it is the YAGNI-correct call.
+3. **Competitive scope.** Pitting SignalCanvas against NetBox at launch is a losing position. The moat is AV signal flow, not network topology.
+4. **No foreclosure.** The D002 metadata approach (`redundant_cable:` on connect) and the `network` construct already anticipate this direction. A future annotation-on-`connect` fits cleanly without breaking existing files.
+
+**Affects:** `debate-context.md` (Decisions Already Made section), `overview.md` scope note.
+
+**Related issues:** ByteBard97/SignalCanvasLang#22
