@@ -41,11 +41,10 @@ if [[ -d "$INPUT" ]]; then
     FILE_ORDER=(
         frontmatter.md
         changelog.md
-        reids-questions.md
+        open-questions.md
         overview.md
         examples.md
         project-structure.md
-        frontend-guide.md
         compiler.md
         backend.md
         language-reference.md

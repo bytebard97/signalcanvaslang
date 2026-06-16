@@ -77,7 +77,7 @@ permalink: /changelog/
 
 ### v0.2.3 — 2026-03-25
 
-- **Reid's questions page added.** Answers to emitter alignment, multi-file loading, project tree sidebar, error display, and WASM integration questions.
+- **Open questions page added.** Answers to emitter alignment, multi-file loading, project tree sidebar, error display, and WASM integration questions.
 - **Frontend integration guide expanded.** Emitter requirements summary table covering cards, slots, config labels, rings, bidirectional cables, and ID format. Error display rules: never block rendering entirely, show partial results.
 - **Compiler API clarified.** `compile_project()` receives all files as a map (no filesystem I/O). `resolve_uses()` returns namespace strings, not file paths. `check()` replaces `parse()` for DRC validation.
 

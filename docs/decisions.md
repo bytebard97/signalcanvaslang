@@ -60,7 +60,7 @@ connect Stage.Dante_Pri_Out[1..32] -> Console.Dante_Pri_In[1..32] {
 ---
 
 ### D003 — WordClock Port Direction
-**2026-03-28** | **Pending — awaiting Reid's input**
+**2026-03-28** | **Pending**
 
 **Question:** Should WordClock ports use `io` (current spec) or split `in`/`out`?
 
@@ -71,7 +71,7 @@ connect Stage.Dante_Pri_Out[1..32] -> Console.Dante_Pri_In[1..32] {
 ---
 
 ### D004 — AVB/Milan Port Direction
-**2026-03-28** | **Pending — awaiting Reid's input**
+**2026-03-28** | **Pending**
 
 **Question:** Should AVB/Milan ports use `io` (current spec) or split `in`/`out`?
 
@@ -169,7 +169,7 @@ use corporate.racks { Patch_Bay as Corp_Patch_Bay }
 ---
 
 ### D008 — WordClock Port Direction
-**2026-03-29** | **Decided** (input from Reid, AV engineer)
+**2026-03-29** | **Decided** (input from broadcast engineers)
 
 **Question:** Should WordClock ports use `io` (current spec) or split `in`/`out`?
 
@@ -184,7 +184,7 @@ Devices that are always clock masters (SPGs, grandmaster appliances) declare onl
 
 **Rejected alternative:** `io(BNC_75) [WordClock]` — the current spec default.
 
-**Rationale (from Reid, AV engineer):** "I've never seen a BNC that is bidirectional." WordClock uses separate physical 75Ω BNC connectors for input and output on every device. The `io` classification was wrong from the start — it implies a shared bidirectional connector that does not exist in the real world. Splitting to `in`/`out` also enables the DRC to catch real wiring errors: two clock outputs connected together (two masters fighting), or a device with no clock input connected (unsynced).
+**Rationale:** "I've never seen a BNC that is bidirectional." WordClock uses separate physical 75Ω BNC connectors for input and output on every device. The `io` classification was wrong from the start — it implies a shared bidirectional connector that does not exist in the real world. Splitting to `in`/`out` also enables the DRC to catch real wiring errors: two clock outputs connected together (two masters fighting), or a device with no clock input connected (unsynced).
 
 **Note on embedded clock in protocols:** MADI, Dante, and other audio protocols carry a word clock signal implicitly inside the protocol stream. This does not require a separate WordClock port — it rides along with the existing `Dante_Pri_In`/`Dante_Pri_Out` or `MADI_In`/`MADI_Out` ports. No change needed for protocol-embedded clocking.
 
@@ -224,7 +224,7 @@ NMOS IS-04/IS-09 (the industry standard for IP broadcast device registration) mo
 ---
 
 ### D010 — Intercom Port Modeling Scope
-**2026-03-29** | **Decided** (input from Reid)
+**2026-03-29** | **Decided**
 
 **Question:** Which intercom ports should be modeled as signal flow edges in SignalCanvas? Should headset/partyline XLR ports split `in`/`out` like Dante? Should management/control ports be modeled at all?
 
@@ -238,9 +238,9 @@ NMOS IS-04/IS-09 (the industry standard for IP broadcast device registration) mo
 
 **On partyline loops from a matrix:** A matrix's `Partyline[1..4]: io(XLR)` ports connect to beltpacks via physical XLR cables — these ARE signal flow edges and should be split `in`/`out` on the matrix template.
 
-**Rejected alternative:** Modeling every panel and beltpack port as a first-class signal flow edge. Reid: "I would mostly be keen to only document the matrix." Panels appear as endpoints, not routing nodes.
+**Rejected alternative:** Modeling every panel and beltpack port as a first-class signal flow edge. The guiding principle is to document the matrix and physical signal sources — panels appear as endpoints, not routing nodes.
 
-**On control interfaces:** Reid confirmed: "I wasn't thinking we would document control interfaces." Consistent with D001 (IT infrastructure out of scope).
+**On control interfaces:** Control interfaces are out of scope, consistent with D001 (IT infrastructure out of scope).
 
 **Rationale:** SignalCanvas documents signal flow paths that an AV engineer cares about tracing — sources, routes, and destinations. A headset plugged into a beltpack is a local I/O connection for the operator wearing it, not a system signal path. The matrix is the signal routing hub; that is what gets documented.
 
@@ -339,7 +339,7 @@ Dual redundant GigaACE = 4 connect statements (2 directions × 2 cables), each w
 - DRC may offer advisory warnings for unusual device kind pairings (e.g., two stageboxes), never hard errors
 - Backbone connections are not user-patchable — they represent infrastructure
 
-**Frontend rendering (agreed with Reid):**
+**Frontend rendering:**
 - Two separate canvas nodes, each showing their own physical IO
 - Backbone wire renders subtle/invisible (distinct from normal patchable connections)
 - Internal routing opens a combined view showing IO from both devices
@@ -357,7 +357,7 @@ Dual redundant GigaACE = 4 connect statements (2 directions × 2 cables), each w
 
 **Rejected alternatives:**
 
-1. *`mode: "backbone"` (Reid's original proposal):* The `mode` field already carries video transport semantics (`mode: "quad_link_4K"` for SDI). Using it for connection classification (backbone vs normal) overloads a single field with two unrelated semantic axes — "how a signal is transported" vs "what role this connection plays." A dedicated boolean avoids future collision.
+1. *`mode: "backbone"` (original proposal):* The `mode` field already carries video transport semantics (`mode: "quad_link_4K"` for SDI). Using it for connection classification (backbone vs normal) overloads a single field with two unrelated semantic axes — "how a signal is transported" vs "what role this connection plays." A dedicated boolean avoids future collision.
 
 2. *Implicit detection via `Console Link` protocol:* When both interfaces use `Console Link` protocol, auto-detect as backbone without explicit annotation. Rejected because it violates PatchLang's no-ambiguity principle (design principle 4) — identical syntax would produce different semantic behavior depending on protocol metadata in template files. An engineer reading the `.patch` file cannot tell whether a connection is backbone without cross-referencing templates. If auto-detection is wanted later, it should be a DRC *suggestion* ("this looks like a backbone — did you mean `backbone: true`?"), not silent reclassification.
 
@@ -371,7 +371,7 @@ Dual redundant GigaACE = 4 connect statements (2 directions × 2 cables), each w
 
 The key design constraint is that no parser changes are needed. The compiler already accepts arbitrary key-value pairs in connect bodies. `backbone: true` is purely a semantic annotation consumed by the DRC and frontend.
 
-**Affects:** `debate-context.md` Decisions Already Made, `language-reference.md` Connect section (add backbone property documentation), `SKILL.md` (add backbone examples), example fixtures (add dLive/RIVAGE backbone examples). Frontend: rendering logic for backbone connections (Reid's domain).
+**Affects:** `debate-context.md` Decisions Already Made, `language-reference.md` Connect section (add backbone property documentation), `SKILL.md` (add backbone examples), example fixtures (add dLive/RIVAGE backbone examples). Frontend: rendering logic for backbone connections.
 
 **Related issues:** ByteBard97/SignalCanvas#68, ByteBard97/SignalCanvas#38
 

@@ -81,7 +81,7 @@ hillsong-mtg/
 ```json
 {
   "name": "Hillsong MTG",
-  "author": "Reid Thompson",
+  "author": "A. Engineer",
   "root": "campus.patch"
 }
 ```

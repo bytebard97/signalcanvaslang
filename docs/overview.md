@@ -14,7 +14,7 @@ PatchLang is a domain-specific language for describing signal flow in broadcast 
 
 **Key principle:** PatchLang stores everything about the system. JSON stores only canvas layout. If it affects signal flow, it belongs in PatchLang.
 
-**Audience:** Reid (frontend), Geoff (compiler + backend), and any future contributor or Claude Code agent working in the repo. The "What the Emitter/Frontend Must Do" sections are implementation specs, not suggestions.
+**Audience:** Contributors, integrators, and AI coding assistants working in this repo. The "What the Emitter/Frontend Must Do" sections are implementation specs, not suggestions.
 
 ## Design Principles
 
@@ -41,7 +41,7 @@ This spec is ordered for reading, not for reference. Start here, then:
 
 1. **Examples** — see what PatchLang looks like before learning the rules
 2. **Project Structure** — how files, folders, and hierarchy work
-3. **Frontend Integration** — what Reid needs to build
+3. **Frontend Integration** — how the Vue canvas consumes PatchLang
 4. **Compiler** — design decisions and the multi-file compilation API
 5. **Backend** — database model and API endpoints
 6. **Language Reference** — the full grammar (for lookup, not for reading cover to cover)

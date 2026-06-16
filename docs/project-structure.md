@@ -72,7 +72,7 @@ If a `.layout.json` file does not exist for a `.patch` file, the frontend offers
 ```json
 {
   "name": "Hillsong MTG",
-  "author": "Reid Thompson",
+  "author": "A. Engineer",
   "created": "2026-03-15",
   "description": "Main campus signal flow for Hillsong MTG broadcast",
   "root": "campus.patch",

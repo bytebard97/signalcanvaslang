@@ -1,12 +1,12 @@
 ---
 layout: default
-title: Reid's Questions
-permalink: /reids-questions/
+title: Open Questions
+permalink: /open-questions/
 ---
 
-# Answers to Reid's Questions
+# Open Questions
 
-These are the 5 questions from the bottom of `docs/plans/2026-03-23-patchlang-v2-spec-extension.md`. All were resolved through Socratic debates (full rationale in the Appendix).
+Spec questions that were raised during v0.2 development. All were resolved through Socratic debates (full rationale in the Appendix).
 
 **Q1: Does the `card` keyword approach work, or cards defined inside templates?**
 

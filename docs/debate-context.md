@@ -170,7 +170,7 @@ These are final. Do not re-litigate them.
 
 **D003/D008 — WordClock port direction.** Decided: split `in`/`out`. WordClock uses separate physical 75Ω BNC connectors — never bidirectional. Devices always-master declare only `WordClock_Out`; always-slave declare only `WordClock_In`; both if configurable.
 
-**D004 — AVB/Milan port direction.** Still pending Reid's input. Current spec uses `io`.
+**D004 — AVB/Milan port direction.** Still pending. Current spec uses `io`.
 
 **IO direction model (decided):** Channel-based protocols (Dante, AES67, MADI, Analogue, AES3, SDI, SoundGrid, NDI, SMPTE2110) and WordClock → explicit `in` + `out` lines. Ring/bus (OptoCore, TWINLANe, AVB/Milan, GigaACE) + management (Ethernet_Mgmt) → `io`.
 

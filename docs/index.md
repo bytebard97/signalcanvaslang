@@ -45,7 +45,6 @@ bridge Stage_Left.Mic_In[1..32] -> FOH.Dante_Ch[1..32]
 | [Project Structure](project-structure/) | How PatchLang files and projects are organized |
 | [Compiler](compiler/) | Compiler internals, DRC rules, WASM/Python bindings |
 | [Backend](backend/) | Django API integration |
-| [Frontend Guide](frontend-guide/) | How the Vue frontend consumes PatchLang |
 
 ## Design
 
@@ -54,4 +53,4 @@ bridge Stage_Left.Mic_In[1..32] -> FOH.Dante_Ch[1..32]
 | [Design Decisions](decisions/) | Recorded architectural decisions (D001–D018) |
 | [Debate Context](debate-context/) | Structured debates behind key design choices |
 | [Appendix](appendix/) | Reference tables and supplementary material |
-| [Reid's Questions](reids-questions/) | Open spec questions and answers |
+| [Open Questions](open-questions/) | Spec questions raised during development and their resolutions |
