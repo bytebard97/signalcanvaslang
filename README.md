@@ -4,7 +4,7 @@
 
 # PatchLang
 
-[![Documentation](https://img.shields.io/badge/docs-bytebard97.github.io-blue)](https://bytebard97.github.io/SignalCanvasLang/)
+[![Documentation](https://img.shields.io/badge/docs-signalcanvas.github.io-blue)](https://signalcanvas.github.io/SignalCanvasLang/)
 
 A domain-specific language for describing signal flow in broadcast and live production environments. PatchLang defines device templates, physical instances, cable connections, logical signal mappings, and channel configuration.
 
@@ -45,7 +45,7 @@ bridge Stage_Left.Mic_In[1..32] -> FOH_Console.Dante_Ch[1..32]
 
 ## Language Specification
 
-See [SPEC.md](SPEC.md) for the complete EBNF grammar and syntax reference.
+See the [Language Reference](https://signalcanvas.github.io/SignalCanvasLang/language-reference/) for the complete grammar and syntax reference, or browse the full [documentation site](https://signalcanvas.github.io/SignalCanvasLang/).
 
 ## Installation
 
