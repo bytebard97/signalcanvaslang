@@ -21,8 +21,6 @@ template Vi3000 {
     AES_Out[1..4]: out(XLR) [AES3]
     Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..64]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..64]: out(etherCON) [Dante, secondary]
     WordClock_In: in(BNC_75) [WordClock]
     WordClock_Out: out(BNC_75) [WordClock]
     MIDI_In: in(XLR_5) [MIDI]

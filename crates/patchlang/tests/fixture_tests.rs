@@ -285,8 +285,8 @@ fn concert_venue_hierarchical_statement_counts() {
     assert_eq!(counts.templates, 19, "expected 19 templates");
     // 6 top-level instances
     assert_eq!(counts.instances, 6, "expected 6 instances");
-    // 13 top-level connects (cross-subsystem)
-    assert_eq!(counts.connects, 13, "expected 13 connects");
+    // 11 top-level connects (cross-subsystem; Dante secondary modeled via redundant_cable:)
+    assert_eq!(counts.connects, 11, "expected 11 connects");
     // 5 signals
     assert_eq!(counts.signals, 5, "expected 5 signals");
     // 2 flags

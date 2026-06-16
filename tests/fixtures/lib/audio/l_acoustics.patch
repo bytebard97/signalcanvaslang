@@ -15,8 +15,6 @@ template LA4X {
     AES_In[1..2]: in(XLR) [AES3]
     Dante_Pri_In[1..4]: in(etherCON) [Dante, AES67, primary]
     Dante_Pri_Out[1..4]: out(etherCON) [Dante, AES67, primary]
-    Dante_Sec_In[1..4]: in(etherCON) [Dante, AES67, secondary]
-    Dante_Sec_Out[1..4]: out(etherCON) [Dante, AES67, secondary]
     Speaker_Out[1..4]: out(NL4) [speaker_level]
     Network_Control: io(etherCON)
     WordClock_In: in(BNC_75) [WordClock]
@@ -37,8 +35,6 @@ template LA12X {
     AES_In[1..2]: in(XLR) [AES3]
     Dante_Pri_In[1..4]: in(etherCON) [Dante, AES67, primary]
     Dante_Pri_Out[1..4]: out(etherCON) [Dante, AES67, primary]
-    Dante_Sec_In[1..4]: in(etherCON) [Dante, AES67, secondary]
-    Dante_Sec_Out[1..4]: out(etherCON) [Dante, AES67, secondary]
     Speaker_Out[1..4]: out(NL4) [speaker_level]
     Network_Control: io(etherCON)
     WordClock_In: in(BNC_75) [WordClock]

@@ -72,7 +72,6 @@ template Shure_Axient {
   }
   ports {
     Dante_Pri: out(etherCON) [Dante, primary]
-    Dante_Sec: out(etherCON) [Dante, secondary]
     Analog_Out[1..4]: out(XLR)
     Antenna_In[1..2]: in(BNC_50) [RF]
   }
@@ -327,7 +326,7 @@ template AudioStage {
   ports {
     Optocore_In: in(OpticalCon) [Optocore]
     Optocore_Out: out(OpticalCon) [Optocore]
-    Dante_Out[1..4]: out(etherCON) [Dante]
+    Dante_Out[1..2]: out(etherCON) [Dante]
   }
 
   instance Mon_Console is DiGiCo_SD7 {
@@ -364,9 +363,7 @@ template AudioStage {
 
   # Wireless Dante feeds exposed for network routing
   connect Wireless_1.Dante_Pri -> Dante_Out[1]
-  connect Wireless_1.Dante_Sec -> Dante_Out[2]
-  connect Wireless_2.Dante_Pri -> Dante_Out[3]
-  connect Wireless_2.Dante_Sec -> Dante_Out[4]
+  connect Wireless_2.Dante_Pri -> Dante_Out[2]
 
   # Monitor console sends mixes back to stage rack line outputs
   # (IEM feeds, sidefills, drum sub). Audio travels via Optocore ring.
@@ -404,7 +401,7 @@ template AudioNetwork {
     kind: "system"
   }
   ports {
-    Dante_In[1..4]: in(etherCON) [Dante]
+    Dante_In[1..2]: in(etherCON) [Dante]
     FOH_SFP_In: in(SFP) [Ethernet, G10]
     FOH_SFP_Out: out(SFP) [Ethernet, G10]
   }
@@ -427,8 +424,6 @@ template AudioNetwork {
   # Dante device uplinks into stage switch
   connect Dante_In[1] -> SW_Stage.Uplink[1]
   connect Dante_In[2] -> SW_Stage.Uplink[2]
-  connect Dante_In[3] -> SW_Stage.Uplink[3]
-  connect Dante_In[4] -> SW_Stage.Uplink[4]
 
   # FOH-side SFP passthrough (for future expansion)
   connect FOH_SFP_In -> SW_FOH.SFP_In
@@ -605,18 +600,12 @@ connect Audio_Stage.Optocore_Out -> Audio_FOH.Optocore_In {
 # Wireless Dante feeds into network switches
 connect Audio_Stage.Dante_Out[1] -> Audio_Net.Dante_In[1] {
   cable: "Cat6a_WR1_Pri"
+  redundant_cable: "Cat6a_WR1_Sec"
   length: "8m"
 }
 connect Audio_Stage.Dante_Out[2] -> Audio_Net.Dante_In[2] {
-  cable: "Cat6a_WR1_Sec"
-  length: "8m"
-}
-connect Audio_Stage.Dante_Out[3] -> Audio_Net.Dante_In[3] {
   cable: "Cat6a_WR2_Pri"
-  length: "12m"
-}
-connect Audio_Stage.Dante_Out[4] -> Audio_Net.Dante_In[4] {
-  cable: "Cat6a_WR2_Sec"
+  redundant_cable: "Cat6a_WR2_Sec"
   length: "12m"
 }
 

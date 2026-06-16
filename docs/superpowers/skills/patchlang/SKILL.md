@@ -372,8 +372,8 @@ Full error code table:
 | S01 | Structural | Error | Instance references unknown template | Fix template name |
 | S02 | Structural | Error | Slot assignment references unknown card template | Fix card template name |
 | S03 | Structural | Error | Unknown port on instance | Port name typo, or using old `io` name after split migration |
-| S04 | Structural | Error | Route references unknown port | Fix port name in route |
-| S05 | Structural | Error | Bus references unknown port | Fix port name in bus |
+| S04 | Structural | Error | Route references unknown port on instance (effective ports: template + card) | Fix port name in route |
+| S05 | Structural | Error | Bus references unknown port on instance (effective ports: template + card) | Fix port name in bus |
 | S06 | Structural | Error | Channel index out of declared range | Index exceeds `[1..N]` |
 | S07 | Structural | Error | Config block references unknown instance | Fix instance name in config |
 | S08 | Structural | Error | Signal origin references unknown instance | Fix instance name |

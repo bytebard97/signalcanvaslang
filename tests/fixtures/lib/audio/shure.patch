@@ -21,8 +21,6 @@ template AD4Q {
     AES_Out[1..2]: out(XLR) [AES3]
     Dante_Pri_In[1..4]: in(RJ45) [Dante, AES67, primary]
     Dante_Pri_Out[1..4]: out(RJ45) [Dante, AES67, primary]
-    Dante_Sec_In[1..4]: in(RJ45) [Dante, AES67, secondary]
-    Dante_Sec_Out[1..4]: out(RJ45) [Dante, AES67, secondary]
     Network_Control_A: io(RJ45)
     Network_Control_B: io(RJ45)
   }
@@ -44,8 +42,6 @@ template AD4D {
     AES_Out: out(XLR) [AES3]
     Dante_Pri_In[1..2]: in(RJ45) [Dante, AES67, primary]
     Dante_Pri_Out[1..2]: out(RJ45) [Dante, AES67, primary]
-    Dante_Sec_In[1..2]: in(RJ45) [Dante, AES67, secondary]
-    Dante_Sec_Out[1..2]: out(RJ45) [Dante, AES67, secondary]
   }
   bridge Antenna_A -> Analog_Out
   bridge Antenna_A -> Dante_Pri_Out
@@ -67,8 +63,6 @@ template ULXD4Q {
     Analog_Out[1..4]: out(XLR) [analog, line_level]
     Dante_Pri_In[1..4]: in(RJ45) [Dante, primary]
     Dante_Pri_Out[1..4]: out(RJ45) [Dante, primary]
-    Dante_Sec_In[1..4]: in(RJ45) [Dante, secondary]
-    Dante_Sec_Out[1..4]: out(RJ45) [Dante, secondary]
   }
   bridge Antenna_A -> Analog_Out
   bridge Antenna_A -> Dante_Pri_Out
@@ -87,8 +81,6 @@ template ULXD4D {
     Analog_Out[1..2]: out(XLR) [analog, line_level]
     Dante_Pri_In[1..2]: in(RJ45) [Dante, primary]
     Dante_Pri_Out[1..2]: out(RJ45) [Dante, primary]
-    Dante_Sec_In[1..2]: in(RJ45) [Dante, secondary]
-    Dante_Sec_Out[1..2]: out(RJ45) [Dante, secondary]
   }
   bridge Antenna_A -> Analog_Out
   bridge Antenna_A -> Dante_Pri_Out

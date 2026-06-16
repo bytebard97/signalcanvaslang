@@ -13,8 +13,6 @@ template RedNet_A16R_MkII {
   ports {
     Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     Analog_In[1..16]: in(DB25) [analog, line_level]
     Analog_Out[1..16]: out(DB25) [analog, line_level]
     WordClock_In: in(BNC_75) [WordClock]
@@ -36,8 +34,6 @@ template RedNet_D16R_MkII {
   ports {
     Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     AES_In[1..16]: in(DB25) [AES3, SRC]
     AES_Out[1..16]: out(DB25) [AES3]
     WordClock_In: in(BNC_75) [WordClock]

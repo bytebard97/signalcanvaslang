@@ -120,7 +120,6 @@ template Rio3224(mic_count: 32) @version("2.0") {
   }
   ports {
     Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR)
     Line_Out[1..16]: out(XLR)
   }
@@ -456,7 +455,6 @@ template Rio3224 {
   }
   ports {
     Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR)
     Line_Out[1..16]: out(XLR)
   }
@@ -471,7 +469,6 @@ template CL5 {
   }
   ports {
     Dante_Pri: io(etherCON) [Dante, primary]
-    Dante_Sec: io(etherCON) [Dante, secondary]
     Dante_Ch[1..72]: in [Dante]
     Mix_Bus[1..24]: out
   }

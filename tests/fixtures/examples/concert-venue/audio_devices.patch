@@ -72,8 +72,6 @@ template Shure_Axient {
   ports {
     Dante_Pri_In[1..4]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..4]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..4]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..4]: out(etherCON) [Dante, secondary]
     Analog_Out[1..4]: out(XLR)
     Antenna_In[1..2]: in(BNC_50) [RF]
   }

@@ -44,8 +44,6 @@ template E6L_192 {
     AVB_Sec_Out: out(etherCON) [AVB, secondary]
     Dante_Pri_In: in(etherCON) [Dante, primary]
     Dante_Pri_Out: out(etherCON) [Dante, primary]
-    Dante_Sec_In: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out: out(etherCON) [Dante, secondary]
     Network: io(RJ45) [Ethernet]
   }
   slot Option_Slot[1..8]: VENUE_Option_Card

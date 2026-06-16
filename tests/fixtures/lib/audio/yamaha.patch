@@ -15,8 +15,6 @@ template CL5 {
   ports {
     Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..64]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..64]: out(etherCON) [Dante, secondary]
     OMNI_In[1..8]: in(XLR) [analog, mic_level]
     OMNI_Out[1..8]: out(XLR) [analog, line_level]
     AES_Out: out(XLR) [AES3]
@@ -39,8 +37,6 @@ template CL3 {
   ports {
     Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..64]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..64]: out(etherCON) [Dante, secondary]
     OMNI_In[1..8]: in(XLR) [analog, mic_level]
     OMNI_Out[1..8]: out(XLR) [analog, line_level]
     AES_Out: out(XLR) [AES3]
@@ -63,8 +59,6 @@ template CL1 {
   ports {
     Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..64]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..64]: out(etherCON) [Dante, secondary]
     OMNI_In[1..8]: in(XLR) [analog, mic_level]
     OMNI_Out[1..8]: out(XLR) [analog, line_level]
     AES_Out: out(XLR) [AES3]
@@ -89,8 +83,6 @@ template QL5 {
   ports {
     Dante_Pri_In[1..64]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..64]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR) [analog, mic_level]
     Line_Out[1..16]: out(XLR) [analog, line_level]
     AES_Out: out(XLR) [AES3]
@@ -113,8 +105,6 @@ template QL1 {
   ports {
     Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..32]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     Mic_In[1..16]: in(XLR) [analog, mic_level]
     Line_Out[1..8]: out(XLR) [analog, line_level]
     AES_Out: out(XLR) [AES3]
@@ -139,8 +129,6 @@ template Rio3224_D2 {
   ports {
     Dante_Pri_In[1..32]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..32]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..32]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..32]: out(etherCON) [Dante, secondary]
     Mic_In[1..32]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..16]: out(XLR) [analog, line_level]
     AES_Out[1..8]: out(XLR) [AES3]
@@ -159,8 +147,6 @@ template Rio1608_D2 {
   ports {
     Dante_Pri_In[1..16]: in(etherCON) [Dante, primary]
     Dante_Pri_Out[1..16]: out(etherCON) [Dante, primary]
-    Dante_Sec_In[1..16]: in(etherCON) [Dante, secondary]
-    Dante_Sec_Out[1..16]: out(etherCON) [Dante, secondary]
     Mic_In[1..16]: in(XLR) [analog, mic_level, phantom_48V]
     Line_Out[1..8]: out(XLR) [analog, line_level]
   }
