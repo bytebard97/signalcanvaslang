@@ -29,7 +29,7 @@ while [[ "$1" == --* ]]; do
     esac
 done
 
-INPUT="${1:-$SCRIPT_DIR/patchlang-design-guide}"
+INPUT="${1:-$SCRIPT_DIR}"
 OUTPUT="${2:-$SCRIPT_DIR/patchlang-v026-spec.pdf}"
 TMPDIR="$(mktemp -d)"
 
@@ -53,7 +53,11 @@ if [[ -d "$INPUT" ]]; then
     )
     for part in "${FILE_ORDER[@]}"; do
         if [[ -f "$INPUT/$part" ]]; then
-            cat "$INPUT/$part" >> "$COMBINED"
+            if [[ "$part" == "frontmatter.md" ]]; then
+                cat "$INPUT/$part" >> "$COMBINED"
+            else
+                awk 'NR==1&&/^---$/{f=1;next} f&&/^---$/{f=0;next} f{next} {print}' "$INPUT/$part" >> "$COMBINED"
+            fi
             echo -e "\n\n" >> "$COMBINED"
         fi
     done

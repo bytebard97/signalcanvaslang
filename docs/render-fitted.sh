@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 RENDER_SCRIPT="$SCRIPT_DIR/render-design-guide.sh"
 TRIM_SCRIPT="$SCRIPT_DIR/trim-content-page.py"
 
-INPUT="${1:-$SCRIPT_DIR/patchlang-design-guide}"
+INPUT="${1:-$SCRIPT_DIR}"
 OUTPUT="${2:-$SCRIPT_DIR/patchlang-v026-spec.pdf}"
 
 CONTENT_PAGE=3
