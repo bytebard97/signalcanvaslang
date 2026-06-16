@@ -11,21 +11,37 @@
   <header class="page-header" role="banner">
     <h1 class="project-name">{{ page.title | default: site.title }}</h1>
     <h2 class="project-tagline">{{ page.description | default: site.description }}</h2>
-    <a href="{{ site.github.repository_url }}" class="btn">View on GitHub</a>
+    <a href="{{ site.github.repository_url }}" class="btn">GitHub</a>
     <a href="{{ '/' | relative_url }}" class="btn">Home</a>
-    <a href="{{ '/specification' | relative_url }}" class="btn">Spec</a>
-    <a href="{{ '/examples' | relative_url }}" class="btn">Examples</a>
+    <a href="{{ '/overview/' | relative_url }}" class="btn">Overview</a>
+    <a href="{{ '/language-reference/' | relative_url }}" class="btn">Language Reference</a>
+    <a href="{{ '/examples/' | relative_url }}" class="btn">Examples</a>
+    <a href="{{ '/compiler/' | relative_url }}" class="btn">Compiler</a>
+    <a href="{{ '/changelog/' | relative_url }}" class="btn">Changelog</a>
   </header>
 
   <main id="content" class="main-content" role="main">
     {{ content }}
     <footer class="site-footer">
       <span class="site-footer-owner">
-        <a href="{{ site.github.repository_url }}">PatchLang</a> is part of
-        <a href="https://github.com/ByteBard97/SignalCanvas">SignalCanvas</a>.
+        <a href="{{ site.github.repository_url }}">PatchLang</a> is maintained by
+        <a href="https://github.com/SignalCanvas">SignalCanvas</a>.
       </span>
     </footer>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.language-mermaid').forEach(function (el) {
+        var div = document.createElement('div');
+        div.className = 'mermaid';
+        div.textContent = el.textContent.trim();
+        el.replaceWith(div);
+      });
+      mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    });
+  </script>
 
   <script>
     // PatchLang syntax highlighter for untagged code blocks
@@ -40,28 +56,22 @@
       const RANGE = /\.\./g;
 
       document.querySelectorAll('pre > code').forEach(function(block) {
-        // Skip blocks that already have syntax highlighting (Rouge)
         if (block.className && block.className.match(/language-|highlight/)) return;
 
         var text = block.textContent;
-
-        // Only apply to blocks that look like PatchLang
         if (!text.match(/\b(template|instance|connect|bridge|signal|ports|meta)\b/)) return;
 
-        // Escape HTML first
         var html = text
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;');
 
-        // Apply highlighting in order (comments last to override)
         html = html.replace(STRINGS, '<span class="pl-string">$&</span>');
         html = html.replace(ARROW, '<span class="pl-operator">$&</span>');
         html = html.replace(RANGE, '<span class="pl-operator">$&</span>');
         html = html.replace(ANNOTATIONS, '<span class="pl-keyword">$&</span>');
         html = html.replace(KEYWORDS, '<span class="pl-keyword">$1</span>');
         html = html.replace(DIRECTIONS, function(match, dir, offset) {
-          // Only highlight if it looks like a direction (after : or start of token)
           var before = html.substring(Math.max(0, offset - 2), offset);
           if (before.match(/:\s*$/) || before.match(/^\s*$/)) {
             return '<span class="pl-direction">' + dir + '</span>';
