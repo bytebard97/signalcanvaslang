@@ -329,9 +329,6 @@ Frontend calls WASM → `PatchProgramBuilder` mutates AST in Rust → `format()`
 
 22 handle-based functions in `crates/patchlang-wasm/src/lib.rs`. Handle is a `u32` index into `Vec<Option<PatchProgramBuilder>>`. Complex args passed as JSON strings. See `pkg-web/patchlang_wasm.d.ts` for TypeScript definitions.
 
-### Spec
-
-Full specification: `docs/specs/ast-builder-api.md`
 
 ## What NOT to Change
 
