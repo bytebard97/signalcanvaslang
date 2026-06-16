@@ -1,3 +1,9 @@
+---
+layout: default
+title: Reid's Questions
+permalink: /reids-questions/
+---
+
 # Answers to Reid's Questions
 
 These are the 5 questions from the bottom of `docs/plans/2026-03-23-patchlang-v2-spec-extension.md`. All were resolved through Socratic debates (full rationale in the Appendix).

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Design Decisions
+permalink: /decisions/
+---
+
 # PatchLang Design Decisions
 
 A running log of significant design decisions — what we chose, what we rejected, and why. Exists so we don't re-litigate settled questions.

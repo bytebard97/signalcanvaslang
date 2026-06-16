@@ -1,3 +1,9 @@
+---
+layout: default
+title: Debate Context
+permalink: /debate-context/
+---
+
 # SignalCanvas & PatchLang — Debate Context Brief
 
 This document exists to give AI agents sufficient context to participate meaningfully in design debates about PatchLang. Read this in full before arguing any position.

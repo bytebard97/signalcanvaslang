@@ -1,3 +1,9 @@
+---
+layout: default
+title: Overview
+permalink: /overview/
+---
+
 # PatchLang Specification
 
 **Version:** 0.2.8

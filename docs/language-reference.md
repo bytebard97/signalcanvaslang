@@ -1,3 +1,9 @@
+---
+layout: default
+title: Language Reference
+permalink: /language-reference/
+---
+
 # Language Reference
 
 This section is the formal grammar and syntax reference. It is meant for lookup, not for reading cover to cover. Start with the Examples section if you want to understand PatchLang by seeing it in action.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Project Structure
+permalink: /project-structure/
+---
+
 # Project Structure
 
 ## Multi-File Projects

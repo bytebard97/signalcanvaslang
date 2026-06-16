@@ -1,3 +1,9 @@
+---
+layout: default
+title: Appendix
+permalink: /appendix/
+---
+
 # Appendix — Design Decision Records
 
 The decisions in this spec were reached through structured Socratic debates with multiple AI agent perspectives, then cross-validated to consensus. This appendix preserves the rationale.

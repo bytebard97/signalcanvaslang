@@ -1,3 +1,9 @@
+---
+layout: default
+title: Changelog
+permalink: /changelog/
+---
+
 ## Revision History
 
 ### v0.2.12 — 2026-05-22 (network construct)

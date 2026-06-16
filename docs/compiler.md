@@ -1,3 +1,9 @@
+---
+layout: default
+title: Compiler
+permalink: /compiler/
+---
+
 # Compiler
 
 ## Design Decisions

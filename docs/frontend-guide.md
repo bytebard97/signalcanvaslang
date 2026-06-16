@@ -1,3 +1,9 @@
+---
+layout: default
+title: Frontend Guide
+permalink: /frontend-guide/
+---
+
 # Frontend Integration Guide
 
 ## What Reid Needs to Build

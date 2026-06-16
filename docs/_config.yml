@@ -2,4 +2,9 @@ title: PatchLang
 description: "A domain-specific language for broadcast and live production signal flow"
 theme: jekyll-theme-cayman
 exclude:
-  - plan-frontend-integration.md
+  - frontmatter.md
+  - render-design-guide.sh
+  - render-fitted.sh
+  - colorize-patchlang.py
+  - mermaid-config.json
+  - trim-content-page.py
