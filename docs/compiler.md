@@ -695,10 +695,6 @@ Format: `connect_{srcInst}_{srcPort}_{tgtInst}_{tgtPort}`. Duplicate endpoints g
 
 `format()` outputs canonical order: uses → card templates → device templates → instances → connects → bridges → signals → streams → flags → configs → rings. Internal storage uses insertion order.
 
-### Spec
-
-Full specification: `docs/specs/ast-builder-api.md`
-
 ---
 
 ## WASM Exports

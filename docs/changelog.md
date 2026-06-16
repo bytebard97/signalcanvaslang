@@ -17,7 +17,7 @@ permalink: /changelog/
 
 ### v0.2.8 — 2026-04-06 (builder API)
 
-- **PatchProgram Builder API implemented.** Rust-native AST builder replaces the frontend's TypeScript emitter for programmatic program construction. Mutations are eagerly validated (structural + direction checks at build time). Full spec: `docs/specs/ast-builder-api.md`.
+- **PatchProgram Builder API implemented.** Rust-native AST builder replaces the frontend's TypeScript emitter for programmatic program construction. Mutations are eagerly validated (structural + direction checks at build time). See Builder API section in `docs/compiler.md`.
 - **Builder module:** `crates/patchlang/src/builder/` (9 files, ~1600 lines). Core struct `PatchProgramBuilder` with `format()`, `check()`, `to_json()`, canonical statement ordering, and cascade deletes.
 - **Operations:** Template CRUD, instance CRUD with cascade delete, connections with direction validation, slot assignments (card-expanded port resolution), routes/buses, config labels, signals/streams/flags/rings.
 - **Eager validation:** `add_connect()` validates port existence (including card-expanded ports from slot assignments) and direction compatibility using the same `build_effective_port_map` as the DRC. No rule duplication.
