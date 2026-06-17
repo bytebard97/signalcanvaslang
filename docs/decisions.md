@@ -549,3 +549,38 @@ AST: `BusEntry.outputs` changes from `Vec<PortRef>` to `Vec<BusOutput>` where `B
 **Affects:** `debate-context.md` (Decisions Already Made section), `overview.md` scope note.
 
 **Related issues:** ByteBard97/SignalCanvasLang#22
+
+---
+
+### D019 — Signal-Trace Reachability DRC (T01/T02)
+**2026-06-16** | **Decided**
+
+**Question:** What should a signal-trace completeness DRC rule check, and at what severity? When origin port has connections but the trace never escapes to an output port, how should that be reported?
+
+**Decision:** Two Warning-severity rules under a new `Trace` DRC layer:
+
+- **T01 — Origin not connected:** Signal has `origin:` declared but the origin port has zero outgoing edges in the directed signal-flow graph (no connects, bridges, or template-internal bridges leading FROM that port). The signal is completely dead at its source.
+- **T02 — Cannot reach output port:** Signal has outgoing edges from origin, but the BFS/DFS traversal visits no port with direction `Out` or `Io` (including origin itself). The signal flows somewhere but never exits any device via an output port.
+
+Both are `Severity::Warning`. A third sub-rule ("trace terminates at a non-output port" — all terminal leaf nodes in the graph are `In` ports even if `Out`/`Io` ports were visited along the way) is **deferred**: it false-positives on valid fixtures where a consumer device's `In` port IS the intended final destination (e.g., `FOH_Console.Dante_Pri_In` in worship-venue).
+
+**Directed graph construction:** Edges are collected from (a) top-level connects and link-groups, (b) top-level bridges and bridge-groups, (c) template-internal bridges applied to each instance (where `TemplateDecl.bridges` are expanded per instance), (d) instance routes. Channel indices are ignored — only port names are tracked, because channel-level precision belongs to the structural rules (S06/S14/S15).
+
+**Skip conditions:**
+- Signal has no `origin:` → skip silently (signals without origin are purely documentary).
+- Origin references an unknown instance or port → skip silently (S08/S09 already fired).
+
+**Severity rationale:** Warning, not Error. A completeness check can legitimately false-positive on systems where intra-device routing is partially modeled (especially subsystem templates). Blocking compilation on an incomplete trace model would be too aggressive; a non-blocking Warning matches D006 ("silently wrong is worst") while remaining overridable.
+
+**`@suppress` support:** Deferred. `SignalDecl` has no `suppressions` field; adding suppress support requires an AST/parser change. The Trace layer will be added to the suppress vocabulary in that future change.
+
+**Multi-file scope:** The DRC already runs on the merged program after multi-file resolution, so multi-file coverage is automatic.
+
+**Rejected alternatives:**
+- Error severity — too strict for a model that may intentionally omit intermediate device internals.
+- "Trace terminates at non-output port" as an immediate check — false-positives on valid fixtures; deferred until a fixture requires it.
+- Implementing only at the graph layer (reusing `compile_to_graph`) — DRC runs on the AST before graph compilation; duplicating graph traversal in the AST layer is acceptable and keeps the dependency clean.
+
+**Affects:** `drc/trace.rs` (new), `drc/types.rs` (new `Trace` layer), `drc/mod.rs`, `language-reference.md` DRC table, `SKILL.md`.
+
+**Related issues:** ByteBard97/SignalCanvasLang#18

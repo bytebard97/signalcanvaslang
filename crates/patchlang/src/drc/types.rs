@@ -18,6 +18,7 @@ pub enum DRCLayer {
     Network,
     Flow,
     Convention,
+    Trace,
 }
 
 /// How severe the diagnostic is.

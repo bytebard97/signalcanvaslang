@@ -823,6 +823,8 @@ The compiler runs DRC checks after parsing and auto-resolution. Diagnostics have
 | C03 | Convention | Info | Template declared with zero ports |
 | C04 | Convention | Info | Bus declared with zero outputs |
 | C05 | Convention | Info | Redundancy terminates at AES67 boundary — Primary port only |
+| TR01 | Trace | Warning | Signal origin has no outgoing connections |
+| TR02 | Trace | Warning | Signal cannot reach any output (`out`/`io`) port |
 | M-I01 | Meta | Info | Unknown `kind` value |
 | M-I03 | Meta | Info | Unknown `rf_subtype` value |
 | M-I04 | Meta | Info | `rf_band` set but `kind` is not `rf-system` |

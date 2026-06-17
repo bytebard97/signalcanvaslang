@@ -846,3 +846,90 @@ fn hillsong_mini_json_size() {
     assert!(json.get("templateFiles").is_some(), "JSON must have 'templateFiles'");
     assert!(json.get("useGraph").is_some(), "JSON must have 'useGraph'");
 }
+
+// ── TR01/TR02 false-positive regression tests ──────────────────────────
+
+/// Return all Trace-layer warnings from a single-file fixture.
+fn trace_warnings_single(filename: &str) -> Vec<patchlang::Diagnostic> {
+    let path = format!("{FIXTURES_DIR}/{filename}");
+    let source = std::fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("failed to read fixture {path}: {e}"));
+    let result = patchlang::check(&source);
+    result
+        .diagnostics
+        .into_iter()
+        .filter(|d| d.layer == patchlang::drc::DRCLayer::Trace)
+        .collect()
+}
+
+/// worship-venue is clean: 4 signals, all reachable through template bridges.
+/// This guards against regressions where TR01/TR02 false-positive on valid rigs.
+#[test]
+fn worship_venue_no_trace_warnings() {
+    let diags = trace_warnings_single("worship-venue.patch");
+    assert!(
+        diags.is_empty(),
+        "worship-venue.patch should produce zero Trace warnings, got:\n{:#?}",
+        diags
+    );
+}
+
+/// broadcast-truck is clean: all signals have connects and reach Out/Io ports.
+#[test]
+fn broadcast_truck_no_trace_warnings() {
+    let diags = trace_warnings_single("broadcast-truck.patch");
+    assert!(
+        diags.is_empty(),
+        "broadcast-truck.patch should produce zero Trace warnings, got:\n{:#?}",
+        diags
+    );
+}
+
+/// concert-venue-hierarchical is self-contained and uses hierarchical templates.
+/// All signals should be reachable through the expanded port set.
+#[test]
+fn concert_venue_hierarchical_no_trace_warnings() {
+    let diags = trace_warnings_single("concert-venue-hierarchical.patch");
+    assert!(
+        diags.is_empty(),
+        "concert-venue-hierarchical.patch should produce zero Trace warnings, got:\n{:#?}",
+        diags
+    );
+}
+
+/// hillsong-mtg.patch declares zero `signal` statements, so the Trace check has
+/// nothing to evaluate — this test is a no-op crash-guard confirming the rule
+/// does not panic on a large, complex file.
+#[test]
+fn hillsong_mtg_no_trace_warnings() {
+    let diags = trace_warnings_single("hillsong-mtg.patch");
+    assert!(
+        diags.is_empty(),
+        "hillsong-mtg.patch should produce zero Trace warnings (no signals declared), got:\n{:#?}",
+        diags
+    );
+}
+
+/// hillsong-mini multi-file: campus + foh + stage + yamaha loaded together.
+/// Like hillsong-mtg, this project declares zero `signal` statements — this
+/// test is a no-op crash-guard confirming multi-file projects don't panic.
+#[test]
+fn multi_file_hillsong_mini_no_trace_warnings() {
+    let files = load_project_files(MULTI_FILE_DIR, &[
+        "campus.patch",
+        "buildings/foh.patch",
+        "buildings/stage.patch",
+        "yamaha.patch",
+    ]);
+    let result = patchlang::compile_project(files, "campus.patch");
+    let diags: Vec<_> = result
+        .diagnostics
+        .into_iter()
+        .filter(|d| d.layer == patchlang::drc::DRCLayer::Trace)
+        .collect();
+    assert!(
+        diags.is_empty(),
+        "hillsong-mini multi-file project should produce zero Trace warnings, got:\n{:#?}",
+        diags
+    );
+}

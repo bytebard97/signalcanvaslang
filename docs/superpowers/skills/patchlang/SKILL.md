@@ -399,6 +399,8 @@ Full error code table:
 | C03 | Convention | Info | Template declared with zero ports | Intentional or add ports |
 | C04 | Convention | Info | Bus declared with zero outputs | Add outputs |
 | C05 | Convention | Info | Redundancy terminates at AES67 boundary — Primary port only | Informational; no action required |
+| TR01 | Trace | Warning | Signal origin has no outgoing connections | Add `bridge origin.Port -> ...` or `connect origin.Port -> ...` |
+| TR02 | Trace | Warning | Signal cannot reach any output (`out`/`io`) port | Ensure connects/bridges lead to a port with direction `out` or `io` |
 | F01 | Flow | Warning | Flow slot exhaustion — stream count exceeds Dante chipset limit | Reduce stream count or use a higher-capacity chipset |
 | F02 | Flow | Info | AES67 stream exceeds 8 channels — hardware auto-splits into multiple flows | Informational |
 | F03 | Flow | Error | Multicast prefix mismatch between AES67 devices — silent audio failure | Align multicast prefixes across devices |

@@ -3,4 +3,4 @@
 /**
  * Which validation layer produced this diagnostic.
  */
-export type DRCLayer = "structural" | "direction" | "mechanical" | "electrical" | "logical" | "temporal" | "ring" | "network" | "flow" | "convention";
+export type DRCLayer = "structural" | "direction" | "mechanical" | "electrical" | "logical" | "temporal" | "ring" | "network" | "flow" | "convention" | "trace";

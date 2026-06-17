@@ -12,6 +12,7 @@ pub mod ring;
 pub mod slots;
 pub mod structural;
 pub mod temporal;
+pub mod trace;
 pub mod types;
 
 #[cfg(test)]
@@ -43,5 +44,6 @@ pub fn run_all(program: &PatchProgram, library: &LibraryContext) -> Vec<Diagnost
     diags.extend(network::check(program, &ctx));
     diags.extend(flow::check(program, &ctx));
     diags.extend(convention::check(program, &ctx));
+    diags.extend(trace::check(program, &ctx));
     diags
 }
