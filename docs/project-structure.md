@@ -106,9 +106,32 @@ If a `.layout.json` file does not exist for a `.patch` file, the frontend offers
 
 Two engineers adding rooms to different buildings never touch `project.json` — they just create `.patch` files and add `use` statements. No merge conflicts on a shared manifest. The `use` graph in `.patch` files is the single source of truth for project hierarchy.
 
-### External Dependencies (Future Feature)
+### External Dependencies
 
-The `dependencies` field in `project.json` declares external library packages by name and version constraint. This is a **future feature** — the resolution mechanism is not yet designed. For now, all templates must be resolvable locally. The field is included so that `project.json` files created now won't need a schema change when package resolution ships.
+The `dependencies` field in `project.json` declares external library packages by name and SemVer constraint:
+
+```json
+{
+  "dependencies": {
+    "@stock/yamaha": "^2.0.0",
+    "@stock/shure-wireless": "^1.0.0"
+  }
+}
+```
+
+Keys use `@tier/package-name` notation. Values are SemVer constraint strings (caret, tilde, exact, range — same semantics as npm). The compiler resolves the latest version of each package satisfying all stated constraints from the backend library tier system. See D021 for the full versioning design.
+
+**Resolution order:**
+1. Local `use` resolution takes precedence — a template found locally is used regardless of the version constraint.
+2. Otherwise, the compiler resolves from the backend library tier using the constraint.
+3. If two constraints for the same package conflict, the compiler errors.
+
+**Template version annotations:**
+Templates in the stock library carry `@version("semver")` annotations:
+```
+template Rio3224 @version("2.1.0") { ... }
+```
+Breaking port schema changes (renaming/removing/direction-changing a port) require a major version bump. Adding ports is non-breaking.
 
 ### Layout Sidecar Convention
 

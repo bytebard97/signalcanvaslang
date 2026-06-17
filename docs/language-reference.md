@@ -57,9 +57,20 @@ Keywords can be used as property keys but not as names for templates, instances,
 
 `auto` is a **contextual keyword** — it is only recognized inside index brackets `[]`. Outside brackets, `auto` is a valid identifier (e.g., `instance auto is T`).
 
-`for`, `over`, and `generate` are reserved for future use (parametric template generation). No grammar production exists for them yet.
+`for`, `over`, and `generate` are reserved for future use (parametric template generation). No grammar production exists for them yet. They are dead weight in the current keyword set but reserved intentionally — removing them now would allow a template named `for`, which would break parametric generation if it ships.
 
 `card` is **not** a keyword — it is available as an identifier. Card templates use `meta { kind: "card" }` instead.
+
+#### Keyword Status
+
+| Keyword | Status | Notes |
+|---------|--------|-------|
+| `template`, `instance`, `is`, `connect`, `bridge`, `use` | Core | Non-negotiable |
+| `signal`, `flag`, `stream`, `config` | Active | All appear in production files; each covers a distinct documentation concept |
+| `ring`, `network`, `bus`, `route`, `slot`, `member` | Active | Required for their respective protocol/routing features |
+| `bridge_group` | **Watch — removal candidate** | Zero usage in any fixture or production file. Desugars trivially to individual `bridge` declarations. Low removal cost while language is young. |
+| `link_group` | **Watch — removal candidate** | Zero usage in any fixture or production file. Desugars trivially to individual `connect` declarations. Low removal cost while language is young. |
+| `for`, `over`, `generate` | Reserved (no grammar) | Intentionally dead — reserved for parametric template generation |
 
 ### Annotations
 
@@ -570,7 +581,7 @@ port-group-ref = identifier                               # device-level
 **Semantics:**
 - Port-group level: `FOH.Dante_Pri` covers both `Dante_Pri_In` and `Dante_Pri_Out`
 - Slot reference: `FOH.MY_Slot[1]` — all ports on the card in slot 1 (clean multi-homed expression)
-- No compiler validation in v1 — cross-network connects are valid PatchLang; the UI layer uses membership data to warn
+- Cross-network connects are valid PatchLang — the compiler does not warn on them. See D020 for rationale: cross-network topology warnings require switch-level context the compiler intentionally does not model. The compiler emits `network_membership` data in its output; the UI uses this for visual grouping and topology-aware warnings.
 
 ```
 network Auditorium_Dante {
@@ -590,7 +601,7 @@ network Secondary_Hall_Dante {
 
 **vs `ring`:** Use `ring` for physical bus topology where member order matters (OptoCore, TWINLANe, GigaACE). Use `network` for switched fabrics where membership matters but order does not (Dante, SoundGrid, AVB). AVB devices may declare both — `ring` for the physical topology, `network` for the L2 domain.
 
-**DRC rules:** N01 (unknown instance reference).
+**DRC rules:** N01 (unknown instance reference). Cross-network connect warnings are intentionally absent from the compiler — see D020.
 
 ### Slot Definition (inside templates)
 
@@ -756,6 +767,27 @@ When used on one side of a `connect` or `bridge`, the compiler allocates the nex
 
 **Resolution:** `[auto]` is resolved eagerly at compile time after parsing. The AST retains the `auto` keyword for roundtrip fidelity; resolved indices are stored in a side table and merged into the JSON output.
 
+#### Choosing the Right Channel Mechanism
+
+Three mechanisms express channel routing. They operate at different layers and do not overlap:
+
+| Mechanism | Where | Purpose | Example |
+|-----------|-------|---------|---------|
+| Index range `[1..32]` | Port declaration in template | Declares how many channels a port has | `Dante_Pri_In[1..72]: in` |
+| `[auto]` | One side of `connect`/`bridge` | Compiler fills next available channels sequentially | `connect SB.Out[1..16] -> Console.In[auto]` |
+| `mapping: "..."` | Property on `connect` | Non-trivial channel routing: offset or explicit pairs | `mapping: "offset 16"` |
+
+**When to use each:**
+
+- **Explicit range** (`[1..8]`): You know exactly which channels connect. Preferred when channels are not sequential or when you need to be explicit for documentation clarity.
+- **`[auto]`**: Sequential fill where you don't care which specific channels are used, only that the next N available are allocated. Use when daisy-chaining multiple stageboxes into a console — each stagebox auto-fills the next block.
+- **`mapping: "1:1"`**: Same as the default; only useful to make the intent explicit. Prefer omitting it.
+- **`mapping: "offset N"`**: All source channels shifted by N. Use when a second stagebox needs to start at channel 17 but connects its own channels 1–16.
+- **`mapping: "1->3, 2->4"`**: Explicit per-channel cross-patching. Use sparingly — prefer routing this in the device instance as a `route` entry if it represents operator-configured state.
+
+**`[auto]` vs `mapping: "offset N"`:**
+Both can express "start 16 channels later," but `[auto]` is preferred when the offset is determined by earlier connect declarations (compiler tracks it). Use `mapping: "offset N"` when you need to state the offset explicitly regardless of what other connects exist.
+
 ```
 # Auto-assign 16 channels on the console's Dante input
 connect Stage_Left.Dante_Pri_Out[1..16] -> FOH_Console.Dante_Pri_In[auto]
@@ -811,6 +843,7 @@ The compiler runs DRC checks after parsing and auto-resolution. Diagnostics have
 | E02 | Electrical | Warning | Level mismatch that may need a pad |
 | L01 | Logical | Error | Protocol mismatch (e.g., Dante to MADI) |
 | T01 | Temporal | Warning | Clock domain mismatch between connected ports |
+| N01 | Network | Error | Network member references unknown instance |
 | R01 | Ring | Error | Ring member references unknown instance |
 | R02 | Ring | Error | Ring member references unknown port (explicit form) |
 | R03 | Ring | Warning | Ring member port does not have ring protocol attribute |

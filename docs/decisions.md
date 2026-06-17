@@ -584,3 +584,120 @@ Both are `Severity::Warning`. A third sub-rule ("trace terminates at a non-outpu
 **Affects:** `drc/trace.rs` (new), `drc/types.rs` (new `Trace` layer), `drc/mod.rs`, `language-reference.md` DRC table, `SKILL.md`.
 
 **Related issues:** ByteBard97/SignalCanvasLang#18
+
+---
+
+### D020 — Network Block: Principle 7 Carve-Out
+**2026-06-16** | **Decided**
+
+**Question:** Should cross-network connect validation be moved into the compiler (extend N-series DRC rules beyond N01), or should `network` receive an explicit Principle 7 carve-out documenting it as an intentional exception?
+
+**Decision:** Principle 7 carve-out. `network` is L2 membership documentation; cross-network topology warnings require switch-level context that PatchLang deliberately does not model. N01 (unknown instance reference) remains the only Network-layer DRC rule. The compiler emits structured `network_membership` data in its output so the UI and backend can produce topology-aware warnings without the compiler speculating about physical fabric topology.
+
+**Why the carve-out is correct:**
+The compiler can verify that declared `network` members exist (N01). It cannot verify that two connected ports are truly on separate switched fabrics, because:
+1. A device absent from a `network` block is not necessarily disconnected from that fabric — it may be undeclared, multi-homed, or reachable via a trunk port. The compiler cannot distinguish these cases.
+2. The only check the compiler *could* do — "warn when the intersection of two devices' network membership sets is empty" — produces false positives on partial declarations, which are the common case in incrementally-documented rigs.
+3. A false-positive DRC warning trains engineers to ignore warnings, degrading the entire DRC system's credibility.
+
+**Why this doesn't violate Principle 7:**
+Principle 7 prohibits duplicating validation logic across layers. It does not require the compiler to emit warnings it cannot make reliably. The correct reading is "the compiler validates everything it can validate with the information it has." Cross-network topology warnings require switch-level context (physical switch adjacency, VLAN membership) that PatchLang deliberately does not model (D018). This is the same reasoning that prevented adding switch topology in D018 — the carve-out makes that boundary explicit for the `network` construct.
+
+**What the compiler does provide:**
+The `network_membership` data (which devices belong to which named networks) is already present in the AST and will flow through to the compiler's JSON output. The UI layer reads this to visually group devices by network and can surface cross-network connect warnings with the richer context it has (e.g., knowing which devices the user has actually configured, whether a connection crosses VLANs).
+
+**Deferred N02:**
+One narrow compiler-checkable rule is deferred: N02 — "a port appears as a member of two named networks of the same protocol on the same device that are declared mutually exclusive." This is a well-defined contradiction the compiler can detect without topology context. Deferred until a real fixture requires it.
+
+**Rejected alternative:** Move validation into the compiler (extend N-series rules). Rejected because any rule the compiler can write without switch topology data fires false positives on partial declarations, multi-homed devices, and undeclared devices — all common in real rigs.
+
+**Affects:** `language-reference.md` (network section, DRC table), `overview.md` (Principle 7 note).
+
+**Related issues:** ByteBard97/SignalCanvasLang#19
+
+---
+
+### D021 — Minimal Template Versioning
+**2026-06-16** | **Decided**
+
+**Question:** What version pinning and resolution must be designed before the stock device library can be opened to community contribution?
+
+**Decision:** The `@version` annotation already exists on template declarations. The `dependencies` field in `project.json` adopts SemVer constraints. The compiler resolves "latest version satisfying all constraints" from the backend library tier system. Breaking changes (port schema changes) require a major version bump.
+
+**Version annotation on templates:**
+```
+template Rio3224 @version("2.1.0") {
+  ...
+}
+```
+The `@version` string is a SemVer string. The compiler validates the format but does not enforce it — version enforcement happens at dependency resolution time.
+
+**Project manifest pinning:**
+```json
+{
+  "dependencies": {
+    "@stock/yamaha": "^2.0.0",
+    "@stock/shure-wireless": "^1.0.0"
+  }
+}
+```
+Keys are package names in the `@tier/package` namespace. Values are SemVer constraint strings (caret, tilde, exact, range — same semantics as npm).
+
+**What constitutes a breaking change (major version bump required):**
+- Renaming a port
+- Removing a port
+- Changing a port's direction
+- Changing a port's channel count (declared range)
+
+Adding a new port, changing a port's connector type, or updating metadata is non-breaking (minor/patch).
+
+**Resolution rules:**
+1. Local `use` resolution takes precedence over dependency constraints — if a template resolves locally, the dependency pin is not checked for that template.
+2. The compiler resolves the latest version of each package satisfying all stated constraints from the backend library tier.
+3. If two constraints for the same package are incompatible (e.g., `^1.0.0` and `^2.0.0`), the compiler errors with the conflicting constraints and their sources.
+
+**What is deferred:**
+- Lock files (`project.lock`) — deterministic reproducible builds. Deferred: the backend serves the same resolution for a given constraint, so drift is bounded.
+- Private registry hosting — the backend hosts the library tiers; registry tooling (like npm publish) is not yet designed.
+- Scoped namespace conflicts — two packages providing a template with the same name. Deferred until namespace collision is observed in practice.
+
+**Affects:** `project-structure.md` (`dependencies` field documentation), `project.json` schema.
+
+**Related issues:** ByteBard97/SignalCanvasLang#24
+
+---
+
+### D022 — Library Open-Sourcing Split and License
+**2026-06-16** | **Decided**
+
+**Question:** Under what license should the stock device library be open-sourced, and what is the tier architecture?
+
+**Decision:** The stock device library is released under **ODbL (Open Database License)**. Verified and private library tiers remain closed. Creative content within the library (descriptions, documentation, artwork) is separately licensable under CC-BY-SA 4.0.
+
+**Tier architecture:**
+
+| Tier | Who creates it | License | Availability |
+|------|---------------|---------|--------------|
+| `@stock` | Community + SignalCanvas | ODbL | Public, free |
+| `@verified` | SignalCanvas-curated | Proprietary | SignalCanvas subscribers |
+| `@org` / `@user` | Organization / individual | Private | Owner only |
+
+**Why ODbL over CC-BY-SA:**
+Device templates are structured factual data (port names, counts, directions, connector types, protocols). This is a database, not a creative work. Key differences:
+1. US copyright law provides thin or no protection for factual data (*Feist v. Rural Telephone*). CC-BY-SA relies on copyright; it may be unenforceable against someone who copies only facts.
+2. ODbL explicitly invokes both copyright and the EU database right (sui generis), closing the US factual-data gap by treating the database itself as the protected object.
+3. ODbL's share-alike clause targets the *database as a whole* — a competitor who extracts the device library and ships it in a proprietary product must open-source the derived database. CC-BY-SA would not reliably achieve this for factual data.
+4. ODbL distinguishes "produced works" (rendered outputs like a canvas diagram) from the database itself — proprietary products can consume the library to produce outputs without licensing the output, which is the correct permission model for downstream tooling.
+5. OpenStreetMap uses ODbL for exactly this reason — geographic data is largely factual.
+
+**What stays closed:**
+- Probe device-identification intelligence (the real competitive moat — how SignalCanvas identifies unknown devices)
+- The `@verified` tier (the trust and curation moat)
+- All `@org` and `@user` private libraries
+
+**Community contribution:**
+Contributors to `@stock` grant their contribution under ODbL. A plain-language CONTRIBUTING.md note will explain: "You're licensing the dataset, not individual files. Creative content like descriptions and artwork can be noted separately as CC-BY-SA 4.0."
+
+**Affects:** Library repo, `project-structure.md` (library tiers section), future CONTRIBUTING.md.
+
+**Related issues:** ByteBard97/SignalCanvasLang#26

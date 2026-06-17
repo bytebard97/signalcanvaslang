@@ -140,6 +140,13 @@ only when an intentional partial connect is documented.
 A01: used in `route`/`bus` (not allowed). A02: both sides use `[auto]`. A03: scalar port or
 cannot infer count. A04: overflowed port range. A05: enough channels exist but no contiguous block.
 
+**14. Three channel mechanisms — use the right one.**
+- **`[1..32]`** on a port declaration: declares how many channels the port has. Not for connects.
+- **`[auto]`** on one side of a `connect`/`bridge`: compiler fills the next N available channels. Use when daisy-chaining stageboxes into a console.
+- **`mapping: "offset 16"`** or `"1->3, 2->4"` on a `connect`: explicit channel routing. Use for non-sequential mapping or when offset is fixed regardless of other connects.
+- `mapping: "1:1"` is the default and can be omitted.
+- `[auto]` vs `mapping: "offset N"`: prefer `[auto]` when the compiler can track the offset; use `mapping:` when the offset must be stated explicitly.
+
 ---
 
 ## Compact Syntax Reference
@@ -390,6 +397,7 @@ Full error code table:
 | E02 | Electrical | Warning | Level mismatch — may need a pad | Add pad or `@suppress(electrical)` |
 | L01 | Logical | Error | Protocol mismatch (Dante → MADI, etc.) | Check protocol attributes; `@suppress(logical)` if intentional |
 | T01 | Temporal | Warning | Clock domain mismatch | Verify clocking; `@suppress(temporal)` if intentional |
+| N01 | Network | Error | Network member references unknown instance | Fix instance name. Cross-network connects are intentionally not flagged — see D020 |
 | R01 | Ring | Error | Ring member references unknown instance | Fix instance name |
 | R02 | Ring | Error | Ring member references unknown port (explicit form) | Fix port name |
 | R03 | Ring | Warning | Ring member port missing ring protocol attribute | Check port attributes |
