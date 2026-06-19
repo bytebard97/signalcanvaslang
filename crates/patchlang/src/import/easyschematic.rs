@@ -1,24 +1,26 @@
-// Suppresses unused-import/dead-code warnings while later tasks add the call
-// sites. Remove this line in Task 5 Step 3 once all symbols are in use.
-#![allow(dead_code, unused_imports)]
-
 use serde::Deserialize;
 use serde_json::Value;
 
-use crate::ast::{
-    InstanceDecl, KeyValue, KvValue, PortDef, PortDirection, PortRef,
-    TemplateDecl,
-};
+use crate::ast::{InstanceDecl, KeyValue, KvValue, PortDef, PortRef, TemplateDecl};
 use crate::builder::PatchProgramBuilder;
 use crate::error::Span;
 
+use super::mapping::{
+    connector_to_patchlang, es_direction_to_patchlang, sanitize_identifier,
+    sanitize_port_name, signal_type_to_attribute,
+};
+use super::stubs::resolve_stubs;
+use super::templates::build_template_assignments;
+
 // ---------------------------------------------------------------------------
-// JSON deserialization types (written from scratch against the format spec)
+// JSON deserialization types
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Deserialize)]
 struct SchematicFile {
+    #[allow(dead_code)]
     version: u32,
+    #[allow(dead_code)]
     name: String,
     nodes: Vec<RawNode>,
     edges: Vec<RawEdge>,
@@ -43,6 +45,7 @@ pub(super) struct RawPosition {
 
 #[derive(Debug, Deserialize)]
 pub(super) struct RawEdge {
+    #[allow(dead_code)]
     pub(super) id: String,
     pub(super) source: String,
     pub(super) target: String,
@@ -144,20 +147,234 @@ fn build_err(msg: impl Into<String>) -> ImportError {
     ImportError(msg.into())
 }
 
-// ---------------------------------------------------------------------------
-// Stub function — replaced in Task 5
-// ---------------------------------------------------------------------------
-
-pub fn import_easyschematic(_json: &str) -> Result<ImportResult, ImportError> {
-    Err(ImportError("not yet implemented".to_string()))
+fn null_span() -> Span {
+    Span { start: 0, end: 0, file: None }
 }
 
 // ---------------------------------------------------------------------------
-// Helpers (defined here; called in Task 5)
+// Core importer
 // ---------------------------------------------------------------------------
 
-fn null_span() -> Span {
-    Span { start: 0, end: 0, file: None }
+pub fn import_easyschematic(json: &str) -> Result<ImportResult, ImportError> {
+    use std::collections::HashMap;
+
+    let sf: SchematicFile = serde_json::from_str(json)?;
+
+    let mut device_pairs: Vec<(RawNode, EsDeviceData)> = Vec::new();
+    let mut annotation_nodes: Vec<(RawNode, String)> = Vec::new();
+
+    for node in &sf.nodes {
+        match node.node_type.as_str() {
+            "device" => {
+                if let Some(dev) = EsDeviceData::from_value(&node.data) {
+                    device_pairs.push((node.clone(), dev));
+                }
+            }
+            "room" | "note" | "annotation" => {
+                let label = node.data["label"].as_str().unwrap_or("").to_string();
+                annotation_nodes.push((node.clone(), label));
+            }
+            _ => {}
+        }
+    }
+
+    // Assign sanitized, deduped instance names from device labels
+    let mut used_instance_names: std::collections::HashSet<String> =
+        std::collections::HashSet::new();
+    let mut node_to_instance_name: HashMap<String, String> = HashMap::new();
+
+    for (node, dev) in &device_pairs {
+        let base = sanitize_identifier(&dev.label);
+        let inst_name = if used_instance_names.contains(&base) {
+            let mut n = 2u32;
+            loop {
+                let candidate = format!("{}_{}", base, n);
+                if !used_instance_names.contains(&candidate) {
+                    break candidate;
+                }
+                n += 1;
+            }
+        } else {
+            base
+        };
+        used_instance_names.insert(inst_name.clone());
+        node_to_instance_name.insert(node.id.clone(), inst_name);
+    }
+
+    let assignments = build_template_assignments(&device_pairs);
+
+    // Build ordered (original_label, sanitized_name) pairs per template spec
+    let mut template_port_names: HashMap<String, Vec<(String, String)>> = HashMap::new();
+    for spec in &assignments.specs {
+        let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let pairs = spec
+            .ports
+            .iter()
+            .map(|p| (p.label.clone(), sanitize_port_name(&p.label, &mut seen)))
+            .collect();
+        template_port_names.insert(spec.name.clone(), pairs);
+    }
+
+    // Build port_id → (instance_name, sanitized_port_name) via positional zip.
+    // NOT label-match: duplicate labels like "Input 1"×16 are common in broadcast.
+    let mut port_id_to_ref: HashMap<String, (String, String)> = HashMap::new();
+    for (node, dev) in &device_pairs {
+        let inst_name = &node_to_instance_name[&node.id];
+        let tmpl_name = &assignments.node_to_template[&node.id];
+        let tmpl_ports = template_port_names.get(tmpl_name).cloned().unwrap_or_default();
+        for (port, (_, sanitized)) in dev.ports.iter().zip(tmpl_ports.iter()) {
+            port_id_to_ref.insert(port.id.clone(), (inst_name.clone(), sanitized.clone()));
+        }
+        for port in dev.ports.iter().skip(tmpl_ports.len()) {
+            port_id_to_ref.insert(
+                port.id.clone(),
+                (inst_name.clone(), sanitize_identifier(&port.label)),
+            );
+        }
+    }
+
+    let logical_edges = resolve_stubs(&sf.nodes, &sf.edges);
+
+    let mut builder = PatchProgramBuilder::new();
+
+    // Add templates
+    for spec in &assignments.specs {
+        let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let ports: Vec<PortDef> = spec
+            .ports
+            .iter()
+            .map(|p| {
+                let name = sanitize_port_name(&p.label, &mut seen);
+                let mut attributes: Vec<String> = Vec::new();
+                if let Some(attr) = signal_type_to_attribute(&p.signal_type) {
+                    attributes.push(attr.to_string());
+                }
+                let connector = p
+                    .connector_type
+                    .as_deref()
+                    .and_then(connector_to_patchlang)
+                    .map(|s| s.to_string());
+                PortDef {
+                    name,
+                    range: None,
+                    direction: es_direction_to_patchlang(&p.direction),
+                    connector,
+                    attributes,
+                    named_attributes: Vec::new(),
+                    span: null_span(),
+                }
+            })
+            .collect();
+
+        let decl = TemplateDecl {
+            name: spec.name.clone(),
+            params: Vec::new(),
+            version: None,
+            meta: Vec::new(),
+            ports,
+            bridges: Vec::new(),
+            instances: Vec::new(),
+            connects: Vec::new(),
+            slots: Vec::new(),
+            span: null_span(),
+        };
+        builder
+            .add_template(decl)
+            .map_err(|e| build_err(format!("template '{}': {e}", spec.name)))?;
+    }
+
+    // Add instances
+    for (node, dev) in &device_pairs {
+        let inst_name = node_to_instance_name[&node.id].clone();
+        let tmpl_name = assignments.node_to_template[&node.id].clone();
+        let properties = vec![KeyValue {
+            key: "location".to_string(),
+            value: KvValue::Str { value: dev.label.clone() },
+        }];
+        let decl = InstanceDecl {
+            name: inst_name,
+            template_name: tmpl_name,
+            args: Vec::new(),
+            version_constraint: None,
+            properties,
+            routes: Vec::new(),
+            buses: Vec::new(),
+            slot_assignments: Vec::new(),
+            span: null_span(),
+        };
+        builder
+            .add_instance(decl)
+            .map_err(|e| build_err(format!("instance '{}': {e}", dev.label)))?;
+    }
+
+    // Add connections
+    let mut connection_warnings: Vec<String> = Vec::new();
+
+    for edge in &logical_edges {
+        let src_ref = edge.source_port_id.as_deref().and_then(|pid| port_id_to_ref.get(pid));
+        let tgt_ref = edge.target_port_id.as_deref().and_then(|pid| port_id_to_ref.get(pid));
+
+        if node_to_instance_name.get(&edge.source_node_id).is_none()
+            || node_to_instance_name.get(&edge.target_node_id).is_none()
+        {
+            continue;
+        }
+
+        if let (Some((s_inst, s_port)), Some((t_inst, t_port))) = (src_ref, tgt_ref) {
+            let mut properties: Vec<KeyValue> = Vec::new();
+            if let Some(cid) = &edge.cable_id {
+                properties.push(KeyValue {
+                    key: "cable".to_string(),
+                    value: KvValue::Str { value: cid.clone() },
+                });
+            }
+            if let Some(cl) = &edge.cable_length {
+                properties.push(KeyValue {
+                    key: "length".to_string(),
+                    value: KvValue::Str { value: cl.clone() },
+                });
+            }
+            let source = PortRef { instance: Some(s_inst.clone()), port: s_port.clone(), index: None };
+            let target = PortRef { instance: Some(t_inst.clone()), port: t_port.clone(), index: None };
+
+            if let Err(e) = builder.add_connect(source, target, properties) {
+                connection_warnings.push(format!(
+                    "skipped {}.{} → {}.{}: {e}",
+                    s_inst, s_port, t_inst, t_port
+                ));
+            }
+        }
+    }
+
+    let patch = builder.format();
+
+    // Build layout sidecar
+    let mut positions = serde_json::Map::new();
+    for (node, _) in &device_pairs {
+        let inst_name = &node_to_instance_name[&node.id];
+        positions.insert(
+            inst_name.clone(),
+            serde_json::json!({ "x": node.position.x, "y": node.position.y }),
+        );
+    }
+
+    let annotations: Vec<serde_json::Value> = annotation_nodes
+        .iter()
+        .map(|(node, label)| serde_json::json!({
+            "type": node.node_type,
+            "label": label,
+            "x": node.position.x,
+            "y": node.position.y
+        }))
+        .collect();
+
+    let layout = serde_json::json!({
+        "version": 2,
+        "positions": positions,
+        "annotations": annotations
+    });
+
+    Ok(ImportResult { patch, layout, warnings: connection_warnings })
 }
 
 // ---------------------------------------------------------------------------
@@ -205,7 +422,6 @@ mod tests {
         assert_eq!(node.id, "device-1");
         assert_eq!(node.node_type, "device");
         assert!((node.position.x - 100.0).abs() < f64::EPSILON);
-
         let dev = EsDeviceData::from_value(&node.data).unwrap();
         assert_eq!(dev.label, "My Mixer");
         assert_eq!(dev.template_id.as_deref(), Some("tmpl-abc"));
@@ -217,13 +433,10 @@ mod tests {
     #[test]
     fn parse_edge_with_handles() {
         let json = r#"{
-            "version":1,"name":"T",
-            "nodes":[],
-            "edges":[{
-                "id":"e-1","source":"device-1","target":"device-2",
-                "sourceHandle":"p-1","targetHandle":"p-3",
-                "data":{"signalType":"sdi","cableId":"C001"}
-            }]
+            "version":1,"name":"T","nodes":[],
+            "edges":[{"id":"e-1","source":"d1","target":"d2",
+                      "sourceHandle":"p-1","targetHandle":"p-3",
+                      "data":{"signalType":"sdi","cableId":"C001"}}]
         }"#;
         let sf: SchematicFile = serde_json::from_str(json).unwrap();
         let e = &sf.edges[0];
@@ -238,19 +451,163 @@ mod tests {
     fn parse_stub_label_node() {
         let json = r#"{
             "version":1,"name":"T",
-            "nodes":[{
-                "id":"stub-1","type":"stub-label",
-                "position":{"x":0.0,"y":0.0},
-                "data":{"linkedConnectionId":"conn-42","side":"source","signalType":"dante"}
-            }],
+            "nodes":[{"id":"stub-1","type":"stub-label",
+                      "position":{"x":0.0,"y":0.0},
+                      "data":{"linkedConnectionId":"conn-42","side":"source","signalType":"dante"}}],
             "edges":[]
         }"#;
         let sf: SchematicFile = serde_json::from_str(json).unwrap();
         let node = &sf.nodes[0];
         assert_eq!(node.node_type, "stub-label");
-        let lid = node.data["linkedConnectionId"].as_str().unwrap();
-        assert_eq!(lid, "conn-42");
-        let side = node.data["side"].as_str().unwrap();
-        assert_eq!(side, "source");
+        assert_eq!(node.data["linkedConnectionId"].as_str().unwrap(), "conn-42");
+        assert_eq!(node.data["side"].as_str().unwrap(), "source");
+    }
+
+    #[test]
+    fn basic_import_two_devices_one_connection() {
+        let json = r#"{
+            "version": 29, "name": "Simple Test",
+            "nodes": [
+                {"id": "device-1", "type": "device", "position": {"x": 100.0, "y": 50.0},
+                 "data": {"label": "Mixer", "model": "SQ6", "templateId": "tmpl-sq6",
+                          "ports": [
+                              {"id": "p-out", "label": "Dante Out", "signalType": "dante",
+                               "direction": "output", "connectorType": "ethercon"},
+                              {"id": "p-in",  "label": "Dante In",  "signalType": "dante",
+                               "direction": "input",  "connectorType": "ethercon"}
+                          ]}},
+                {"id": "device-2", "type": "device", "position": {"x": 400.0, "y": 50.0},
+                 "data": {"label": "Stage Box", "model": "DX168", "templateId": "tmpl-dx168",
+                          "ports": [
+                              {"id": "p-rx", "label": "Dante In",  "signalType": "dante",
+                               "direction": "input",  "connectorType": "ethercon"},
+                              {"id": "p-tx", "label": "Dante Out", "signalType": "dante",
+                               "direction": "output", "connectorType": "ethercon"}
+                          ]}}
+            ],
+            "edges": [{"id": "e-1", "source": "device-1", "target": "device-2",
+                       "sourceHandle": "p-out", "targetHandle": "p-rx",
+                       "data": {"signalType": "dante", "cableId": "CAT-001"}}]
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        assert!(result.patch.contains("template SQ6"));
+        assert!(result.patch.contains("template DX168"));
+        assert!(result.patch.contains("instance"));
+        assert!(result.patch.contains("connect"));
+        assert!(result.patch.contains("[Dante]"));
+        assert_eq!(result.layout["positions"].as_object().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn room_nodes_appear_in_annotations_not_patch() {
+        let json = r#"{
+            "version": 29, "name": "T",
+            "nodes": [
+                {"id": "room-1", "type": "room", "position": {"x": 0.0, "y": 0.0},
+                 "data": {"label": "Stage"}},
+                {"id": "device-1", "type": "device", "position": {"x": 10.0, "y": 10.0},
+                 "data": {"label": "Camera", "templateId": "tmpl-cam",
+                          "ports": [{"id": "p1", "label": "SDI Out", "signalType": "sdi",
+                                     "direction": "output"}]}}
+            ],
+            "edges": []
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        assert!(!result.patch.contains("Stage"));
+        let annotations = result.layout["annotations"].as_array().unwrap();
+        assert_eq!(annotations.len(), 1);
+        assert_eq!(annotations[0]["label"].as_str().unwrap(), "Stage");
+    }
+
+    #[test]
+    fn stub_split_connection_is_rejoined() {
+        let json = r#"{
+            "version": 29, "name": "T",
+            "nodes": [
+                {"id": "dev-src", "type": "device", "position": {"x": 0.0, "y": 0.0},
+                 "data": {"label": "Source", "templateId": "tmpl-src",
+                          "ports": [{"id": "p-out", "label": "SDI Out", "signalType": "sdi",
+                                     "direction": "output"}]}},
+                {"id": "dev-tgt", "type": "device", "position": {"x": 200.0, "y": 0.0},
+                 "data": {"label": "Display", "templateId": "tmpl-disp",
+                          "ports": [{"id": "p-in", "label": "SDI In", "signalType": "sdi",
+                                     "direction": "input"}]}},
+                {"id": "stub-a", "type": "stub-label", "position": {"x": 80.0, "y": 0.0},
+                 "data": {"linkedConnectionId": "lc-1", "side": "source", "signalType": "sdi"}},
+                {"id": "stub-b", "type": "stub-label", "position": {"x": 120.0, "y": 0.0},
+                 "data": {"linkedConnectionId": "lc-1", "side": "target", "signalType": "sdi"}}
+            ],
+            "edges": [
+                {"id": "leg-1", "source": "dev-src", "target": "stub-a",
+                 "sourceHandle": "p-out", "targetHandle": null,
+                 "data": {"signalType": "sdi", "linkedConnectionId": "lc-1"}},
+                {"id": "leg-2", "source": "stub-b", "target": "dev-tgt",
+                 "sourceHandle": null, "targetHandle": "p-in",
+                 "data": {"signalType": "sdi", "linkedConnectionId": "lc-1"}}
+            ]
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        assert!(result.patch.contains("connect"));
+    }
+
+    #[test]
+    fn invalid_json_returns_error() {
+        let result = import_easyschematic("not json at all");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().0.contains("JSON parse error"));
+    }
+
+    #[test]
+    fn layout_version_is_two() {
+        let json = r#"{"version":1,"name":"T","nodes":[],"edges":[]}"#;
+        let result = import_easyschematic(json).unwrap();
+        assert_eq!(result.layout["version"].as_u64().unwrap(), 2);
+    }
+
+    #[test]
+    fn generated_patch_is_valid_patchlang() {
+        let json = r#"{
+            "version": 29, "name": "ValidityCheck",
+            "nodes": [
+                {"id": "d1", "type": "device", "position": {"x": 0.0, "y": 0.0},
+                 "data": {"label": "Mixer", "model": "SQ6", "templateId": "tmpl-sq6",
+                          "ports": [
+                              {"id": "p-out", "label": "Dante Out", "signalType": "dante",
+                               "direction": "output", "connectorType": "ethercon"},
+                              {"id": "p-in", "label": "Dante In", "signalType": "dante",
+                               "direction": "input", "connectorType": "ethercon"}
+                          ]}},
+                {"id": "d2", "type": "device", "position": {"x": 400.0, "y": 0.0},
+                 "data": {"label": "Stage Box", "model": "DX168", "templateId": "tmpl-dx168",
+                          "ports": [
+                              {"id": "p-rx", "label": "Dante In", "signalType": "dante",
+                               "direction": "input", "connectorType": "ethercon"},
+                              {"id": "p-tx", "label": "Dante Out", "signalType": "dante",
+                               "direction": "output", "connectorType": "ethercon"}
+                          ]}}
+            ],
+            "edges": [{"id": "e-1", "source": "d1", "target": "d2",
+                       "sourceHandle": "p-out", "targetHandle": "p-rx",
+                       "data": {"signalType": "dante"}}]
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        let check = crate::check(&result.patch);
+        assert!(
+            check.errors.is_empty(),
+            "generated patch has parse errors:\n{}\n\nPatch:\n{}",
+            check.errors.iter().map(|e| format!("{e:?}")).collect::<Vec<_>>().join("\n"),
+            result.patch
+        );
+        let error_diags: Vec<_> = check
+            .diagnostics
+            .iter()
+            .filter(|d| matches!(d.severity, crate::drc::Severity::Error))
+            .collect();
+        assert!(
+            error_diags.is_empty(),
+            "generated patch has DRC errors:\n{}\n\nPatch:\n{}",
+            error_diags.iter().map(|d| d.message.as_str()).collect::<Vec<_>>().join("\n"),
+            result.patch
+        );
     }
 }
