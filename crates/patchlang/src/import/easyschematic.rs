@@ -59,6 +59,7 @@ pub(super) struct RawEdge {
 #[derive(Debug, Deserialize)]
 pub(super) struct RawEdgeData {
     #[serde(rename = "signalType")]
+    #[allow(dead_code)]
     pub(super) signal_type: Option<String>,
     #[serde(rename = "cableId")]
     pub(super) cable_id: Option<String>,
