@@ -152,6 +152,7 @@ fn rebuild_input_from_load(loaded: &CanvasLoadOutput) -> CanvasEmitInput {
         let internal_buses: Vec<BusEmitInput> = inst.internal_buses.iter().map(|b| {
             let named_outputs = b.named_outputs.iter().map(|o| BusOutputEmitInput {
                 name: o.name.clone(),
+                instance: o.output_instance.clone(),
                 interface: o.output_port.clone(),
                 channels: o.output_channels.clone(),
             }).collect();

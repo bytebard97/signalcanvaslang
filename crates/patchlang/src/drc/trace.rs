@@ -38,7 +38,7 @@ pub fn check(program: &PatchProgram, ctx: &DRCContext<'_>) -> Vec<Diagnostic> {
             if ctx
                 .effective_ports
                 .get(instance_name)
-                .map_or(true, |ports| {
+                .is_none_or(|ports| {
                     !ports.iter().any(|ep| ep.port_def.name == origin.port)
                 })
             {
