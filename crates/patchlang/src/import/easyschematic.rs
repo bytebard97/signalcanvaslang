@@ -95,6 +95,8 @@ impl EsPort {
 pub(super) struct EsDeviceData {
     pub(super) label: String,
     pub(super) model: Option<String>,
+    pub(super) manufacturer: Option<String>,
+    pub(super) model_number: Option<String>,
     pub(super) template_id: Option<String>,
     pub(super) ports: Vec<EsPort>,
 }
@@ -109,6 +111,8 @@ impl EsDeviceData {
         Some(EsDeviceData {
             label: v["label"].as_str().unwrap_or("Device").to_string(),
             model: v["model"].as_str().map(|s| s.to_string()),
+            manufacturer: v["manufacturer"].as_str().map(|s| s.to_string()),
+            model_number: v["modelNumber"].as_str().map(|s| s.to_string()),
             template_id: v["templateId"].as_str().map(|s| s.to_string()),
             ports,
         })
@@ -124,6 +128,8 @@ pub struct DeviceSummary {
     pub instance_name: String,
     pub template_name: String,
     pub model: Option<String>,
+    pub manufacturer: Option<String>,
+    pub model_number: Option<String>,
     pub label: String,
 }
 
@@ -393,6 +399,8 @@ pub fn import_easyschematic(json: &str) -> Result<ImportResult, ImportError> {
                 instance_name,
                 template_name,
                 model: dev.model.clone(),
+                manufacturer: dev.manufacturer.clone(),
+                model_number: dev.model_number.clone(),
                 label: dev.label.clone(),
             }
         })
