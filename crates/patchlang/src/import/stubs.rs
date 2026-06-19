@@ -84,6 +84,7 @@ pub(super) fn resolve_stubs(nodes: &[RawNode], edges: &[RawEdge]) -> Vec<Logical
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::easyschematic::{RawEdgeData, RawPosition};
 
     #[test]
     fn regular_edge_passes_through() {
