@@ -27,56 +27,56 @@ struct SchematicFile {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-struct RawNode {
-    id: String,
+pub(super) struct RawNode {
+    pub(super) id: String,
     #[serde(rename = "type")]
-    node_type: String,
-    position: RawPosition,
-    data: Value,
+    pub(super) node_type: String,
+    pub(super) position: RawPosition,
+    pub(super) data: Value,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-struct RawPosition {
-    x: f64,
-    y: f64,
+pub(super) struct RawPosition {
+    pub(super) x: f64,
+    pub(super) y: f64,
 }
 
 #[derive(Debug, Deserialize)]
-struct RawEdge {
-    id: String,
-    source: String,
-    target: String,
+pub(super) struct RawEdge {
+    pub(super) id: String,
+    pub(super) source: String,
+    pub(super) target: String,
     #[serde(rename = "sourceHandle")]
-    source_handle: Option<String>,
+    pub(super) source_handle: Option<String>,
     #[serde(rename = "targetHandle")]
-    target_handle: Option<String>,
-    data: Option<RawEdgeData>,
+    pub(super) target_handle: Option<String>,
+    pub(super) data: Option<RawEdgeData>,
 }
 
 #[derive(Debug, Deserialize)]
-struct RawEdgeData {
+pub(super) struct RawEdgeData {
     #[serde(rename = "signalType")]
-    signal_type: Option<String>,
+    pub(super) signal_type: Option<String>,
     #[serde(rename = "cableId")]
-    cable_id: Option<String>,
+    pub(super) cable_id: Option<String>,
     #[serde(rename = "cableLength")]
-    cable_length: Option<String>,
-    label: Option<String>,
+    pub(super) cable_length: Option<String>,
+    pub(super) label: Option<String>,
     #[serde(rename = "linkedConnectionId")]
-    linked_connection_id: Option<String>,
+    pub(super) linked_connection_id: Option<String>,
 }
 
 #[derive(Debug, Clone)]
-struct EsPort {
-    id: String,
-    label: String,
-    signal_type: String,
-    direction: String,
-    connector_type: Option<String>,
+pub(super) struct EsPort {
+    pub(super) id: String,
+    pub(super) label: String,
+    pub(super) signal_type: String,
+    pub(super) direction: String,
+    pub(super) connector_type: Option<String>,
 }
 
 impl EsPort {
-    fn from_value(v: &Value) -> Option<Self> {
+    pub(super) fn from_value(v: &Value) -> Option<Self> {
         Some(EsPort {
             id: v["id"].as_str()?.to_string(),
             label: v["label"].as_str()?.to_string(),
@@ -88,15 +88,15 @@ impl EsPort {
 }
 
 #[derive(Debug, Clone)]
-struct EsDeviceData {
-    label: String,
-    model: Option<String>,
-    template_id: Option<String>,
-    ports: Vec<EsPort>,
+pub(super) struct EsDeviceData {
+    pub(super) label: String,
+    pub(super) model: Option<String>,
+    pub(super) template_id: Option<String>,
+    pub(super) ports: Vec<EsPort>,
 }
 
 impl EsDeviceData {
-    fn from_value(v: &Value) -> Option<Self> {
+    pub(super) fn from_value(v: &Value) -> Option<Self> {
         let ports = v["ports"]
             .as_array()?
             .iter()
