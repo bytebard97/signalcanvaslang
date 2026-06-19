@@ -949,3 +949,19 @@ pub fn load_from_patch(patch_source: &str, layout_json: &str) -> String {
         Err(e) => json_err(&e.to_string()),
     }
 }
+
+/// Import an EasySchematic JSON save file and return `{ patch, layout, warnings }` as JSON,
+/// or `{"error":"..."}` on failure.
+///
+/// - `patch` — canonical PatchLang source text
+/// - `layout` — `.layout.json` sidecar (version 2 schema)
+/// - `warnings` — non-fatal issues (e.g. skipped direction-violating connections)
+#[wasm_bindgen]
+pub fn import_from_easyschematic(json: &str) -> String {
+    match patchlang::import::import_easyschematic(json) {
+        Ok(result) => {
+            serde_json::to_string(&result).unwrap_or_else(|e| json_err(&e.to_string()))
+        }
+        Err(e) => json_err(&e.to_string()),
+    }
+}
