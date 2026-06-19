@@ -15,6 +15,7 @@ pub mod multi_file;
 pub mod parser;
 pub(crate) mod body_parser;
 pub mod resolve_auto;
+pub mod import;
 pub(crate) mod template_parser;
 
 #[cfg(test)]
