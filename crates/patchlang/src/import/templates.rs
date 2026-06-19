@@ -129,6 +129,7 @@ mod tests {
             node_type: "device".to_string(),
             position: RawPosition { x: 0.0, y: 0.0 },
             data: data_val.clone(),
+            parent_id: None,
         };
         let data = EsDeviceData::from_value(&data_val).unwrap();
         (node, data)

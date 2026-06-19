@@ -35,6 +35,8 @@ pub(super) struct RawNode {
     pub(super) node_type: String,
     pub(super) position: RawPosition,
     pub(super) data: Value,
+    #[serde(rename = "parentId", default)]
+    pub(super) parent_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -89,6 +91,15 @@ impl EsPort {
             connector_type: v["connectorType"].as_str().map(|s| s.to_string()),
         })
     }
+
+    /// Returns false for signal types that have no representation in PatchLang:
+    /// mains power, USB peripherals, and consumer/legacy video signals.
+    pub(super) fn is_signal_flow_relevant(&self) -> bool {
+        !matches!(
+            self.signal_type.as_str(),
+            "usb" | "thunderbolt" | "displayport" | "serial" | "composite" | "vga"
+        ) && !self.signal_type.starts_with("power")
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -107,6 +118,7 @@ impl EsDeviceData {
             .as_array()?
             .iter()
             .filter_map(EsPort::from_value)
+            .filter(EsPort::is_signal_flow_relevant)
             .collect();
         Some(EsDeviceData {
             label: v["label"].as_str().unwrap_or("Device").to_string(),
@@ -282,11 +294,27 @@ pub fn import_easyschematic(json: &str) -> Result<ImportResult, ImportError> {
             })
             .collect();
 
+        // Collect meta from the first device using this template.
+        // manufacturer, model, model_number, and es_template_id are preserved
+        // so EasySchematic roundtrip can reconstruct the original JSON fields.
+        let first_dev = device_pairs
+            .iter()
+            .find(|(n, _)| assignments.node_to_template[&n.id] == spec.name)
+            .map(|(_, d)| d);
+        let mut meta: Vec<KeyValue> = Vec::new();
+        let kv_str = |k: &str, v: String| KeyValue { key: k.to_string(), value: KvValue::Str { value: v } };
+        if let Some(dev) = first_dev {
+            if let Some(m) = &dev.manufacturer  { meta.push(kv_str("manufacturer",   m.clone())); }
+            if let Some(m) = &dev.model         { meta.push(kv_str("model",          m.clone())); }
+            if let Some(m) = &dev.model_number  { meta.push(kv_str("model_number",   m.clone())); }
+            if let Some(t) = &dev.template_id   { meta.push(kv_str("es_template_id", t.clone())); }
+        }
+
         let decl = TemplateDecl {
             name: spec.name.clone(),
             params: Vec::new(),
             version: None,
-            meta: Vec::new(),
+            meta,
             ports,
             bridges: Vec::new(),
             instances: Vec::new(),
@@ -303,10 +331,11 @@ pub fn import_easyschematic(json: &str) -> Result<ImportResult, ImportError> {
     for (node, dev) in &device_pairs {
         let inst_name = node_to_instance_name[&node.id].clone();
         let tmpl_name = assignments.node_to_template[&node.id].clone();
-        let properties = vec![KeyValue {
-            key: "location".to_string(),
-            value: KvValue::Str { value: dev.label.clone() },
-        }];
+        let kv = |k: &str, v: &str| KeyValue { key: k.to_string(), value: KvValue::Str { value: v.to_string() } };
+        let mut properties = vec![kv("location", &dev.label)];
+        // Preserve the original EasySchematic node ID so an exporter can
+        // reconstruct the source JSON without losing identity.
+        properties.push(kv("es_node_id", &node.id));
         let decl = InstanceDecl {
             name: inst_name,
             template_name: tmpl_name,
@@ -364,24 +393,46 @@ pub fn import_easyschematic(json: &str) -> Result<ImportResult, ImportError> {
 
     let patch = builder.format();
 
+    // Build room-position lookup so child nodes can resolve absolute coordinates.
+    // EasySchematic uses ReactFlow parent-child positioning: a node with parentId
+    // has a position relative to its parent room, not the canvas.
+    let mut room_positions: HashMap<String, (f64, f64)> = HashMap::new();
+    for node in &sf.nodes {
+        if node.node_type == "room" {
+            room_positions.insert(node.id.clone(), (node.position.x, node.position.y));
+        }
+    }
+
+    let resolve_abs = |node: &RawNode| -> (f64, f64) {
+        let (px, py) = node.parent_id.as_deref()
+            .and_then(|pid| room_positions.get(pid))
+            .copied()
+            .unwrap_or((0.0, 0.0));
+        (node.position.x + px, node.position.y + py)
+    };
+
     // Build layout sidecar
     let mut positions = serde_json::Map::new();
     for (node, _) in &device_pairs {
         let inst_name = &node_to_instance_name[&node.id];
+        let (ax, ay) = resolve_abs(node);
         positions.insert(
             inst_name.clone(),
-            serde_json::json!({ "x": node.position.x, "y": node.position.y }),
+            serde_json::json!({ "x": ax, "y": ay }),
         );
     }
 
     let annotations: Vec<serde_json::Value> = annotation_nodes
         .iter()
-        .map(|(node, label)| serde_json::json!({
-            "type": node.node_type,
-            "label": label,
-            "x": node.position.x,
-            "y": node.position.y
-        }))
+        .map(|(node, label)| {
+            let (ax, ay) = resolve_abs(node);
+            serde_json::json!({
+                "type": node.node_type,
+                "label": label,
+                "x": ax,
+                "y": ay
+            })
+        })
         .collect();
 
     let layout = serde_json::json!({
@@ -700,6 +751,84 @@ mod tests {
                 assert_eq!(output.instances.len(), 2, "expected 2 instances");
                 assert!(!output.connections.is_empty(), "expected connections, got none");
             }
+        }
+    }
+
+    #[test]
+    fn device_in_room_resolves_absolute_position() {
+        let json = r#"{
+            "version": 1, "name": "T",
+            "nodes": [
+                {"id": "room-1", "type": "room", "position": {"x": 640.0, "y": 144.0},
+                 "data": {"label": "Booth"}},
+                {"id": "d1", "type": "device", "position": {"x": 100.0, "y": 50.0},
+                 "parentId": "room-1",
+                 "data": {"label": "Mixer", "templateId": "tmpl-m",
+                          "ports": [{"id": "p1", "label": "Out", "signalType": "sdi",
+                                     "direction": "output"}]}}
+            ],
+            "edges": []
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        let pos = &result.layout["positions"]["Mixer"];
+        assert!((pos["x"].as_f64().unwrap() - 740.0).abs() < 0.01, "x should be 640+100=740, got {}", pos["x"]);
+        assert!((pos["y"].as_f64().unwrap() - 194.0).abs() < 0.01, "y should be 144+50=194, got {}", pos["y"]);
+    }
+
+    #[test]
+    fn device_without_parent_uses_raw_position() {
+        let json = r#"{
+            "version": 1, "name": "T",
+            "nodes": [
+                {"id": "d1", "type": "device", "position": {"x": 300.0, "y": 400.0},
+                 "data": {"label": "Camera", "templateId": "tmpl-c",
+                          "ports": [{"id": "p1", "label": "SDI Out", "signalType": "sdi",
+                                     "direction": "output"}]}}
+            ],
+            "edges": []
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        let pos = &result.layout["positions"]["Camera"];
+        assert!((pos["x"].as_f64().unwrap() - 300.0).abs() < 0.01);
+        assert!((pos["y"].as_f64().unwrap() - 400.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn non_signal_flow_ports_are_filtered_out() {
+        let json = r#"{
+            "version": 1, "name": "T",
+            "nodes": [
+                {"id": "d1", "type": "device", "position": {"x": 0.0, "y": 0.0},
+                 "data": {"label": "Mac Studio", "templateId": "tmpl-m",
+                          "ports": [
+                              {"id": "p1", "label": "HDMI Out",    "signalType": "hdmi",        "direction": "output"},
+                              {"id": "p2", "label": "AC Power",    "signalType": "power",       "direction": "input"},
+                              {"id": "p3", "label": "USB-A",       "signalType": "usb",         "direction": "bidirectional"},
+                              {"id": "p4", "label": "Ethernet",    "signalType": "ethernet",    "direction": "output"},
+                              {"id": "p5", "label": "Feed L1",     "signalType": "power-l1",    "direction": "output"},
+                              {"id": "p6", "label": "SDI Out",     "signalType": "sdi",         "direction": "output"},
+                              {"id": "p7", "label": "TB In",       "signalType": "thunderbolt", "direction": "input"},
+                              {"id": "p8", "label": "DP Out",      "signalType": "displayport", "direction": "output"},
+                              {"id": "p9", "label": "RS-232",      "signalType": "serial",      "direction": "bidirectional"},
+                              {"id": "p10","label": "Composite In","signalType": "composite",   "direction": "input"},
+                              {"id": "p11","label": "VGA In",      "signalType": "vga",         "direction": "input"}
+                          ]}}
+            ],
+            "edges": []
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        let dev = EsDeviceData::from_value(
+            &serde_json::from_str::<serde_json::Value>(json).unwrap()["nodes"][0]["data"]
+        ).unwrap();
+        // only hdmi, ethernet, sdi survive
+        assert_eq!(dev.ports.len(), 3);
+        assert!(dev.ports.iter().any(|p| p.signal_type == "hdmi"));
+        assert!(dev.ports.iter().any(|p| p.signal_type == "ethernet"));
+        assert!(dev.ports.iter().any(|p| p.signal_type == "sdi"));
+        // filtered types must not appear in the generated patch
+        for banned in &["AC_Power", "USB", "thunderbolt", "displayport", "serial", "composite", "vga"] {
+            assert!(!result.patch.to_lowercase().contains(&banned.to_lowercase()),
+                "banned port type '{banned}' leaked into patch");
         }
     }
 

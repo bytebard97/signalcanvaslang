@@ -29,6 +29,7 @@ pub(super) fn signal_type_to_attribute(s: &str) -> Option<&'static str> {
         "analog-audio" => Some("Analogue"),
         "st2110"      => Some("SMPTE2110"),
         "gigaace"     => Some("GigaACE"),
+        "ethernet"    => Some("Ethernet_Mgmt"),
         _             => None,
     }
 }
@@ -107,6 +108,7 @@ mod tests {
         assert_eq!(signal_type_to_attribute("analog-audio"), Some("Analogue"));
         assert_eq!(signal_type_to_attribute("st2110"), Some("SMPTE2110"));
         assert_eq!(signal_type_to_attribute("gigaace"), Some("GigaACE"));
+        assert_eq!(signal_type_to_attribute("ethernet"), Some("Ethernet_Mgmt"));
         assert_eq!(signal_type_to_attribute("hdmi"), None);
         assert_eq!(signal_type_to_attribute("thunderbolt"), None);
         assert_eq!(signal_type_to_attribute(""), None);

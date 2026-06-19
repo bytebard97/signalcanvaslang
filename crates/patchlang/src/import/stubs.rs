@@ -142,6 +142,7 @@ mod tests {
             node_type: "device".to_string(),
             position: RawPosition { x, y },
             data: serde_json::json!({ "label": id, "ports": [] }),
+            parent_id: None,
         }
     }
 
@@ -155,6 +156,7 @@ mod tests {
                 "side": side,
                 "signalType": "sdi"
             }),
+            parent_id: None,
         }
     }
 
