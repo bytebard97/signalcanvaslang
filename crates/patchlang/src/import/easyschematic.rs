@@ -670,6 +670,40 @@ mod tests {
     }
 
     #[test]
+    fn easyschematic_patch_roundtrips_through_canvas_load() {
+        let json = r#"{
+            "version": 29, "name": "RoundtripTest",
+            "nodes": [
+                {"id": "d1", "type": "device", "position": {"x": 0.0, "y": 0.0},
+                 "data": {"label": "Mixer", "model": "SQ6", "templateId": "tmpl-sq6",
+                          "ports": [
+                              {"id": "p-out", "label": "Dante Out", "signalType": "dante",
+                               "direction": "output", "connectorType": "ethercon"}
+                          ]}},
+                {"id": "d2", "type": "device", "position": {"x": 400.0, "y": 0.0},
+                 "data": {"label": "Stage Box", "model": "DX168", "templateId": "tmpl-dx168",
+                          "ports": [
+                              {"id": "p-rx", "label": "Dante In", "signalType": "dante",
+                               "direction": "input", "connectorType": "ethercon"}
+                          ]}}
+            ],
+            "edges": [{"id": "e-1", "source": "d1", "target": "d2",
+                       "sourceHandle": "p-out", "targetHandle": "p-rx",
+                       "data": {"signalType": "dante"}}]
+        }"#;
+        let import_result = import_easyschematic(json).unwrap();
+        let load_result = crate::builder::canvas_load::load_from_patch(&import_result.patch, "{}");
+        match load_result {
+            Err(e) => panic!("load_from_patch failed: {e:?}\nPatch:\n{}", import_result.patch),
+            Ok(output) => {
+                assert!(!output.instances.is_empty(), "expected instances, got none\nPatch:\n{}", import_result.patch);
+                assert_eq!(output.instances.len(), 2, "expected 2 instances");
+                assert!(!output.connections.is_empty(), "expected connections, got none");
+            }
+        }
+    }
+
+    #[test]
     fn device_with_no_model_uses_none() {
         let json = r#"{
             "version": 1, "name": "T",
