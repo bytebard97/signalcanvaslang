@@ -120,11 +120,20 @@ impl EsDeviceData {
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, serde::Serialize)]
+pub struct DeviceSummary {
+    pub instance_name: String,
+    pub template_name: String,
+    pub model: Option<String>,
+    pub label: String,
+}
+
+#[derive(Debug, serde::Serialize)]
 pub struct ImportResult {
     pub patch: String,
     pub layout: serde_json::Value,
     /// Connections that couldn't be emitted (e.g. direction violations). Non-fatal.
     pub warnings: Vec<String>,
+    pub devices: Vec<DeviceSummary>,
 }
 
 #[derive(Debug)]
@@ -375,7 +384,21 @@ pub fn import_easyschematic(json: &str) -> Result<ImportResult, ImportError> {
         "annotations": annotations
     });
 
-    Ok(ImportResult { patch, layout, warnings: connection_warnings })
+    let devices: Vec<DeviceSummary> = device_pairs
+        .iter()
+        .map(|(node, dev)| {
+            let instance_name = node_to_instance_name[&node.id].clone();
+            let template_name = assignments.node_to_template[&node.id].clone();
+            DeviceSummary {
+                instance_name,
+                template_name,
+                model: dev.model.clone(),
+                label: dev.label.clone(),
+            }
+        })
+        .collect();
+
+    Ok(ImportResult { patch, layout, warnings: connection_warnings, devices })
 }
 
 // ---------------------------------------------------------------------------
@@ -610,5 +633,49 @@ mod tests {
             error_diags.iter().map(|d| d.message.as_str()).collect::<Vec<_>>().join("\n"),
             result.patch
         );
+    }
+
+    #[test]
+    fn import_result_includes_device_list() {
+        let json = r#"{
+            "version": 29, "name": "T",
+            "nodes": [
+                {"id": "d1", "type": "device", "position": {"x": 0.0, "y": 0.0},
+                 "data": {"label": "Mixer", "model": "SQ6", "templateId": "tmpl-sq6",
+                          "ports": [{"id": "p1", "label": "Dante Out", "signalType": "dante",
+                                     "direction": "output"}]}},
+                {"id": "d2", "type": "device", "position": {"x": 100.0, "y": 0.0},
+                 "data": {"label": "Stage Box", "model": "DX168", "templateId": "tmpl-dx168",
+                          "ports": [{"id": "p2", "label": "Dante In", "signalType": "dante",
+                                     "direction": "input"}]}}
+            ],
+            "edges": []
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        assert_eq!(result.devices.len(), 2);
+        let mixer = result.devices.iter().find(|d| d.label == "Mixer").unwrap();
+        assert_eq!(mixer.instance_name, "Mixer");
+        assert_eq!(mixer.template_name, "SQ6");
+        assert_eq!(mixer.model.as_deref(), Some("SQ6"));
+        let stage = result.devices.iter().find(|d| d.label == "Stage Box").unwrap();
+        assert_eq!(stage.model.as_deref(), Some("DX168"));
+    }
+
+    #[test]
+    fn device_with_no_model_uses_none() {
+        let json = r#"{
+            "version": 1, "name": "T",
+            "nodes": [
+                {"id": "d1", "type": "device", "position": {"x": 0.0, "y": 0.0},
+                 "data": {"label": "My Gadget", "templateId": "tmpl-g",
+                          "ports": [{"id": "p1", "label": "Out", "signalType": "sdi",
+                                     "direction": "output"}]}}
+            ],
+            "edges": []
+        }"#;
+        let result = import_easyschematic(json).unwrap();
+        assert_eq!(result.devices.len(), 1);
+        assert!(result.devices[0].model.is_none());
+        assert_eq!(result.devices[0].label, "My Gadget");
     }
 }
