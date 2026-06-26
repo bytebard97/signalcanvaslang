@@ -186,6 +186,45 @@ fn contract_preserves_graph_equivalence() {
     );
 }
 
+/// Minimal repro of the MTG failure: a boundary cable with a channel OFFSET
+/// (`SB.Outputs[1..4] -> PB.Line_In[3..6]`). Two groups of 3 so both survive MIN_GROUP_SIZE.
+const OFFSET_BOUNDARY: &str = r#"
+template StageBox { ports { Outputs[1..8]: out(XLR) } }
+template Patch { ports { Line_In[1..8]: in(XLR) } }
+template Filler { ports { A_In[1..2]: in(XLR) A_Out[1..2]: out(XLR) } }
+
+instance SB is StageBox
+instance F1 is Filler
+instance F2 is Filler
+instance PB is Patch
+instance F3 is Filler
+instance F4 is Filler
+
+connect SB.Outputs[1..4] -> PB.Line_In[3..6]
+"#;
+
+#[test]
+fn offset_boundary_cable_equivalence() {
+    let program = parse(OFFSET_BOUNDARY).program;
+    let a = assign(&[
+        ("SB", "X"), ("F1", "X"), ("F2", "X"),
+        ("PB", "Y"), ("F3", "Y"), ("F4", "Y"),
+    ]);
+    let grouped = contract_to_hierarchy(&program, &a);
+    let grouped_src = format_program(&grouped);
+
+    let fg = graph_of(OFFSET_BOUNDARY);
+    let gg = graph_of(&grouped_src);
+    let leaves = root_leaves(&fg);
+    let fc = leaf_connects(&fg, &leaves);
+    let gc = leaf_connects(&gg, &leaves);
+    assert_eq!(
+        fc, gc,
+        "offset boundary cable not preserved\nflat: {:?}\ngrouped: {:?}\n---emitted---\n{}",
+        fc, gc, grouped_src
+    );
+}
+
 #[test]
 fn small_clusters_fold_into_ungrouped() {
     // FOH+SR = 2 (< MIN_GROUP_SIZE), AmpL = 1 → all fold into one Ungrouped group.
