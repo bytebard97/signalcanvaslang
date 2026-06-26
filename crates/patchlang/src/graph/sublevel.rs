@@ -190,8 +190,17 @@ pub(crate) fn build_sub_level(
     // Expand internal connects
     expand_internal_connects(inst, tmpl, all_templates, &own_ports, &mut sub_edges);
 
+    // Synthesize port shapes for slot-name bridge endpoints (a slot is a real
+    // device bay, not a port) so the device's internal slot->port wiring renders
+    // on drill instead of dangling.
+    synthesize_slot_port_shapes(tmpl, &mut sub_nodes, &sub_edges);
+
     // Scalar port fallback — remap unindexed refs to _1 if the port exists
     super::apply_scalar_port_fallback(&sub_nodes, &mut sub_edges);
+
+    // Drop over-range edges (channels beyond a declared port range) so no edge
+    // references a missing port shape — strict drill (ELK) import requires this.
+    super::drop_over_range_edges(&sub_nodes, &mut sub_edges);
 
     // Mark port connectivity
     super::mark_port_connectivity(&mut sub_nodes, &sub_edges);
@@ -580,6 +589,76 @@ fn resolve_internal_endpoint(
         let node = format!("{}/{ref_inst}", inst.name);
         let port_id = format!("{node}:{port_name}{suffix}");
         (node, port_id)
+    }
+}
+
+/// Synthesize port shapes for slot-name bridge endpoints.
+///
+/// A template internal bridge may name a `slot` as an endpoint
+/// (`bridge Venue_Input_Slot -> MADI_Out`). A slot is a device bay, not a port,
+/// so the expanded edge references a port-id with no shape and the strict drill
+/// (ELK JSON) import fails. A `Device`-format slot has no defined mapping to a
+/// specific installed-card port, so we represent the slot itself as a port shape
+/// (the aggregate of whatever is plugged into that bay) — preserving the device's
+/// internal slot->port topology on drill rather than dropping the bridge and
+/// rendering the device as if it had no internal wiring.
+///
+/// Keyed by cause: only endpoints whose port name matches a declared slot are
+/// synthesized. Over-range channel refs (no slot match) are left for the drop
+/// pass, keeping "real bay -> synthesize" and "fake channel -> drop" distinct.
+fn synthesize_slot_port_shapes(
+    tmpl: &TemplateDecl,
+    nodes: &mut BTreeMap<String, DeviceNode>,
+    edges: &BTreeMap<String, GraphEdge>,
+) {
+    if tmpl.slots.is_empty() {
+        return;
+    }
+    let slot_names: HashSet<&str> = tmpl.slots.iter().map(|s| s.name.as_str()).collect();
+
+    let existing: HashSet<String> = nodes
+        .values()
+        .flat_map(|n| n.ports.iter().map(|p| p.id.clone()))
+        .collect();
+
+    for edge in edges.values() {
+        for (node_id, port_id, is_source) in [
+            (&edge.source_node, &edge.source_port, true),
+            (&edge.target_node, &edge.target_port, false),
+        ] {
+            if existing.contains(port_id) {
+                continue;
+            }
+            let Some((_, port_name)) = port_id.split_once(':') else {
+                continue;
+            };
+            // Match either a bare slot name (`LMY`) or an indexed slot reference
+            // (`LMY_5` from a ranged slot `slot LMY[1..N]`).
+            let base = match port_name.rsplit_once('_') {
+                Some((b, idx)) if idx.parse::<u32>().is_ok() => b,
+                _ => port_name,
+            };
+            if !slot_names.contains(port_name) && !slot_names.contains(base) {
+                continue;
+            }
+            if let Some(node) = nodes.get_mut(node_id) {
+                if node.ports.iter().any(|p| &p.id == port_id) {
+                    continue;
+                }
+                node.ports.push(PortInfo {
+                    id: port_id.clone(),
+                    name: port_name.to_string(),
+                    direction: if is_source { "out" } else { "in" }.to_string(),
+                    connector: None,
+                    attributes: Vec::new(),
+                    connected: None,
+                    signal_names: None,
+                    label: None,
+                    label_properties: None,
+                    source_key: None,
+                });
+            }
+        }
     }
 }
 

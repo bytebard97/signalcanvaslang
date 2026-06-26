@@ -189,6 +189,10 @@ pub fn compile_ast_to_graph(ast: &PatchProgram, library: &LibraryContext) -> Com
     // 6. Scalar port fallback
     apply_scalar_port_fallback(&root_nodes, &mut root_edges);
 
+    // 6b. Drop over-range edges (channels beyond a declared port range) so no
+    //     edge references a missing port shape. (User-facing warning: DRC.)
+    drop_over_range_edges(&root_nodes, &mut root_edges);
+
     // 7. Mark port connectivity
     mark_port_connectivity(&mut root_nodes, &root_edges);
 
@@ -382,6 +386,74 @@ fn resolve_port_fallback(
     }
 
     None
+}
+
+/// Drop edges that reference a channel index beyond a node's declared port
+/// range (e.g. `MADI_Out_49` where the node only declares `MADI_Out_1..48`).
+///
+/// Such over-range channels have no port shape, so the edge dangles and crashes
+/// the strict drill (ELK JSON) import. The top-level layout silently tolerates
+/// them, which is why the source defect (a connect referencing more channels
+/// than the device physically has) only surfaces on drill-down.
+///
+/// Cause-keyed by design: ONLY indices beyond a *declared ranged port* are
+/// dropped. A dangling reference with no ranged sibling — e.g. a `slot`-name
+/// bridge endpoint (`Venue_Input_Slot`) — is left untouched, to be resolved by
+/// port-shape synthesis instead. This keeps "fake channel → drop" and
+/// "real bay → synthesize" distinct, per the drill-consistency invariant.
+///
+/// Returns the `source -> target` description of each dropped edge (for
+/// diagnostics / tests). The user-facing warning is raised separately by the
+/// DRC over-range check.
+pub(crate) fn drop_over_range_edges(
+    nodes: &BTreeMap<String, DeviceNode>,
+    edges: &mut BTreeMap<String, GraphEdge>,
+) -> Vec<String> {
+    let existing: HashSet<&str> = nodes
+        .values()
+        .flat_map(|n| n.ports.iter().map(|p| p.id.as_str()))
+        .collect();
+
+    // True if `port_id` is an indexed reference whose index exceeds the highest
+    // declared index for that base port on its node.
+    let is_over_range = |port_id: &str| -> bool {
+        if existing.contains(port_id) {
+            return false;
+        }
+        let Some((node_id, port_name)) = port_id.split_once(':') else {
+            return false;
+        };
+        let Some((base, idx_str)) = port_name.rsplit_once('_') else {
+            return false;
+        };
+        let Ok(idx) = idx_str.parse::<u32>() else {
+            return false;
+        };
+        let Some(node) = nodes.get(node_id) else {
+            return false;
+        };
+        let prefix = format!("{base}_");
+        let max_declared = node
+            .ports
+            .iter()
+            .filter_map(|p| p.name.strip_prefix(&prefix).and_then(|s| s.parse::<u32>().ok()))
+            .max();
+        matches!(max_declared, Some(max) if idx > max)
+    };
+
+    let over_range_ids: Vec<String> = edges
+        .iter()
+        .filter(|(_, e)| is_over_range(&e.source_port) || is_over_range(&e.target_port))
+        .map(|(id, _)| id.clone())
+        .collect();
+
+    let mut dropped = Vec::with_capacity(over_range_ids.len());
+    for id in &over_range_ids {
+        if let Some(edge) = edges.remove(id) {
+            dropped.push(format!("{} -> {}", edge.source_port, edge.target_port));
+        }
+    }
+    dropped
 }
 
 /// Mark ports as connected based on edge references.

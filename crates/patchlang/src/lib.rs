@@ -56,6 +56,8 @@ mod builder_tests;
 #[cfg(test)]
 mod graph_tests;
 #[cfg(test)]
+mod graph_drill_consistency_tests;
+#[cfg(test)]
 mod contract_tests;
 
 pub use ast::PatchProgram;
