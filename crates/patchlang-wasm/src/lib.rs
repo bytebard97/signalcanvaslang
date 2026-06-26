@@ -924,6 +924,24 @@ pub fn compile_project_to_graph(files_json: &str, entry: &str) -> String {
     patchlang::compile_project_to_graph_from_sources(&files, entry)
 }
 
+/// Contract a flat PatchLang source into a hierarchical one ("russian doll maker").
+/// `assignments_json` is a JSON object mapping instance name -> cluster id. Returns canonical
+/// hierarchical PatchLang text on success, or `{"error":"..."}` on failure.
+#[wasm_bindgen]
+pub fn contract_to_hierarchy(source: &str, assignments_json: &str) -> String {
+    let assignments: std::collections::BTreeMap<String, String> =
+        match serde_json::from_str(assignments_json) {
+            Ok(a) => a,
+            Err(e) => return format!(r#"{{"error":"invalid assignments JSON: {e}"}}"#),
+        };
+    let parsed = patchlang::parse(source);
+    if !parsed.errors.is_empty() {
+        return r#"{"error":"source has parse errors"}"#.to_string();
+    }
+    let hierarchical = patchlang::contract::contract_to_hierarchy(&parsed.program, &assignments);
+    patchlang::formatter::format_program(&hierarchical)
+}
+
 /// Emit PatchLang source from a canvas state bundle (JSON).
 /// `input_json` must deserialize to `CanvasEmitInput`.
 /// Returns canonical PatchLang text on success, `{"error":"..."}` on failure.
