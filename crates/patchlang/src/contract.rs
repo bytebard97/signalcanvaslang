@@ -229,6 +229,17 @@ pub fn contract_to_hierarchy(
         if c.target.index.is_none() && port_end(ti.unwrap(), &c.target.port).is_none() {
             force_top.insert(ti.unwrap().to_string());
         }
+        // A non-1:1 channel mapping (e.g. "offset -2") can push channels out of range. The flat
+        // compiler drops the out-of-range channels, but promotion through exposed ports turns them
+        // into phantom underflowing channels. Keep both endpoints top-level so the mapping resolves
+        // exactly as in the flat graph.
+        if c.mapping.as_deref().map_or(false, |m| {
+            let m = m.trim();
+            !m.is_empty() && m != "1:1"
+        }) {
+            force_top.insert(si.unwrap().to_string());
+            force_top.insert(ti.unwrap().to_string());
+        }
     }
     for inst in &force_top {
         group_of.remove(inst);

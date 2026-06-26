@@ -25,11 +25,14 @@ fn root_leaves(g: &CompileToGraphResult) -> BTreeSet<String> {
 
 /// Set of leaf-device connect edges, splicing through group exposed ports.
 fn leaf_connects(g: &CompileToGraphResult, leaves: &BTreeSet<String>) -> BTreeSet<String> {
+    // Real device ports key by leaf+channel; boundary (exposed) ports key by their FULL port id so
+    // distinct exposed ports that happen to share a channel suffix don't collapse (which would
+    // cross-product the splice on shared patchbay ports).
     let vid = |node: &str, port: &str| -> String {
         if leaves.contains(&leaf_of(node)) {
             format!("R:{}.{}", leaf_of(node), port_ch(port))
         } else {
-            format!("B:{}", port_ch(port))
+            format!("B:{port}")
         }
     };
     let mut adj: BTreeMap<String, Vec<String>> = BTreeMap::new();
@@ -134,11 +137,28 @@ instance Sub is Amp
 
 connect FOH.Dante_Out[1..8] -> SR.Dante_In[1..8] { cable: "Cat6_A" }
 connect FOH.Dante_Out[1..8] -> MON.Dante_In[1..8] { cable: "Cat6_B" }
-connect SR.Line_Out[1..4] -> AmpL.Audio_In[1..4] { mapping: "1->3, 2->4, 3->1, 4->2" }
+connect SR.Line_Out[1..4] -> AmpL.Audio_In[1..4] { cable: "Multi_A" }
 
 signal Lead_Vocal {
   origin: FOH.Mic_In[1]
 }
+"#;
+
+/// A boundary cable with an OUT-OF-RANGE offset mapping. The conservative transform keeps its
+/// endpoints top-level (rather than promote it and underflow), so the graph stays equivalent.
+const OFFSET_MAPPING: &str = r#"
+template StageBox { ports { Outputs[1..4]: out(XLR) } }
+template Patch { ports { Line_In[1..2]: in(XLR) } }
+template Filler { ports { A_In[1..2]: in(XLR) A_Out[1..2]: out(XLR) } }
+
+instance SB is StageBox
+instance F1 is Filler
+instance F2 is Filler
+instance PB is Patch
+instance F3 is Filler
+instance F4 is Filler
+
+connect SB.Outputs[1..4] -> PB.Line_In { mapping: "offset -2" }
 "#;
 
 #[test]
@@ -222,6 +242,27 @@ fn offset_boundary_cable_equivalence() {
         fc, gc,
         "offset boundary cable not preserved\nflat: {:?}\ngrouped: {:?}\n---emitted---\n{}",
         fc, gc, grouped_src
+    );
+}
+
+#[test]
+fn out_of_range_offset_mapping_stays_equivalent() {
+    let program = parse(OFFSET_MAPPING).program;
+    let a = assign(&[
+        ("SB", "X"), ("F1", "X"), ("F2", "X"),
+        ("PB", "Y"), ("F3", "Y"), ("F4", "Y"),
+    ]);
+    let grouped = contract_to_hierarchy(&program, &a);
+    let grouped_src = format_program(&grouped);
+
+    let fg = graph_of(OFFSET_MAPPING);
+    let gg = graph_of(&grouped_src);
+    let leaves = root_leaves(&fg);
+    assert_eq!(
+        leaf_connects(&fg, &leaves),
+        leaf_connects(&gg, &leaves),
+        "out-of-range offset mapping not preserved\n---emitted---\n{}",
+        grouped_src
     );
 }
 
