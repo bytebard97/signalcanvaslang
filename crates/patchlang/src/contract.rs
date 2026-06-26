@@ -208,6 +208,32 @@ pub fn contract_to_hierarchy(
             group_of.insert(m.clone(), g.clone());
         }
     }
+
+    // Conservative fallback: a boundary port that can't be width-determined — a whole-port reference
+    // (no index) to a port with NO declared range, e.g. patchbay ports whose channel count comes from
+    // the cable — can't be promoted to an exposed port equivalently. Keep its owning instance at the
+    // TOP LEVEL rather than grouping it (like rings/bridges). The equivalence gate is the backstop.
+    let mut force_top: BTreeSet<String> = BTreeSet::new();
+    for c in &connects {
+        let (si, ti) = (c.source.instance.as_deref(), c.target.instance.as_deref());
+        let cross = match (si.and_then(|s| group_of.get(s)), ti.and_then(|t| group_of.get(t))) {
+            (Some(sg), Some(tg)) => sg != tg,
+            _ => false,
+        };
+        if !cross {
+            continue;
+        }
+        if c.source.index.is_none() && port_end(si.unwrap(), &c.source.port).is_none() {
+            force_top.insert(si.unwrap().to_string());
+        }
+        if c.target.index.is_none() && port_end(ti.unwrap(), &c.target.port).is_none() {
+            force_top.insert(ti.unwrap().to_string());
+        }
+    }
+    for inst in &force_top {
+        group_of.remove(inst);
+    }
+
     let mut group_ids: Vec<String> = Vec::new();
     for name in &instance_order {
         if let Some(g) = group_of.get(name) {
@@ -230,37 +256,48 @@ pub fn contract_to_hierarchy(
     let mut top_connects: Vec<ConnectDecl> = Vec::new();
     let mut top_signals: Vec<SignalDecl> = Vec::new();
 
-    // --- classify connects ---
+    // --- classify connects (intra / boundary / mixed / top-level) ---
+    // Promote a grouped endpoint to its group's exposed port; keep ungrouped (force-top / non-instance)
+    // endpoints direct.
+    let promote = |builds: &mut BTreeMap<String, GroupBuild>, g: &str, inst: &str, pr: &PortRef, fallback_dir: PortDirection| -> PortRef {
+        let dir = port_dir(inst, &pr.port).unwrap_or(fallback_dir);
+        let end = port_end(inst, &pr.port);
+        let name = note_exposure(builds.get_mut(g).unwrap(), inst, &pr.port, &dir, end, pr);
+        PortRef { instance: Some(group_instance_name(g)), port: name, index: pr.index.clone() }
+    };
     for c in &connects {
         let (si, ti) = (c.source.instance.as_deref(), c.target.instance.as_deref());
-        let (sg, tg) = match (si.and_then(|s| group_of.get(s)), ti.and_then(|t| group_of.get(t))) {
-            (Some(sg), Some(tg)) => (sg.clone(), tg.clone()),
-            _ => {
-                top_connects.push((*c).clone());
-                continue;
-            }
-        };
-        if sg == tg {
-            builds.get_mut(&sg).unwrap().intra_connects.push((*c).clone());
-            continue;
-        }
-        // boundary: promote both endpoints, rewire. Direction defaults from connect role.
-        let sdir = port_dir(si.unwrap(), &c.source.port).unwrap_or(PortDirection::Out);
-        let tdir = port_dir(ti.unwrap(), &c.target.port).unwrap_or(PortDirection::In);
-        let s_end = port_end(si.unwrap(), &c.source.port);
-        let t_end = port_end(ti.unwrap(), &c.target.port);
-        let src_exposed =
-            note_exposure(builds.get_mut(&sg).unwrap(), si.unwrap(), &c.source.port, &sdir, s_end, &c.source);
-        let tgt_exposed =
-            note_exposure(builds.get_mut(&tg).unwrap(), ti.unwrap(), &c.target.port, &tdir, t_end, &c.target);
-        top_connects.push(ConnectDecl {
-            source: PortRef { instance: Some(group_instance_name(&sg)), port: src_exposed, index: c.source.index.clone() },
-            target: PortRef { instance: Some(group_instance_name(&tg)), port: tgt_exposed, index: c.target.index.clone() },
+        let sg = si.and_then(|s| group_of.get(s)).cloned();
+        let tg = ti.and_then(|t| group_of.get(t)).cloned();
+        let rewire = |source: PortRef, target: PortRef| ConnectDecl {
+            source,
+            target,
             properties: c.properties.clone(),
             suppressions: c.suppressions.clone(),
             mapping: c.mapping.clone(),
             span: span(),
-        });
+        };
+        match (sg, tg) {
+            (Some(sg), Some(tg)) if sg == tg => {
+                builds.get_mut(&sg).unwrap().intra_connects.push((*c).clone());
+            }
+            (Some(sg), Some(tg)) => {
+                let s = promote(&mut builds, &sg, si.unwrap(), &c.source, PortDirection::Out);
+                let t = promote(&mut builds, &tg, ti.unwrap(), &c.target, PortDirection::In);
+                top_connects.push(rewire(s, t));
+            }
+            (Some(sg), None) => {
+                let s = promote(&mut builds, &sg, si.unwrap(), &c.source, PortDirection::Out);
+                top_connects.push(rewire(s, c.target.clone()));
+            }
+            (None, Some(tg)) => {
+                let t = promote(&mut builds, &tg, ti.unwrap(), &c.target, PortDirection::In);
+                top_connects.push(rewire(c.source.clone(), t));
+            }
+            (None, None) => {
+                top_connects.push((*c).clone());
+            }
+        }
     }
 
     // --- rewrite signal origins (promote the origin port) ---
@@ -353,6 +390,12 @@ pub fn contract_to_hierarchy(
             slot_assignments: Vec::new(),
             span: span(),
         }));
+    }
+    // Instances that couldn't be safely grouped stay at the top level (verbatim).
+    for name in &instance_order {
+        if !group_of.contains_key(name) {
+            statements.push(Statement::Instance((*instances.get(name).unwrap()).clone()));
+        }
     }
     for c in top_connects {
         statements.push(Statement::Connect(c));
