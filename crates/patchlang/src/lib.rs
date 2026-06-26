@@ -2,6 +2,7 @@ pub mod ast;
 pub mod builder;
 pub mod compat;
 pub mod compat_types;
+pub mod contract;
 pub mod drc;
 pub mod error;
 pub mod formatter;
@@ -54,6 +55,8 @@ mod output_tests_auto;
 mod builder_tests;
 #[cfg(test)]
 mod graph_tests;
+#[cfg(test)]
+mod contract_tests;
 
 pub use ast::PatchProgram;
 pub use compat::{parse_mapping_spec, to_ts_program, to_ts_result, to_ts_result_with_resolutions};
