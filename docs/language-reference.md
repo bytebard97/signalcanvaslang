@@ -259,7 +259,9 @@ WordClock uses **split `in`/`out`** despite being a management signal. Every Wor
 
 #### Connectors
 
-Common connector identifiers: `XLR`, `BNC_50`, `BNC_75`, `RJ45`, `etherCON`, `SFP`, `LC_Fiber`, `SC_Fiber`, `MTRJ_Fiber`, `SpeakON`, `TRS_14`, `TRS_3`, `DB25`, `HDMI`, `SDI_BNC`, `USB`, `SMA`.
+Common connector identifiers: `XLR`, `BNC_50`, `BNC_75`, `RJ45`, `etherCON`, `SFP`, `LC_Fiber`, `SC_Fiber`, `MTRJ_Fiber`, `opticalCON_DUO`, `opticalCON_QUAD`, `SpeakON`, `TRS_14`, `TRS_3`, `DB25`, `HDMI`, `SDI_BNC`, `USB`, `SMA`.
+
+`opticalCON_DUO` (2-fiber) and `opticalCON_QUAD` (4-fiber) are Neutrik ruggedised fiber housings used by SSL Live consoles for the Blacklight II and X-Light protocols. They mate themselves and the generic `opticalCON`, but DUO and QUAD cannot mate each other (M01).
 
 Custom connector names are allowed.
 

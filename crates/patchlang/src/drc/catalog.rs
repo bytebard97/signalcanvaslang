@@ -155,6 +155,10 @@ const CONNECTOR_MATES: &[(&str, &[&str])] = &[
     ("din", &["din"]),
     ("midi_din", &["midi_din"]),
     ("opticalcon", &["opticalcon"]),
+    // opticalCON DUO (2-fiber) and QUAD (4-fiber) are distinct Neutrik housings:
+    // each mates itself and the generic `opticalcon`, but DUO and QUAD cannot mate each other.
+    ("opticalcon_duo", &["opticalcon_duo", "opticalcon"]),
+    ("opticalcon_quad", &["opticalcon_quad", "opticalcon"]),
     ("lc", &["lc"]),
     ("lc_fiber", &["lc_fiber", "lc"]),
     ("sc", &["sc"]),

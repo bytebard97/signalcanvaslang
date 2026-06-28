@@ -340,7 +340,9 @@ connect Stage.Dante_Pri_Out[1..16] -> Console.Dante_Pri_In[auto]
 ### Common connectors
 
 `XLR` `BNC_75` `BNC_50` `etherCON` `RJ45` `SFP` `LC_Fiber` `SC_Fiber`
-`HDMI` `USB` `TRS_14` `TRS_3` `DB25` `SpeakON` `SMA`
+`opticalCON_DUO` `opticalCON_QUAD` `HDMI` `USB` `TRS_14` `TRS_3` `DB25` `SpeakON` `SMA`
+
+`opticalCON_DUO` (2-fiber) and `opticalCON_QUAD` (4-fiber) are Neutrik ruggedised fiber housings — used by SSL Live consoles for the Blacklight II / X-Light protocols. They mate themselves and the generic `opticalCON`, but DUO and QUAD cannot mate each other.
 
 ### Common attributes
 

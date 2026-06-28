@@ -460,6 +460,28 @@ mod mechanical {
         let diags = check(src);
         assert!(!diags.iter().any(|d| d.layer == DRCLayer::Mechanical));
     }
+
+    #[test]
+    fn m01_opticalcon_duo_to_quad_is_error() {
+        // DUO (2-fiber) and QUAD (4-fiber) are distinct Neutrik housings — cannot mate.
+        let src = "template D { ports { Out: out(opticalCON_DUO) } }
+                   template Q { ports { In: in(opticalCON_QUAD) } }
+                   instance X is D  instance Y is Q  connect X.Out -> Y.In";
+        let diags = check(src);
+        assert!(diags.iter().any(|d| {
+            d.layer == DRCLayer::Mechanical && d.severity == Severity::Error
+        }));
+    }
+
+    #[test]
+    fn m01_opticalcon_duo_to_generic_is_clean() {
+        // The specific DUO/QUAD housings mate the generic `opticalCON` family connector.
+        let src = "template D { ports { Out: out(opticalCON_DUO) } }
+                   template G { ports { In: in(opticalCON) } }
+                   instance X is D  instance Y is G  connect X.Out -> Y.In";
+        let diags = check(src);
+        assert!(!diags.iter().any(|d| d.layer == DRCLayer::Mechanical));
+    }
 }
 
 #[cfg(test)]
